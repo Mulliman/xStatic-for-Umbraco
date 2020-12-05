@@ -398,6 +398,8 @@
     <Content Include="App_Plugins\UIOMatic\lang\en.xml" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.html" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.js" />
+    <Content Include="App_Plugins\xStatic\fields\ExportTypeField.js" />
+    <Content Include="App_Plugins\xStatic\fields\ExportTypeField.html" />
     <Content Include="App_Plugins\xStatic\lang\en-GB.xml" />
     <Content Include="App_Plugins\xStatic\lang\en-US.xml" />
     <Content Include="config\grid.editors.config.js" />

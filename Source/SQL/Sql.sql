@@ -1,0 +1,10 @@
+CREATE TABLE [XStaticSiteConfigs] (
+  [Id] int IDENTITY (1,1) NOT NULL
+, [Name] nvarchar(255) NOT NULL
+, [AutoPublish] bit NOT NULL
+, [RootNode] nvarchar(255) NOT NULL
+, [MediaRootNode] nvarchar(255) NOT NULL
+, [ExportFormat] nvarchar(255) NOT NULL
+, [LastRun] datetime NULL
+, [AssetPaths] nvarchar(1000) NULL
+);

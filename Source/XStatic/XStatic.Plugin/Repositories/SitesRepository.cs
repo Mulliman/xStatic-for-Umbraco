@@ -1,25 +1,21 @@
 ﻿using NPoco;
 using System;
 using System.Collections.Generic;
+using XStatic.Plugin.Controllers;
 
 namespace XStatic.Plugin.Repositories
 {
     public class SitesRepository
     {
-        const string SitesTableName = "xStaticGeneratedSite";
+        const string SitesTableName = "XStaticSiteConfigs";
 
-        public virtual IEnumerable<GeneratedSite> GetAll()
+        public virtual IEnumerable<ExtendedGeneratedSite> GetAll()
         {
             var db = GetDb();
 
-
-            var q = "select table_name from information_schema.tables where TABLE_TYPE <> 'VIEW'";
-
-            var tables = db.Fetch<string>(q);
-
             var query = new Sql().Select("*").From(SitesTableName);
 
-            return db.Fetch<GeneratedSite>(query);
+            return db.Fetch<ExtendedGeneratedSite>(query);
         }
 
         public virtual Database GetDb()

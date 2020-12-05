@@ -10,7 +10,7 @@ using Umbraco.Core.Persistence.DatabaseAnnotations;
 
 namespace XStatic.Plugin
 {
-    [TableName("xStaticGeneratedSite")]
+    [TableName("XStaticSiteConfigs")]
     [UIOMatic("generatedSite", "Generated Sites", "Generated Sites", FolderIcon = "icon-sitemap", ItemIcon = "icon-umb-deploy", ParentAlias = "xstatic")]
     public class GeneratedSite
     {
@@ -24,10 +24,32 @@ namespace XStatic.Plugin
         [UIOMaticField(Name = "Auto Publish", Description = "Select this is you want to generate the site automatically when a node is published.")]
         public bool AutoPublish { get; set; }
 
+        [Required]
         [UIOMaticField(Name = "Root Node",
             Description = "Select the root of the site you want to create a static version of.",
             View = UIOMatic.Constants.FieldEditors.PickerContent)]
         public string RootNode { get; set; }
+
+        [Required]
+        [UIOMaticField(Name = "Root Media Node",
+           Description = "Select the root of the media you want to create a static version of.",
+           View = UIOMatic.Constants.FieldEditors.PickerMedia)]
+        public string MediaRootNode { get; set; }
+
+        [Required]
+        [UIOMaticField(Name = "Export Format",
+           Description = "Do you want to export this site as a JSON API or as a static HTML website.",
+           View = @"~\App_Plugins\xStatic\fields\ExportTypeField.html")]
+        public string ExportFormat { get; set; }
+
+        [UIOMaticField(Name = "Last Run",
+            View = UIOMatic.Constants.FieldEditors.DateTime)]
+        public DateTime? LastRun { get; set; }
+
+        [UIOMaticField(Name = "Asset Paths",
+            Description = "Add folder names of files on disk that should also be packaged up. Comma separate e.g. assets/js,assets/css",
+            View = UIOMatic.Constants.FieldEditors.Textfield)]
+        public string AssetPaths { get; set; }
 
         public override string ToString()
         {

@@ -1,6 +1,7 @@
 ﻿{
   "javascript": [
-    "~/App_Plugins/xStatic/dashboards/MainDashboard.js"
+    "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
+    "~/App_Plugins/xStatic/fields/ExportTypeField.js"
   ],
   "dashboards": [
     {

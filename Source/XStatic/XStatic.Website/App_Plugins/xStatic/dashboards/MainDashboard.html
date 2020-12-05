@@ -17,13 +17,68 @@
                 </umb-box-header>
 
                 <umb-box-content>
-                    <p>Demo content</p>
+                    <div class="umb-panel-group__details-check">
+                        <div class="umb-panel-group__details-check-title">
+                            <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
+                            <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">This static site was last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
+                        </div>
+                        <!-- Root -->
+                        <div class="umb-panel-group__details-status">
+
+                            <div class="umb-panel-group__details-status-icon-container">
+                                <i class="umb-panel-status-icon icon-home" aria-hidden="true"></i>
+                            </div>
+
+                            <div class="umb-panel-group__details-status-content">
+                                <div class="umb-panel-group__details-status-text">
+                                    <span style="color:#999;">Root:</span> {{site.RootPath}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Type -->
+
+                        <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'api'">
+
+                            <div class="umb-panel-group__details-status-icon-container">
+                                <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                            </div>
+
+                            <div class="umb-panel-group__details-status-content">
+                                <div class="umb-panel-group__details-status-text">
+                                    Exports as a JSON API
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'html'">
+
+                            <div class="umb-panel-group__details-status-icon-container">
+                                <i class="umb-panel-status-icon icon-globe-alt" aria-hidden="true"></i>
+                            </div>
+
+                            <div class="umb-panel-group__details-status-content">
+                                <div class="umb-panel-group__details-status-text">
+                                    Exports as an HTML website
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
 
                     <div>
                         <umb-button action="vm.clickButton()"
                                     type="button"
-                                    button-style="action"
-                                    label="Rebuild and redeploy static site"
+                                    button-style="success"
+                                    label="Deploy updated content"
+                                    disabled="false">
+                        </umb-button>
+
+                        <umb-button action="vm.clickButton()"
+                                    type="button"
+                                    button-style="danger"
+                                    label="Rebuild and redeploy site"
                                     disabled="false">
                         </umb-button>
                     </div>
@@ -35,7 +90,7 @@
         <umb-drawer-footer>
             <umb-button action="vm.clickButton()"
                         type="button"
-                        button-style="action"
+                        button-style="danger"
                         label="Rebuild all static sites"
                         disabled="false">
             </umb-button>
