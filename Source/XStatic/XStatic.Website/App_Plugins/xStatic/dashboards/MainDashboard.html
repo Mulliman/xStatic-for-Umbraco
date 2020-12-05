@@ -8,7 +8,14 @@
         <umb-drawer-content>
 
             <umb-box data-ng-repeat="site in vm.sites">
-                <umb-box-header title="{{site.name}}"></umb-box-header>
+                <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == true">
+                    <umb-badge color="warning">Auto Deploy</umb-badge>
+                </umb-box-header>
+
+                <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == false">
+                    <umb-badge color="gray">Manual Deploy</umb-badge>
+                </umb-box-header>
+
                 <umb-box-content>
                     <p>Demo content</p>
 

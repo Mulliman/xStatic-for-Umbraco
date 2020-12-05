@@ -245,8 +245,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\SitesController.cs" />
     <Compile Include="GeneratedSite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\SitesRepository.cs" />
     <Compile Include="SectionsAndTrees.cs" />
   </ItemGroup>
   <ItemGroup>

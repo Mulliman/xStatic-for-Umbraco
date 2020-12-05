@@ -7,7 +7,7 @@
                 if (sortOrder == undefined)
                     sortOrder = "";
                 return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/UIOMatic/GeneratedSites/GetNodes?id=generatedSite&application=xstatic&tree=&use=main&culture="),
+                    $http.get("/umbraco/backoffice/xstatic/Sites/GetAll"),
                     'Failed to get all'
                 );
             },
@@ -21,7 +21,7 @@
         xStaticResource.getAll().then(function (data) {
             vm.sites = data;
 
-            console.log(vm.menu);
+            console.log("sites", vm.sites);
         });
 
 
