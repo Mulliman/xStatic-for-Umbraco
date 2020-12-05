@@ -1,4 +1,16 @@
 ﻿{
   "javascript": [
+    "~/App_Plugins/xStatic/dashboards/MainDashboard.js"
+  ],
+  "dashboards": [
+    {
+      "alias": "MainDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/MainDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    }
   ]
 }
