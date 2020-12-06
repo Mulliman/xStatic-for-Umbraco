@@ -37,6 +37,7 @@ namespace XStatic.Plugin.Controllers
                 .AddPageWithDescendants(rootNode)
                 .AddMediaWithDescendants(rootMedia)
                 .AddAssetFolder("/css")
+                .AddAssetFile("/scripts/umbraco-starterkit-app.js")
                 .AddTransformer(new CachedTimeTransformer());
 
             //var generatedFile = await _htmlGenerator.Generate(1104, 1, fileNamer, transformers);
