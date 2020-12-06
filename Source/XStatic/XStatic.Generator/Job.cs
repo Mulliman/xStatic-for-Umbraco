@@ -40,10 +40,15 @@ namespace XStatic.Generator
 
             foreach (var id in job.PageIds)
             {
-                returnList.Add(await _generator.Generate(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
+                returnList.Add(await _generator.GeneratePages(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
             }
 
-            return returnList;
+            foreach (var id in job.MediaIds)
+            {
+                returnList.Add(await _generator.GenerateMedia(id, job.StaticSiteId));
+            }
+
+            return returnList.Where(x => x != null);
         }
     }
 
@@ -69,6 +74,8 @@ namespace XStatic.Generator
 
         public JobBuilder AddPage(IPublishedContent node)
         {
+            if (node == null) return this;
+
             job.PageIds.Add(node.Id);
 
             return this;
@@ -76,11 +83,35 @@ namespace XStatic.Generator
 
         public JobBuilder AddPageWithDescendants(IPublishedContent node)
         {
+            if (node == null) return this;
+
             job.PageIds.Add(node.Id);
 
             var childIds = node.Descendants().Select(c => c.Id);
 
             job.PageIds.AddRange(childIds);
+
+            return this;
+        }
+
+        public JobBuilder AddMedia(IPublishedContent media)
+        {
+            if (media == null) return this;
+
+            job.MediaIds.Add(media.Id);
+
+            return this;
+        }
+
+        public JobBuilder AddMediaWithDescendants(IPublishedContent media)
+        {
+            if (media == null) return this;
+
+            job.MediaIds.Add(media.Id);
+
+            var childIds = media.Descendants().Select(c => c.Id);
+
+            job.MediaIds.AddRange(childIds);
 
             return this;
         }

@@ -242,6 +242,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crop.cs" />
     <Compile Include="IGenerator.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

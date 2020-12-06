@@ -7,9 +7,11 @@ namespace XStatic.Generator
 {
     public interface IGenerator
     {
-        Task<string> Generate(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null);
+        Task<string> GeneratePages(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null);
 
-        //Task<string> GenerateWithChildren(int id, int staticSiteId);
+        Task<string> GenerateMedia(int id, int staticSiteId, IEnumerable<Crop> crops = null);
+
+        Task<string> GenerateFile(string filePath, int staticSiteId);
     }
 
     public interface IStaticHtmlSiteGenerator : IGenerator
