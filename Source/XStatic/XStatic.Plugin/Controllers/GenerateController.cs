@@ -30,9 +30,19 @@ namespace XStatic.Plugin.Controllers
             var fileNamer = new EverythingIsIndexHtmlFileNameGenerator();
             var transformers = new[] { new CachedTimeTransformer() };
 
-            var generatedFile = await _htmlGenerator.Generate(1104, 1, fileNamer, transformers);
+            var rootNode = Umbraco.Content(1104);
 
-            return generatedFile;
+            var jobBuilder = new JobBuilder(1, fileNamer)
+                .AddPageWithDescendants(rootNode)
+                .AddTransformer(new CachedTimeTransformer());
+
+            //var generatedFile = await _htmlGenerator.Generate(1104, 1, fileNamer, transformers);
+
+            var jobRunner = new JobRunner(_htmlGenerator);
+
+            var generatedPages = await jobRunner.RunJob(jobBuilder.Build());
+
+            return string.Join(Environment.NewLine, generatedPages);
         }
 
         [HttpGet]
