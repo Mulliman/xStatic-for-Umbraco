@@ -11,6 +11,12 @@
                     'Failed to get all'
                 );
             },
+            generate: function () {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("/umbraco/backoffice/xstatic/Generate/Test"),
+                    'Failed to get all'
+                );
+            },
         }
     })
     .controller("xStaticMainDashboardController", function ($scope, xStaticResource) {
@@ -24,5 +30,10 @@
             console.log("sites", vm.sites);
         });
 
+        vm.generate = function () {
+            xStaticResource.generate().then(function (data) {
+                console.log("generated file", data);
+            });
+        }
 
 });

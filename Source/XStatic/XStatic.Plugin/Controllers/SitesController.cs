@@ -2,6 +2,7 @@
 using System.IO;
 using System.Web.Http;
 using System.Web.UI;
+using Umbraco.Core.Composing;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Mvc;
 using XStatic.Plugin.Repositories;
@@ -32,10 +33,24 @@ namespace XStatic.Plugin.Controllers
 
             return sites;
         }
+
+
     }
 
     public class ExtendedGeneratedSite : GeneratedSite
     {
         public string RootPath { get; set; }
     }
+
+    //public class ControllerInstallerComposer : IUserComposer
+    //{
+    //    public void Compose(Composition composition)
+    //    {
+    //        composition.
+
+    //        composition.RegisterApiControllers(GetType().Assembly);
+    //    }
+    //}
+
+     
 }

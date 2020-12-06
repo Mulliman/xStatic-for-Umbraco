@@ -1,7 +1,7 @@
 ﻿<div data-ng-controller="xStaticMainDashboardController as vm">
     <umb-drawer-view>
 
-        <umb-drawer-header title="Manage generated static sites"
+        <umb-drawer-header title="Manage generated static sites SAM"
                            description="This dashboard can be used to trigger builds of the static sites configured within Umbraco. To change settings for each static site use the tree to create and edit the settings.">
         </umb-drawer-header>
 
@@ -68,14 +68,14 @@
                     </div>
 
                     <div>
-                        <umb-button action="vm.clickButton()"
+                        <umb-button action="vm.generate()"
                                     type="button"
                                     button-style="success"
                                     label="Deploy updated content"
                                     disabled="false">
                         </umb-button>
 
-                        <umb-button action="vm.clickButton()"
+                        <umb-button action="vm.generate()"
                                     type="button"
                                     button-style="danger"
                                     label="Rebuild and redeploy site"
@@ -88,7 +88,7 @@
 
         </umb-drawer-content>
         <umb-drawer-footer>
-            <umb-button action="vm.clickButton()"
+            <umb-button ng-click="vm.generate()"
                         type="button"
                         button-style="danger"
                         label="Rebuild all static sites"
