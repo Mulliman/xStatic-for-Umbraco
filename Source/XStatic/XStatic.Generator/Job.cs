@@ -22,6 +22,8 @@ namespace XStatic.Generator
 
         public List<int> MediaIds { get; set; } = new List<int>();
 
+        public List<string> Folders { get; set; } = new List<string>();
+
         public List<string> Files { get; set; } = new List<string>();
     }
 
@@ -40,12 +42,22 @@ namespace XStatic.Generator
 
             foreach (var id in job.PageIds)
             {
-                returnList.Add(await _generator.GeneratePages(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
+                returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
             }
 
             foreach (var id in job.MediaIds)
             {
                 returnList.Add(await _generator.GenerateMedia(id, job.StaticSiteId));
+            }
+
+            foreach (var folder in job.Folders)
+            {
+                returnList.AddRange(await _generator.GenerateFolder(folder, job.StaticSiteId));
+            }
+
+            foreach (var file in job.Files)
+            {
+                returnList.Add(await _generator.GenerateFile(file, job.StaticSiteId));
             }
 
             return returnList.Where(x => x != null);
@@ -112,6 +124,24 @@ namespace XStatic.Generator
             var childIds = media.Descendants().Select(c => c.Id);
 
             job.MediaIds.AddRange(childIds);
+
+            return this;
+        }
+
+        public JobBuilder AddAssetFolder(string relativePath)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath)) return this;
+
+            job.Folders.Add(relativePath);
+
+            return this;
+        }
+
+        public JobBuilder AddAssetFile(string relativePath)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath)) return this;
+
+            job.Files.Add(relativePath);
 
             return this;
         }

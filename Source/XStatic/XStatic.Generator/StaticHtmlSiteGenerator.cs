@@ -41,7 +41,7 @@ namespace XStatic.Generator
             _storer = storer;
         }
 
-        public async Task<string> GeneratePages(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public async Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
             var node = GetNode(id);
 
@@ -88,6 +88,25 @@ namespace XStatic.Generator
             var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
 
             return generatedFileLocation;
+        }
+
+        public async Task<IEnumerable<string>> GenerateFolder(string folderPath, int staticSiteId)
+        {
+            var partialPath = folderPath;
+            var absolutePath = System.Web.Hosting.HostingEnvironment.MapPath(partialPath);
+
+            var files = Directory.GetFiles(absolutePath);
+            var created = new List<string>();
+
+            foreach(var file in files)
+            {
+                var outputPath = Path.Combine(partialPath, Path.GetFileName(file));
+                var generatedFileLocation = await Copy(staticSiteId, file, outputPath);
+
+                created.Add(generatedFileLocation);
+            }
+            
+            return created;
         }
 
         public async Task<string> GenerateFile(string filePath, int staticSiteId)

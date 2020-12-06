@@ -36,6 +36,7 @@ namespace XStatic.Plugin.Controllers
             var jobBuilder = new JobBuilder(1, fileNamer)
                 .AddPageWithDescendants(rootNode)
                 .AddMediaWithDescendants(rootMedia)
+                .AddAssetFolder("/css")
                 .AddTransformer(new CachedTimeTransformer());
 
             //var generatedFile = await _htmlGenerator.Generate(1104, 1, fileNamer, transformers);
@@ -53,7 +54,7 @@ namespace XStatic.Plugin.Controllers
             var fileNamer = new EverythingIsIndexHtmlFileNameGenerator();
             var transformers = new[] { new CachedTimeTransformer() };
 
-            var generatedFile = await _htmlGenerator.GeneratePages(nodeId, staticSiteId, fileNamer, transformers);
+            var generatedFile = await _htmlGenerator.GeneratePage(nodeId, staticSiteId, fileNamer, transformers);
 
             return generatedFile;
         }
