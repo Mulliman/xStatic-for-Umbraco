@@ -1,9 +1,12 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Hosting;
 using System.Web.Http;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Mvc;
@@ -11,6 +14,7 @@ using Umbraco.Web.WebApi;
 using XStatic.Generator;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using XStatic.Plugin.Repositories;
 
 namespace XStatic.Plugin.Controllers
 {
@@ -18,10 +22,12 @@ namespace XStatic.Plugin.Controllers
     public class GenerateController : UmbracoAuthorizedJsonController
     {
         private readonly IStaticHtmlSiteGenerator _htmlGenerator;
+        private SitesRepository _sitesRepo;
 
         public GenerateController(IStaticHtmlSiteGenerator htmlGenerator)
         {
             _htmlGenerator = htmlGenerator;
+            _sitesRepo = new SitesRepository();
         }
 
         [HttpGet]
@@ -58,6 +64,74 @@ namespace XStatic.Plugin.Controllers
             var generatedFile = await _htmlGenerator.GeneratePage(nodeId, staticSiteId, fileNamer, transformers);
 
             return generatedFile;
+        }
+
+        [HttpGet]
+        public async Task<string> RebuildStaticSite(int staticSiteId)
+        {
+            var fileNamer = new EverythingIsIndexHtmlFileNameGenerator();
+            var transformers = new[] { new CachedTimeTransformer() };
+
+            var entity = _sitesRepo.Get(staticSiteId);
+
+            if(entity == null)
+            {
+                throw new HttpException(404, "Site not found with id " + staticSiteId);
+            }
+
+            var rootNode = Umbraco.Content(entity.RootNode);
+            var rootMedia = Umbraco.Media(entity.MediaRootNode);
+
+            var builder = new JobBuilder(entity.Id, fileNamer)
+                .AddPageWithDescendants(rootNode)
+                .AddMediaWithDescendants(rootMedia);
+
+            if(!string.IsNullOrEmpty(entity.AssetPaths))
+            {
+                var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var rootPath = HostingEnvironment.MapPath("~/");
+
+                foreach (var path in splitPaths)
+                {
+                    var absolutePath = Utils.PathCombine(rootPath, path);
+
+                    if (Directory.Exists(absolutePath))
+                    {
+                        builder.AddAssetFolder(path);
+                    }
+                    else if(System.IO.File.Exists(absolutePath))
+                    {
+                        builder.AddAssetFolder(path);
+                    }
+                    else
+                    {
+                        // Invalid file.
+                    }
+                }                
+            }
+
+            var results = new List<string>();
+
+            if(entity.ExportFormat == "api")
+            {
+                // TODO
+            }
+            else if (entity.ExportFormat == "html")
+            {
+                builder.AddTransformer((new CachedTimeTransformer()));
+
+                var job = builder.Build();
+                var runner = new JobRunner(_htmlGenerator);
+                results.AddRange(await runner.RunJob(job));
+            }
+            else
+            {
+                throw new Exception("Export format not supported");
+            }
+
+            _sitesRepo.UpdateLastRun(staticSiteId);
+
+            return string.Join(Environment.NewLine, results);
         }
     }
 }
