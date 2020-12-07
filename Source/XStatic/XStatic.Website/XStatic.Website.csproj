@@ -398,6 +398,8 @@
     <Content Include="App_Plugins\UIOMatic\lang\en.xml" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.html" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.js" />
+    <Content Include="App_Plugins\xStatic\fields\multipicker.js" />
+    <Content Include="App_Plugins\xStatic\fields\multipicker.html" />
     <Content Include="App_Plugins\xStatic\fields\ExportTypeField.js" />
     <Content Include="App_Plugins\xStatic\fields\ExportTypeField.html" />
     <Content Include="App_Plugins\xStatic\lang\en-GB.xml" />
@@ -470,6 +472,9 @@
       <Project>{31773b32-eda1-46dc-8f02-ba00d2c3d25b}</Project>
       <Name>XStatic.Plugin</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Plugins\xStatic\fieldeditors\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

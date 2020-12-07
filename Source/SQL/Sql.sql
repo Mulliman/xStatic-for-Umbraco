@@ -3,7 +3,7 @@ CREATE TABLE [XStaticSiteConfigs] (
 , [Name] nvarchar(255) NOT NULL
 , [AutoPublish] bit NOT NULL
 , [RootNode] nvarchar(255) NOT NULL
-, [MediaRootNode] nvarchar(255) NOT NULL
+, [MediaRootNodes] nvarchar(255) NULL
 , [ExportFormat] nvarchar(255) NOT NULL
 , [LastRun] datetime NULL
 , [AssetPaths] nvarchar(1000) NULL

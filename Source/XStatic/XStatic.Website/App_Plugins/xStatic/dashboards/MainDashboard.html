@@ -7,6 +7,9 @@
 
         <umb-drawer-content>
 
+            <h4 data-ng-show="vm.sites.length == 0">You currently don't have any static sites configured!</h4>
+            <h6 data-ng-show="vm.sites.length == 0">You can create sites using the "Generated Sites" tree.</h6>
+
             <umb-box data-ng-repeat="site in vm.sites">
                 <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == true">
                     <umb-badge color="warning">Auto Deploy</umb-badge>

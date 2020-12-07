@@ -30,11 +30,17 @@ namespace XStatic.Plugin
             View = UIOMatic.Constants.FieldEditors.PickerContent)]
         public string RootNode { get; set; }
 
-        [Required]
-        [UIOMaticField(Name = "Root Media Node",
-           Description = "Select the root of the media you want to create a static version of.",
-           View = UIOMatic.Constants.FieldEditors.PickerMedia)]
-        public string MediaRootNode { get; set; }
+        [UIOMaticField(Name = "Root Media Nodes",
+           Description = "Select the media folders you want to include in your static site.",
+           View = @"~\App_Plugins\xStatic\fields\multipicker.html",
+            Config = @"{
+        'multiPicker': true,
+        'maxNumber': 100,
+        'minNumber': 0,
+        'startNode': {
+            'type': 'media'
+        }}")]
+        public string MediaRootNodes { get; set; }
 
         [Required]
         [UIOMaticField(Name = "Export Format",

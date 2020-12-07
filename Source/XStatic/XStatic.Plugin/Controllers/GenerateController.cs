@@ -80,12 +80,25 @@ namespace XStatic.Plugin.Controllers
             }
 
             var rootNode = Umbraco.Content(entity.RootNode);
-            var rootMedia = Umbraco.Media(entity.MediaRootNode);
 
             var builder = new JobBuilder(entity.Id, fileNamer)
-                .AddPageWithDescendants(rootNode)
-                .AddMediaWithDescendants(rootMedia);
+                .AddPageWithDescendants(rootNode);
 
+            if (!string.IsNullOrEmpty(entity.MediaRootNodes))
+            {
+                var mediaRoots = entity.MediaRootNodes.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach(var mediaRoot in mediaRoots)
+                {
+                    var rootMedia = Umbraco.Media(mediaRoot);
+
+                    if(rootMedia != null)
+                    {
+                        builder.AddMediaWithDescendants(rootMedia);
+                    }
+                }
+            }
+            
             if(!string.IsNullOrEmpty(entity.AssetPaths))
             {
                 var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
