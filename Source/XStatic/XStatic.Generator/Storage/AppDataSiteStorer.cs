@@ -34,5 +34,14 @@ namespace XStatic.Generator.Storage
 
             return filePath;
         }
+
+        public string GetStorageLocationOfSite(int staticSiteId)
+        {
+            string storagePath = System.Web.Hosting.HostingEnvironment.MapPath("/App_Data/xStatic/output/" + staticSiteId.ToString());
+            string root = System.Web.Hosting.HostingEnvironment.MapPath("~/");
+            var folderPath = Path.Combine(root, storagePath);
+
+            return folderPath;
+        }
     }
 }

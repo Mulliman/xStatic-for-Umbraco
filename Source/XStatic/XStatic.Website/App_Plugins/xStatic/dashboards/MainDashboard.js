@@ -23,6 +23,12 @@
                     'Failed to generate'
                 );
             },
+            deploySite: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("/umbraco/backoffice/xstatic/Deploy/DeployStaticSite/?staticSiteId=" + id),
+                    'Failed to generate'
+                );
+            },
         }
     })
     .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource) {
@@ -49,6 +55,23 @@
                 console.log("generated files", data);
 
                 notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
+
+                vm.getSites();
+            });
+        }
+
+        vm.deploySite = function (id) {
+            console.log("deploying", id);
+
+            xStaticResource.deploySite(id).then(function (data) {
+                console.log("deployed files", data);
+
+                if (data) {
+                    notificationsService.success("Site Deployed Successfully", "Your site is updated.");
+                } else {
+                    alert("Bad");
+                }
+                
 
                 vm.getSites();
             });

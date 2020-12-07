@@ -245,6 +245,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\DeployController.cs" />
     <Compile Include="Controllers\GenerateController.cs" />
     <Compile Include="Controllers\SitesController.cs" />
     <Compile Include="GeneratedSite.cs" />
@@ -258,6 +259,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XStatic.Deploy\XStatic.Deploy.csproj">
+      <Project>{ceae0fd7-188f-45c9-84c0-a656e5a27ca3}</Project>
+      <Name>XStatic.Deploy</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XStatic.Generator\XStatic.Generator.csproj">
       <Project>{e37c384a-53f9-4ed2-b315-180d8b0adef6}</Project>
       <Name>XStatic.Generator</Name>

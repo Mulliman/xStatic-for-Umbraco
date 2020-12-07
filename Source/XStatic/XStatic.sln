@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XStatic.Plugin", "XStatic.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XStatic.Generator", "XStatic.Generator\XStatic.Generator.csproj", "{E37C384A-53F9-4ED2-B315-180D8B0ADEF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XStatic.Deploy", "XStatic.Deploy\XStatic.Deploy.csproj", "{CEAE0FD7-188F-45C9-84C0-A656E5A27CA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E37C384A-53F9-4ED2-B315-180D8B0ADEF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E37C384A-53F9-4ED2-B315-180D8B0ADEF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E37C384A-53F9-4ED2-B315-180D8B0ADEF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEAE0FD7-188F-45C9-84C0-A656E5A27CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEAE0FD7-188F-45C9-84C0-A656E5A27CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEAE0FD7-188F-45C9-84C0-A656E5A27CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEAE0FD7-188F-45C9-84C0-A656E5A27CA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
