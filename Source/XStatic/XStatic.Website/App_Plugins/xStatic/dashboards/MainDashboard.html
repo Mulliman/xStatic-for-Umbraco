@@ -1,4 +1,9 @@
-﻿<div data-ng-controller="xStaticMainDashboardController as vm">
+﻿<style>
+    
+</style>
+
+
+<div data-ng-controller="xStaticMainDashboardController as vm">
     <umb-drawer-view>
 
         <umb-drawer-header title="Manage generated static sites"
@@ -10,101 +15,104 @@
             <h4 data-ng-show="vm.sites.length == 0">You currently don't have any static sites configured!</h4>
             <h6 data-ng-show="vm.sites.length == 0">You can create sites using the "Generated Sites" tree.</h6>
 
-            <umb-box data-ng-repeat="site in vm.sites">
-                <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == true">
-                    <umb-badge color="warning">Auto Deploy</umb-badge>
-                </umb-box-header>
+            <div class="sites-grid">
+                <umb-box data-ng-repeat="site in vm.sites">
+                    <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == true">
+                        <umb-badge color="warning">Auto Deploy</umb-badge>
+                    </umb-box-header>
 
-                <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == false">
-                    <umb-badge color="gray">Manual Deploy</umb-badge>
-                </umb-box-header>
+                    <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == false">
+                        <umb-badge color="gray">Manual Deploy</umb-badge>
+                    </umb-box-header>
 
-                <umb-box-content>
-                    <div class="umb-panel-group__details-check">
-                        <div class="umb-panel-group__details-check-title">
-                            <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
-                            <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">This static site was last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
-                            <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastDeployed && site.DeploymentTarget">This site has never been deployed.</div>
-                            <div class="umb-panel-group__details-check-name" data-ng-show="site.LastDeployed">This static site was last deployed on {{site.LastDeployed | date:'dd MMM yy'}} at {{site.LastDeployed | date:'HH:mm'}}</div>
-                        </div>
-                        <!-- Root -->
-                        <div class="umb-panel-group__details-status">
-
-                            <div class="umb-panel-group__details-status-icon-container">
-                                <i class="umb-panel-status-icon icon-home" aria-hidden="true"></i>
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">Last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.DeploymentTarget">&nbsp;</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastDeployed && site.DeploymentTarget">This site has never been deployed.</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="site.LastDeployed">Last deployed on {{site.LastDeployed | date:'dd MMM yy'}} at {{site.LastDeployed | date:'HH:mm'}}</div>
                             </div>
+                            <!-- Root -->
+                            <div class="umb-panel-group__details-status">
 
-                            <div class="umb-panel-group__details-status-content">
-                                <div class="umb-panel-group__details-status-text">
-                                    <span style="color:#999;">Root:</span> {{site.RootPath}}
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-home" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        <span style="color:#999;">Root:</span> {{site.RootPath}}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Export Type -->
+                            <!-- Export Type -->
 
-                        <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'api'">
+                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'api'">
 
-                            <div class="umb-panel-group__details-status-icon-container">
-                                <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
-                            </div>
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                                </div>
 
-                            <div class="umb-panel-group__details-status-content">
-                                <div class="umb-panel-group__details-status-text">
-                                    Exports as a JSON API
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        Exports as a JSON API
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'html'">
+                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'html'">
 
-                            <div class="umb-panel-group__details-status-icon-container">
-                                <i class="umb-panel-status-icon icon-globe-alt" aria-hidden="true"></i>
-                            </div>
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-globe-alt" aria-hidden="true"></i>
+                                </div>
 
-                            <div class="umb-panel-group__details-status-content">
-                                <div class="umb-panel-group__details-status-text">
-                                    Exports as an HTML website
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        Exports as an HTML website
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="umb-panel-group__details-status">
+                            <div class="umb-panel-group__details-status">
 
-                            <div class="umb-panel-group__details-status-icon-container">
-                                <i class="umb-panel-status-icon icon-umb-deploy" aria-hidden="true"></i>
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-umb-deploy" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text" data-ng-show="site.DeploymentTarget">
+                                        Deploys using {{site.DeploymentTarget.name}}
+                                    </div>
+                                    <div class="umb-panel-group__details-status-text" data-ng-show="!site.DeploymentTarget">
+                                        No deployment configured
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="umb-panel-group__details-status-content">
-                                <div class="umb-panel-group__details-status-text" data-ng-show="site.DeploymentTarget">
-                                    Deploys using {{site.DeploymentTarget.name}}
-                                </div>
-                                <div class="umb-panel-group__details-status-text" data-ng-show="!site.DeploymentTarget">
-                                    No deployment configured
-                                </div>
-                            </div>
                         </div>
 
-                    </div>
+                        <div class="box-footer">
+                            <umb-button action="vm.generateSite(site.Id)"
+                                        type="button"
+                                        button-style="success"
+                                        label="Build site"
+                                        disabled="false">
+                            </umb-button>
 
-                    <div>
-                        <umb-button action="vm.generateSite(site.Id)"
-                                    type="button"
-                                    button-style="success"
-                                    label="Build site"
-                                    disabled="false">
-                        </umb-button>
+                            <umb-button action="vm.deploySite(site.Id)"
+                                        type="button"
+                                        button-style="danger"
+                                        label="Deploy site"
+                                        data-ng-show="site.DeploymentTarget">
+                            </umb-button>
+                        </div>
 
-                        <umb-button action="vm.deploySite(site.Id)"
-                                    type="button"
-                                    button-style="danger"
-                                    label="Deploy site"
-                                    data-ng-show="site.DeploymentTarget">
-                        </umb-button>
-                    </div>
-
-                </umb-box-content>
-            </umb-box>
+                    </umb-box-content>
+                </umb-box>
+            </div>
 
         </umb-drawer-content>
         <umb-drawer-footer>

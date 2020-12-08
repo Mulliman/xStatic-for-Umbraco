@@ -1,0 +1,34 @@
+﻿/* Utilities */
+
+.x-text-center {
+    text-align: center;
+}
+
+.x-no-padding-top {
+    padding-top: 0;
+}
+
+.x-padding-top-small {
+    padding-top: 5px;
+}
+
+/* Boxes */
+
+.box-with-footer {
+}
+
+.box-inner {
+}
+
+.box-footer {
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Dashboards */
+
+.sites-grid {
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill,minmax(375px,1fr));
+}

@@ -6,7 +6,8 @@
     "~/App_Plugins/xStatic/fields/multipicker.js"
   ],
   "css": [
-    "~/App_Plugins/xStatic/fields/DeploymentTargetField.css"
+    "~/App_Plugins/xStatic/fields/DeploymentTargetField.css",
+    "~/App_Plugins/xStatic/css/xStatic.css"
   ],
   "dashboards": [
     {
