@@ -47,6 +47,21 @@ namespace XStatic.Plugin.Repositories
             return entity;
         }
 
+        public virtual GeneratedSite UpdateLastDeploy(int staticSiteId)
+        {
+            var db = GetDb();
+
+            var query = new Sql().Select("*").From(SitesTableName).Where("Id = " + staticSiteId);
+
+            var entity = db.Fetch<GeneratedSite>(query).FirstOrDefault();
+
+            entity.LastDeployed = DateTime.Now;
+
+            db.Save<GeneratedSite>(entity);
+
+            return entity;
+        }
+
         public virtual Database GetDb()
         {
             return new Database(Umbraco.Core.Constants.System.UmbracoConnectionName);

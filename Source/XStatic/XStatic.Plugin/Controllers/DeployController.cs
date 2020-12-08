@@ -54,7 +54,7 @@ namespace XStatic.Plugin.Controllers
 
             var results = await deployer.DeployWholeSite(path);
 
-            // TODO: Update Last Deploy
+            _sitesRepo.UpdateLastDeploy(staticSiteId);
 
             return results.WasSuccessful.ToString();
         }

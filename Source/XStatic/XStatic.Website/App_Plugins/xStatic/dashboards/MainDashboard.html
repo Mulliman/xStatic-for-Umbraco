@@ -24,6 +24,8 @@
                         <div class="umb-panel-group__details-check-title">
                             <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
                             <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">This static site was last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
+                            <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastDeployed && site.DeploymentTarget">This site has never been deployed.</div>
+                            <div class="umb-panel-group__details-check-name" data-ng-show="site.LastDeployed">This static site was last deployed on {{site.LastDeployed | date:'dd MMM yy'}} at {{site.LastDeployed | date:'HH:mm'}}</div>
                         </div>
                         <!-- Root -->
                         <div class="umb-panel-group__details-status">
