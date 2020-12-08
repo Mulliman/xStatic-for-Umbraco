@@ -8,5 +8,6 @@ namespace XStatic.Deploy
 {
     public interface IDeployer
     {
+        Task<DeployResult> DeployWholeSite(string folderPath);
     }
 }

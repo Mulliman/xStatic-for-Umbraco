@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.ModelsBuilder.Embedded;
@@ -19,14 +18,6 @@ using XStatic.Generator.Transformers;
 
 namespace XStatic.Generator
 {
-    public class InstallerComposer : IUserComposer
-    {
-        public void Compose(Composition composition)
-        {
-            composition.Register<IStaticSiteStorer, AppDataSiteStorer>();
-            composition.Register<IStaticHtmlSiteGenerator, StaticHtmlSiteGenerator>();
-        }
-    }
 
     public class StaticHtmlSiteGenerator : IStaticHtmlSiteGenerator
     {

@@ -398,6 +398,9 @@
     <Content Include="App_Plugins\UIOMatic\lang\en.xml" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.html" />
     <Content Include="App_Plugins\xStatic\dashboards\MainDashboard.js" />
+    <Content Include="App_Plugins\xStatic\fields\DeploymentTargetField.css" />
+    <Content Include="App_Plugins\xStatic\fields\DeploymentTargetField.html" />
+    <Content Include="App_Plugins\xStatic\fields\DeploymentTargetField.js" />
     <Content Include="App_Plugins\xStatic\fields\multipicker.js" />
     <Content Include="App_Plugins\xStatic\fields\multipicker.html" />
     <Content Include="App_Plugins\xStatic\fields\ExportTypeField.js" />

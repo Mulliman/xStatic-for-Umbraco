@@ -23,11 +23,13 @@ namespace XStatic.Plugin.Controllers
     public class DeployController : UmbracoAuthorizedJsonController
     {
         private readonly IStaticSiteStorer _storer;
+        private readonly IDeployerFactory _deployerFactory;
         private SitesRepository _sitesRepo;
 
-        public DeployController(IStaticSiteStorer storer)
+        public DeployController(IStaticSiteStorer storer, IDeployerFactory deployerFactory)
         {
             _storer = storer;
+            _deployerFactory = deployerFactory;
             _sitesRepo = new SitesRepository();
         }
 
@@ -48,7 +50,7 @@ namespace XStatic.Plugin.Controllers
                 throw new FileNotFoundException();
             }
 
-            var deployer = new NetlifyDeployer();
+            var deployer = _deployerFactory.GetDeployer(entity.DeploymentTarget.id, entity.DeploymentTarget.fields);
 
             var results = await deployer.DeployWholeSite(path);
 

@@ -57,9 +57,24 @@ namespace XStatic.Plugin
             View = UIOMatic.Constants.FieldEditors.Textfield)]
         public string AssetPaths { get; set; }
 
+        [NPoco.SerializedColumn]
+        [UIOMaticField(Name = "Deployment Target",
+           Description = "Configure your deployment target by filling in all required settings.",
+           View = @"~\App_Plugins\xStatic\fields\DeploymentTargetField.html")]
+        public DeploymentTargetModel DeploymentTarget { get; set; }
+
         public override string ToString()
         {
             return Name;
         }
+    }
+
+    public class DeploymentTargetModel
+    {
+        public string id { get; set; }
+
+        public string name { get; set; }
+
+        public Dictionary<string, string> fields { get; set; }
     }
 }

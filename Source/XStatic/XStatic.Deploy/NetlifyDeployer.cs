@@ -10,16 +10,17 @@ using System.Threading.Tasks;
 
 namespace XStatic.Deploy
 {
-    public class NetlifyDeployer
+    public class NetlifyDeployer : IDeployer
     {
+        public const string DeployerKey = "netlify";
         private static string Api = "https://api.netlify.com/api/v1/";
         private readonly string _pat;
         private readonly string _appId;
 
-        public NetlifyDeployer()
+        public NetlifyDeployer(Dictionary<string,string> parameters)
         {
-            _pat = "muZR7tS-";
-            _appId = "d9f4d37f-37c6-4c97-a3b0-de3b05bcd31f";
+            _pat = parameters["PersonalAccessToken"];
+            _appId = parameters["SiteId"];
         }
 
         public async Task<DeployResult> DeployWholeSite(string folderPath)

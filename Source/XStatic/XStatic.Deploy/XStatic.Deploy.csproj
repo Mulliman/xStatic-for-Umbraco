@@ -44,8 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeployerFactory.cs" />
     <Compile Include="DeployResult.cs" />
     <Compile Include="IDeployer.cs" />
+    <Compile Include="IDeployerFactory.cs" />
     <Compile Include="NetlifyDeployer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

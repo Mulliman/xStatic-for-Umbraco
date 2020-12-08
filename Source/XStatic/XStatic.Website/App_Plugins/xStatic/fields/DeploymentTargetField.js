@@ -1,0 +1,25 @@
+﻿angular.module("umbraco").controller("xStaticDeploymentTargetController",
+    function ($scope) {
+        $scope.deploymentTypes = [{
+            id: "netlify",
+            name: "Netlify",
+            help: "First create a personal access token at <a href='https://app.netlify.com/user/applications'>https://app.netlify.com/user/applications</a>. <br/> Then go to the site settings for your site, and in Site details/Site information you should see an API ID.",
+            fields: {
+                PersonalAccessToken: "",
+                SiteId: ""
+            }
+        },
+        {
+            id: "ftp",
+            name: "FTP",
+            help: "Enter the details of your FTP server.",
+            fields: {
+                Url: "",
+                Port: "",
+                User: "",
+                Password: "",
+            }
+            }];
+
+        $scope.selectedDeploymentType = null;
+    });

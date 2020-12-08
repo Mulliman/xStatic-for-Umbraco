@@ -2,7 +2,11 @@
   "javascript": [
     "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
     "~/App_Plugins/xStatic/fields/ExportTypeField.js",
+    "~/App_Plugins/xStatic/fields/DeploymentTargetField.js",
     "~/App_Plugins/xStatic/fields/multipicker.js"
+  ],
+  "css": [
+    "~/App_Plugins/xStatic/fields/DeploymentTargetField.css"
   ],
   "dashboards": [
     {
