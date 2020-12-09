@@ -4,7 +4,9 @@
     {
         public string GetFilePartialPath(string relativeUrl)
         {
-            return relativeUrl.Trim('/') + ".json";
+            var trimmedPath = relativeUrl?.Trim('/');
+
+            return string.IsNullOrEmpty(trimmedPath) ? "index.json" : trimmedPath + ".json";
         }
     }
 }
