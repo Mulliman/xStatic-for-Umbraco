@@ -146,11 +146,11 @@
                                         data-ng-show="site.DeploymentTarget">
                             </umb-button>
 
-                            <umb-button action="vm.deploySite(site.Id)"
+                            <umb-button action="vm.downloadSite(site.Id)"
                                         type="button"
                                         button-style="action"
                                         label="Download"
-                                        data-ng-show="site.DeploymentTarget">
+                                        data-ng-show="site.LastRun">
                             </umb-button>
                         </div>
 

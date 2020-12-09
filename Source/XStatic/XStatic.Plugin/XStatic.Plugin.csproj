@@ -177,6 +177,7 @@
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.4.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.IO" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Linq.Expressions" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
@@ -246,6 +247,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\DeployController.cs" />
+    <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\GenerateController.cs" />
     <Compile Include="Controllers\SitesController.cs" />
     <Compile Include="GeneratedSite.cs" />

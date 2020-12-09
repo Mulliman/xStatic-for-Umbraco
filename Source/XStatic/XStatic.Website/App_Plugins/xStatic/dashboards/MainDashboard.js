@@ -36,6 +36,7 @@
 
         vm.createLink = "#/xstatic/uiomatic/edit/generatedSite?create";
         vm.editLink = "#/xstatic/uiomatic/edit/{0}%3Fta=generatedSite";
+        vm.downloadLink = "/umbraco/backoffice/xstatic/Download/DownloadStaticSite/?staticSiteId=";
 
         vm.sites = [];
 
@@ -82,6 +83,12 @@
 
                 vm.getSites();
             });
+        }
+
+        vm.downloadSite = function (id) {
+            console.log("downloading", id);
+
+            $window.open(vm.downloadLink + id, '_blank');
         }
 
         // on init
