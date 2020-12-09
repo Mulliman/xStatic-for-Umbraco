@@ -12,6 +12,7 @@ namespace XStatic.Plugin
         {
             composition.Register<IStaticSiteStorer, AppDataSiteStorer>();
             composition.Register<IStaticHtmlSiteGenerator, StaticHtmlSiteGenerator>();
+            composition.Register<IApiGenerator, JsonApiGenerator>();
             composition.Register<IDeployerFactory, DeployerFactory>();
         }
     }

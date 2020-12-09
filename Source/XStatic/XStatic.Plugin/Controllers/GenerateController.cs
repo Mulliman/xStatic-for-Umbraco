@@ -22,11 +22,13 @@ namespace XStatic.Plugin.Controllers
     public class GenerateController : UmbracoAuthorizedJsonController
     {
         private readonly IStaticHtmlSiteGenerator _htmlGenerator;
+        private readonly IApiGenerator _apiGenerator;
         private SitesRepository _sitesRepo;
 
-        public GenerateController(IStaticHtmlSiteGenerator htmlGenerator)
+        public GenerateController(IStaticHtmlSiteGenerator htmlGenerator, IApiGenerator apiGenerator)
         {
             _htmlGenerator = htmlGenerator;
+            _apiGenerator = apiGenerator;
             _sitesRepo = new SitesRepository();
         }
 
@@ -69,8 +71,7 @@ namespace XStatic.Plugin.Controllers
         [HttpGet]
         public async Task<string> RebuildStaticSite(int staticSiteId)
         {
-            var fileNamer = new EverythingIsIndexHtmlFileNameGenerator();
-            var transformers = new[] { new CachedTimeTransformer() };
+            
 
             var entity = _sitesRepo.Get(staticSiteId);
 
@@ -78,6 +79,8 @@ namespace XStatic.Plugin.Controllers
             {
                 throw new HttpException(404, "Site not found with id " + staticSiteId);
             }
+
+            IFileNameGenerator fileNamer = entity.ExportFormat == "api" ? (IFileNameGenerator)new JsonFileNameGenerator() : new EverythingIsIndexHtmlFileNameGenerator();
 
             var rootNode = Umbraco.Content(entity.RootNode);
 
@@ -127,7 +130,11 @@ namespace XStatic.Plugin.Controllers
 
             if(entity.ExportFormat == "api")
             {
-                // TODO
+                builder.AddTransformer((new UmbracoContentUdiToJsonUrlTransformer()));
+
+                var job = builder.Build();
+                var runner = new JobRunner(_apiGenerator);
+                results.AddRange(await runner.RunJob(job));
             }
             else if (entity.ExportFormat == "html")
             {

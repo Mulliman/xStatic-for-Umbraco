@@ -19,4 +19,8 @@ namespace XStatic.Generator
     public interface IStaticHtmlSiteGenerator : IGenerator
     {
     }
+
+    public interface IApiGenerator : IGenerator
+    {
+    }
 }
