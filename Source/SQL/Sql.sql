@@ -6,5 +6,9 @@ CREATE TABLE [XStaticSiteConfigs] (
 , [MediaRootNodes] nvarchar(255) NULL
 , [ExportFormat] nvarchar(255) NOT NULL
 , [LastRun] datetime NULL
+, [LastDeployed] datetime NULL
 , [AssetPaths] nvarchar(1000) NULL
+, [DeploymentTarget] nvarchar(2000) NULL
+, [LastBuildDurationInSeconds] int NULL
+, [LastDeployDurationInSeconds] int NULL
 );

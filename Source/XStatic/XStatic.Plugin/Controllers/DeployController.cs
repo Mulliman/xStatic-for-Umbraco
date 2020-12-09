@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -41,6 +42,9 @@ namespace XStatic.Plugin.Controllers
         [HttpGet]
         public async Task<string> DeployStaticSite(int staticSiteId)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             var entity = _sitesRepo.Get(staticSiteId);
 
             if(entity == null)
@@ -59,7 +63,8 @@ namespace XStatic.Plugin.Controllers
 
             var results = await deployer.DeployWholeSite(path);
 
-            _sitesRepo.UpdateLastDeploy(staticSiteId);
+            stopwatch.Stop();
+            _sitesRepo.UpdateLastDeploy(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
 
             return results.WasSuccessful.ToString();
         }

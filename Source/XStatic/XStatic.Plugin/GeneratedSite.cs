@@ -52,9 +52,13 @@ namespace XStatic.Plugin
             View = UIOMatic.Constants.FieldEditors.DateTime)]
         public DateTime? LastRun { get; set; }
 
+        public int? LastBuildDurationInSeconds { get; set; }
+
         [UIOMaticField(Name = "Last Deployed",
            View = UIOMatic.Constants.FieldEditors.DateTime)]
         public DateTime? LastDeployed { get; set; }
+
+        public int? LastDeployDurationInSeconds { get; set; }
         
         [UIOMaticField(Name = "Asset Paths",
             Description = "Add folder names of files on disk that should also be packaged up. Comma separate e.g. assets/js,assets/css",

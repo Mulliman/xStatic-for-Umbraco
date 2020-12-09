@@ -11,12 +11,6 @@
                     'Failed to get all'
                 );
             },
-            generate: function () {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/Generate/Test"),
-                    'Failed to get all'
-                );
-            },
             generateSite: function (id) {
                 return umbRequestHelper.resourcePromise(
                     $http.get("/umbraco/backoffice/xstatic/Generate/RebuildStaticSite/?staticSiteId=" + id),
@@ -31,7 +25,7 @@
             },
         }
     })
-    .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource, $window) {
+    .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource, $window, $timeout) {
         var vm = this;
 
         vm.createLink = "#/xstatic/uiomatic/edit/generatedSite?create";
@@ -40,17 +34,14 @@
 
         vm.sites = [];
 
+        vm.timers = [];
+        vm.deployTimers = [];
+        vm.currentTime = [];
+        vm.currentDeployTime = [];
+
         vm.getSites = function () {
             xStaticResource.getAll().then(function (data) {
                 vm.sites = data;
-            });
-        }
-
-        vm.generate = function () {
-            xStaticResource.generate().then(function (data) {
-                console.log("generated file", data);
-
-                vm.getSites();
             });
         }
 
@@ -59,36 +50,86 @@
         }
 
         vm.generateSite = function (id) {
-            xStaticResource.generateSite(id).then(function (data) {
-                console.log("generated files", data);
 
-                notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
+            vm.currentTime[id] = 1;
 
-                vm.getSites();
-            });
+            vm.timers[id] = setInterval(function () {
+                console.log("interval " + id, vm.currentTime[id]);
+                vm.currentTime[id] = vm.currentTime[id] + 1;
+                $scope.$apply();
+            }, 1000);
+
+            setTimeout(function () {
+                xStaticResource.generateSite(id).then(function (data) {
+                    console.log("generated files", data);
+
+
+                    notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
+
+
+                    vm.getSites();
+
+                    vm.currentTime[id] = 0;
+                    clearInterval(vm.timers[id]);
+                });
+            }, 1000);
         }
 
         vm.deploySite = function (id) {
             console.log("deploying", id);
 
-            xStaticResource.deploySite(id).then(function (data) {
-                console.log("deployed files", data);
+            vm.currentDeployTime[id] = 1;
 
-                if (data) {
-                    notificationsService.success("Site Deployed Successfully", "Your site is updated.");
-                } else {
-                    alert("Bad");
-                }
-                
+            vm.deployTimers[id] = setInterval(function () {
+                console.log("interval " + id, vm.currentDeployTime[id]);
+                vm.currentDeployTime[id] = vm.currentDeployTime[id] + 1;
+                $scope.$apply();
+            }, 1000);
 
-                vm.getSites();
-            });
+            setTimeout(function () {
+                xStaticResource.deploySite(id).then(function (data) {
+                    console.log("deployed files", data);
+
+                    if (data) {
+                        notificationsService.success("Site Deployed Successfully", "Your site is updated.");
+                    } else {
+                        alert("Bad");
+                    }
+
+                    vm.getSites();
+
+                    vm.currentDeployTime[id] = 0;
+                    clearInterval(vm.deployTimers[id]);
+                });
+            }, 1000);
         }
 
         vm.downloadSite = function (id) {
             console.log("downloading", id);
 
             $window.open(vm.downloadLink + id, '_blank');
+        }
+
+        vm.formatTime = function(duration){
+            if (!duration) {
+                return "N/A";
+            }
+
+            // Hours, minutes and seconds
+            var hrs = ~~(duration / 3600);
+            var mins = ~~((duration % 3600) / 60);
+            var secs = ~~duration % 60;
+
+            // Output like "1:01" or "4:03:59" or "123:03:59"
+            var ret = "";
+
+            if (hrs > 0) {
+                ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+            }
+
+            ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+            ret += "" + secs;
+            return ret;
         }
 
         // on init

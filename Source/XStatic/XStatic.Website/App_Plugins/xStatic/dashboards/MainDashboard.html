@@ -13,6 +13,36 @@
             display: flex;
             align-items: center;
         }
+
+    .box-overlay {
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        backdrop-filter: blur(6px);
+    }
+
+    .box-overlay__build {
+        background: rgba(20, 240, 20, 0.3);
+    }
+
+    .box-overlay__deploy {
+        background: rgba(240, 20, 20, 0.3);
+    }
+
+    .box-overlay__content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .box-overlay__content div{
+        padding:20px;
+    }
 </style>
 
 
@@ -40,7 +70,7 @@
             <h6 data-ng-show="vm.sites.length == 0">You can create sites using the "Generated Sites" tree.</h6>
 
             <div class="sites-grid">
-                <umb-box data-ng-repeat="site in vm.sites">
+                <umb-box data-ng-repeat="site in vm.sites" style="position: relative;">
                     <umb-box-header title="{{site.Name}}">
                         <umb-button type="button"
                                     action="vm.editSite(site.Id)"
@@ -128,14 +158,14 @@
 
                         <div class="box-footer">
                             <!--<umb-button type="link"
-                                        button-style="info"
-                                        label="Edit">
-                            </umb-button>-->
+                        button-style="info"
+                        label="Edit">
+            </umb-button>-->
 
                             <umb-button action="vm.generateSite(site.Id)"
                                         type="button"
                                         button-style="success"
-                                        label="Build"
+                                        label="Rebuild"
                                         disabled="false">
                             </umb-button>
 
@@ -155,6 +185,32 @@
                         </div>
 
                     </umb-box-content>
+
+                    <div class="box-overlay box-overlay__deploy" data-ng-show="vm.currentDeployTime[site.Id]">
+                        <div class="box-overlay__content">
+                            <div class="x-text-center">
+                                <i class="icon-timer x-icon-large" aria-hidden="true"></i>
+                                <h5>{{site.Name}} is currently deploying...</h5>
+                                <p>Elapsed Time: {{vm.formatTime(vm.currentDeployTime[site.Id])}}</p>
+                                <p>Estimated Time: {{vm.formatTime(site.LastDeployDurationInSeconds)}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box-overlay box-overlay__build" data-ng-show="vm.currentTime[site.Id]">
+                        <div class="box-overlay__content">
+                            <div class="x-text-center">
+                                <i class="icon-timer x-icon-large" aria-hidden="true"></i>
+                                <h5>{{site.Name}} is currently building...</h5>
+                                <p>Elapsed Time: {{vm.formatTime(vm.currentTime[site.Id])}}</p>
+                                <p>Estimated Time: {{vm.formatTime(site.LastBuildDurationInSeconds)}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                 </umb-box>
             </div>
 

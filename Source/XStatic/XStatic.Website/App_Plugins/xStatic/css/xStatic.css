@@ -24,13 +24,24 @@
     padding-bottom: 10px;
 }
 
-/* Boxes */
+.x-icon-large{
+    font-size:36px;
+}
 
+/* Boxes */
 .box-with-footer {
 }
 
 .box-inner {
 }
+    .box-inner .umb-panel-group__details-status {
+        padding: 10px 0;
+    }
+
+    .box-inner .umb-panel-group__details-status {
+        align-items: center;
+        display: flex;
+    }
 
 .box-footer {
     margin-top: 10px;

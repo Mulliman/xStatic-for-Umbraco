@@ -32,7 +32,7 @@ namespace XStatic.Plugin.Repositories
             return entity;
         }
 
-        public virtual GeneratedSite UpdateLastRun(int staticSiteId)
+        public virtual GeneratedSite UpdateLastRun(int staticSiteId, int? secondsTaken = null)
         {
             var db = GetDb();
 
@@ -42,12 +42,17 @@ namespace XStatic.Plugin.Repositories
 
             entity.LastRun = DateTime.Now;
 
+            if(secondsTaken != null)
+            {
+                entity.LastBuildDurationInSeconds = secondsTaken;
+            }
+
             db.Save<GeneratedSite>(entity);
 
             return entity;
         }
 
-        public virtual GeneratedSite UpdateLastDeploy(int staticSiteId)
+        public virtual GeneratedSite UpdateLastDeploy(int staticSiteId, int? secondsTaken = null)
         {
             var db = GetDb();
 
@@ -56,6 +61,11 @@ namespace XStatic.Plugin.Repositories
             var entity = db.Fetch<GeneratedSite>(query).FirstOrDefault();
 
             entity.LastDeployed = DateTime.Now;
+
+            if (secondsTaken != null)
+            {
+                entity.LastDeployDurationInSeconds = secondsTaken;
+            }
 
             db.Save<GeneratedSite>(entity);
 

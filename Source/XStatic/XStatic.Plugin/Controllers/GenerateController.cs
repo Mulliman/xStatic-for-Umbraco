@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -71,7 +72,8 @@ namespace XStatic.Plugin.Controllers
         [HttpGet]
         public async Task<string> RebuildStaticSite(int staticSiteId)
         {
-            
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
 
             var entity = _sitesRepo.Get(staticSiteId);
 
@@ -149,7 +151,9 @@ namespace XStatic.Plugin.Controllers
                 throw new Exception("Export format not supported");
             }
 
-            _sitesRepo.UpdateLastRun(staticSiteId);
+            stopwatch.Stop();
+
+            _sitesRepo.UpdateLastRun(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
 
             return string.Join(Environment.NewLine, results);
         }
