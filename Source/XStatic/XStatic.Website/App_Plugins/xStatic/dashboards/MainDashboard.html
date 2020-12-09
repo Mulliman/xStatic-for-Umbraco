@@ -1,14 +1,38 @@
 ﻿<style>
-    
+    .dashboard-header {
+        display: flex;
+        width: 100%;
+    }
+
+        .dashboard-header .umb-drawer-header {
+            flex-grow: 1;
+        }
+
+        .dashboard-header .dashboard-header__button {
+            padding: 20px 30px 20px 0;
+            display: flex;
+            align-items: center;
+        }
 </style>
 
 
 <div data-ng-controller="xStaticMainDashboardController as vm">
     <umb-drawer-view>
 
-        <umb-drawer-header title="Manage generated static sites"
-                           description="This dashboard can be used to trigger builds of the static sites configured within Umbraco. To change settings for each static site use the tree to create and edit the settings.">
-        </umb-drawer-header>
+        <div class="dashboard-header">
+            <umb-drawer-header title="Manage generated static sites"
+                               description="This dashboard can be used to trigger builds of the static sites configured within Umbraco. To change settings for each static site use the tree to create and edit the settings.">
+                <umb-badge color="success"><a href="{{createLink}}">Create</a></umb-badge>
+            </umb-drawer-header>
+
+            <div class="dashboard-header__button">
+                <umb-button type="link"
+                            href="{{vm.createLink}}"
+                            button-style="success"
+                            label="Create new site">
+                </umb-button>
+            </div>
+        </div>
 
         <umb-drawer-content>
 
@@ -17,16 +41,24 @@
 
             <div class="sites-grid">
                 <umb-box data-ng-repeat="site in vm.sites">
-                    <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == true">
-                        <umb-badge color="warning">Auto Deploy</umb-badge>
-                    </umb-box-header>
-
-                    <umb-box-header title="{{site.Name}}" data-ng-show="site.AutoPublish == false">
-                        <umb-badge color="gray">Manual Deploy</umb-badge>
+                    <umb-box-header title="{{site.Name}}">
+                        <umb-button type="button"
+                                    action="vm.editSite(site.Id)"
+                                    button-style="info"
+                                    label="Edit">
+                        </umb-button>
                     </umb-box-header>
 
                     <umb-box-content class="box-with-footer">
                         <div class="umb-panel-group__details-check box-inner">
+                            <div data-ng-show="site.AutoPublish == false" class="x-text-center x-padding-bottom">
+                                <umb-badge color="primary" size="s">Manual Deploy</umb-badge>
+                            </div>
+
+                            <div data-ng-show="site.AutoPublish == true" class="x-text-center x-padding-bottom">
+                                <umb-badge color="warning" size="s">Auto Deploy</umb-badge>
+                            </div>
+
                             <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
                                 <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
                                 <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">Last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
@@ -95,17 +127,29 @@
                         </div>
 
                         <div class="box-footer">
+                            <!--<umb-button type="link"
+                                        button-style="info"
+                                        label="Edit">
+                            </umb-button>-->
+
                             <umb-button action="vm.generateSite(site.Id)"
                                         type="button"
                                         button-style="success"
-                                        label="Build site"
+                                        label="Build"
                                         disabled="false">
                             </umb-button>
 
                             <umb-button action="vm.deploySite(site.Id)"
                                         type="button"
                                         button-style="danger"
-                                        label="Deploy site"
+                                        label="Deploy"
+                                        data-ng-show="site.DeploymentTarget">
+                            </umb-button>
+
+                            <umb-button action="vm.deploySite(site.Id)"
+                                        type="button"
+                                        button-style="action"
+                                        label="Download"
                                         data-ng-show="site.DeploymentTarget">
                             </umb-button>
                         </div>
@@ -116,12 +160,6 @@
 
         </umb-drawer-content>
         <umb-drawer-footer>
-            <umb-button ng-click="vm.generate()"
-                        type="button"
-                        button-style="danger"
-                        label="Rebuild all static sites"
-                        disabled="false">
-            </umb-button>
         </umb-drawer-footer>
 
     </umb-drawer-view>

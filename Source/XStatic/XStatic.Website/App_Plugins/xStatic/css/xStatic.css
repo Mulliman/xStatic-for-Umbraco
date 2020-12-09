@@ -12,6 +12,18 @@
     padding-top: 5px;
 }
 
+.x-padding-top {
+    padding-top: 10px;
+}
+
+.x-padding-bottom-small {
+    padding-bottom: 5px;
+}
+
+.x-padding-bottom {
+    padding-bottom: 10px;
+}
+
 /* Boxes */
 
 .box-with-footer {

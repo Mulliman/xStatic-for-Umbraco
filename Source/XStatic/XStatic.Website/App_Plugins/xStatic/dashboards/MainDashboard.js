@@ -31,8 +31,11 @@
             },
         }
     })
-    .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource) {
+    .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource, $window) {
         var vm = this;
+
+        vm.createLink = "#/xstatic/uiomatic/edit/generatedSite?create";
+        vm.editLink = "#/xstatic/uiomatic/edit/{0}%3Fta=generatedSite";
 
         vm.sites = [];
 
@@ -48,6 +51,10 @@
 
                 vm.getSites();
             });
+        }
+
+        vm.editSite = function (id) {
+            $window.location.href = vm.editLink.replace("{0}", id);
         }
 
         vm.generateSite = function (id) {
