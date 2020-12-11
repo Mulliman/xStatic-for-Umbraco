@@ -54,18 +54,13 @@
             vm.currentTime[id] = 1;
 
             vm.timers[id] = setInterval(function () {
-                console.log("interval " + id, vm.currentTime[id]);
                 vm.currentTime[id] = vm.currentTime[id] + 1;
                 $scope.$apply();
             }, 1000);
 
             setTimeout(function () {
                 xStaticResource.generateSite(id).then(function (data) {
-                    console.log("generated files", data);
-
-
                     notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
-
 
                     vm.getSites();
 
@@ -76,20 +71,15 @@
         }
 
         vm.deploySite = function (id) {
-            console.log("deploying", id);
-
             vm.currentDeployTime[id] = 1;
 
             vm.deployTimers[id] = setInterval(function () {
-                console.log("interval " + id, vm.currentDeployTime[id]);
                 vm.currentDeployTime[id] = vm.currentDeployTime[id] + 1;
                 $scope.$apply();
             }, 1000);
 
             setTimeout(function () {
                 xStaticResource.deploySite(id).then(function (data) {
-                    console.log("deployed files", data);
-
                     if (data) {
                         notificationsService.success("Site Deployed Successfully", "Your site is updated.");
                     } else {
@@ -105,8 +95,6 @@
         }
 
         vm.downloadSite = function (id) {
-            console.log("downloading", id);
-
             $window.open(vm.downloadLink + id, '_blank');
         }
 
