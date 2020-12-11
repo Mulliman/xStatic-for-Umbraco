@@ -246,6 +246,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoPublish\XStaticOnPublishAutoDeployComponent.cs" />
     <Compile Include="Controllers\DeployController.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\GenerateController.cs" />
@@ -255,6 +256,8 @@
     <Compile Include="Db\XStaticDatabaseMigrationPlan.cs" />
     <Compile Include="GeneratedSite.cs" />
     <Compile Include="InstallerComposer.cs" />
+    <Compile Include="Processes\DeployProcess.cs" />
+    <Compile Include="Processes\RebuildProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SitesRepository.cs" />
     <Compile Include="SectionsAndTrees.cs" />

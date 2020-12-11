@@ -34,7 +34,7 @@ namespace XStatic.Generator
                 return null;
             }
 
-            var url = node.Url();
+            var url = node.Url(mode: UrlMode.Relative);
             string absoluteUrl = node.Url(mode: UrlMode.Absolute);
 
             var fileData = await GetFileData(absoluteUrl);

@@ -4,7 +4,9 @@ using Umbraco.Core.Composing;
 using XStatic.Deploy;
 using XStatic.Generator;
 using XStatic.Generator.Storage;
+using XStatic.Plugin.AutoPublish;
 using XStatic.Plugin.Db;
+using XStatic.Plugin.Repositories;
 
 namespace XStatic.Plugin
 {
@@ -16,8 +18,10 @@ namespace XStatic.Plugin
             composition.Register<IStaticHtmlSiteGenerator, StaticHtmlSiteGenerator>();
             composition.Register<IApiGenerator, JsonApiGenerator>();
             composition.Register<IDeployerFactory, DeployerFactory>();
-
+            composition.Register<SitesRepository>();
+            
             composition.Components().Append<XStaticDatabaseComponent>();
+            composition.Components().Append<XStaticOnPublishAutoDeployComponent>();
         }
     }
 }

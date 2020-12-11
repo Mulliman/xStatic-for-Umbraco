@@ -21,6 +21,17 @@ namespace XStatic.Plugin.Repositories
             return db.Fetch<ExtendedGeneratedSite>(query);
         }
 
+        public virtual IEnumerable<ExtendedGeneratedSite> GetAutoPublishSites()
+        {
+            var db = GetDb();
+
+            var query = new Sql().Select("*").From(SitesTableName);
+
+            var sites = db.Fetch<ExtendedGeneratedSite>(query);
+
+            return sites.Where(s => s.AutoPublish);
+        }
+
         public virtual GeneratedSite Get(int staticSiteId)
         {
             var db = GetDb();

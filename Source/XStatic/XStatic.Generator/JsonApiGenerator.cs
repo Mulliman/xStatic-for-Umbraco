@@ -26,7 +26,7 @@ namespace XStatic.Generator
                 return null;
             }
 
-            var url = node.Url();
+            var url = node.Url(mode: UrlMode.Relative);
             var fileData = GetJsonData(node);
 
             var transformedData = RunTransformers(fileData, transformers);
