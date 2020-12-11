@@ -47,7 +47,7 @@ namespace XStatic.Plugin.Controllers
 
             var entity = _sitesRepo.Get(staticSiteId);
 
-            if(entity == null)
+            if (entity == null)
             {
                 throw new HttpException(404, "Site not found with id " + staticSiteId);
             }
@@ -69,6 +69,6 @@ namespace XStatic.Plugin.Controllers
             return results.WasSuccessful.ToString();
         }
 
-        
+
     }
 }

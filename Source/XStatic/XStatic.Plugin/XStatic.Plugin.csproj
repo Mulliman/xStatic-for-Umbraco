@@ -250,6 +250,9 @@
     <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\GenerateController.cs" />
     <Compile Include="Controllers\SitesController.cs" />
+    <Compile Include="Db\XStaticDatabaseComponent.cs" />
+    <Compile Include="Db\XStaticDatabaseComposer.cs" />
+    <Compile Include="Db\XStaticDatabaseMigrationPlan.cs" />
     <Compile Include="GeneratedSite.cs" />
     <Compile Include="InstallerComposer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
