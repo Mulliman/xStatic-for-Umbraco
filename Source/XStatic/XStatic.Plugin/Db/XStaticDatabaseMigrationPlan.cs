@@ -8,7 +8,8 @@ namespace XStatic.Plugin.Db
             : base("xStatic")
         {
             From(string.Empty)
-                .To<MigrationCreateTable>("init");
+                .To<MigrationCreateTable>("init")
+                .To<MigrationAddTargetHostnameField>("Add Target Hostname field");
         }
     }
 
@@ -36,6 +37,25 @@ namespace XStatic.Plugin.Db
                     .WithColumn("LastDeployDurationInSeconds").AsInt16().Nullable()
                     .WithColumn("AssetPaths").AsString().Nullable()
                     .WithColumn("DeploymentTarget").AsString().Nullable();
+
+                builder.Do();
+            }
+        }
+    }
+
+    public class MigrationAddTargetHostnameField : MigrationBase
+    {
+        public MigrationAddTargetHostnameField(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        public override void Migrate()
+        {
+            if (TableExists("XStaticSiteConfigs"))
+            {
+                var builder = Alter.Table("XStaticSiteConfigs")
+                    .AddColumn("TargetHostname").AsString().Nullable();
 
                 builder.Do();
             }

@@ -80,6 +80,12 @@ namespace XStatic.Plugin
            View = @"~\App_Plugins\xStatic\fields\DeploymentTargetField.html")]
         public DeploymentTargetModel DeploymentTarget { get; set; }
 
+        [NullSetting(NullSetting = NullSettings.Null)]
+        [UIOMaticField(Name = "Target Hostname",
+            Description = "The site hostname you've configured for viewing the site locally will be replaced with this value.",
+            View = UIOMatic.Constants.FieldEditors.Textfield)]
+        public string TargetHostname { get; set; }
+
         public override string ToString()
         {
             return Name;

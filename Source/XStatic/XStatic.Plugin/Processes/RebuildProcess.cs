@@ -80,7 +80,12 @@ namespace XStatic.Plugin.Processes
             else if (entity.ExportFormat == "html")
             {
                 builder.AddTransformer((new CachedTimeTransformer()));
-
+                
+                if(!string.IsNullOrEmpty(entity.TargetHostname))
+                {
+                    builder.AddTransformer(new HostnameTransformer(entity.TargetHostname));
+                }
+                
                 var job = builder.Build();
                 var runner = new JobRunner(_htmlGenerator);
                 results.AddRange(await runner.RunJob(job));

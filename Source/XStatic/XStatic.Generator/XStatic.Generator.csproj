@@ -254,6 +254,7 @@
     <Compile Include="Storage\IFileNameGenerator.cs" />
     <Compile Include="Storage\IStaticSiteStorer.cs" />
     <Compile Include="Storage\JsonFileNameGenerator.cs" />
+    <Compile Include="Transformers\HostnameTransformer.cs" />
     <Compile Include="Transformers\UmbracoContentUdiToJsonUrlTransformer.cs" />
     <Compile Include="Transformers\CachedTimeTransformer.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
