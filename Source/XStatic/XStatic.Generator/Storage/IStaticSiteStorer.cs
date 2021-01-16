@@ -9,5 +9,7 @@ namespace XStatic.Generator.Storage
         Task<string> StoreSiteItem(string staticSiteId, string path, string contents, System.Text.Encoding encoding);
 
         Task<string> CopyFile(string subFolder, string sourcePath, string partialDestinationPath);
+
+        string GetFileDestinationPath(string subFolder, string partialDestinationPath);
     }
 }

@@ -13,7 +13,8 @@ namespace XStatic.Generator
 {
     public class JsonApiGenerator : GeneratorBase, IApiGenerator
     {
-        public JsonApiGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer) : base(umbracoContextFactory, storer)
+        public JsonApiGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator) 
+            : base(umbracoContextFactory, storer, imageCropNameGenerator)
         {
         }
 

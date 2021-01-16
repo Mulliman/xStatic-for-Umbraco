@@ -8,10 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
 using Umbraco.Core;
+using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.ModelsBuilder.Embedded;
 using Umbraco.Web;
+using Umbraco.Web.Models;
 using Umbraco.Web.Models.ContentEditing;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
@@ -24,11 +26,13 @@ namespace XStatic.Generator
 
         protected IUmbracoContextFactory _umbracoContextFactory;
         protected readonly IStaticSiteStorer _storer;
+        protected readonly IImageCropNameGenerator _imageCropNameGenerator;
 
-        protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer)
+        protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _storer = storer;
+            _imageCropNameGenerator = imageCropNameGenerator;
         }
 
         public virtual async Task<IEnumerable<string>> GenerateFolder(string folderPath, int staticSiteId)
@@ -79,9 +83,28 @@ namespace XStatic.Generator
                 return null;
             }
 
-            var absolutePath = System.Web.Hosting.HostingEnvironment.MapPath(partialPath);
+            var absoluteSourcePath = System.Web.Hosting.HostingEnvironment.MapPath(partialPath);
 
-            var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
+            var generatedFileLocation = await Copy(staticSiteId, absoluteSourcePath, partialPath);
+
+            if(crops?.Any() == true)
+            {
+                var fileName = Path.GetFileName(partialPath);
+                var fileExtension = Path.GetExtension(partialPath);
+                var pathSegment = partialPath.Replace(fileName, string.Empty);
+
+                foreach (var crop in crops)
+                {
+                    var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
+                    var cropUrl = absoluteUrl + query;
+
+                    var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
+                    var newPath = Path.Combine(pathSegment, newName + fileExtension);
+
+                    var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
+                    await SaveFileDataFromWebClient(cropUrl, destinationPath);
+                }
+            }
 
             return generatedFileLocation;
         }
@@ -161,6 +184,56 @@ namespace XStatic.Generator
             var relativeFilePath = umbracoFileSource;
 
             return relativeFilePath;
+        }
+
+        protected async Task<string> GetFileDataFromWebClient(string absoluteUrl)
+        {
+            try
+            {
+                if (absoluteUrl == null || absoluteUrl == "#") return null;
+
+                string downloadedSource;
+
+                using (var client = new System.Net.WebClient())
+                {
+                    client.Encoding = DefaultEncoder;
+
+                    downloadedSource = await client.DownloadStringTaskAsync(absoluteUrl);
+                }
+
+                return downloadedSource;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
+                //throw;
+            }
+
+            return null;
+        }
+
+        protected async Task<string> SaveFileDataFromWebClient(string absoluteUrl, string filePath)
+        {
+            try
+            {
+                if (absoluteUrl == null || absoluteUrl == "#") return null;
+
+                using (var client = new System.Net.WebClient())
+                {
+                    client.Encoding = DefaultEncoder;
+
+                    await client.DownloadFileTaskAsync(new Uri(absoluteUrl), filePath);
+                }
+
+                return filePath;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
+                //throw;
+            }
+
+            return null;
         }
     }
 }

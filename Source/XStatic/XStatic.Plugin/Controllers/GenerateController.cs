@@ -29,7 +29,9 @@ namespace XStatic.Plugin.Controllers
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private SitesRepository _sitesRepo;
 
-        public GenerateController(IStaticHtmlSiteGenerator htmlGenerator, IApiGenerator apiGenerator, IUmbracoContextFactory umbracoContextFactory)
+        public GenerateController(IStaticHtmlSiteGenerator htmlGenerator,
+            IApiGenerator apiGenerator,
+            IUmbracoContextFactory umbracoContextFactory)
         {
             _htmlGenerator = htmlGenerator;
             _apiGenerator = apiGenerator;

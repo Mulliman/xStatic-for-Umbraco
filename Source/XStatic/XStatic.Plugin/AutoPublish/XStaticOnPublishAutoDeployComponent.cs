@@ -24,13 +24,15 @@ namespace XStatic.Plugin.AutoPublish
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly IStaticSiteStorer _storer;
         private readonly IDeployerFactory _deployerFactory;
+        private readonly IImageCropNameGenerator _imageCropNameGenerator;
 
         public XStaticOnPublishAutoDeployComponent(SitesRepository sitesRepository,
             IStaticHtmlSiteGenerator htmlGenerator,
             IApiGenerator apiGenerator,
             IUmbracoContextFactory umbracoContextFactory,
             IStaticSiteStorer storer,
-            IDeployerFactory deployerFactory)
+            IDeployerFactory deployerFactory,
+            IImageCropNameGenerator imageCropNameGenerator)
         {
             _sitesRepository = sitesRepository;
             _htmlGenerator = htmlGenerator;
@@ -38,6 +40,7 @@ namespace XStatic.Plugin.AutoPublish
             _umbracoContextFactory = umbracoContextFactory;
             _storer = storer;
             _deployerFactory = deployerFactory;
+            _imageCropNameGenerator = imageCropNameGenerator;
         }
 
         // initialize: runs once when Umbraco starts

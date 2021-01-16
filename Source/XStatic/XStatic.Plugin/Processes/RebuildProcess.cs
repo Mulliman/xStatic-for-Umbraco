@@ -22,7 +22,9 @@ namespace XStatic.Plugin.Processes
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private SitesRepository _sitesRepo;
 
-        public RebuildProcess(IStaticHtmlSiteGenerator htmlGenerator, IApiGenerator apiGenerator, IUmbracoContextFactory umbracoContextFactory)
+        public RebuildProcess(IStaticHtmlSiteGenerator htmlGenerator,
+            IApiGenerator apiGenerator,
+            IUmbracoContextFactory umbracoContextFactory)
         {
             _htmlGenerator = htmlGenerator;
             _apiGenerator = apiGenerator;
@@ -53,6 +55,8 @@ namespace XStatic.Plugin.Processes
                     .AddPageWithDescendants(rootNode);
 
                 AddMediaToBuilder(entity, umbracoContext, builder);
+                AddMediaCropsToBuilder(entity, builder);
+
                 AddAssetsToBuilder(entity, builder);
 
                 var results = await GetResults(entity, builder);
@@ -80,6 +84,12 @@ namespace XStatic.Plugin.Processes
             else if (entity.ExportFormat == "html")
             {
                 builder.AddTransformer((new CachedTimeTransformer()));
+
+                if(!string.IsNullOrEmpty(entity.ImageCrops))
+                {
+                    var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
+                    builder.AddTransformer(new CroppedImageUrlTransformer(new ImageCropNameGenerator(), crops));
+                }
                 
                 if(!string.IsNullOrEmpty(entity.TargetHostname))
                 {
@@ -146,6 +156,18 @@ namespace XStatic.Plugin.Processes
                     }
                 }
             }
+        }
+
+
+        private void AddMediaCropsToBuilder(GeneratedSite entity, JobBuilder builder)
+        {
+            if(string.IsNullOrEmpty(entity.ImageCrops))
+            {
+                return;
+            }
+
+            var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
+            builder.AddMediaCrops(crops);
         }
     }
 }

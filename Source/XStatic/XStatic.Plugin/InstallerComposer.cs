@@ -15,6 +15,7 @@ namespace XStatic.Plugin
         public void Compose(Composition composition)
         {
             composition.Register<IStaticSiteStorer, AppDataSiteStorer>();
+            composition.Register<IImageCropNameGenerator, ImageCropNameGenerator>();
             composition.Register<IStaticHtmlSiteGenerator, StaticHtmlSiteGenerator>();
             composition.Register<IApiGenerator, JsonApiGenerator>();
             composition.Register<IDeployerFactory, DeployerFactory>();

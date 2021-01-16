@@ -9,7 +9,8 @@ namespace XStatic.Plugin.Db
         {
             From(string.Empty)
                 .To<MigrationCreateTable>("init")
-                .To<MigrationAddTargetHostnameField>("Add Target Hostname field");
+                .To<MigrationAddTargetHostnameField>("Add Target Hostname field")
+                .To<MigrationAddImageCropsField>("Add Image crops field");
         }
     }
 
@@ -56,6 +57,25 @@ namespace XStatic.Plugin.Db
             {
                 var builder = Alter.Table("XStaticSiteConfigs")
                     .AddColumn("TargetHostname").AsString().Nullable();
+
+                builder.Do();
+            }
+        }
+    }
+
+    public class MigrationAddImageCropsField : MigrationBase
+    {
+        public MigrationAddImageCropsField(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        public override void Migrate()
+        {
+            if (TableExists("XStaticSiteConfigs"))
+            {
+                var builder = Alter.Table("XStaticSiteConfigs")
+                    .AddColumn("ImageCrops").AsString().Nullable();
 
                 builder.Do();
             }

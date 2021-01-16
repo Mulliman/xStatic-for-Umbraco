@@ -252,8 +252,11 @@
     <Compile Include="Storage\AppDataSiteStorer.cs" />
     <Compile Include="Storage\EverythingIsIndexHtmlFileNameGenerator.cs" />
     <Compile Include="Storage\IFileNameGenerator.cs" />
+    <Compile Include="Storage\IImageCropNameGenerator.cs" />
+    <Compile Include="Storage\ImageCropNameGenerator.cs" />
     <Compile Include="Storage\IStaticSiteStorer.cs" />
     <Compile Include="Storage\JsonFileNameGenerator.cs" />
+    <Compile Include="Transformers\CroppedImageUrlTransformer.cs" />
     <Compile Include="Transformers\HostnameTransformer.cs" />
     <Compile Include="Transformers\UmbracoContentUdiToJsonUrlTransformer.cs" />
     <Compile Include="Transformers\CachedTimeTransformer.cs" />

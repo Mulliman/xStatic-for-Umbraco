@@ -69,7 +69,7 @@ namespace XStatic.Plugin
 
         [NullSetting(NullSetting = NullSettings.Null)]
         [UIOMaticField(Name = "Asset Paths",
-            Description = "Add folder names of files on disk that should also be packaged up. Comma separate e.g. assets/js,assets/css",
+            Description = "Add folder names of files on disk that should also be packaged up. Comma separate e.g. /assets/js,/assets/css",
             View = UIOMatic.Constants.FieldEditors.Textfield)]
         public string AssetPaths { get; set; }
 
@@ -85,6 +85,12 @@ namespace XStatic.Plugin
             Description = "The site hostname you've configured for viewing the site locally will be replaced with this value.",
             View = UIOMatic.Constants.FieldEditors.Textfield)]
         public string TargetHostname { get; set; }
+
+        [NullSetting(NullSetting = NullSettings.Null)]
+        [UIOMaticField(Name = "Image Crops",
+            Description = "Comma delimit the image crops you want to generate in the format {width}x{height}. E.g. 1600x900,800x450,320x0",
+            View = UIOMatic.Constants.FieldEditors.Textfield)]
+        public string ImageCrops { get; set; }
 
         public override string ToString()
         {

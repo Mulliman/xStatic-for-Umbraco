@@ -22,6 +22,8 @@ namespace XStatic.Generator
 
         public List<int> MediaIds { get; set; } = new List<int>();
 
+        public List<Crop> MediaCropSizes { get; set; } = new List<Crop>();
+
         public List<string> Folders { get; set; } = new List<string>();
 
         public List<string> Files { get; set; } = new List<string>();
@@ -47,7 +49,7 @@ namespace XStatic.Generator
 
             foreach (var id in job.MediaIds)
             {
-                returnList.Add(await _generator.GenerateMedia(id, job.StaticSiteId));
+                returnList.Add(await _generator.GenerateMedia(id, job.StaticSiteId, job.MediaCropSizes));
             }
 
             foreach (var folder in job.Folders)
@@ -124,6 +126,15 @@ namespace XStatic.Generator
             var childIds = media.Descendants().Select(c => c.Id);
 
             job.MediaIds.AddRange(childIds);
+
+            return this;
+        }
+        
+        public JobBuilder AddMediaCrops(IEnumerable<Crop> crops)
+        {
+            if (crops == null) return this;
+
+            job.MediaCropSizes.AddRange(crops);
 
             return this;
         }
