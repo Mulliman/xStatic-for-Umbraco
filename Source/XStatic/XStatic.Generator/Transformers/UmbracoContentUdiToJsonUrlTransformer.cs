@@ -10,6 +10,11 @@ namespace XStatic.Generator.Transformers
 
         public string Transform(string input, UmbracoContext context)
         {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
             _context = context;
 
             var regex = new Regex("umb://document/[a-f0-9]{32}");

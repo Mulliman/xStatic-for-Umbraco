@@ -40,6 +40,12 @@ namespace XStatic.Generator
 
             var fileData = await GetFileDataFromWebClient(absoluteUrl);
 
+
+            if(fileData == null)
+            {
+                return null;
+            }
+
             var transformedData = RunTransformers(fileData, transformers);
 
             var filePath = fileNamer.GetFilePartialPath(url);

@@ -13,6 +13,11 @@ namespace XStatic.Generator.Transformers
 
         public string Transform(string input, UmbracoContext context)
         {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
             var output = input;
 
             foreach(var domain in context.Domains.GetAll(false))

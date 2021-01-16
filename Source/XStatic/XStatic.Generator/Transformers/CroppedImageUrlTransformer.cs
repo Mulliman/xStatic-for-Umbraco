@@ -20,6 +20,11 @@ namespace XStatic.Generator.Transformers
 
         public string Transform(string input, UmbracoContext context)
         {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
             if (_crops?.Any() != true) return input;
 
             var updatedMarkup = input;
