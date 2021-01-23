@@ -23,6 +23,12 @@
                     'Failed to generate'
                 );
             },
+            clearSite: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.delete("/umbraco/backoffice/xstatic/Sites/ClearStoredSite?staticSiteId=" + id),
+                    'Failed to get all'
+                );
+            },
         }
     })
     .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource, $window, $timeout) {
@@ -92,6 +98,13 @@
                     clearInterval(vm.deployTimers[id]);
                 });
             }, 1000);
+        }
+
+        vm.clearData = function (site) {
+            xStaticResource.clearSite(site).then(function (data) {
+                notificationsService.success("Site Cleared Successfully");
+                vm.sites = data;
+            });
         }
 
         vm.downloadSite = function (id) {

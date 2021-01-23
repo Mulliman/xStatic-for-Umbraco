@@ -43,6 +43,10 @@
     .box-overlay__content div{
         padding:20px;
     }
+
+    .lighter-text{
+        color: #666;
+    }
 </style>
 
 
@@ -154,18 +158,25 @@
                                 </div>
                             </div>
 
+                            <div class="umb-panel-group__details-status">
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-folder" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        Size: {{site.FolderSize}} <a data-ng-click="vm.clearData(site.Id)" class="lighter-text">(Clean up)</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="box-footer">
-                            <!--<umb-button type="link"
-                        button-style="info"
-                        label="Edit">
-            </umb-button>-->
 
                             <umb-button action="vm.generateSite(site.Id)"
                                         type="button"
                                         button-style="success"
-                                        label="Rebuild"
+                                        label="Build"
                                         disabled="false">
                             </umb-button>
 
@@ -180,7 +191,7 @@
                                         type="button"
                                         button-style="action"
                                         label="Download"
-                                        data-ng-show="site.LastRun">
+                                        data-ng-show="site.LastRun && site.FolderSize != '0B'">
                             </umb-button>
                         </div>
 
