@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
@@ -15,6 +18,7 @@ using Umbraco.ModelsBuilder.Embedded;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Models.ContentEditing;
+using XStatic.Generator.Ssl;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
 
@@ -188,6 +192,8 @@ namespace XStatic.Generator
 
         protected async Task<string> GetFileDataFromWebClient(string absoluteUrl)
         {
+            SslTruster.TrustSslIfAppSettingConfigured();
+
             try
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
@@ -214,6 +220,8 @@ namespace XStatic.Generator
 
         protected async Task<string> SaveFileDataFromWebClient(string absoluteUrl, string filePath)
         {
+            SslTruster.TrustSslIfAppSettingConfigured();
+
             try
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;

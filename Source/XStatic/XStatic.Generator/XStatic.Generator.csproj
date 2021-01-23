@@ -249,6 +249,7 @@
     <Compile Include="Job.cs" />
     <Compile Include="JsonApiGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ssl\SslTruster.cs" />
     <Compile Include="StaticHtmlSiteGenerator.cs" />
     <Compile Include="Storage\AppDataSiteStorer.cs" />
     <Compile Include="Storage\EverythingIsIndexHtmlFileNameGenerator.cs" />

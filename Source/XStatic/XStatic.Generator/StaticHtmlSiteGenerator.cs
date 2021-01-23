@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
@@ -13,6 +14,7 @@ using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.ModelsBuilder.Embedded;
 using Umbraco.Web;
 using Umbraco.Web.Models.ContentEditing;
+using XStatic.Generator.Ssl;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
 
@@ -28,6 +30,8 @@ namespace XStatic.Generator
 
         public override async Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
+            SslTruster.TrustSslIfAppSettingConfigured();
+
             var node = GetNode(id);
 
             if (node == null)
@@ -39,7 +43,6 @@ namespace XStatic.Generator
             string absoluteUrl = node.Url(mode: UrlMode.Absolute);
 
             var fileData = await GetFileDataFromWebClient(absoluteUrl);
-
 
             if(fileData == null)
             {
