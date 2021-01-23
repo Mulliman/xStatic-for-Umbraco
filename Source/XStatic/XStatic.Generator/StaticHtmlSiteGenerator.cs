@@ -19,7 +19,7 @@ using XStatic.Generator.Transformers;
 namespace XStatic.Generator
 {
 
-    public class StaticHtmlSiteGenerator : GeneratorBase, IStaticHtmlSiteGenerator
+    public class StaticHtmlSiteGenerator : GeneratorBase
     {
         public StaticHtmlSiteGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator) 
             : base(umbracoContextFactory, storer, imageCropNameGenerator)

@@ -7,6 +7,7 @@ using XStatic.Generator.Storage;
 using XStatic.Plugin.AutoPublish;
 using XStatic.Plugin.Db;
 using XStatic.Plugin.Repositories;
+using XStatic.Plugin.ExportType;
 
 namespace XStatic.Plugin
 {
@@ -16,9 +17,12 @@ namespace XStatic.Plugin
         {
             composition.Register<IStaticSiteStorer, AppDataSiteStorer>();
             composition.Register<IImageCropNameGenerator, ImageCropNameGenerator>();
-            composition.Register<IStaticHtmlSiteGenerator, StaticHtmlSiteGenerator>();
-            composition.Register<IApiGenerator, JsonApiGenerator>();
+
+            composition.Register<StaticHtmlSiteGenerator>();
+            composition.Register<JsonApiGenerator>();
+
             composition.Register<IDeployerFactory, DeployerFactory>();
+            composition.Register<IExportTypeSettings, AppPluginsJsonExportTypeSettings>();
             composition.Register<SitesRepository>();
             
             composition.Components().Append<XStaticDatabaseComponent>();

@@ -12,23 +12,21 @@ using XStatic.Generator;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
 using XStatic.Plugin.Repositories;
+using XStatic.Plugin.ExportType;
 
 namespace XStatic.Plugin.Processes
 {
     public class RebuildProcess
     {
-        private readonly IStaticHtmlSiteGenerator _htmlGenerator;
-        private readonly IApiGenerator _apiGenerator;
         private readonly IUmbracoContextFactory _umbracoContextFactory;
+        private readonly IExportTypeSettings _exportTypeSettings;
         private SitesRepository _sitesRepo;
 
-        public RebuildProcess(IStaticHtmlSiteGenerator htmlGenerator,
-            IApiGenerator apiGenerator,
-            IUmbracoContextFactory umbracoContextFactory)
+        public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
+            IExportTypeSettings exportTypeSettings)
         {
-            _htmlGenerator = htmlGenerator;
-            _apiGenerator = apiGenerator;
             _umbracoContextFactory = umbracoContextFactory;
+            _exportTypeSettings = exportTypeSettings;
             _sitesRepo = new SitesRepository();
         }
 
@@ -59,6 +57,14 @@ namespace XStatic.Plugin.Processes
 
                 AddAssetsToBuilder(entity, builder);
 
+                var listFactory = _exportTypeSettings.GetTransformerListFactory(entity.ExportFormat);
+                var transformers = listFactory.BuildTransformers(entity);
+
+                if(transformers.Any())
+                {
+                    builder.AddTransformers(transformers);
+                }
+
                 var results = await GetResults(entity, builder);
 
                 stopwatch.Stop();
@@ -73,37 +79,16 @@ namespace XStatic.Plugin.Processes
         {
             var results = new List<string>();
 
-            if (entity.ExportFormat == "api")
-            {
-                builder.AddTransformer((new UmbracoContentUdiToJsonUrlTransformer()));
+            var generator = _exportTypeSettings.GetGenerator(entity.ExportFormat);
 
-                var job = builder.Build();
-                var runner = new JobRunner(_apiGenerator);
-                results.AddRange(await runner.RunJob(job));
-            }
-            else if (entity.ExportFormat == "html")
-            {
-                builder.AddTransformer((new CachedTimeTransformer()));
-
-                if(!string.IsNullOrEmpty(entity.ImageCrops))
-                {
-                    var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
-                    builder.AddTransformer(new CroppedImageUrlTransformer(new ImageCropNameGenerator(), crops));
-                }
-                
-                if(!string.IsNullOrEmpty(entity.TargetHostname))
-                {
-                    builder.AddTransformer(new HostnameTransformer(entity.TargetHostname));
-                }
-                
-                var job = builder.Build();
-                var runner = new JobRunner(_htmlGenerator);
-                results.AddRange(await runner.RunJob(job));
-            }
-            else
+            if(generator == null)
             {
                 throw new Exception("Export format not supported");
             }
+
+            var job = builder.Build();
+            var runner = new JobRunner(generator);
+            results.AddRange(await runner.RunJob(job));
 
             return results;
         }

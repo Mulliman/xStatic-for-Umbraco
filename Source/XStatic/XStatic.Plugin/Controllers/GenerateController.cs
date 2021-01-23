@@ -16,6 +16,7 @@ using Umbraco.Web.WebApi;
 using XStatic.Generator;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using XStatic.Plugin.ExportType;
 using XStatic.Plugin.Processes;
 using XStatic.Plugin.Repositories;
 
@@ -24,36 +25,23 @@ namespace XStatic.Plugin.Controllers
     [PluginController("xstatic")]
     public class GenerateController : UmbracoAuthorizedJsonController
     {
-        private readonly IStaticHtmlSiteGenerator _htmlGenerator;
-        private readonly IApiGenerator _apiGenerator;
         private readonly IUmbracoContextFactory _umbracoContextFactory;
+        private readonly IExportTypeSettings _exportTypeSettings;
         private SitesRepository _sitesRepo;
 
-        public GenerateController(IStaticHtmlSiteGenerator htmlGenerator,
-            IApiGenerator apiGenerator,
-            IUmbracoContextFactory umbracoContextFactory)
+        public GenerateController(
+            IUmbracoContextFactory umbracoContextFactory,
+            IExportTypeSettings exportTypeSettings)
         {
-            _htmlGenerator = htmlGenerator;
-            _apiGenerator = apiGenerator;
             _umbracoContextFactory = umbracoContextFactory;
+            _exportTypeSettings = exportTypeSettings;
             _sitesRepo = new SitesRepository();
-        }
-
-        [HttpGet]
-        public async Task<string> GenerateStaticPage(int nodeId, int staticSiteId)
-        {
-            var fileNamer = new EverythingIsIndexHtmlFileNameGenerator();
-            var transformers = new[] { new CachedTimeTransformer() };
-
-            var generatedFile = await _htmlGenerator.GeneratePage(nodeId, staticSiteId, fileNamer, transformers);
-
-            return generatedFile;
         }
 
         [HttpGet]
         public async Task<string> RebuildStaticSite(int staticSiteId)
         {
-            var process = new RebuildProcess(_htmlGenerator, _apiGenerator, _umbracoContextFactory);
+            var process = new RebuildProcess(_umbracoContextFactory, _exportTypeSettings);
 
             return await process.RebuildSite(staticSiteId);
         }

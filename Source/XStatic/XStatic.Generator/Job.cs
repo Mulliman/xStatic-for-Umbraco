@@ -86,6 +86,13 @@ namespace XStatic.Generator
             return this;
         }
 
+        public JobBuilder AddTransformers(IEnumerable<ITransformer> transformers)
+        {
+            job.Transformers.AddRange(transformers);
+
+            return this;
+        }
+
         public JobBuilder AddPage(IPublishedContent node)
         {
             if (node == null) return this;

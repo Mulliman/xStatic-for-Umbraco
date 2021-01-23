@@ -15,12 +15,4 @@ namespace XStatic.Generator
 
         Task<string> GenerateFile(string filePath, int staticSiteId);
     }
-
-    public interface IStaticHtmlSiteGenerator : IGenerator
-    {
-    }
-
-    public interface IApiGenerator : IGenerator
-    {
-    }
 }

@@ -261,6 +261,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SitesRepository.cs" />
     <Compile Include="SectionsAndTrees.cs" />
+    <Compile Include="ExportType\AppPluginsJsonExportTypeSettings.cs" />
+    <Compile Include="ExportType\IExportTypeSettings.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -245,6 +245,7 @@
     <Compile Include="GeneratorBase.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="IGenerator.cs" />
+    <Compile Include="ISiteConfig.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="JsonApiGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -257,7 +258,10 @@
     <Compile Include="Storage\IStaticSiteStorer.cs" />
     <Compile Include="Storage\JsonFileNameGenerator.cs" />
     <Compile Include="Transformers\CroppedImageUrlTransformer.cs" />
+    <Compile Include="Transformers\DefaultJsonTransformerListFactory.cs" />
     <Compile Include="Transformers\HostnameTransformer.cs" />
+    <Compile Include="Transformers\DefaultHtmlTransformerListFactory.cs" />
+    <Compile Include="Transformers\ITransformerListFactory.cs" />
     <Compile Include="Transformers\UmbracoContentUdiToJsonUrlTransformer.cs" />
     <Compile Include="Transformers\CachedTimeTransformer.cs" />
     <Compile Include="Transformers\ITransformer.cs" />

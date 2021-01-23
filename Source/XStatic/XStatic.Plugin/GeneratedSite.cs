@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using UIOMatic.Attributes;
 using Umbraco.Core.Persistence.DatabaseAnnotations;
+using XStatic.Generator;
 
 namespace XStatic.Plugin
 {
     [TableName("XStaticSiteConfigs")]
     [PrimaryKey("Id", AutoIncrement = true)]
     [UIOMatic("generatedSite", "Generated Sites", "Generated Sites", FolderIcon = "icon-sitemap", ItemIcon = "icon-umb-deploy", ParentAlias = "xstatic")]
-    public class GeneratedSite
+    public class GeneratedSite : ISiteConfig
     {
         [PrimaryKeyColumn(AutoIncrement = true)]
         public int Id { get; set; }
@@ -80,6 +81,8 @@ namespace XStatic.Plugin
            View = @"~\App_Plugins\xStatic\fields\DeploymentTargetField.html")]
         public DeploymentTargetModel DeploymentTarget { get; set; }
 
+        public IDeploymentTarget GetDeploymentTarget() => DeploymentTarget;
+
         [NullSetting(NullSetting = NullSettings.Null)]
         [UIOMaticField(Name = "Target Hostname",
             Description = "The site hostname you've configured for viewing the site locally will be replaced with this value.",
@@ -98,7 +101,7 @@ namespace XStatic.Plugin
         }
     }
 
-    public class DeploymentTargetModel
+    public class DeploymentTargetModel : IDeploymentTarget
     {
         public string id { get; set; }
 

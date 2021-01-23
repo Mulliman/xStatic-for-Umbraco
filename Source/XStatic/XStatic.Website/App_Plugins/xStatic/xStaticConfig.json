@@ -1,0 +1,16 @@
+﻿{
+  "exportTypes": [
+    {
+      "id": "api",
+      "name": "JSON API",
+      "transformerFactory": "XStatic.Generator.Transformers.DefaultJsonTransformerListFactory, XStatic.Generator",
+      "generator": "XStatic.Generator.JsonApiGenerator, XStatic.Generator"
+    },
+    {
+      "id": "html",
+      "name": "HTML site",
+      "transformerFactory": "XStatic.Generator.Transformers.DefaultHtmlTransformerListFactory, XStatic.Generator",
+      "generator": "XStatic.Generator.StaticHtmlSiteGenerator, XStatic.Generator"
+    }
+  ]
+}
