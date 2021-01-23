@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +27,8 @@ namespace XStatic.Generator
 {
     public abstract class GeneratorBase : IGenerator
     {
+        protected readonly string[] ResizeExtensions = new[] { "jpg", "jpeg", "png", "gif" };
+
         protected static readonly Encoding DefaultEncoder = Encoding.UTF8;
 
         protected IUmbracoContextFactory _umbracoContextFactory;
@@ -94,20 +97,23 @@ namespace XStatic.Generator
             if(crops?.Any() == true)
             {
                 var fileName = Path.GetFileName(partialPath);
-                var fileExtension = Path.GetExtension(partialPath);
+                var fileExtension = Path.GetExtension(partialPath)?.ToLower();
                 var pathSegment = partialPath.Replace(fileName, string.Empty);
 
-                foreach (var crop in crops)
+                if (ResizeExtensions.Contains(fileExtension.Trim('.')))
                 {
-                    var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
-                    var cropUrl = absoluteUrl + query;
+                    foreach (var crop in crops)
+                    {
+                        var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
+                        var cropUrl = absoluteUrl + query;
 
-                    var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
-                    var newPath = Path.Combine(pathSegment, newName + fileExtension);
+                        var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
+                        var newPath = Path.Combine(pathSegment, newName + fileExtension);
 
-                    var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
-                    await SaveFileDataFromWebClient(cropUrl, destinationPath);
-                }
+                        var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
+                        await SaveFileDataFromWebClient(cropUrl, destinationPath);
+                    }
+                }                
             }
 
             return generatedFileLocation;

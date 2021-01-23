@@ -8,18 +8,7 @@
                 PersonalAccessToken: "",
                 SiteId: ""
             }
-        },
-        {
-            id: "ftp",
-            name: "FTP",
-            help: "Enter the details of your FTP server.",
-            fields: {
-                Url: "",
-                Port: "",
-                User: "",
-                Password: "",
-            }
-            }];
+        }];
 
         $scope.selectedDeploymentType = null;
     });
