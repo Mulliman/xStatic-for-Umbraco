@@ -10,7 +10,7 @@ namespace XStatic.Library
 {
     public static class FileHelpers
     {
-        public static readonly string[] DefaultNonDeletePaths = new[] { ".git" };
+        public static readonly string[] DefaultNonDeletePaths = new[] { ".git", "CNAME" };
 
         public static string PathCombine(string path1, string path2)
         {

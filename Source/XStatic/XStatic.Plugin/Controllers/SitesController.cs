@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Web.Http;
 using System.Web.UI;
 using Umbraco.Core.Composing;
@@ -49,7 +51,21 @@ namespace XStatic.Plugin.Controllers
         {
             var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-            FileHelpers.DeleteFolderContents(folder, FileHelpers.DefaultNonDeletePaths);
+            var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
+
+            var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
+
+            if(doNotDeletePathsRaw != null)
+            {
+                var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if(split.Any())
+                {
+                    doNotDeletePaths = split;
+                }
+            }
+
+            FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
             
             return GetAll();
         }
