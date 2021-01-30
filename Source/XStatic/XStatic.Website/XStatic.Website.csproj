@@ -473,6 +473,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XStatic.Library\XStatic.Library.csproj">
+      <Project>{bd6a3680-3a3c-4998-a400-c9d80ba8c9a1}</Project>
+      <Name>XStatic.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XStatic.Plugin\XStatic.Plugin.csproj">
       <Project>{31773b32-eda1-46dc-8f02-ba00d2c3d25b}</Project>
       <Name>XStatic.Plugin</Name>

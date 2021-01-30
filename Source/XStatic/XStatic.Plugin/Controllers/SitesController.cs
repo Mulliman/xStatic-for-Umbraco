@@ -7,6 +7,7 @@ using Umbraco.Core.Composing;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Mvc;
 using XStatic.Generator.Storage;
+using XStatic.Library;
 using XStatic.Plugin.Repositories;
 
 namespace XStatic.Plugin.Controllers
@@ -35,9 +36,9 @@ namespace XStatic.Plugin.Controllers
                 site.RootPath = node.Parent == null ? node.Name : node.Parent.Name + "/" + node.Name;
 
                 var folder = _storer.GetStorageLocationOfSite(site.Id);
-                var size = GetDirectorySize(new DirectoryInfo(folder));
+                var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
 
-                site.FolderSize = BytesToString(size);
+                site.FolderSize = FileHelpers.BytesToString(size);
             }
 
             return sites;
@@ -48,40 +49,9 @@ namespace XStatic.Plugin.Controllers
         {
             var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-            if(Directory.Exists(folder))
-            {
-                Directory.Delete(folder, true);
-            }
+            FileHelpers.DeleteFolderContents(folder, FileHelpers.DefaultNonDeletePaths);
             
             return GetAll();
-        }
-
-        public static long GetDirectorySize(System.IO.DirectoryInfo directoryInfo, bool recursive = true)
-        {
-            var startDirectorySize = default(long);
-            if (directoryInfo == null || !directoryInfo.Exists)
-                return startDirectorySize; //Return 0 while Directory does not exist.
-
-            //Add size of files in the Current Directory to main size.
-            foreach (var fileInfo in directoryInfo.GetFiles())
-                System.Threading.Interlocked.Add(ref startDirectorySize, fileInfo.Length);
-
-            if (recursive) //Loop on Sub Direcotries in the Current Directory and Calculate it's files size.
-                System.Threading.Tasks.Parallel.ForEach(directoryInfo.GetDirectories(), (subDirectory) =>
-            System.Threading.Interlocked.Add(ref startDirectorySize, GetDirectorySize(subDirectory, recursive)));
-
-            return startDirectorySize;  //Return full Size of this Directory.
-        }
-
-        private static string BytesToString(long byteCount)
-        {
-            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-            if (byteCount == 0)
-                return "0" + suf[0];
-            long bytes = Math.Abs(byteCount);
-            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return (Math.Sign(byteCount) * num).ToString() + suf[place];
         }
     }
 

@@ -13,6 +13,7 @@ using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
 using XStatic.Plugin.Repositories;
 using XStatic.Plugin.ExportType;
+using XStatic.Library;
 
 namespace XStatic.Plugin.Processes
 {
@@ -102,7 +103,7 @@ namespace XStatic.Plugin.Processes
 
                 foreach (var path in splitPaths)
                 {
-                    var absolutePath = Utils.PathCombine(rootPath, path);
+                    var absolutePath = FileHelpers.PathCombine(rootPath, path);
 
                     if (Directory.Exists(absolutePath))
                     {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XStatic.Library;
 
 namespace XStatic.Deploy.Git
 {
@@ -77,7 +78,7 @@ namespace XStatic.Deploy.Git
                     }
                 });
 
-                FileHelper.CopyFilesInFolder(tempdir, folderPath);
+                FileHelpers.CopyFilesInFolder(tempdir, folderPath);
                 Directory.Delete(tempdir);
             }
             catch (Exception e)

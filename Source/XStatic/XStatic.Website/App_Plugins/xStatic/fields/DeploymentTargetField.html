@@ -12,7 +12,8 @@
         
         <div ng-repeat="(key, value)  in property.value.fields" class="deployment-target__row">
             <label class="deployment-target__label">{{key}}</label>
-            <input type="text" class="umb-property-editor" ng-model="property.value.fields[key]" />
+            <input ng-if="getInputType(key) == 'password'" type="password" class="umb-property-editor" ng-model="property.value.fields[key]" />
+            <input ng-if="getInputType(key) == 'text'" type="text" class="umb-property-editor" ng-model="property.value.fields[key]" />
         </div>
 
     </ng-form>

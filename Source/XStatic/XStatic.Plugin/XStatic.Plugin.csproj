@@ -263,7 +263,6 @@
     <Compile Include="SectionsAndTrees.cs" />
     <Compile Include="ExportType\AppPluginsJsonExportTypeSettings.cs" />
     <Compile Include="ExportType\IExportTypeSettings.cs" />
-    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -277,6 +276,10 @@
     <ProjectReference Include="..\XStatic.Generator\XStatic.Generator.csproj">
       <Project>{e37c384a-53f9-4ed2-b315-180d8b0adef6}</Project>
       <Name>XStatic.Generator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XStatic.Library\XStatic.Library.csproj">
+      <Project>{bd6a3680-3a3c-4998-a400-c9d80ba8c9a1}</Project>
+      <Name>XStatic.Library</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

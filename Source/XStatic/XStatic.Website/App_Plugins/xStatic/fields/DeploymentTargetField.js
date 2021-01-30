@@ -1,5 +1,7 @@
 ﻿angular.module("umbraco").controller("xStaticDeploymentTargetController",
     function ($scope) {
+        $scope.passwordFields = ["PersonalAccessToken", "Password"];
+
         $scope.deploymentTypes = [{
             id: "netlify",
             name: "Netlify",
@@ -20,7 +22,15 @@
                 Password: "",
                 Branch: ""
             }
-        }];
+            }];
+
+        $scope.getInputType = function (fieldName) {
+            if ($scope.passwordFields.indexOf(fieldName) > -1) {
+                return "password";
+            }
+
+            return "text";
+        }
 
         $scope.selectedDeploymentType = null;
     });
