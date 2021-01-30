@@ -76,7 +76,7 @@ namespace XStatic.Deploy.Git
                 });
 
                 FileHelpers.CopyFilesInFolder(tempdir, folderPath);
-                Directory.Delete(tempdir);
+                Directory.Delete(tempdir, true);
             }
             catch (Exception e)
             {
