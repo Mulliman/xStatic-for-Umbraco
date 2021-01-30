@@ -258,6 +258,7 @@
     <Compile Include="Storage\ImageCropNameGenerator.cs" />
     <Compile Include="Storage\IStaticSiteStorer.cs" />
     <Compile Include="Storage\JsonFileNameGenerator.cs" />
+    <Compile Include="Transformers\CachedByTransformer.cs" />
     <Compile Include="Transformers\CroppedImageUrlTransformer.cs" />
     <Compile Include="Transformers\DefaultJsonTransformerListFactory.cs" />
     <Compile Include="Transformers\HostnameTransformer.cs" />

@@ -11,7 +11,7 @@ namespace XStatic.Generator.Transformers
     {
         public virtual IEnumerable<ITransformer> BuildTransformers(ISiteConfig siteConfig)
         {
-            yield return new CachedTimeTransformer();
+            yield return new CachedByTransformer();
 
             if (!string.IsNullOrEmpty(siteConfig.ImageCrops))
             {
