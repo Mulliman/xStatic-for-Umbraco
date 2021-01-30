@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentFTP, Version=33.0.3.0, Culture=neutral, PublicKeyToken=f4af092b1d8df44f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentFTP.33.0.3\lib\net45\FluentFTP.dll</HintPath>
+    </Reference>
     <Reference Include="LibGit2Sharp, Version=0.26.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
       <HintPath>..\packages\LibGit2Sharp.0.26.2\lib\net46\LibGit2Sharp.dll</HintPath>
     </Reference>
@@ -42,6 +45,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,6 +56,7 @@
   <ItemGroup>
     <Compile Include="DeployerFactory.cs" />
     <Compile Include="DeployResult.cs" />
+    <Compile Include="Ftp\FtpDeployer.cs" />
     <Compile Include="Git\GitDeployer.cs" />
     <Compile Include="IDeployer.cs" />
     <Compile Include="IDeployerFactory.cs" />
@@ -67,6 +72,7 @@
       <Name>XStatic.Library</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

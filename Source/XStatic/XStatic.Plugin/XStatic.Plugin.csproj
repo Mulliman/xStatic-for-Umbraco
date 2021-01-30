@@ -254,6 +254,7 @@
     <Compile Include="Db\XStaticDatabaseComponent.cs" />
     <Compile Include="Db\XStaticDatabaseComposer.cs" />
     <Compile Include="Db\XStaticDatabaseMigrationPlan.cs" />
+    <Compile Include="Deploy\AppPluginsJsonDeployerFactory.cs" />
     <Compile Include="GeneratedSite.cs" />
     <Compile Include="InstallerComposer.cs" />
     <Compile Include="Processes\DeployProcess.cs" />
