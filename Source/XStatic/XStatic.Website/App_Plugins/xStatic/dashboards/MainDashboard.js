@@ -86,16 +86,20 @@
 
             setTimeout(function () {
                 xStaticResource.deploySite(id).then(function (data) {
-                    if (data) {
+                    if (data && data.WasSuccessful) {
                         notificationsService.success("Site Deployed Successfully", "Your site is updated.");
                     } else {
-                        alert("Bad");
+                        notificationsService.error("Site Deploy Error", data.Message);
                     }
 
                     vm.getSites();
 
                     vm.currentDeployTime[id] = 0;
                     clearInterval(vm.deployTimers[id]);
+                }, function (err) {
+                    vm.currentDeployTime[id] = 0;
+                    clearInterval(vm.deployTimers[id]);
+                    notificationsService.error("Site Deploy Error", data.Message);
                 });
             }, 1000);
         }

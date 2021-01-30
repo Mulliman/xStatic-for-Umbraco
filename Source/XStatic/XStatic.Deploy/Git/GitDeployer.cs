@@ -27,17 +27,14 @@ namespace XStatic.Deploy.Git
             _branch = parameters["Branch"];
         }
 
-        public async Task<DeployResult> DeployWholeSite(string folderPath)
+        public async Task<XStaticResult> DeployWholeSite(string folderPath)
         {
             var result = Deploy(folderPath);
 
-            return new DeployResult
-            {
-                WasSuccessful = result
-            };
+            return result;
         }
 
-        public bool Deploy(string folderPath)
+        public XStaticResult Deploy(string folderPath)
         {
             try
             {
@@ -48,12 +45,12 @@ namespace XStatic.Deploy.Git
 
                 CommitAndPush(folderPath, _branch);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return false;
+                return XStaticResult.Error("Error deploying site using Git.", e);
             }
             
-            return true;
+            return XStaticResult.Success("Git branch committed and pushed to remote.");
         }
 
         public void CloneRepo(string folderPath, string branch)

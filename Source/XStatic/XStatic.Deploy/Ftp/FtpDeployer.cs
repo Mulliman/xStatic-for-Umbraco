@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XStatic.Library;
 
 namespace XStatic.Deploy.Ftp
 {
@@ -27,17 +28,12 @@ namespace XStatic.Deploy.Ftp
             int.TryParse(parameters["Port"], out _port);
         }
 
-        public virtual async Task<DeployResult> DeployWholeSite(string folderPath)
+        public virtual async Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            var result = Deploy(folderPath);
-
-            return new DeployResult
-            {
-                WasSuccessful = result
-            };
+            return Deploy(folderPath);
         }
 
-        public virtual bool Deploy(string folderPath)
+        public virtual XStaticResult Deploy(string folderPath)
         {
             try
             {
@@ -54,10 +50,10 @@ namespace XStatic.Deploy.Ftp
             }
             catch (Exception e)
             {
-                return false;
+                return XStaticResult.Error("Error deploying the site using FTP.", e);
             }
-            
-            return true;
+
+            return XStaticResult.Success("Site deployed using FTP.");
         }
     }
 }

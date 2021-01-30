@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
+using Umbraco.Core.Logging;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Mvc;
 using XStatic.Deploy;
 using XStatic.Generator.Storage;
+using XStatic.Library;
 using XStatic.Plugin.Processes;
 using XStatic.Plugin.Repositories;
 
@@ -24,11 +26,18 @@ namespace XStatic.Plugin.Controllers
         }
 
         [HttpGet]
-        public async Task<string> DeployStaticSite(int staticSiteId)
+        public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)
         {
             var process = new DeployProcess(_storer, _deployerFactory, _sitesRepo);
+            
+            var result = await process.DeployStaticSite(staticSiteId);
 
-            return await process.DeployStaticSite(staticSiteId);
+            if(!result.WasSuccessful)
+            {
+                Logger.Error<DeployController>(result.Exception, result.Message);
+            }
+
+            return result;
         }
     }
 }

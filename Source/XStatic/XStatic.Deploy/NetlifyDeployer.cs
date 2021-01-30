@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using XStatic.Library;
 
 namespace XStatic.Deploy
 {
@@ -17,23 +19,60 @@ namespace XStatic.Deploy
         private readonly string _pat;
         private readonly string _appId;
 
-        public NetlifyDeployer(Dictionary<string,string> parameters)
+        public NetlifyDeployer(Dictionary<string, string> parameters)
         {
             _pat = parameters["PersonalAccessToken"];
             _appId = parameters["SiteId"];
         }
 
-        public async Task<DeployResult> DeployWholeSite(string folderPath)
+        public virtual async Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            var result = Deploy(_appId, folderPath);
-
-            return new DeployResult
-            {
-                WasSuccessful = result
-            };
+            return Deploy(_appId, folderPath);
         }
 
-        public bool Deploy(string siteId, string folderPath)
+        public virtual XStaticResult Deploy(string siteId, string folderPath)
+        {
+            Deployment deployment;
+
+            var hashes = GetHashes(siteId, folderPath);
+
+            try
+            {
+                deployment = CheckNetlifyForRequiredChanges(siteId, folderPath, hashes);
+            }
+            catch (WebException we)
+            {
+                return XStaticResult.Error("Error uploding file hashes to Netlify. The deployment was not completed.", we);
+            }
+            catch (Exception e)
+            {
+                return XStaticResult.Error("Error parsing Netlify response. The deployment was not completed.", e);
+            }
+
+            var client = new WebClient();
+
+            foreach (var hash in deployment.required)
+            {
+                var toUpload = hashes.Where(e => e.Value == hash);
+                foreach (var fileHashToUpload in toUpload)
+                {
+                    try
+                    {
+                        UploadFileToNetlify(fileHashToUpload, folderPath, client, deployment);
+                    }
+                    catch (WebException ex)
+                    {
+                        client.Dispose();
+                        return XStaticResult.Error($"Error uploding file {fileHashToUpload.Key} to Netlify. The deployment was not completed.", ex);
+                    }
+                }
+            }
+
+            client.Dispose();
+            return XStaticResult.Success("Site was successfully deployed to Netlify.");
+        }
+
+        protected virtual Dictionary<string, string> GetHashes(string siteId, string folderPath)
         {
             var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
             var hashes = new Dictionary<string, string>();
@@ -55,12 +94,18 @@ namespace XStatic.Deploy
                 }
             }
 
+            return hashes;
+        }
+
+        protected virtual Deployment CheckNetlifyForRequiredChanges(string siteId, string folderPath, Dictionary<string, string> hashes)
+        {
             var json = JsonConvert.SerializeObject(new { files = hashes, draft = false });
             var client = new WebClient();
-            //client.Credentials = new NetworkCredential(_access_token, "");
+
             client.Headers.Add("Authorization", "Bearer " + _pat);
             client.Headers.Add("Content-Type", "application/json");
             string response;
+
             try
             {
                 response = client.UploadString(Api + "sites/" + siteId + "/deploys", "POST", json);
@@ -68,38 +113,26 @@ namespace XStatic.Deploy
             catch (WebException ex)
             {
                 client.Dispose();
-                return false;
+                throw;
             }
 
             var deployment = JsonConvert.DeserializeObject<Deployment>(response);
-            foreach (var hash in deployment.required)
-            {
-                var fs = hashes.Where(e => e.Value == hash);
-                foreach (var f in fs)
-                {
-                    var filePath = f.Key;
-                    var fullPath = Path.Combine(folderPath, filePath.TrimStart('/').Replace('/', '\\'));
-                    if (!File.Exists(fullPath))
-                    {
-                        continue;
-                    }
 
-                    var fileContent = File.ReadAllText(fullPath);
-                    client.Headers.Add("Content-Type", "application/octet-stream");
-                    try
-                    {
-                        client.UploadFile(Api + "deploys/" + deployment.id + "/files" + filePath, "PUT", fullPath);
-                    }
-                    catch (WebException ex)
-                    {
-                        client.Dispose();
-                        return false;
-                    }
-                }
+            return deployment;
+        }
+
+        protected void UploadFileToNetlify(KeyValuePair<string, string> fileHashToUpload, string folderPath, WebClient client, Deployment deployment)
+        {
+            var filePath = fileHashToUpload.Key;
+            var fullPath = Path.Combine(folderPath, filePath.TrimStart('/').Replace('/', '\\'));
+            if (!File.Exists(fullPath))
+            {
+                return;
             }
 
-            client.Dispose();
-            return true;
+            client.Headers.Add("Content-Type", "application/octet-stream");
+
+            client.UploadFile(Api + "deploys/" + deployment.id + "/files" + filePath, "PUT", fullPath);
         }
     }
 

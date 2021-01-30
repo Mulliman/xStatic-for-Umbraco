@@ -1,8 +1,9 @@
 ﻿
+using XStatic.Library;
+
 namespace XStatic.Deploy
 {
-    public class DeployResult
+    public class DeployResult : XStaticResult
     {
-        public bool WasSuccessful { get; set; }
     }
 }

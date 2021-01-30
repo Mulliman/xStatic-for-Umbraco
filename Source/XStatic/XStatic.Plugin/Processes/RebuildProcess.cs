@@ -144,7 +144,6 @@ namespace XStatic.Plugin.Processes
             }
         }
 
-
         private void AddMediaCropsToBuilder(GeneratedSite entity, JobBuilder builder)
         {
             if(string.IsNullOrEmpty(entity.ImageCrops))

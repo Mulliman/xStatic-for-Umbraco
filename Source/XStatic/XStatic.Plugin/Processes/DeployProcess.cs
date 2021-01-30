@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web;
 using XStatic.Deploy;
 using XStatic.Generator.Storage;
+using XStatic.Library;
 using XStatic.Plugin.Repositories;
 
 namespace XStatic.Plugin.Processes
@@ -25,7 +26,7 @@ namespace XStatic.Plugin.Processes
             _sitesRepo = sitesRepo;
         }
 
-        public async Task<string> DeployStaticSite(int staticSiteId)
+        public async Task<XStaticResult> DeployStaticSite(int staticSiteId)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -46,12 +47,12 @@ namespace XStatic.Plugin.Processes
 
             var deployer = _deployerFactory.GetDeployer(entity.DeploymentTarget.id, entity.DeploymentTarget.fields);
 
-            var results = await deployer.DeployWholeSite(path);
+            var result = await deployer.DeployWholeSite(path);
 
             stopwatch.Stop();
             _sitesRepo.UpdateLastDeploy(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
 
-            return results.WasSuccessful.ToString();
+            return result;
         }
     }
 }
