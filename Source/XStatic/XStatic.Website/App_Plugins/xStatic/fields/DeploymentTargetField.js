@@ -8,6 +8,18 @@
                 PersonalAccessToken: "",
                 SiteId: ""
             }
+        },
+        {
+            id: "git",
+            name: "Git",
+            help: "First create an empty git repo. This deployer will clone the remote and then push changes back on each deploy.",
+            fields: {
+                RemoteUrl: "",
+                Email: "",
+                Username: "",
+                Password: "",
+                Branch: ""
+            }
         }];
 
         $scope.selectedDeploymentType = null;

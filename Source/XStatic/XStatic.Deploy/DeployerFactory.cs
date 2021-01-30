@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using XStatic.Deploy.Git;
 
 namespace XStatic.Deploy
 {
@@ -11,6 +12,9 @@ namespace XStatic.Deploy
             {
                 case NetlifyDeployer.DeployerKey:
                     return new NetlifyDeployer(properties);
+
+                case GitDeployer.DeployerKey:
+                    return new GitDeployer(properties);
 
                 default:
                     throw new Exception($"Deployer not found with key {deployerKey}.");
