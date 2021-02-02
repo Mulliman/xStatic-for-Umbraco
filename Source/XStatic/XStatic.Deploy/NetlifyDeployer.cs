@@ -50,6 +50,7 @@ namespace XStatic.Deploy
             }
 
             var client = new WebClient();
+            client.Headers.Add("Authorization", "Bearer " + _pat);
 
             foreach (var hash in deployment.required)
             {
