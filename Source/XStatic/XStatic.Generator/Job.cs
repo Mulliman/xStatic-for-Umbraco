@@ -164,6 +164,18 @@ namespace XStatic.Generator
             return this;
         }
 
+        public JobBuilder AddAssetFiles(IEnumerable<string> relativePaths)
+        {
+            if (relativePaths?.Any() != true) return this;
+
+            foreach(var path in relativePaths)
+            {
+                job.Files.Add(path);
+            }
+
+            return this;
+        }
+
         public Job Build()
         {
             return job;

@@ -105,13 +105,22 @@ namespace XStatic.Plugin.Processes
                 {
                     var absolutePath = FileHelpers.PathCombine(rootPath, path);
 
-                    if (Directory.Exists(absolutePath))
+                    if(path.Contains("?") || path.Contains("*"))
+                    {
+                        var trimmedPath = path.TrimStart(new[] { '\\', '/' });
+
+                        var directory = new DirectoryInfo(rootPath);
+                        var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
+
+                        builder.AddAssetFiles(files.Select(f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
+                    }
+                    else if (Directory.Exists(absolutePath))
                     {
                         builder.AddAssetFolder(path);
                     }
                     else if (System.IO.File.Exists(absolutePath))
                     {
-                        builder.AddAssetFolder(path);
+                        builder.AddAssetFile(path);
                     }
                     else
                     {
