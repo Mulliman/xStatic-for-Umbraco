@@ -25,6 +25,19 @@
       "deployer": "XStatic.Deploy.NetlifyDeployer, XStatic.Deploy"
     },
     {
+      "id": "netlifyandimagekit",
+      "name": "Netlify with Imagekit",
+      "help": "You'll need both a Netlify and Imagekit account for this.",
+      "fields": {
+        "PersonalAccessToken": "",
+        "SiteId": "",
+        "ImageKitPublicKey": "",
+        "ImageKitPrivateKey": "",
+        "ImageKitEndpoint": ""
+      },
+      "deployer": "XStatic.ImageKit.NetlifyWithImageKitMediaDeployer, XStatic.ImageKit"
+    },
+    {
       "id": "git",
       "name": "Git",
       "help": "First create an empty git repo. This deployer will clone the remote and then push changes back on each deploy.",
@@ -43,7 +56,7 @@
       "help": "The remote FTP files will be mirrored to match the generated site.",
       "fields": {
         "Hostname": "",
-        "Port":  "",
+        "Port": "",
         "Username": "",
         "Password": "",
         "Folder": ""

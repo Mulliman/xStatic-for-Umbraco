@@ -10,7 +10,8 @@ namespace XStatic.Plugin.Db
             From(string.Empty)
                 .To<MigrationCreateTable>("init")
                 .To<MigrationAddTargetHostnameField>("Add Target Hostname field")
-                .To<MigrationAddImageCropsField>("Add Image crops field");
+                .To<MigrationAddImageCropsField>("Add Image crops field")
+                .To<MigrationMakeSomeFieldsLonger>("Make some fields longer");
         }
     }
 
@@ -76,6 +77,26 @@ namespace XStatic.Plugin.Db
             {
                 var builder = Alter.Table("XStaticSiteConfigs")
                     .AddColumn("ImageCrops").AsString().Nullable();
+
+                builder.Do();
+            }
+        }
+    }
+
+    public class MigrationMakeSomeFieldsLonger : MigrationBase
+    {
+        public MigrationMakeSomeFieldsLonger(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        public override void Migrate()
+        {
+            if (TableExists("XStaticSiteConfigs"))
+            {
+                var builder = Alter.Table("XStaticSiteConfigs")
+                    .AlterColumn("AssetPaths").AsString(1000).Nullable()
+                    .AlterColumn("DeploymentTarget").AsString(2500).Nullable();
 
                 builder.Do();
             }

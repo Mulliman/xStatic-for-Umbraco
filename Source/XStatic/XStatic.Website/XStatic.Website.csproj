@@ -473,6 +473,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XStatic.ImageKit\XStatic.ImageKit.csproj">
+      <Project>{b304ffb9-d5bf-444c-9b41-fe7a9d4ed44d}</Project>
+      <Name>XStatic.ImageKit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XStatic.Library\XStatic.Library.csproj">
       <Project>{bd6a3680-3a3c-4998-a400-c9d80ba8c9a1}</Project>
       <Name>XStatic.Library</Name>
