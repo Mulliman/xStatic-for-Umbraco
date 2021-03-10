@@ -17,6 +17,7 @@ namespace XStatic.ImageKit
         private readonly string _imageKitPublicKey;
         private readonly string _imageKitPrivateKey;
         private readonly string _imageKitEndpoint;
+        private readonly ImageKitService _imageKitService;
 
         public NetlifyWithImageKitMediaDeployer(Dictionary<string, string> parameters) : base(parameters)
         {
@@ -24,6 +25,8 @@ namespace XStatic.ImageKit
             _imageKitPublicKey = parameters["ImageKitPublicKey"];
             _imageKitPrivateKey = parameters["ImageKitPrivateKey"];
             _imageKitEndpoint = parameters["ImageKitEndpoint"];
+
+            _imageKitService = new ImageKitService(_imageKitPublicKey, _imageKitPrivateKey, _imageKitEndpoint);
         }
 
         public override async Task<XStaticResult> DeployWholeSite(string folderPath)
@@ -51,36 +54,15 @@ namespace XStatic.ImageKit
         {
             var files = Directory.EnumerateFiles(mediaFolderPath, "*.*", SearchOption.AllDirectories);
 
-            var imagekitGetter = new ServerImagekit(_imageKitPublicKey, _imageKitPrivateKey, _imageKitEndpoint, "path");
-            var allFiles = await imagekitGetter.ListFilesAsync();
-
-            var allFilePaths = new HashSet<string>(allFiles.Select(f => f.FilePath));
-
-            foreach (var f in files)
+            foreach (var f in files.Where(f => File.Exists(f)))
             {
-                if (!File.Exists(f))
+                try
                 {
-                    continue;
+                    await _imageKitService.UploadFile(f, mediaFolderPath);
                 }
-
-                var imagekit = new ServerImagekit(_imageKitPublicKey, _imageKitPrivateKey, _imageKitEndpoint, "path");
-                var relativePath = ("/" + FileHelpers.GetRelativePath(mediaFolderPath, f)).Replace("\\", "/");
-                var fileName = Path.GetFileName(f);
-
-                if (allFilePaths.Contains(relativePath))
+                catch (Exception e)
                 {
-                    continue;
-                }
-
-                imagekit.FileName(fileName);
-                imagekit.Folder(relativePath.Replace(fileName, string.Empty));
-                imagekit.UseUniqueFileName(false);
-
-                var response = await imagekit.UploadAsync(f);
-
-                if(response.Exception)
-                {
-                    return XStaticResult.Error(response.Message);
+                    return XStaticResult.Error(e.Message);
                 }
             }
 

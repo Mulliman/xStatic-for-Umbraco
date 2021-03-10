@@ -11,6 +11,12 @@
       "name": "HTML site",
       "transformerFactory": "XStatic.Generator.Transformers.DefaultHtmlTransformerListFactory, XStatic.Generator",
       "generator": "XStatic.Generator.StaticHtmlSiteGenerator, XStatic.Generator"
+    },
+    {
+      "id": "customhtml",
+      "name": "Custom HTML site",
+      "transformerFactory": "XStatic.ImageKit.ImagekitTransformerFactory, XStatic.ImageKit",
+      "generator": "XStatic.Generator.StaticHtmlSiteGenerator, XStatic.Generator"
     }
   ],
   "deployers": [
