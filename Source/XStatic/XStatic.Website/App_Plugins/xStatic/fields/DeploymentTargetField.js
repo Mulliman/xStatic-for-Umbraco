@@ -1,6 +1,6 @@
 ﻿angular.module("umbraco").controller("xStaticDeploymentTargetController",
     function ($scope, $http) {
-        $scope.passwordFields = ["PersonalAccessToken", "Password"];
+        $scope.passwordFields = ["PersonalAccessToken", "Password", "ImageKitPublicKey", "ImageKitPrivateKey"];
 
         $scope.deploymentTypes = [];
 
