@@ -31,20 +31,45 @@ namespace XStatic.ImageKit
 
             foreach (var crop in _crops)
             {
-                var imagesRegex = new Regex($"(?:['\"(])/media/((?=.*width={crop.Width})(?=.*height={crop.Height})).*(?:['\")])");
-                updatedMarkup = imagesRegex.Replace(updatedMarkup, (match) =>
-                {
-                    var str = match.ToString();
-                    var preAndPostQueryParts = str.Split('?');
-                    var partialPath = preAndPostQueryParts.First().Trim('\'', '\"');
-                    var fileName = Path.GetFileName(partialPath);
-                    string newMediaPath = GetResizedUrl(crop, partialPath);
-
-                    return str.Replace("?", "&").Replace(partialPath, newMediaPath);
-                });
+                updatedMarkup = ReplaceMediaUrlsWithImageKitCrops(updatedMarkup, crop);
             }
 
+            updatedMarkup = ReplaceMediaUrlsWithImageKitImages(updatedMarkup);
+
             return updatedMarkup;
+        }
+
+        private string ReplaceMediaUrlsWithImageKitCrops(string markup, Crop crop)
+        {
+            var imagesRegex = new Regex($"(?:['\"(])/media/((?=.*width={crop.Width})(?=.*height={crop.Height})).*(?:['\")])");
+            var updated = imagesRegex.Replace(markup, (match) =>
+            {
+                var str = match.ToString();
+                var preAndPostQueryParts = str.Split('?');
+                var partialPath = preAndPostQueryParts.First().Trim('\'', '\"');
+                var fileName = Path.GetFileName(partialPath);
+                string newMediaPath = GetResizedUrl(crop, partialPath);
+
+                return str.Replace("?", "&").Replace(partialPath, newMediaPath);
+            });
+
+            return updated;
+        }
+
+        private string ReplaceMediaUrlsWithImageKitImages(string markup)
+        {
+            var nonCroppedImagesRegex = new Regex($"(?:['\"(])/media/.*(?:['\")])");
+            var updated = nonCroppedImagesRegex.Replace(markup, (match) =>
+            {
+                var str = match.ToString();
+                var preAndPostQueryParts = str.Split('?');
+                var partialPath = preAndPostQueryParts.First().Trim('\'', '\"');
+                string newMediaPath = GetResizedUrl(partialPath);
+
+                return str.Replace("?", "&").Replace(partialPath, newMediaPath);
+            });
+
+            return updated;
         }
 
         private static string GetResizedUrl(Crop crop, string partialPath)
@@ -67,6 +92,11 @@ namespace XStatic.ImageKit
             }
 
             return "https://ik.imagekit.io/xstatic" + partialPath.Replace("/media", string.Empty) + query;
+        }
+
+        private static string GetResizedUrl(string partialPath)
+        {
+            return "https://ik.imagekit.io/xstatic" + partialPath.Replace("/media", string.Empty);
         }
     }
 }
