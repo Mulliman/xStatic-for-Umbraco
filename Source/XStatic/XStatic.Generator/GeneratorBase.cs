@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
+using System.Web.Hosting;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
@@ -22,6 +23,8 @@ using Umbraco.Web.Models.ContentEditing;
 using XStatic.Generator.Ssl;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using Umbraco.Core.IO;
+using XStatic.Library;
 
 namespace XStatic.Generator
 {
@@ -34,12 +37,14 @@ namespace XStatic.Generator
         protected IUmbracoContextFactory _umbracoContextFactory;
         protected readonly IStaticSiteStorer _storer;
         protected readonly IImageCropNameGenerator _imageCropNameGenerator;
+        protected readonly IMediaFileSystem _mediaFileSystem;
 
-        protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator)
+        protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator, IMediaFileSystem mediaFileSystem)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _storer = storer;
             _imageCropNameGenerator = imageCropNameGenerator;
+            _mediaFileSystem = mediaFileSystem;
         }
 
         public virtual async Task<IEnumerable<string>> GenerateFolder(string folderPath, int staticSiteId)
@@ -61,10 +66,10 @@ namespace XStatic.Generator
             return created;
         }
 
-        public virtual async Task<string> GenerateFile(string filePath, int staticSiteId)
+        public virtual async Task<string> GenerateFile(string partialPath, int staticSiteId)
         {
-            var partialPath = filePath;
-            var absolutePath = System.Web.Hosting.HostingEnvironment.MapPath(partialPath);
+            var rootPath = HostingEnvironment.MapPath("~/");
+            var absolutePath = FileHelpers.PathCombine(rootPath, partialPath);
 
             var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
 
@@ -90,9 +95,9 @@ namespace XStatic.Generator
                 return null;
             }
 
-            var absoluteSourcePath = System.Web.Hosting.HostingEnvironment.MapPath(partialPath);
+            var mediaFileStream = _mediaFileSystem.OpenFile(partialPath);
 
-            var generatedFileLocation = await Copy(staticSiteId, absoluteSourcePath, partialPath);
+            var generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
 
             if(crops?.Any() == true)
             {
@@ -142,6 +147,11 @@ namespace XStatic.Generator
         protected async Task<string> Copy(int staticSiteId, string absoluteFilePath, string filePath)
         {
             return await _storer.CopyFile(staticSiteId.ToString(), absoluteFilePath, filePath);
+        }
+
+        protected async Task<string> Save(int staticSiteId, Stream stream, string filePath)
+        {
+            return await _storer.SaveFile(staticSiteId.ToString(), stream, filePath);
         }
 
         protected UmbracoContext GetContext()
