@@ -8,13 +8,14 @@ using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using Umbraco.Core.IO;
 
 namespace XStatic.Generator
 {
     public class JsonApiGenerator : GeneratorBase
     {
-        public JsonApiGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator) 
-            : base(umbracoContextFactory, storer, imageCropNameGenerator)
+        public JsonApiGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator, IMediaFileSystem mediaFileSystem) 
+            : base(umbracoContextFactory, storer, imageCropNameGenerator, mediaFileSystem)
         {
         }
 
