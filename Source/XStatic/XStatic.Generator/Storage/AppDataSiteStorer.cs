@@ -31,6 +31,19 @@ namespace XStatic.Generator.Storage
             return filePath;
         }
 
+        public async Task<string> SaveFile(string subFolder, Stream stream, string partialDestinationPath)
+        {
+            var filePath = GetFileDestinationPath(subFolder, partialDestinationPath);
+
+            using (var fileStream = File.Create(filePath))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                stream.CopyTo(fileStream);
+            }
+
+            return filePath;
+        }
+
         public string GetFileDestinationPath(string subFolder, string partialDestinationPath)
         {
             string storagePath = System.Web.Hosting.HostingEnvironment.MapPath("/App_Data/xStatic/output/" + subFolder + "/" + partialDestinationPath);

@@ -17,14 +17,15 @@ using Umbraco.Web.Models.ContentEditing;
 using XStatic.Generator.Ssl;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using Umbraco.Core.IO;
 
 namespace XStatic.Generator
 {
 
     public class StaticHtmlSiteGenerator : GeneratorBase
     {
-        public StaticHtmlSiteGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator) 
-            : base(umbracoContextFactory, storer, imageCropNameGenerator)
+        public StaticHtmlSiteGenerator(IUmbracoContextFactory umbracoContextFactory, IStaticSiteStorer storer, IImageCropNameGenerator imageCropNameGenerator, IMediaFileSystem mediaFileSystem) 
+            : base(umbracoContextFactory, storer, imageCropNameGenerator, mediaFileSystem)
         {
         }
 
