@@ -1,0 +1,57 @@
+﻿/* Utilities */
+
+.x-text-center {
+    text-align: center;
+}
+
+.x-no-padding-top {
+    padding-top: 0;
+}
+
+.x-padding-top-small {
+    padding-top: 5px;
+}
+
+.x-padding-top {
+    padding-top: 10px;
+}
+
+.x-padding-bottom-small {
+    padding-bottom: 5px;
+}
+
+.x-padding-bottom {
+    padding-bottom: 10px;
+}
+
+.x-icon-large{
+    font-size:36px;
+}
+
+/* Boxes */
+.box-with-footer {
+}
+
+.box-inner {
+}
+    .box-inner .umb-panel-group__details-status {
+        padding: 10px 0;
+    }
+
+    .box-inner .umb-panel-group__details-status {
+        align-items: center;
+        display: flex;
+    }
+
+.box-footer {
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Dashboards */
+
+.sites-grid {
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill,minmax(375px,1fr));
+}

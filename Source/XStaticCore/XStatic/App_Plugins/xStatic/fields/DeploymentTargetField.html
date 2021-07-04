@@ -1,0 +1,20 @@
+﻿<div ng-controller="xStaticDeploymentTargetController">
+    <select ng-model="property.value"
+            ng-options='type as (type.name) for type in deploymentTypes track by type.name'>
+        <option value="">---Please select---</option>
+    </select><br>
+
+    <ng-form name="contentPickerForm">
+
+        <div class="deployment-target__help" data-ng-show="property.value.help">
+            <p ng-bind-html="property.value.help"></p>
+        </div>
+        
+        <div ng-repeat="(key, value)  in property.value.fields" class="deployment-target__row">
+            <label class="deployment-target__label">{{key}}</label>
+            <input ng-if="getInputType(key) == 'password'" type="password" class="umb-property-editor" ng-model="property.value.fields[key]" />
+            <input ng-if="getInputType(key) == 'text'" type="text" class="umb-property-editor" ng-model="property.value.fields[key]" />
+        </div>
+
+    </ng-form>
+</div>

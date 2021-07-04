@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <ContentTargetFolders>.</ContentTargetFolders>
+        <Product>XStatic</Product>
+        <PackageId>XStatic</PackageId>
+        <Title>XStatic</Title>
+        <Description>...</Description>
+        <Product>...</Product>
+        <PackageTags>umbraco plugin package</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-beta003" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-beta003" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="App_Plugins\xStatic\**\*.*">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <None Include="build\**\*.*">
+            <Pack>True</Pack>
+            <PackagePath>buildTransitive</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\XStatic.Deploy\XStatic.Deploy.csproj" />
+      <ProjectReference Include="..\XStatic.Generator\XStatic.Generator.csproj" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,54 @@
+﻿{
+  "exportTypes": [
+    {
+      "id": "api",
+      "name": "JSON API",
+      "transformerFactory": "XStatic.Generator.Transformers.DefaultJsonTransformerListFactory, XStatic.Generator",
+      "generator": "XStatic.Generator.JsonApiGenerator, XStatic.Generator"
+    },
+    {
+      "id": "html",
+      "name": "HTML site",
+      "transformerFactory": "XStatic.Generator.Transformers.DefaultHtmlTransformerListFactory, XStatic.Generator",
+      "generator": "XStatic.Generator.StaticHtmlSiteGenerator, XStatic.Generator"
+    }
+  ],
+  "deployers": [
+    {
+      "id": "netlify",
+      "name": "Netlify",
+      "help": "First create a personal access token at <a target='_blank' href='https://app.netlify.com/user/applications'>https://app.netlify.com/user/applications</a>. <br/> Then go to the site settings for your site, and in Site details/Site information you should see an API ID.",
+      "fields": {
+        "PersonalAccessToken": "",
+        "SiteId": ""
+      },
+      "deployer": "XStatic.Deploy.NetlifyDeployer, XStatic.Deploy"
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "help": "First create an empty git repo. This deployer will clone the remote and then push changes back on each deploy.",
+      "fields": {
+        "RemoteUrl": "",
+        "Email": "",
+        "Username": "",
+        "Password": "",
+        "Branch": ""
+      },
+      "deployer": "XStatic.Deploy.Git.GitDeployer, XStatic.Deploy"
+    },
+    {
+      "id": "ftp",
+      "name": "FTP",
+      "help": "The remote FTP files will be mirrored to match the generated site.",
+      "fields": {
+        "Hostname": "",
+        "Port":  "",
+        "Username": "",
+        "Password": "",
+        "Folder": ""
+      },
+      "deployer": "XStatic.Deploy.Ftp.FtpDeployer, XStatic.Deploy"
+    }
+  ]
+}
