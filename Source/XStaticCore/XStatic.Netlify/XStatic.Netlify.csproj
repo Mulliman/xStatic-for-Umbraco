@@ -2,9 +2,9 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <ContentTargetFolders>.</ContentTargetFolders>
-        <Product>XStatic</Product>
-        <PackageId>XStatic</PackageId>
-        <Title>XStatic</Title>
+        <Product>XStatic.Netlify</Product>
+        <PackageId>XStatic.Netlify</PackageId>
+        <Title>XStatic.Netlify</Title>
         <Description>...</Description>
         <Product>...</Product>
         <PackageTags>umbraco plugin package</PackageTags>
@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="App_Plugins\xStatic\**\*.*">
+        <Content Include="App_Plugins\XStatic.Netlify\**\*.*">
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
@@ -29,6 +29,5 @@
     <ItemGroup>
       <ProjectReference Include="..\XStatic.Common\XStatic.Common.csproj" />
       <ProjectReference Include="..\XStatic.Deploy\XStatic.Deploy.csproj" />
-      <ProjectReference Include="..\XStatic.Generator\XStatic.Generator.csproj" />
     </ItemGroup>
 </Project>

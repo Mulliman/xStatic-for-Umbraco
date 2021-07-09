@@ -1,0 +1,27 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <XStatic.NetlifyContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\XStatic.Netlify\**\*.*</XStatic.NetlifyContentFilesPath>
+    </PropertyGroup>
+
+    <Target Name="CopyXStatic.NetlifyAssets" BeforeTargets="Build">
+        <ItemGroup>
+            <XStatic.NetlifyContentFiles Include="$(XStatic.NetlifyContentFilesPath)" />
+        </ItemGroup>
+        <Message Text="Copying XStatic.Netlify files: $(XStatic.NetlifyContentFilesPath) - #@(XStatic.NetlifyContentFiles->Count()) files"  Importance="high" />
+        <Copy
+            SourceFiles="@(XStatic.NetlifyContentFiles)"
+            DestinationFiles="@(XStatic.NetlifyContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\XStatic.Netlify\%(RecursiveDir)%(Filename)%(Extension)')"
+            SkipUnchangedFiles="true" />
+
+    </Target>
+
+    <Target Name="ClearXStatic.NetlifyAssets" BeforeTargets="Clean">
+        <ItemGroup>
+            <XStatic.NetlifyDir Include="$(MSBuildProjectDirectory)\App_Plugins\XStatic.Netlify\" />
+        </ItemGroup>
+        <Message Text="Clear old XStatic.Netlify data"  Importance="high" />
+        <RemoveDir Directories="@(XStatic.NetlifyDir)"  />
+    </Target>
+
+</Project>
