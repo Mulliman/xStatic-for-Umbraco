@@ -1,0 +1,102 @@
+﻿﻿<form name="objectForm"
+       ng-controller="xStaticFormController as vm"
+       ng-submit="vm.save()"
+       class="">
+    <umb-editor-view>
+
+            <umb-editor-header name="vm.form.site.Name"
+                               name-locked="false"
+                               hide-icon="true"
+                               hide-description="true"
+                               hide-alias="true"
+                               navigation="type.apps">
+            </umb-editor-header>
+
+            <umb-editor-container>
+                <umb-box>
+                    <umb-box-header title="Build"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property">
+                            <umb-control-group label="Root Node" description="Select the root of the site you want to create a static version of.">
+                                <input type="text" name="RootNode" maxlength="255" ng-model="vm.form.site.RootNode" class="umb-textstring textstring input-block-level" required />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Root Media Nodes" description="Select the media folders you want to include in your static site.">
+                                <input type="text" name="MediaRootNodes" maxlength="255" ng-model="vm.form.site.MediaRootNodes" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Export Format" description="Do you want to export this site as a JSON API or as a static HTML website.">
+                                <input type="text" name="ExportFormat" maxlength="255" ng-model="vm.form.site.ExportFormat" class="umb-textstring textstring input-block-level" required />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Asset Paths" description="Add folder names of files on disk that should also be packaged up. Comma separate e.g. /assets/js,/assets/css">
+                                <input type="text" name="AssetPaths" maxlength="255" ng-model="vm.form.site.AssetPaths" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Media Crops" description="Comma delimit the image crops you want to generate in the format {width}x{height}. E.g. 1600x900,800x450,320x0">
+                                <input type="text" name="ImageCrops" maxlength="255" ng-model="vm.form.site.ImageCrops" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box>
+                    <umb-box-header title="Deploy"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property">
+                            <umb-control-group label="Auto Publish" description="Select this is you want to generate and deploy the static site automatically when a node is published.">
+                                <!--<input type="text" name="autoPublish" maxlength="255" ng-model="model.autoPublish" class="umb-textstring textstring input-block-level" />-->
+                                <input type="checkbox" name="AutoPublish" ng-model="vm.form.site.AutoPublish">
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Deployment Target" description="Configure your deployment target by filling in all required settings.">
+                                <input type="text" name="DeploymentTarget" maxlength="255" ng-model="vm.form.site.DeploymentTarget" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Target Hostname" description="The site hostname you've configured for viewing the site locally will be replaced with this value.">
+                                <input type="text" name="TargetHostname" maxlength="255" ng-model="vm.form.site.TargetHostname" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box>
+                    <umb-box-header title="Statistics"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Run" description="">
+                                <input type="text" name="LastRun" maxlength="255" ng-model="vm.form.site.LastRun" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Deployed" description="">
+                                <input type="text" name="lastDeployed" maxlength="255" ng-model="vm.form.site.LastDeployed" class="umb-textstring textstring input-block-level" />
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </umb-editor-container>
+
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button"
+                            button-style="link"
+                            label-key="general_close"
+                            shortcut="esc"
+                            action="vm.close()">
+                </umb-button>
+                <umb-button type="button"
+                            button-style="action"
+                            label-key="general_submit"
+                            action="vm.submit(model)">
+                </umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</form>

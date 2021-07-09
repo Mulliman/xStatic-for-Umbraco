@@ -51,6 +51,15 @@
 
 
 <div data-ng-controller="xStaticMainDashboardController as vm">
+
+    <umb-overlay ng-if="overlay.show"
+                 model="overlay"
+                 view="overlay.view"
+                 position="right">
+    </umb-overlay>
+
+
+
     <umb-drawer-view>
 
         <div class="dashboard-header">
@@ -61,7 +70,7 @@
 
             <div class="dashboard-header__button">
                 <umb-button type="link"
-                            href="{{vm.createLink}}"
+                            action="vm.open()"
                             button-style="success"
                             label="Create new site">
                 </umb-button>
@@ -77,7 +86,7 @@
                 <umb-box data-ng-repeat="site in vm.sites" style="position: relative;">
                     <umb-box-header title="{{site.Name}}">
                         <umb-button type="button"
-                                    action="vm.editSite(site.Id)"
+                                    action="vm.open(site)"
                                     button-style="info"
                                     label="Edit">
                         </umb-button>

@@ -9,6 +9,12 @@
     "~/App_Plugins/xStatic/fields/DeploymentTargetField.css",
     "~/App_Plugins/xStatic/css/xStatic.css"
   ],
+  "sections": [
+    {
+      "alias": "xstatic",
+      "name": "xStatic"
+    }
+  ],
   "dashboards": [
     {
       "alias": "MainDashboard",

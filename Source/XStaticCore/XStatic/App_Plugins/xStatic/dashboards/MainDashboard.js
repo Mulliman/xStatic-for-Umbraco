@@ -31,8 +31,102 @@
             },
         }
     })
-    .controller("xStaticMainDashboardController", function ($scope, notificationsService, xStaticResource, $window, $timeout) {
+    .controller("xStaticFormController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
         var vm = this;
+
+        console.log("xStaticFormController", $scope);
+
+        vm.form = $scope.model;
+        console.log($scope, vm.form, $scope.formCtrl);
+
+        function submit() {
+            console.log("submit", $scope.model);
+
+            if ($scope.model.submit) {
+                $scope.model.submit($scope.model);
+            }
+        }
+
+        function close() {
+
+            console.log("close", $scope.model);
+
+            if ($scope.model.close) {
+                $scope.model.close();
+            }
+        }
+
+        vm.submit = submit;
+        vm.close = close;
+    })
+    .controller("xStaticMainDashboardController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
+        var vm = this;
+
+        vm.openOverlay = function () {
+            console.log("Hello 2");
+
+            $scope.overlay = {
+                view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
+                title: "Set your title here",
+                show: true,
+                size: "large",
+                submit: function (model) {
+
+                    // do submit magic here
+
+                    $scope.overlay.show = false;
+                    $scope.overlay = null;
+                },
+                close: function (oldModel) {
+
+                    // do close magic here
+
+                    $scope.overlay.show = false;
+                    $scope.overlay = null;
+                }
+            };
+        };
+
+        vm.open = open;
+
+        function open(site) {
+            site = site || {};
+
+            console.log("Open", site);
+
+            var options = {
+                title: "My custom infinite editor",
+                view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
+                site: site,
+                styles: { hello: "me"},
+                config: { hello: "me" },
+                submit: function (model) {
+                    editorService.close();
+                },
+                close: function () {
+                    editorService.close();
+                }
+            };
+            editorService.open(options);
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         vm.createLink = "#/xstatic/uiomatic/edit/generatedSite?create";
         vm.editLink = "#/xstatic/uiomatic/edit/{0}%3Fta=generatedSite";
