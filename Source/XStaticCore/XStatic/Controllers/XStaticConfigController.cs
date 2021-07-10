@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 using XStatic.Deploy;
+using XStatic.Generator;
 using XStatic.Models;
 
 namespace XStatic.Controllers
@@ -16,10 +17,12 @@ namespace XStatic.Controllers
     public class XStaticConfigController : UmbracoAuthorizedJsonController
     {
         private readonly IDeployerService _deployerService;
+        private readonly IExportTypeService _exportTypeService;
 
-        public XStaticConfigController(IDeployerService deployerService)
+        public XStaticConfigController(IDeployerService deployerService, IExportTypeService exportTypeService)
         {
             _deployerService = deployerService;
+            _exportTypeService = exportTypeService;
         }
 
         [HttpGet]
@@ -27,10 +30,12 @@ namespace XStatic.Controllers
         public ActionResult<XStaticConfig> Get()
         {
             var deployers = _deployerService.GetDefinitions();
+            var exportTypes = _exportTypeService.GetExportTypes();
 
             return new XStaticConfig
             {
-                Deployers = deployers
+                Deployers = deployers,
+                ExportTypes = exportTypes.Select(e => new ExportTypeModel(e))
             };
         }
     }
