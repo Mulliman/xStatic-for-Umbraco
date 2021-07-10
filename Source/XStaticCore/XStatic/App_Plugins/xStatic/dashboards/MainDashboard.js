@@ -29,15 +29,40 @@
                     'Failed to get all'
                 );
             },
+            getConfig: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("/umbraco/backoffice/xstatic/xstaticconfig/get"),
+                    'Failed to generate'
+                );
+            },
         }
     })
     .controller("xStaticFormController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
         var vm = this;
 
+        $scope.passwordFields = ["PersonalAccessToken", "Password"];
+
         console.log("xStaticFormController", $scope);
 
         vm.form = $scope.model;
         console.log($scope, vm.form, $scope.formCtrl);
+
+        vm.getConfig = function () {
+            xStaticResource.getConfig().then(function (data) {
+                vm.config = data;
+                console.log("Config", vm.config);
+            });
+        }
+
+        $scope.getInputType = function (fieldName) {
+            if ($scope.passwordFields.indexOf(fieldName) > -1) {
+                return "password";
+            }
+
+            return "text";
+        }
+
+        $scope.selectedDeploymentType = null;
 
         function submit() {
             console.log("submit", $scope.model);
@@ -58,6 +83,8 @@
 
         vm.submit = submit;
         vm.close = close;
+
+        vm.getConfig();
     })
     .controller("xStaticMainDashboardController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
         var vm = this;
@@ -133,6 +160,7 @@
         vm.downloadLink = "/umbraco/backoffice/xstatic/Download/DownloadStaticSite/?staticSiteId=";
 
         vm.sites = [];
+        vm.config = {};
 
         vm.timers = [];
         vm.deployTimers = [];
@@ -142,6 +170,13 @@
         vm.getSites = function () {
             xStaticResource.getAll().then(function (data) {
                 vm.sites = data;
+            });
+        }
+
+        vm.getConfig = function () {
+            xStaticResource.getConfig().then(function (data) {
+                vm.config = data;
+                console.log("Config", vm.config);
             });
         }
 
@@ -233,4 +268,5 @@
 
         // on init
         vm.getSites();
+        vm.getConfig();
     });

@@ -28,7 +28,10 @@
                         </div>
                         <div class="umb-property">
                             <umb-control-group label="Export Format" description="Do you want to export this site as a JSON API or as a static HTML website.">
-                                <input type="text" name="ExportFormat" maxlength="255" ng-model="vm.form.site.ExportFormat" class="umb-textstring textstring input-block-level" required />
+                                <select ng-model="vm.form.site.ExportFormat"
+                                        ng-options='type.Id as (type.Name) for type in vm.config.ExportTypes'>
+                                    <option value="">---Please select---</option>
+                                </select>
                             </umb-control-group>
                         </div>
                         <div class="umb-property">
@@ -49,13 +52,30 @@
                     <umb-box-content>
                         <div class="umb-property">
                             <umb-control-group label="Auto Publish" description="Select this is you want to generate and deploy the static site automatically when a node is published.">
-                                <!--<input type="text" name="autoPublish" maxlength="255" ng-model="model.autoPublish" class="umb-textstring textstring input-block-level" />-->
                                 <input type="checkbox" name="AutoPublish" ng-model="vm.form.site.AutoPublish">
                             </umb-control-group>
                         </div>
                         <div class="umb-property">
                             <umb-control-group label="Deployment Target" description="Configure your deployment target by filling in all required settings.">
-                                <input type="text" name="DeploymentTarget" maxlength="255" ng-model="vm.form.site.DeploymentTarget" class="umb-textstring textstring input-block-level" />
+
+                                <select ng-model="vm.form.site.DeploymentTarget"
+                                        ng-options='type as (type.Name) for type in vm.config.Deployers track by type.Name'>
+                                    <option value="">---Please select---</option>
+                                </select><br>
+
+                                <ng-form name="contentPickerForm">
+
+                                    <div class="deployment-target__help" data-ng-show="property.value.help">
+                                        <p ng-bind-html="vm.form.site.DeploymentTarget.help"></p>
+                                    </div>
+
+                                    <div ng-repeat="(key, value)  in vm.form.site.DeploymentTarget.Fields" class="deployment-target__row">
+                                        <label class="deployment-target__label">{{key}}</label>
+                                        <input ng-if="getInputType(key) == 'password'" type="password" class="umb-property-editor" ng-model="vm.form.site.DeploymentTarget.Fields[key]" />
+                                        <input ng-if="getInputType(key) == 'text'" type="text" class="umb-property-editor" ng-model="vm.form.site.DeploymentTarget.Fields[key]" />
+                                    </div>
+
+                                </ng-form>
                             </umb-control-group>
                         </div>
                         <div class="umb-property">
@@ -66,17 +86,32 @@
                     </umb-box-content>
                 </umb-box>
 
-                <umb-box>
+                <umb-box ng-show="vm.form.site.Id">
                     <umb-box-header title="Statistics"></umb-box-header>
                     <umb-box-content>
                         <div class="umb-property">
-                            <umb-control-group label="Last Run" description="">
-                                <input type="text" name="LastRun" maxlength="255" ng-model="vm.form.site.LastRun" class="umb-textstring textstring input-block-level" />
+                            <umb-control-group label="ID" description="">
+                                {{vm.form.site.Id}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Build" description="">
+                                {{vm.form.site.LastRunString}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Build Duration" description="">
+                                <span ng-show="vm.form.site.LastBuildDurationInSeconds">{{vm.form.site.LastBuildDurationInSeconds}} seconds</span>
                             </umb-control-group>
                         </div>
                         <div class="umb-property">
                             <umb-control-group label="Last Deployed" description="">
-                                <input type="text" name="lastDeployed" maxlength="255" ng-model="vm.form.site.LastDeployed" class="umb-textstring textstring input-block-level" />
+                                {{vm.form.site.LastDeployedString}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Deploy Duration" description="">
+                                <span ng-show="vm.form.site.LastDeployDurationInSeconds">{{vm.form.site.LastDeployDurationInSeconds}} seconds</span>
                             </umb-control-group>
                         </div>
                     </umb-box-content>

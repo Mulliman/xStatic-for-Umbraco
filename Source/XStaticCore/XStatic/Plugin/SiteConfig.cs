@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using XStatic.Generator;
 
 namespace XStatic.Plugin
@@ -18,10 +19,20 @@ namespace XStatic.Plugin
         public string AssetPaths { get; set; }
         public string TargetHostname { get; set; }
         public string ImageCrops { get; set; }
+        public DeploymentTargetModel DeploymentTarget { get; set; }
 
         public IDeploymentTarget GetDeploymentTarget()
         {
-            throw new NotImplementedException();
+            return DeploymentTarget;
         }
+    }
+
+    public class DeploymentTargetModel : IDeploymentTarget
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public Dictionary<string, string> Fields { get; set; }
     }
 }

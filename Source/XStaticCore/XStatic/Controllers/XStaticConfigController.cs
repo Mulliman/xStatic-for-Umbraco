@@ -34,7 +34,7 @@ namespace XStatic.Controllers
 
             return new XStaticConfig
             {
-                Deployers = deployers,
+                Deployers = deployers.Select(d => new DeployerModel(d)),
                 ExportTypes = exportTypes.Select(e => new ExportTypeModel(e))
             };
         }

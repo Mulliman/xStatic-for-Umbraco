@@ -37,10 +37,10 @@ namespace XStatic.Generator
 
     public interface IDeploymentTarget
     {
-        string id { get; set; }
+        string Id { get; set; }
 
-        string name { get; set; }
+        string Name { get; set; }
 
-        Dictionary<string, string> fields { get; set; }
+        Dictionary<string, string> Fields { get; set; }
     }
 }

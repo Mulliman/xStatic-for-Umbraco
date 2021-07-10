@@ -47,7 +47,7 @@ namespace XStatic.Plugin.Controllers
                 {
                     AssetPaths = "/css",
                     AutoPublish = false,
-                    ExportFormat = "html",
+                    ExportFormat = "json",
                     FolderSize = "100Tb",
                     Id = 1,
                     ImageCrops = "200x200",
@@ -58,7 +58,17 @@ namespace XStatic.Plugin.Controllers
                     MediaRootNodes = "",
                     Name = "Mock Data",
                     RootNode = 1063,
-                    TargetHostname = "demo.com"
+                    TargetHostname = "demo.com",
+                    DeploymentTarget = new DeploymentTargetModel
+                    {
+                        Id = "netlify",
+                        Name = "Netlify",
+                        Fields = new Dictionary<string, string>
+                            {
+                                { "PersonalAccessToken", "Demo" },
+                                { "SiteId", "THISISANID" }
+                            }
+                    }
                 }
             };
 
@@ -68,7 +78,7 @@ namespace XStatic.Plugin.Controllers
                 {
                     var node = cref.UmbracoContext.Content.GetById(site.RootNode);
 
-                    if(node == null)
+                    if (node == null)
                     {
                         site.RootPath = "Item Not Found";
                     }
@@ -85,7 +95,7 @@ namespace XStatic.Plugin.Controllers
 
                 return sites;
             }
-            
+
         }
 
         //[HttpDelete]
@@ -108,7 +118,7 @@ namespace XStatic.Plugin.Controllers
         //    }
 
         //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
-            
+
         //    return GetAll();
         //}
     }
@@ -118,5 +128,9 @@ namespace XStatic.Plugin.Controllers
         public string RootPath { get; set; }
 
         public string FolderSize { get; set; }
+
+        public string LastRunString => LastDeployed?.ToString("hh:mm dd MMM yy");
+
+        public string LastDeployedString => LastDeployed?.ToString("hh:mm dd MMM yy");
     }
 }
