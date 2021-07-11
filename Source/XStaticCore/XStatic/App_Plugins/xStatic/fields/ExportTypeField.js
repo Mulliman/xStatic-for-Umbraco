@@ -1,9 +1,10 @@
 ﻿angular.module("umbraco").controller("xStaticExportTypeController",
-    function ($scope, $http) {
+    function ($scope, $http, xStaticResource) {
 
-        $scope.exportTypes = [{ id: "api", name: "JSON API" }, { id: "html", name: "HTML site" }];
+        $scope.exportTypes = [];
 
-        $http.get('/App_Plugins/xStatic/xStaticConfig.json').then(function (response) {
-            $scope.exportTypes = response.data.exportTypes;
+        xStaticResource.getConfig().then(function (data) {
+            console.log("xStaticExportTypeController", data);
+            $scope.exportTypes = data.ExportTypes;
         });
     });

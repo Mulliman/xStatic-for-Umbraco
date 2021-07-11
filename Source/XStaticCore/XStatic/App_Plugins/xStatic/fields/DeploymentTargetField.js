@@ -1,11 +1,11 @@
 ﻿angular.module("umbraco").controller("xStaticDeploymentTargetController",
-    function ($scope, $http) {
+    function ($scope, $http, xStaticResource) {
         $scope.passwordFields = ["PersonalAccessToken", "Password"];
 
         $scope.deploymentTypes = [];
 
-        $http.get('/App_Plugins/xStatic/xStaticConfig.json').then(function (response) {
-            $scope.deploymentTypes = response.data.deployers;
+        xStaticResource.getConfig().then(function (data) {
+            $scope.deploymentTypes = data.Deployers;
         });
 
         $scope.getInputType = function (fieldName) {

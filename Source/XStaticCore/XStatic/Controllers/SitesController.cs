@@ -55,7 +55,7 @@ namespace XStatic.Plugin.Controllers
                     LastDeployDurationInSeconds = 10,
                     LastDeployed = DateTime.Now,
                     LastRun = DateTime.Now,
-                    MediaRootNodes = "",
+                    MediaRootNodes = "1064,1065",
                     Name = "Mock Data",
                     RootNode = 1063,
                     TargetHostname = "demo.com",

@@ -183,6 +183,8 @@ function contentPickerController($scope, entityResource, editorState, iconHelper
     $scope.openCurrentPicker = function () {
         $scope.currentPicker = dialogOptions;
 
+        console.log("openCurrentPicker", dialogOptions);
+
         $scope.currentPicker.submit = function (model) {
             if (angular.isArray(model.selection)) {
                 _.each(model.selection, function (item, i) {
@@ -204,6 +206,7 @@ function contentPickerController($scope, entityResource, editorState, iconHelper
                 editorService.contentPicker($scope.currentPicker);
                 break;
             case "Media":
+                console.log("Opening media picker");
                 editorService.mediaPicker($scope.currentPicker);
                 break;
             case "Member":
@@ -216,7 +219,7 @@ function contentPickerController($scope, entityResource, editorState, iconHelper
     };
 
     $scope.remove = function (index) {
-        var currIds = $scope.property.value ? $scope.property.value.split(',') : [];
+        var currIds = $scope.property.value && $scope.property.value.split ? $scope.property.value.split(',') : [];
         if (currIds.length > 0) {
             currIds.splice(index, 1);
             angularHelper.getCurrentForm($scope).$setDirty();
@@ -285,7 +288,7 @@ function contentPickerController($scope, entityResource, editorState, iconHelper
     /** Syncs the renderModel based on the actual model.value and returns a promise */
     function syncRenderModel(doValidation) {
 
-        var valueIds = $scope.property.value ? $scope.property.value.split(',') : [];
+        var valueIds = $scope.property.value && $scope.property.value.split ? $scope.property.value.split(',') : [];
 
         //sync the sortable model
         $scope.sortableModel = valueIds;

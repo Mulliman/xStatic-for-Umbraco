@@ -27,6 +27,16 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Remove="App_Plugins\xStatic\fields\htmlpage.html" />
+      <Content Remove="App_Plugins\xStatic\fields\mediapicker.html" />
+      <Content Remove="App_Plugins\xStatic\fields\mediapicker.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="App_Plugins\xStatic\fields\Text.html" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\XStatic.Common\XStatic.Common.csproj" />
       <ProjectReference Include="..\XStatic.Deploy\XStatic.Deploy.csproj" />
       <ProjectReference Include="..\XStatic.Generator\XStatic.Generator.csproj" />

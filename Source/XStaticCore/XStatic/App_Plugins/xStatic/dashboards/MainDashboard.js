@@ -44,8 +44,99 @@
 
         console.log("xStaticFormController", $scope);
 
+        //vm.createFormProperties = function (form) {
+        //    var properties = [
+        //        {
+        //        key: "RootNode",
+        //        name: "Root Node",
+        //            config: { multiPicker: false, maxNumber: 1, minNumber: 0, startNode: { type: "content" } },
+        //        value: form.site.RootNode,
+        //        view: "/App_Plugins/xStatic/fields/multipicker.html"
+        //    },
+        //        {
+        //        key: "MediaRootNodes",
+        //        name: "Media Root Nodes",
+        //        config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
+        //            value: '', //form.site.MediaRootNodes,
+        //            view: "/App_Plugins/xStatic/fields/multipicker.html"
+        //        //view: "/App_Plugins/xStatic/fields/mediapicker.html"
+        //        },
+        //        {
+        //            key: "MediaRootNodes",
+        //            name: "Media Root Nodes",
+        //            config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
+        //            value: '', //form.site.MediaRootNodes,
+        //            view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html"
+        //            //view: "/App_Plugins/xStatic/fields/mediapicker.html"
+        //        }];
+
+        //    return properties;
+        //}
+
+        vm.createFormProperties = function (form) {
+            vm.buildProperties = [
+                {
+                    key: "RootNode",
+                    name: "Root Node",
+                    config: { multiPicker: false, maxNumber: 1, minNumber: 0, startNode: { type: "content" } },
+                    value: form.site.RootNode ? form.site.RootNode.toString() : null,
+                    view: "/umbraco/views/propertyeditors/contentpicker/contentpicker.html"
+                },
+                {
+                    key: "MediaRootNodes",
+                    name: "Media Root Nodes",
+                    config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
+                    value: form.site.MediaRootNodes,
+                    view: "/umbraco/views/propertyeditors/mediapicker/mediapicker.html"
+                },
+                {
+                    key: "ExportFormat",
+                    name: "Export Format",
+                    config: null,
+                    value: form.site.ExportFormat,
+                    view: "/App_Plugins/xStatic/fields/ExportTypeField.html"
+                },
+                {
+                    key: "AssetPaths",
+                    name: "Asset Paths",
+                    config: null,
+                    value: form.site.AssetPaths,
+                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
+                },
+                {
+                    key: "ImageCrops",
+                    name: "Media Crops",
+                    config: null,
+                    value: form.site.ImageCrops,
+                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
+                }];
+
+            vm.deployProperties = [
+                {
+                    key: "AutoPublish",
+                    name: "Auto Publish",
+                    config: null,
+                    value: form.site.AutoPublish,
+                    view: "/umbraco/views/propertyeditors/boolean/boolean.html"
+                },{
+                    key: "DeploymentTarget",
+                    name: "Deployment Target",
+                    config: null,
+                    value: form.site.DeploymentTarget,
+                    view: "/App_Plugins/xStatic/fields/DeploymentTargetField.html"
+                },{
+                    key: "TargetHostname",
+                    name: "Target Hostname",
+                    config: null,
+                    value: form.site.TargetHostname,
+                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
+                }];
+        }
+
         vm.form = $scope.model;
         console.log($scope, vm.form, $scope.formCtrl);
+
+        vm.createFormProperties(vm.form);
 
         vm.getConfig = function () {
             xStaticResource.getConfig().then(function (data) {
@@ -54,18 +145,24 @@
             });
         }
 
-        $scope.getInputType = function (fieldName) {
-            if ($scope.passwordFields.indexOf(fieldName) > -1) {
-                return "password";
-            }
+        //$scope.getInputType = function (fieldName) {
+        //    if ($scope.passwordFields.indexOf(fieldName) > -1) {
+        //        return "password";
+        //    }
 
-            return "text";
-        }
+        //    return "text";
+        //}
 
         $scope.selectedDeploymentType = null;
 
         function submit() {
-            console.log("submit", $scope.model);
+            console.log("submit pre map", vm.form);
+
+            for (var field of vm.buildProperties) {
+                vm.form.site[field.key] = field.value;
+            }
+
+            console.log("submit post map", vm.form);
 
             if ($scope.model.submit) {
                 $scope.model.submit($scope.model);
@@ -125,7 +222,7 @@
                 title: "My custom infinite editor",
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
                 site: site,
-                styles: { hello: "me"},
+                styles: { hello: "me" },
                 config: { hello: "me" },
                 submit: function (model) {
                     editorService.close();
@@ -244,7 +341,7 @@
             $window.open(vm.downloadLink + id, '_blank');
         }
 
-        vm.formatTime = function(duration){
+        vm.formatTime = function (duration) {
             if (!duration) {
                 return "N/A";
             }
