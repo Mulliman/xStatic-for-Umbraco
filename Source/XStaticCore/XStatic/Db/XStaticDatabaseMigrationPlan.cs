@@ -22,7 +22,7 @@ namespace XStatic.Plugin.Db
         {
         }
 
-        public override void Migrate()
+        protected override void Migrate()
         {
             if (!TableExists("XStaticSiteConfigs"))
             {
@@ -52,7 +52,7 @@ namespace XStatic.Plugin.Db
         {
         }
 
-        public override void Migrate()
+        protected override void Migrate()
         {
             if (TableExists("XStaticSiteConfigs"))
             {
@@ -71,7 +71,7 @@ namespace XStatic.Plugin.Db
         {
         }
 
-        public override void Migrate()
+        protected override void Migrate()
         {
             if (TableExists("XStaticSiteConfigs"))
             {
@@ -90,7 +90,7 @@ namespace XStatic.Plugin.Db
         {
         }
 
-        public override void Migrate()
+        protected override void Migrate()
         {
             if (TableExists("XStaticSiteConfigs"))
             {

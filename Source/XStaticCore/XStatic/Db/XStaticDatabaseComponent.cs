@@ -34,7 +34,7 @@ namespace XStatic.Db
         public void Initialize()
         {
             var upgrader = new Upgrader(new XStaticDatabaseMigrationPlan());
-            upgrader.Execute(scopeProvider, migrationBuilder, keyValueService, logger, loggerFactory);
+            //upgrader.Execute(scopeProvider, migrationBuilder, keyValueService, logger, loggerFactory);
         }
 
         public void Terminate()
