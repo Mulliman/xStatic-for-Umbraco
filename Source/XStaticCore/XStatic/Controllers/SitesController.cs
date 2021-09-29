@@ -9,7 +9,9 @@ using Umbraco.Cms.Web.BackOffice.Controllers;
 //using System.Web.Http;
 //using System.Web.UI;
 using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Models;
 using XStatic.Plugin;
+using XStatic.Repositories;
 //using Umbraco.Core.Composing;
 //using Umbraco.Web.Editors;
 //using Umbraco.Web.Mvc;
@@ -25,17 +27,18 @@ namespace XStatic.Plugin.Controllers
         private readonly IUmbracoContextFactory _context;
 
         //private readonly IStaticSiteStorer _storer;
-        //private SitesRepository _sitesRepo;
+        private SitesRepository _sitesRepo;
 
-        //public SitesController(IStaticSiteStorer storer)
+        //public SitesController() //IStaticSiteStorer storer)
         //{
-        //    _sitesRepo = new SitesRepository();
-        //    _storer = storer;
+            
+        //    //_storer = storer;
         //}
 
         public SitesController(IUmbracoContextFactory context)
         {
             _context = context;
+            _sitesRepo = new SitesRepository();
         }
 
         [HttpGet]
@@ -95,33 +98,46 @@ namespace XStatic.Plugin.Controllers
 
                 return sites;
             }
-
         }
 
-        //[HttpDelete]
-        //public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
-        //{
-        //    var folder = _storer.GetStorageLocationOfSite(staticSiteId);
+        [HttpPost]
+        public SiteConfig Create([FromBody] SiteUpdateModel site)
+        {
+            var entity = _sitesRepo.Create(site);
 
-        //    var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
+            return entity;
+        }
 
-        //    var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
+        [HttpPost]
+        public ExtendedGeneratedSite Update([FromBody] SiteUpdateModel site)
+        {
+            return GetAll().First();
+        }
 
-        //    if(doNotDeletePathsRaw != null)
-        //    {
-        //        var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            //[HttpDelete]
+            //public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
+            //{
+            //    var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-        //        if(split.Any())
-        //        {
-        //            doNotDeletePaths = split;
-        //        }
-        //    }
+            //    var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
 
-        //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
+            //    var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
 
-        //    return GetAll();
-        //}
-    }
+            //    if(doNotDeletePathsRaw != null)
+            //    {
+            //        var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            //        if(split.Any())
+            //        {
+            //            doNotDeletePaths = split;
+            //        }
+            //    }
+
+            //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
+
+            //    return GetAll();
+            //}
+        }
 
     public class ExtendedGeneratedSite : SiteConfig
     {
