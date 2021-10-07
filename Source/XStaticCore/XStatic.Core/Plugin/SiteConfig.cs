@@ -6,6 +6,8 @@ using XStatic.Generator;
 
 namespace XStatic.Plugin
 {
+    [TableName("XStaticSiteConfigs")]
+    [PrimaryKey("Id", AutoIncrement = true)]
     public class SiteConfig : ISiteConfig
     {
         [PrimaryKeyColumn(AutoIncrement = true)]

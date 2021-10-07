@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using XStatic.Generator.ExportTypes;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
+using XStatic.Repositories;
 
 namespace XStatic.Generator.Startup
 {
@@ -24,6 +25,7 @@ namespace XStatic.Generator.Startup
             _services.AddSingleton<StaticHtmlSiteGenerator>();
             _services.AddSingleton<JsonApiGenerator>();
             _services.AddSingleton<IExportTypeService, ExportTypeService>();
+            _services.AddSingleton<ISitesRepository, SitesRepository>();
 
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
             _services.AddTransient<DefaultJsonTransformerListFactory>();

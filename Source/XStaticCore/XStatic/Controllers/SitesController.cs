@@ -27,7 +27,7 @@ namespace XStatic.Plugin.Controllers
         private readonly IUmbracoContextFactory _context;
 
         //private readonly IStaticSiteStorer _storer;
-        private SitesRepository _sitesRepo;
+        private ISitesRepository _sitesRepo;
 
         //public SitesController() //IStaticSiteStorer storer)
         //{
@@ -35,45 +35,47 @@ namespace XStatic.Plugin.Controllers
         //    //_storer = storer;
         //}
 
-        public SitesController(IUmbracoContextFactory context)
+        public SitesController(IUmbracoContextFactory context, ISitesRepository sitesRepository)
         {
             _context = context;
-            _sitesRepo = new SitesRepository();
+            _sitesRepo = sitesRepository;
         }
 
         [HttpGet]
         public IEnumerable<ExtendedGeneratedSite> GetAll()
         {
-            var sites = new[]
-            {
-                new ExtendedGeneratedSite
-                {
-                    AssetPaths = "/css",
-                    AutoPublish = false,
-                    ExportFormat = "json",
-                    FolderSize = "100Tb",
-                    Id = 1,
-                    ImageCrops = "200x200",
-                    LastBuildDurationInSeconds = 10,
-                    LastDeployDurationInSeconds = 10,
-                    LastDeployed = DateTime.Now,
-                    LastRun = DateTime.Now,
-                    MediaRootNodes = "1064,1065",
-                    Name = "Mock Data",
-                    RootNode = 1063,
-                    TargetHostname = "demo.com",
-                    DeploymentTarget = new DeploymentTargetModel
-                    {
-                        Id = "netlify",
-                        Name = "Netlify",
-                        Fields = new Dictionary<string, string>
-                            {
-                                { "PersonalAccessToken", "Demo" },
-                                { "SiteId", "THISISANID" }
-                            }
-                    }
-                }
-            };
+            //var sites = new[]
+            //{
+            //    new ExtendedGeneratedSite
+            //    {
+            //        AssetPaths = "/css",
+            //        AutoPublish = false,
+            //        ExportFormat = "json",
+            //        FolderSize = "100Tb",
+            //        Id = 1,
+            //        ImageCrops = "200x200",
+            //        LastBuildDurationInSeconds = 10,
+            //        LastDeployDurationInSeconds = 10,
+            //        LastDeployed = DateTime.Now,
+            //        LastRun = DateTime.Now,
+            //        MediaRootNodes = "1064,1065",
+            //        Name = "Mock Data",
+            //        RootNode = 1063,
+            //        TargetHostname = "demo.com",
+            //        DeploymentTarget = new DeploymentTargetModel
+            //        {
+            //            Id = "netlify",
+            //            Name = "Netlify",
+            //            Fields = new Dictionary<string, string>
+            //                {
+            //                    { "PersonalAccessToken", "Demo" },
+            //                    { "SiteId", "THISISANID" }
+            //                }
+            //        }
+            //    }
+            //};
+
+            var sites = _sitesRepo.GetAll();
 
             using (var cref = _context.EnsureUmbracoContext())
             {
@@ -111,7 +113,7 @@ namespace XStatic.Plugin.Controllers
         [HttpPost]
         public ExtendedGeneratedSite Update([FromBody] SiteUpdateModel site)
         {
-            return GetAll().First();
+            return _sitesRepo.Update(site);
         }
 
             //[HttpDelete]
@@ -138,15 +140,4 @@ namespace XStatic.Plugin.Controllers
             //    return GetAll();
             //}
         }
-
-    public class ExtendedGeneratedSite : SiteConfig
-    {
-        public string RootPath { get; set; }
-
-        public string FolderSize { get; set; }
-
-        public string LastRunString => LastDeployed?.ToString("hh:mm dd MMM yy");
-
-        public string LastDeployedString => LastDeployed?.ToString("hh:mm dd MMM yy");
-    }
 }

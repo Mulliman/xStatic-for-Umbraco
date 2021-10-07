@@ -27,7 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\XStatic.Common\XStatic.Common.csproj" />
-      <ProjectReference Include="..\XStatic.Deploy\XStatic.Deploy.csproj" />
+      <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
     </ItemGroup>
 </Project>
