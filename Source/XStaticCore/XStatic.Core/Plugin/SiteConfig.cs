@@ -6,10 +6,12 @@ using XStatic.Generator;
 
 namespace XStatic.Plugin
 {
-    [TableName("XStaticSiteConfigs")]
+    [TableName(TableName)]
     [PrimaryKey("Id", AutoIncrement = true)]
     public class SiteConfig : ISiteConfig
     {
+        public const string TableName = "XStaticSiteConfigs";
+
         [PrimaryKeyColumn(AutoIncrement = true)]
         public int Id { get; set; }
 

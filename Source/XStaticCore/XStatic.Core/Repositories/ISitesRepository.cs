@@ -7,11 +7,19 @@ namespace XStatic.Repositories
     public interface ISitesRepository
     {
         SiteConfig Create(SiteUpdateModel update);
-        ExtendedGeneratedSite Get(int staticSiteId);
+
+        T Get<T>(int staticSiteId) where T : SiteConfig;
+
         IEnumerable<ExtendedGeneratedSite> GetAll();
+
         IEnumerable<ExtendedGeneratedSite> GetAutoPublishSites();
+
         ExtendedGeneratedSite Update(SiteUpdateModel update);
+
+        void Delete(int id);
+
         SiteConfig UpdateLastDeploy(int staticSiteId, int? secondsTaken = null);
+
         SiteConfig UpdateLastRun(int staticSiteId, int? secondsTaken = null);
     }
 }

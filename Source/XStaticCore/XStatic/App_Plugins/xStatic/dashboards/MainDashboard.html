@@ -86,10 +86,17 @@
                 <umb-box data-ng-repeat="site in vm.sites" style="position: relative;">
                     <umb-box-header title="{{site.Name}}">
                         <umb-button type="button"
-                                    action="vm.open(site)"
-                                    button-style="info"
-                                    label="Edit">
+                                    action="vm.delete(site.Id)"
+                                    button-style="danger"
+                                    icon="icon-trash"
+                                    size="s">
                         </umb-button>
+                        <umb-button type="button"
+                                    action="vm.open(site)"
+                                    label="Edit"
+                                    icon="icon-brush">
+                        </umb-button>
+
                     </umb-box-header>
 
                     <umb-box-content class="box-with-footer">

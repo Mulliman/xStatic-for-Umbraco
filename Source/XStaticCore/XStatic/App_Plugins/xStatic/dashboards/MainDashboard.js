@@ -23,6 +23,24 @@
                     'Failed to generate'
                 );
             },
+            createSite: function (site) {
+                return umbRequestHelper.resourcePromise(
+                    $http.post("/umbraco/backoffice/xstatic/Sites/Create", site),
+                    'Failed to update'
+                );
+            },
+            updateSite: function (site) {
+                return umbRequestHelper.resourcePromise(
+                    $http.post("/umbraco/backoffice/xstatic/Sites/Update", site),
+                    'Failed to update'
+                );
+            },
+            deleteSite: function (siteId) {
+                return umbRequestHelper.resourcePromise(
+                    $http.delete("/umbraco/backoffice/xstatic/Sites/Delete?staticSiteId=" + siteId),
+                    'Failed to delete'
+                );
+            },
             clearSite: function (id) {
                 return umbRequestHelper.resourcePromise(
                     $http.delete("/umbraco/backoffice/xstatic/Sites/ClearStoredSite?staticSiteId=" + id),
@@ -37,179 +55,182 @@
             },
         }
     })
-    .controller("xStaticFormController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
+    .service("xStaticSiteEditingService", function ($http, umbRequestHelper) {
+
+        this.editorTypes = {
+            // Umbraco
+            textbox: "/umbraco/views/propertyeditors/textbox/textbox.html",
+            checkbox: "/umbraco/views/propertyeditors/boolean/boolean.html",
+            csv: "/umbraco/views/propertyeditors/textbox/textbox.html",
+            contentPicker: "/umbraco/views/propertyeditors/contentpicker/contentpicker.html",
+            mediaPicker: "/umbraco/views/propertyeditors/mediapicker/mediapicker.html",
+            // Custom
+            exportType: "/App_Plugins/xStatic/fields/ExportTypeField.html",
+            deploymentTarget: "/App_Plugins/xStatic/fields/DeploymentTargetField.html"
+        };
+
+        this.getBuildProperties = function (form) {
+            return [
+                {
+                    key: "RootNode",
+                    name: "Root Node",
+                    description: "Select the root of the site you want to create a static version of.",
+                    config: { multiPicker: false, maxNumber: 1, minNumber: 0, startNode: { type: "content" } },
+                    value: form.site.RootNode ? form.site.RootNode.toString() : null,
+                    view: this.editorTypes.contentPicker
+                },
+                {
+                    key: "MediaRootNodes",
+                    name: "Media Root Nodes",
+                    description: "Select the media folders you want to include in your static site.",
+                    config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
+                    value: form.site.MediaRootNodes,
+                    view: this.editorTypes.mediaPicker
+                },
+                {
+                    key: "ExportFormat",
+                    name: "Export Format",
+                    description: "Do you want to export this site as a JSON API or as a static HTML website.",
+                    config: null,
+                    value: form.site.ExportFormat,
+                    view: this.editorTypes.exportType
+                },
+                {
+                    key: "AssetPaths",
+                    name: "Asset Paths",
+                    description: "Add folder names of files on disk that should also be packaged up. Comma separate e.g. /assets/js,/assets/css",
+                    config: null,
+                    value: form.site.AssetPaths,
+                    view: this.editorTypes.csv
+                },
+                {
+                    key: "ImageCrops",
+                    name: "Media Crops",
+                    description: "Comma delimit the image crops you want to generate in the format {width}x{height}. E.g. 1600x900,800x450,320x0",
+                    config: null,
+                    value: form.site.ImageCrops,
+                    view: this.editorTypes.csv
+                }];
+        };
+
+        this.getDeployProperties = function (form) {
+            return [
+                {
+                    key: "AutoPublish",
+                    name: "Auto Publish",
+                    description: "Select this is you want to generate the site automatically when a node is published.",
+                    config: null,
+                    value: form.site.AutoPublish,
+                    view: this.editorTypes.checkbox
+                }, {
+                    key: "DeploymentTarget",
+                    name: "Deployment Target",
+                    description: "Configure your deployment target by filling in all required settings.",
+                    config: null,
+                    value: form.site.DeploymentTarget,
+                    view: this.editorTypes.deploymentTarget
+                }, {
+                    key: "TargetHostname",
+                    name: "Target Hostname",
+                    description: "The site hostname you've configured for viewing the site locally will be replaced with this value.",
+                    config: null,
+                    value: form.site.TargetHostname,
+                    view: this.editorTypes.textbox
+                }];
+        };
+
+        this.updateFormValues = function (form, buildProps, deployProps) {
+
+            //form.site.Name
+            //AssetPaths: "/css"
+            //AutoPublish: "0"
+            //DeploymentTarget: { Id: "netlify", Name: "Netlify", Fields: { … } }
+            //ExportFormat: "json"
+            //FolderSize: "100Tb"
+            //Id: 1
+            //ImageCrops: "200x200"
+            //LastBuildDurationInSeconds: 10
+            //LastDeployDurationInSeconds: 10
+            //LastDeployed: "2021-07-11T21:05:07.0718775+01:00"
+            //LastDeployedString: "09:05 11 Jul 21"
+            //LastRun: "2021-07-11T21:05:07.0719554+01:00"
+            //LastRunString: "09:05 11 Jul 21"
+            //MediaRootNodes: "1064,1065"
+            //Name: "Mock Data"
+            //RootNode: "1063"
+            //RootPath: "Home"
+            //TargetHostname: "demo.com"
+
+            for (var field of buildProps) {
+                var val = field.value;
+
+                if (field.key == "RootNode" && val) {
+                    val = parseInt(val);
+                }
+
+                form.site[field.key] = val;
+            }
+
+            for (var field of deployProps) {
+                var val = field.value;
+
+                if (field.key == "AutoPublish") {
+                    val = val == "1";
+                }
+
+                form.site[field.key] = val;
+            }
+
+            return form;
+        }
+
+    })
+    .controller("xStaticFormController", function ($scope, notificationsService, editorService, xStaticResource, xStaticSiteEditingService, $window, $timeout) {
         var vm = this;
 
         $scope.passwordFields = ["PersonalAccessToken", "Password"];
 
         console.log("xStaticFormController", $scope);
 
-        //vm.createFormProperties = function (form) {
-        //    var properties = [
-        //        {
-        //        key: "RootNode",
-        //        name: "Root Node",
-        //            config: { multiPicker: false, maxNumber: 1, minNumber: 0, startNode: { type: "content" } },
-        //        value: form.site.RootNode,
-        //        view: "/App_Plugins/xStatic/fields/multipicker.html"
-        //    },
-        //        {
-        //        key: "MediaRootNodes",
-        //        name: "Media Root Nodes",
-        //        config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
-        //            value: '', //form.site.MediaRootNodes,
-        //            view: "/App_Plugins/xStatic/fields/multipicker.html"
-        //        //view: "/App_Plugins/xStatic/fields/mediapicker.html"
-        //        },
-        //        {
-        //            key: "MediaRootNodes",
-        //            name: "Media Root Nodes",
-        //            config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
-        //            value: '', //form.site.MediaRootNodes,
-        //            view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html"
-        //            //view: "/App_Plugins/xStatic/fields/mediapicker.html"
-        //        }];
-
-        //    return properties;
-        //}
-
-        vm.createFormProperties = function (form) {
-            vm.buildProperties = [
-                {
-                    key: "RootNode",
-                    name: "Root Node",
-                    config: { multiPicker: false, maxNumber: 1, minNumber: 0, startNode: { type: "content" } },
-                    value: form.site.RootNode ? form.site.RootNode.toString() : null,
-                    view: "/umbraco/views/propertyeditors/contentpicker/contentpicker.html"
-                },
-                {
-                    key: "MediaRootNodes",
-                    name: "Media Root Nodes",
-                    config: { multiPicker: true, maxNumber: 10, minNumber: 0, startNode: { type: "media" } },
-                    value: form.site.MediaRootNodes,
-                    view: "/umbraco/views/propertyeditors/mediapicker/mediapicker.html"
-                },
-                {
-                    key: "ExportFormat",
-                    name: "Export Format",
-                    config: null,
-                    value: form.site.ExportFormat,
-                    view: "/App_Plugins/xStatic/fields/ExportTypeField.html"
-                },
-                {
-                    key: "AssetPaths",
-                    name: "Asset Paths",
-                    config: null,
-                    value: form.site.AssetPaths,
-                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
-                },
-                {
-                    key: "ImageCrops",
-                    name: "Media Crops",
-                    config: null,
-                    value: form.site.ImageCrops,
-                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
-                }];
-
-            vm.deployProperties = [
-                {
-                    key: "AutoPublish",
-                    name: "Auto Publish",
-                    config: null,
-                    value: form.site.AutoPublish,
-                    view: "/umbraco/views/propertyeditors/boolean/boolean.html"
-                },{
-                    key: "DeploymentTarget",
-                    name: "Deployment Target",
-                    config: null,
-                    value: form.site.DeploymentTarget,
-                    view: "/App_Plugins/xStatic/fields/DeploymentTargetField.html"
-                },{
-                    key: "TargetHostname",
-                    name: "Target Hostname",
-                    config: null,
-                    value: form.site.TargetHostname,
-                    view: "/umbraco/views/propertyeditors/textbox/textbox.html"
-                }];
-        }
-
         vm.form = $scope.model;
-        console.log($scope, vm.form, $scope.formCtrl);
 
-        vm.createFormProperties(vm.form);
+        vm.buildProperties = xStaticSiteEditingService.getBuildProperties(vm.form);
+        vm.deployProperties = xStaticSiteEditingService.getDeployProperties(vm.form);
 
-        vm.getConfig = function () {
-            xStaticResource.getConfig().then(function (data) {
-                vm.config = data;
-                console.log("Config", vm.config);
-            });
-        }
-
-        //$scope.getInputType = function (fieldName) {
-        //    if ($scope.passwordFields.indexOf(fieldName) > -1) {
-        //        return "password";
-        //    }
-
-        //    return "text";
-        //}
-
-        $scope.selectedDeploymentType = null;
-
-        function submit() {
+        vm.submit = function() {
             console.log("submit pre map", vm.form);
 
-            for (var field of vm.buildProperties) {
-                vm.form.site[field.key] = field.value;
-            }
+            vm.form = xStaticSiteEditingService.updateFormValues(vm.form, vm.buildProperties, vm.deployProperties);
 
-            console.log("submit post map", vm.form);
+            console.log("pre save site", vm.form.site);
 
-            if ($scope.model.submit) {
-                $scope.model.submit($scope.model);
+            if (vm.form.site.Id) {
+                xStaticResource.updateSite(vm.form.site).then(function (data) {
+                    console.log("saved", data);
+                    if ($scope.model.submit) {
+                        $scope.model.submit($scope.model);
+                    }
+                });
+            } else {
+                xStaticResource.createSite(vm.form.site).then(function (data) {
+                    console.log("saved", data);
+                    if ($scope.model.submit) {
+                        $scope.model.submit($scope.model);
+                    }
+                });
             }
         }
 
-        function close() {
-
+        vm.close = function() {
             console.log("close", $scope.model);
 
             if ($scope.model.close) {
                 $scope.model.close();
             }
         }
-
-        vm.submit = submit;
-        vm.close = close;
-
-        vm.getConfig();
     })
     .controller("xStaticMainDashboardController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
         var vm = this;
-
-        vm.openOverlay = function () {
-            console.log("Hello 2");
-
-            $scope.overlay = {
-                view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
-                title: "Set your title here",
-                show: true,
-                size: "large",
-                submit: function (model) {
-
-                    // do submit magic here
-
-                    $scope.overlay.show = false;
-                    $scope.overlay = null;
-                },
-                close: function (oldModel) {
-
-                    // do close magic here
-
-                    $scope.overlay.show = false;
-                    $scope.overlay = null;
-                }
-            };
-        };
 
         vm.open = open;
 
@@ -226,6 +247,7 @@
                 config: { hello: "me" },
                 submit: function (model) {
                     editorService.close();
+                    vm.getSites();
                 },
                 close: function () {
                     editorService.close();
@@ -234,26 +256,14 @@
             editorService.open(options);
         };
 
+        vm.delete = function (id) {
+            if (confirm("Are you sure you want to delete this site?")) {
+                xStaticResource.deleteSite(id).then(function () {
+                    vm.getSites();
+                });
+            }
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        vm.createLink = "#/xstatic/uiomatic/edit/generatedSite?create";
-        vm.editLink = "#/xstatic/uiomatic/edit/{0}%3Fta=generatedSite";
         vm.downloadLink = "/umbraco/backoffice/xstatic/Download/DownloadStaticSite/?staticSiteId=";
 
         vm.sites = [];

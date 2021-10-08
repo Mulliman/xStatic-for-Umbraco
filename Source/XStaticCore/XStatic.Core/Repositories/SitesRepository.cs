@@ -49,13 +49,13 @@ namespace XStatic.Repositories
             }
         }
 
-        public virtual ExtendedGeneratedSite Get(int staticSiteId)
+        public virtual T Get<T>(int staticSiteId) where T : SiteConfig
         {
             using (IScope scope = _scopeProvider.CreateScope())
             {
                 var query = new Sql().Select("*").From(SitesTableName).Where("Id = " + staticSiteId);
 
-                var sites = scope.Database.Fetch<ExtendedGeneratedSite>(query);
+                var sites = scope.Database.Fetch<T>(query);
 
                 scope.Complete();
 
@@ -98,7 +98,7 @@ namespace XStatic.Repositories
         {
             using (IScope scope = _scopeProvider.CreateScope())
             {
-                var entity = Get(update.Id);
+                var entity = Get<SiteConfig>(update.Id);
 
                 try
                 {
@@ -119,9 +119,28 @@ namespace XStatic.Repositories
                     throw new XStaticException("Unable to insert into the database.");
                 }
 
+                var updatedEntity = Get<ExtendedGeneratedSite>(update.Id);
+
                 scope.Complete();
 
-                return entity;
+                return updatedEntity;
+            }
+        }
+
+        public virtual void Delete(int id)
+        {
+            using (IScope scope = _scopeProvider.CreateScope())
+            {
+                try
+                {
+                    scope.Database.Delete<SiteConfig>(id);
+                }
+                catch (Exception ex)
+                {
+                    throw new XStaticException("Unable to delete from database.");
+                }
+
+                scope.Complete();
             }
         }
 

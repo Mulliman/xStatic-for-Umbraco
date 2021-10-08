@@ -44,37 +44,6 @@ namespace XStatic.Plugin.Controllers
         [HttpGet]
         public IEnumerable<ExtendedGeneratedSite> GetAll()
         {
-            //var sites = new[]
-            //{
-            //    new ExtendedGeneratedSite
-            //    {
-            //        AssetPaths = "/css",
-            //        AutoPublish = false,
-            //        ExportFormat = "json",
-            //        FolderSize = "100Tb",
-            //        Id = 1,
-            //        ImageCrops = "200x200",
-            //        LastBuildDurationInSeconds = 10,
-            //        LastDeployDurationInSeconds = 10,
-            //        LastDeployed = DateTime.Now,
-            //        LastRun = DateTime.Now,
-            //        MediaRootNodes = "1064,1065",
-            //        Name = "Mock Data",
-            //        RootNode = 1063,
-            //        TargetHostname = "demo.com",
-            //        DeploymentTarget = new DeploymentTargetModel
-            //        {
-            //            Id = "netlify",
-            //            Name = "Netlify",
-            //            Fields = new Dictionary<string, string>
-            //                {
-            //                    { "PersonalAccessToken", "Demo" },
-            //                    { "SiteId", "THISISANID" }
-            //                }
-            //        }
-            //    }
-            //};
-
             var sites = _sitesRepo.GetAll();
 
             using (var cref = _context.EnsureUmbracoContext())
@@ -116,28 +85,34 @@ namespace XStatic.Plugin.Controllers
             return _sitesRepo.Update(site);
         }
 
-            //[HttpDelete]
-            //public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
-            //{
-            //    var folder = _storer.GetStorageLocationOfSite(staticSiteId);
-
-            //    var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
-
-            //    var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
-
-            //    if(doNotDeletePathsRaw != null)
-            //    {
-            //        var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            //        if(split.Any())
-            //        {
-            //            doNotDeletePaths = split;
-            //        }
-            //    }
-
-            //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
-
-            //    return GetAll();
-            //}
+        [HttpDelete]
+        public void Delete(int staticSiteId)
+        {
+            _sitesRepo.Delete(staticSiteId);
         }
+
+        //[HttpDelete]
+        //public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
+        //{
+        //    var folder = _storer.GetStorageLocationOfSite(staticSiteId);
+
+        //    var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
+
+        //    var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
+
+        //    if(doNotDeletePathsRaw != null)
+        //    {
+        //        var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+        //        if(split.Any())
+        //        {
+        //            doNotDeletePaths = split;
+        //        }
+        //    }
+
+        //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
+
+        //    return GetAll();
+        //}
+    }
 }
