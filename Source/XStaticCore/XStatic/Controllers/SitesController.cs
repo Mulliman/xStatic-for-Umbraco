@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Common;
+using XStatic.Generator.Storage;
 using XStatic.Models;
-using XStatic.Plugin;
 using XStatic.Repositories;
 
 namespace XStatic.Plugin.Controllers
@@ -15,19 +19,14 @@ namespace XStatic.Plugin.Controllers
     {
         private readonly IUmbracoContextFactory _context;
 
-        //private readonly IStaticSiteStorer _storer;
+        private readonly IStaticSiteStorer _storer;
         private ISitesRepository _sitesRepo;
 
-        //public SitesController() //IStaticSiteStorer storer)
-        //{
-            
-        //    //_storer = storer;
-        //}
-
-        public SitesController(IUmbracoContextFactory context, ISitesRepository sitesRepository)
+        public SitesController(IUmbracoContextFactory context, ISitesRepository sitesRepository, IStaticSiteStorer storer)
         {
             _context = context;
             _sitesRepo = sitesRepository;
+            _storer = storer;
         }
 
         [HttpGet]
@@ -49,10 +48,10 @@ namespace XStatic.Plugin.Controllers
                     {
                         site.RootPath = node.Parent == null ? node.Name : node.Parent.Name + "/" + node.Name;
 
-                        //var folder = _storer.GetStorageLocationOfSite(site.Id);
-                        //var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
+                        var folder = _storer.GetStorageLocationOfSite(site.Id);
+                        var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
 
-                        //site.FolderSize = FileHelpers.BytesToString(size);
+                        site.FolderSize = FileHelpers.BytesToString(size);
                     }
                 }
 
@@ -80,28 +79,28 @@ namespace XStatic.Plugin.Controllers
             _sitesRepo.Delete(staticSiteId);
         }
 
-        //[HttpDelete]
-        //public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
-        //{
-        //    var folder = _storer.GetStorageLocationOfSite(staticSiteId);
+        [HttpDelete]
+        public IEnumerable<ExtendedGeneratedSite> ClearStoredSite(int staticSiteId)
+        {
+            var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-        //    var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
+            var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
 
-        //    var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
+            var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
 
-        //    if(doNotDeletePathsRaw != null)
-        //    {
-        //        var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (doNotDeletePathsRaw != null)
+            {
+                var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-        //        if(split.Any())
-        //        {
-        //            doNotDeletePaths = split;
-        //        }
-        //    }
+                if (split.Any())
+                {
+                    doNotDeletePaths = split;
+                }
+            }
 
-        //    FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
+            FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
 
-        //    return GetAll();
-        //}
+            return GetAll();
+        }
     }
 }

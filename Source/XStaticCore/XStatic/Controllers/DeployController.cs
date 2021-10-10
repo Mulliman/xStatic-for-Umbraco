@@ -1,43 +1,45 @@
-﻿//using System.Threading.Tasks;
-//using System.Web.Http;
-//using Umbraco.Core.Logging;
-//using Umbraco.Web.Editors;
-//using Umbraco.Web.Mvc;
-//using XStatic.Deploy;
-//using XStatic.Generator.Storage;
-//using XStatic.Library;
-//using XStatic.Plugin.Processes;
-//using XStatic.Plugin.Repositories;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using Umbraco.Cms.Web.BackOffice.Controllers;
+using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Common;
+using XStatic.Core.Deploy.Processes;
+using XStatic.Deploy;
+using XStatic.Generator.Storage;
+using XStatic.Repositories;
 
-//namespace XStatic.Plugin.Controllers
-//{
-//    [PluginController("xstatic")]
-//    public class DeployController : UmbracoAuthorizedJsonController
-//    {
-//        private readonly IStaticSiteStorer _storer;
-//        private readonly IDeployerFactory _deployerFactory;
-//        private readonly SitesRepository _sitesRepo;
+namespace XStatic.Plugin.Controllers
+{
+    [PluginController("xstatic")]
+    public class DeployController : UmbracoAuthorizedJsonController
+    {
+        private readonly IStaticSiteStorer _storer;
+        private readonly IDeployerService _deployerService;
+        private readonly ISitesRepository _sitesRepo;
+        private readonly ILogger<DeployController> _logger;
 
-//        public DeployController(IStaticSiteStorer storer, IDeployerFactory deployerFactory)
-//        {
-//            _storer = storer;
-//            _deployerFactory = deployerFactory;
-//            _sitesRepo = new SitesRepository();
-//        }
+        public DeployController(IStaticSiteStorer storer, IDeployerService deployerService, ISitesRepository sitesRepository, ILogger<DeployController> logger)
+        {
+            _storer = storer;
+            _deployerService = deployerService;
+            _sitesRepo = sitesRepository;
+            _logger = logger;
+        }
 
-//        [HttpGet]
-//        public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)
-//        {
-//            var process = new DeployProcess(_storer, _deployerFactory, _sitesRepo);
-            
-//            var result = await process.DeployStaticSite(staticSiteId);
+        [HttpGet]
+        public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)
+        {
+            var process = new DeployProcess(_storer, _deployerService, _sitesRepo);
 
-//            if(!result.WasSuccessful)
-//            {
-//                Logger.Error<DeployController>(result.Exception, result.Message);
-//            }
+            var result = await process.DeployStaticSite(staticSiteId);
 
-//            return result;
-//        }
-//    }
-//}
+            if (!result.WasSuccessful)
+            {
+                _logger.LogError(result.Exception, result.Message);
+            }
+
+            return result;
+        }
+    }
+}
