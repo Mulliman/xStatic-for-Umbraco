@@ -1,49 +1,44 @@
-﻿//using System;
-//using System.CodeDom;
-//using System.Collections.Generic;
-//using System.Diagnostics;
-//using System.IO;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using System.Web;
-//using System.Web.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.BackOffice.Controllers;
 //using System.Web.Http;
-//using Umbraco.Web;
-//using Umbraco.Web.Editors;
-//using Umbraco.Web.Mvc;
-//using Umbraco.Web.WebApi;
-//using XStatic.Generator;
-//using XStatic.Generator.Storage;
-//using XStatic.Generator.Transformers;
-//using XStatic.Plugin.ExportType;
-//using XStatic.Plugin.Processes;
-//using XStatic.Plugin.Repositories;
+//using System.Web.UI;
+using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Core.Generator.Processes;
+using XStatic.Generator;
+using XStatic.Models;
+using XStatic.Plugin;
+using XStatic.Repositories;
+namespace XStatic.Plugin.Controllers
+{
+    [PluginController("xstatic")]
+    public class GenerateController : UmbracoAuthorizedJsonController
+    {
+        private readonly IUmbracoContextFactory _umbracoContextFactory;
+        private readonly IExportTypeService _exportTypeService;
+        private ISitesRepository _sitesRepo;
+        private IWebHostEnvironment _webHostEnvironment;
 
-//namespace XStatic.Plugin.Controllers
-//{
-//    [PluginController("xstatic")]
-//    public class GenerateController : UmbracoAuthorizedJsonController
-//    {
-//        private readonly IUmbracoContextFactory _umbracoContextFactory;
-//        private readonly IExportTypeSettings _exportTypeSettings;
-//        private SitesRepository _sitesRepo;
+        public GenerateController(
+            IUmbracoContextFactory umbracoContextFactory,
+            IExportTypeService exportTypeService,
+            ISitesRepository sitesRepository,
+            IWebHostEnvironment webHostEnvironment)
+        {
+            _umbracoContextFactory = umbracoContextFactory;
+            _exportTypeService = exportTypeService;
+            _sitesRepo = sitesRepository;
+            _webHostEnvironment = webHostEnvironment;
+        }
 
-//        public GenerateController(
-//            IUmbracoContextFactory umbracoContextFactory,
-//            IExportTypeSettings exportTypeSettings)
-//        {
-//            _umbracoContextFactory = umbracoContextFactory;
-//            _exportTypeSettings = exportTypeSettings;
-//            _sitesRepo = new SitesRepository();
-//        }
+        [HttpGet]
+        public async Task<string> RebuildStaticSite(int staticSiteId)
+        {
+            var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment);
 
-//        [HttpGet]
-//        public async Task<string> RebuildStaticSite(int staticSiteId)
-//        {
-//            var process = new RebuildProcess(_umbracoContextFactory, _exportTypeSettings);
-
-//            return await process.RebuildSite(staticSiteId);
-//        }
-//    }
-//}
+            return await process.RebuildSite(staticSiteId);
+        }
+    }
+}

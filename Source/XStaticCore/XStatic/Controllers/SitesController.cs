@@ -1,23 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
-//using System.Web.Http;
-//using System.Web.UI;
 using Umbraco.Cms.Web.Common.Attributes;
 using XStatic.Models;
 using XStatic.Plugin;
 using XStatic.Repositories;
-//using Umbraco.Core.Composing;
-//using Umbraco.Web.Editors;
-//using Umbraco.Web.Mvc;
-//using XStatic.Generator.Storage;
-//using XStatic.Library;
-//using XStatic.Plugin.Repositories;
 
 namespace XStatic.Plugin.Controllers
 {
