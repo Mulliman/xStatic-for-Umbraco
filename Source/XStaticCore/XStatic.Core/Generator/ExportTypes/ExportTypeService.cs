@@ -18,7 +18,7 @@ namespace XStatic.Generator
             _exportTypes.Add(exportType);
         }
 
-        public IEnumerable<IExportTypeDetails> GetExportTypes()
+        public IEnumerable<IExportType> GetExportTypes()
         {
             return _exportTypes;
         }

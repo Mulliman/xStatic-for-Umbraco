@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using XStatic.Core.Generator;
+using XStatic.Core.Generator.Transformers;
 using XStatic.Generator.ExportTypes;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
@@ -29,6 +31,9 @@ namespace XStatic.Generator.Startup
 
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
             _services.AddTransient<DefaultJsonTransformerListFactory>();
+
+            _services.AddSingleton<GeneratorList>();
+            _services.AddSingleton<TransformerList>();
 
             return this;
         }

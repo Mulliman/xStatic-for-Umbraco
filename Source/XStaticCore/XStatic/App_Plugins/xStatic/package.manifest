@@ -1,6 +1,7 @@
 ﻿{
   "javascript": [
     "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/ConfigDashboard.js",
     "~/App_Plugins/xStatic/fields/ExportTypeField.js",
     "~/App_Plugins/xStatic/fields/DeploymentTargetField.js",
     "~/App_Plugins/xStatic/fields/multipicker.js",
@@ -20,6 +21,15 @@
     {
       "alias": "MainDashboard",
       "view": "/App_Plugins/xStatic/dashboards/MainDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "ConfigDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/ConfigDashboard.html",
       "sections": [ "xstatic" ],
       "access": [
         { "deny": "translator" },

@@ -3,4 +3,8 @@
   <area alias="sections">
     <key alias="xstatic">xStatic Generated Sites</key>
   </area>
+  <area alias="dashboards">
+    <key alias="MainDashboard">Main Dashboard</key>
+    <key alias="ConfigDashboard">Config Dashboard</key>
+  </area>
 </language>

@@ -140,27 +140,6 @@
         };
 
         this.updateFormValues = function (form, buildProps, deployProps) {
-
-            //form.site.Name
-            //AssetPaths: "/css"
-            //AutoPublish: "0"
-            //DeploymentTarget: { Id: "netlify", Name: "Netlify", Fields: { … } }
-            //ExportFormat: "json"
-            //FolderSize: "100Tb"
-            //Id: 1
-            //ImageCrops: "200x200"
-            //LastBuildDurationInSeconds: 10
-            //LastDeployDurationInSeconds: 10
-            //LastDeployed: "2021-07-11T21:05:07.0718775+01:00"
-            //LastDeployedString: "09:05 11 Jul 21"
-            //LastRun: "2021-07-11T21:05:07.0719554+01:00"
-            //LastRunString: "09:05 11 Jul 21"
-            //MediaRootNodes: "1064,1065"
-            //Name: "Mock Data"
-            //RootNode: "1063"
-            //RootPath: "Home"
-            //TargetHostname: "demo.com"
-
             for (var field of buildProps) {
                 var val = field.value;
 

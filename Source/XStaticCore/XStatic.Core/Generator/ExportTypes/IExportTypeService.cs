@@ -7,7 +7,7 @@ namespace XStatic.Generator
     {
         void AddExportType(IExportType exportType);
 
-        IEnumerable<IExportTypeDetails> GetExportTypes();
+        IEnumerable<IExportType> GetExportTypes();
 
         IGenerator GetGenerator(string exportFormatId);
 
