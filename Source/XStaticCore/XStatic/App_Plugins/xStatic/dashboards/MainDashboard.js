@@ -70,6 +70,8 @@
         };
 
         this.getBuildProperties = function (form) {
+            console.log("getProperties", form, form.site.ExportFormat);
+
             return [
                 {
                     key: "RootNode",

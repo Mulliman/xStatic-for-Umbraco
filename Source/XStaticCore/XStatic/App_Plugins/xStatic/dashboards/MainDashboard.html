@@ -132,7 +132,7 @@
 
                             <!-- Export Type -->
 
-                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat">
+                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportTypeName">
 
                                 <div class="umb-panel-group__details-status-icon-container">
                                     <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
@@ -140,7 +140,7 @@
 
                                 <div class="umb-panel-group__details-status-content">
                                     <div class="umb-panel-group__details-status-text">
-                                        Exports as {{site.ExportFormat}}
+                                        Exports as {{site.ExportTypeName}}
                                     </div>
                                 </div>
                             </div>
@@ -175,11 +175,11 @@
                         </div>
 
                         <div class="box-footer">
-
                             <umb-button action="vm.generateSite(site.Id)"
                                         type="button"
                                         button-style="success"
                                         label="Build"
+                                        data-ng-show="site.ExportTypeName"
                                         disabled="false">
                             </umb-button>
 
@@ -229,6 +229,4 @@
         </umb-drawer-footer>
 
     </umb-drawer-view>
-
-
 </div>
