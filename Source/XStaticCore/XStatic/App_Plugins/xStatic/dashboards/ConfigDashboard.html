@@ -93,13 +93,13 @@
                 <umb-box data-ng-repeat="exportType in vm.config.ExportTypes" style="position: relative;">
                     <umb-box-header title="{{exportType.Name}}">
                         <umb-button type="button"
-                                    action="vm.delete(site.Id)"
+                                    action="vm.delete(exportType.Id)"
                                     button-style="danger"
                                     icon="icon-trash"
                                     size="s">
                         </umb-button>
                         <umb-button type="button"
-                                    action="vm.open(site)"
+                                    action="vm.open(exportType)"
                                     label="Edit"
                                     icon="icon-brush">
                         </umb-button>
@@ -143,7 +143,20 @@
 
                                 <div class="umb-panel-group__details-status-content">
                                     <div class="umb-panel-group__details-status-text">
-                                        {{exportType.TransformerListFactory.Name}}
+                                        {{exportType.TransformerFactory.Name}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-notepad-alt" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{exportType.FileNameGenerator.Name}}
                                     </div>
                                 </div>
                             </div>
@@ -181,9 +194,7 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                     </umb-box-content>
                 </umb-box>
 
@@ -209,9 +220,7 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                     </umb-box-content>
                 </umb-box>
 
@@ -237,9 +246,33 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
+                    </umb-box-content>
+                </umb-box>
 
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed File Name Generators">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">A file name generator is a component that creates the file names for each statically generated page.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="generator in vm.config.FileNameGenerators">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-notepad-alt" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{generator.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </umb-box-content>
                 </umb-box>
             </div>

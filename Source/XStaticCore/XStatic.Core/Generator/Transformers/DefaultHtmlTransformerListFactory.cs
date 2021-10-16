@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XStatic.Generator;
 using XStatic.Generator.Storage;
+using XStatic.Generator.Transformers;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public class DefaultHtmlTransformerListFactory : ITransformerListFactory
     {

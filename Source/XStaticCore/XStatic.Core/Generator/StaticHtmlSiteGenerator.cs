@@ -9,8 +9,9 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Extensions;
+using XStatic.Generator;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator
 {
     public class StaticHtmlSiteGenerator : GeneratorBase
     {

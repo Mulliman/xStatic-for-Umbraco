@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using XStatic.Core.Generator;
+using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
-using XStatic.Generator.ExportTypes;
 using XStatic.Generator.Storage;
 using XStatic.Generator.Transformers;
 using XStatic.Repositories;
@@ -26,7 +27,8 @@ namespace XStatic.Generator.Startup
             _services.AddSingleton<IImageCropNameGenerator, ImageCropNameGenerator>();
             _services.AddSingleton<StaticHtmlSiteGenerator>();
             _services.AddSingleton<JsonApiGenerator>();
-            _services.AddSingleton<IExportTypeService, ExportTypeService>();
+            _services.AddSingleton<IExportTypeService, DatabaseExportTypeService>();
+            _services.AddSingleton<IExportTypeRepository, ExportTypeRepository>();
             _services.AddSingleton<ISitesRepository, SitesRepository>();
 
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
@@ -34,6 +36,7 @@ namespace XStatic.Generator.Startup
 
             _services.AddSingleton<GeneratorList>();
             _services.AddSingleton<TransformerList>();
+            _services.AddSingleton<FileNameGeneratorList>();
 
             return this;
         }

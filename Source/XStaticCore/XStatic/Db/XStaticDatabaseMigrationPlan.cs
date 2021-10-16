@@ -11,7 +11,8 @@ namespace XStatic.Plugin.Db
                 .To<MigrationCreateTable>("init")
                 .To<MigrationAddTargetHostnameField>("Add Target Hostname field")
                 .To<MigrationAddImageCropsField>("Add Image crops field")
-                .To<MigrationMakeSomeFieldsLonger>("Make some fields longer");
+                .To<MigrationMakeSomeFieldsLonger>("Make some fields longer")
+                .To<MigrationCreateExportTypesTable>("Manage Export Types in DB");
         }
     }
 
@@ -100,6 +101,44 @@ namespace XStatic.Plugin.Db
 
                 builder.Do();
             }
+        }
+    }
+
+    public class MigrationCreateExportTypesTable : MigrationBase
+    {
+        public MigrationCreateExportTypesTable(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        protected override void Migrate()
+        {
+            if (TableExists("XStaticSiteConfigs"))
+            {
+                var builder = Alter.Table("XStaticSiteConfigs")
+                    .AlterColumn("ExportFormat").AsInt16();
+
+                builder.Do();
+            }
+
+            if (!TableExists("XStaticExportTypes"))
+            {
+                var builder = Create.Table("XStaticExportTypes")
+                    .WithColumn("Id").AsInt16().Identity()
+                    .WithColumn("Name").AsString(100)
+                    .WithColumn("TransformerFactory").AsString(500).Nullable()
+                    .WithColumn("Generator").AsString(500).Nullable()
+                    .WithColumn("FileNameGenerator").AsString(500).Nullable();
+
+                builder.Do();
+            }
+
+            Insert.IntoTable("XStaticExportTypes").Row(new
+            {
+                Name = "HTML Website",
+                TransformerFactory = "XStatic.Core.Generator.Transformers.DefaultHtmlTransformerListFactory, XStatic.Core",
+                Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core"
+            }).Do();
         }
     }
 }

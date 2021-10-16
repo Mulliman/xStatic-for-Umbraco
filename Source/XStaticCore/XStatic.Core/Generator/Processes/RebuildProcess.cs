@@ -41,14 +41,14 @@ namespace XStatic.Core.Generator.Processes
 
             var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
 
-            if (entity == null)
+            if (entity?.ExportFormat == null)
             {
                 throw new XStaticException("Site not found with id " + staticSiteId);
             }
 
             using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
             {
-                IFileNameGenerator fileNamer = entity.ExportFormat == "api" ? (IFileNameGenerator)new JsonFileNameGenerator() : new EverythingIsIndexHtmlFileNameGenerator();
+                IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
 
                 int rootNodeId = entity.RootNode;
                 var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);

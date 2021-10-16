@@ -16,6 +16,8 @@ namespace XStatic.Models
         public List<TypeModel> Generators { get; set; }
 
         public List<TypeModel> TransformerFactories { get; set; }
+
+        public List<TypeModel> FileNameGenerators { get; set; }
     }
 
     public class DeployerModel
@@ -58,15 +60,51 @@ namespace XStatic.Models
             Id = details.Id;
             Name = details.Name;
             Generator = new Core.Models.TypeModel(details.Generator.GetType());
-            TransformerListFactory = new Core.Models.TypeModel(details.TransformerFactory.GetType());
+            TransformerFactory = new Core.Models.TypeModel(details.TransformerFactory.GetType());
+            FileNameGenerator = new Core.Models.TypeModel(details.FileNameGenerator.GetType());
         }
 
-        public string Id { get; set; }
+        public ExportTypeModel(IExportTypeFields dataModel)
+        {
+            Id = dataModel.Id;
+            Name = dataModel.Name;
+
+            try
+            {
+                if(!string.IsNullOrWhiteSpace(dataModel.Generator))
+                {
+                    var generatorType = Type.GetType(dataModel.Generator);
+                    Generator = new Core.Models.TypeModel(generatorType);
+                }
+
+                if (!string.IsNullOrWhiteSpace(dataModel.TransformerFactory))
+                {
+                    var transformerListFactory = Type.GetType(dataModel.TransformerFactory);
+                    TransformerFactory = new Core.Models.TypeModel(transformerListFactory);
+                }
+
+                if (!string.IsNullOrWhiteSpace(dataModel.FileNameGenerator))
+                {
+                    var fileNameGenerator = Type.GetType(dataModel.FileNameGenerator);
+                    FileNameGenerator = new Core.Models.TypeModel(fileNameGenerator);
+                }
+            }
+            catch (Exception e)
+            {
+                var hi = "";
+                // Types must've changed since db updated.
+                // Swallow for now until a good enough solution.
+            }
+        }
+
+        public int Id { get; set; }
 
         public string Name { get; set; }
 
         public TypeModel Generator { get; set; }
 
-        public TypeModel TransformerListFactory { get; set; }
+        public TypeModel TransformerFactory { get; set; }
+
+        public TypeModel FileNameGenerator { get; set; }
     }
 }

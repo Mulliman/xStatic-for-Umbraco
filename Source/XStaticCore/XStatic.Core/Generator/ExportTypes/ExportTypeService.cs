@@ -1,50 +1,50 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using XStatic.Generator.Transformers;
+﻿//using System.Collections.Generic;
+//using System.Linq;
+//using XStatic.Generator.Transformers;
 
-namespace XStatic.Generator
-{
-    public class ExportTypeService : IExportTypeService
-    {
-        private readonly List<IExportType> _exportTypes;
+//namespace XStatic.Generator
+//{
+//    public class ExportTypeService : IExportTypeService
+//    {
+//        private readonly List<IExportType> _exportTypes;
 
-        public ExportTypeService()
-        {
-            _exportTypes = new List<IExportType>();
-        }
+//        public ExportTypeService()
+//        {
+//            _exportTypes = new List<IExportType>();
+//        }
 
-        public void AddExportType(IExportType exportType)
-        {
-            _exportTypes.Add(exportType);
-        }
+//        public void AddExportType(IExportType exportType)
+//        {
+//            _exportTypes.Add(exportType);
+//        }
 
-        public IEnumerable<IExportType> GetExportTypes()
-        {
-            return _exportTypes;
-        }
+//        public IEnumerable<IExportTypeDetails> GetExportTypes()
+//        {
+//            return _exportTypes;
+//        }
 
-        public ITransformerListFactory GetTransformerListFactory(string exportFormatId)
-        {
-            var match = _exportTypes.FirstOrDefault(e => e.Id == exportFormatId);
+//        public ITransformerListFactory GetTransformerListFactory(string exportFormatId)
+//        {
+//            var match = _exportTypes.FirstOrDefault(e => e.Id == exportFormatId);
 
-            if (match != null)
-            {
-                return match.TransformerFactory;
-            }
+//            if (match != null)
+//            {
+//                return match.TransformerFactory;
+//            }
 
-            return null;
-        }
+//            return null;
+//        }
 
-        public IGenerator GetGenerator(string exportFormatId)
-        {
-            var match = _exportTypes.FirstOrDefault(e => e.Id == exportFormatId);
+//        public IGenerator GetGenerator(string exportFormatId)
+//        {
+//            var match = _exportTypes.FirstOrDefault(e => e.Id == exportFormatId);
 
-            if (match != null)
-            {
-                return match.Generator;
-            }
+//            if (match != null)
+//            {
+//                return match.Generator;
+//            }
 
-            return null;
-        }
-    }
-}
+//            return null;
+//        }
+//    }
+//}

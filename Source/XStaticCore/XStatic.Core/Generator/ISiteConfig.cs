@@ -16,7 +16,7 @@ namespace XStatic.Generator
 
         string MediaRootNodes { get; set; }
 
-        string ExportFormat { get; set; }
+        int ExportFormat { get; set; }
 
         DateTime? LastRun { get; set; }
 

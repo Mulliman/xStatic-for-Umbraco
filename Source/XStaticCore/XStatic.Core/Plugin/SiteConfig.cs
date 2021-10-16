@@ -23,7 +23,7 @@ namespace XStatic.Plugin
 
         public string MediaRootNodes { get; set; }
 
-        public string ExportFormat { get; set; }
+        public int ExportFormat { get; set; }
 
         public DateTime? LastRun { get; set; }
 
