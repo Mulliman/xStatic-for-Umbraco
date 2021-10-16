@@ -8,6 +8,7 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 using XStatic.Common;
+using XStatic.Core.Generator.ExportTypes;
 using XStatic.Generator.Storage;
 using XStatic.Models;
 using XStatic.Repositories;
@@ -20,25 +21,33 @@ namespace XStatic.Plugin.Controllers
         private readonly IUmbracoContextFactory _context;
 
         private readonly IStaticSiteStorer _storer;
+        private readonly IExportTypeRepository _exportTypeRepo;
         private ISitesRepository _sitesRepo;
 
-        public SitesController(IUmbracoContextFactory context, ISitesRepository sitesRepository, IStaticSiteStorer storer)
+        public SitesController(IUmbracoContextFactory context,
+            ISitesRepository sitesRepository,
+            IStaticSiteStorer storer,
+            IExportTypeRepository exportTypeRepo)
         {
             _context = context;
             _sitesRepo = sitesRepository;
             _storer = storer;
+            _exportTypeRepo = exportTypeRepo;
         }
 
         [HttpGet]
         public IEnumerable<ExtendedGeneratedSite> GetAll()
         {
             var sites = _sitesRepo.GetAll();
+            var exportTypes = _exportTypeRepo.GetAll();
 
             using (var cref = _context.EnsureUmbracoContext())
             {
                 foreach (var site in sites)
                 {
                     var node = cref.UmbracoContext.Content.GetById(site.RootNode);
+
+                    site.ExportTypeName = exportTypes.FirstOrDefault(et => et.Id == site.ExportFormat)?.Name;
 
                     if (node == null)
                     {

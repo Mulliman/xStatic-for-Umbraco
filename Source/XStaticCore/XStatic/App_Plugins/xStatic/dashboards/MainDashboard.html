@@ -132,7 +132,7 @@
 
                             <!-- Export Type -->
 
-                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'api'">
+                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat">
 
                                 <div class="umb-panel-group__details-status-icon-container">
                                     <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
@@ -140,20 +140,7 @@
 
                                 <div class="umb-panel-group__details-status-content">
                                     <div class="umb-panel-group__details-status-text">
-                                        Exports as a JSON API
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportFormat == 'html'">
-
-                                <div class="umb-panel-group__details-status-icon-container">
-                                    <i class="umb-panel-status-icon icon-globe-alt" aria-hidden="true"></i>
-                                </div>
-
-                                <div class="umb-panel-group__details-status-content">
-                                    <div class="umb-panel-group__details-status-text">
-                                        Exports as an HTML website
+                                        Exports as {{site.ExportFormat}}
                                     </div>
                                 </div>
                             </div>
