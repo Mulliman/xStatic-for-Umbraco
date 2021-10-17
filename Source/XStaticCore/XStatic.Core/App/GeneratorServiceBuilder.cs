@@ -21,24 +21,68 @@ namespace XStatic.Generator.Startup
             _services = services;
         }
 
-        public GeneratorServiceBuilder AddDefaults()
+        public GeneratorServiceBuilder AddDefaultSiteRepository()
         {
-            _services.AddSingleton<IStaticSiteStorer, AppDataSiteStorer>();
-            _services.AddSingleton<IImageCropNameGenerator, ImageCropNameGenerator>();
-            _services.AddSingleton<StaticHtmlSiteGenerator>();
-            _services.AddSingleton<JsonApiGenerator>();
-            _services.AddSingleton<IExportTypeService, DatabaseExportTypeService>();
-            _services.AddSingleton<IExportTypeRepository, ExportTypeRepository>();
             _services.AddSingleton<ISitesRepository, SitesRepository>();
 
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultExportTypeServices()
+        {
+            _services.AddSingleton<IExportTypeService, DatabaseExportTypeService>();
+            _services.AddSingleton<IExportTypeRepository, ExportTypeRepository>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultHtmlGeneratorServices()
+        {
+            _services.AddSingleton<StaticHtmlSiteGenerator>();
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultJsonGeneratorServices()
+        {
+            _services.AddSingleton<JsonApiGenerator>();
             _services.AddTransient<DefaultJsonTransformerListFactory>();
 
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultImageCropServices()
+        {
+            _services.AddSingleton<IImageCropNameGenerator, ImageCropNameGenerator>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultSiteStorageServices()
+        {
+            _services.AddSingleton<IStaticSiteStorer, AppDataSiteStorer>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultComponentLists()
+        {
             _services.AddSingleton<GeneratorList>();
             _services.AddSingleton<TransformerList>();
             _services.AddSingleton<FileNameGeneratorList>();
 
             return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaults()
+        {
+            return AddDefaultSiteRepository()
+                .AddDefaultComponentLists()
+                .AddDefaultExportTypeServices()
+                .AddDefaultHtmlGeneratorServices()
+                .AddDefaultImageCropServices()
+                .AddDefaultSiteStorageServices();
         }
 
         public void Build()

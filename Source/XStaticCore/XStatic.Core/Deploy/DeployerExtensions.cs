@@ -5,9 +5,9 @@ namespace XStatic.Deploy
 {
     public static class DeployerExtensions
     {
-        public static IDeployConfigurationBuilder AddXStaticDeploy(this IServiceCollection services)
+        public static IDeployServiceBuilder AddXStaticDeploy(this IServiceCollection services)
         {
-            return new DeployConfigurationBuilder(services);
+            return new DeployServiceBuilder(services);
         }
     }
 }
