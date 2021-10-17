@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Generator.ExportTypes
 {

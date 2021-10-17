@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public class UmbracoContentUdiToJsonUrlTransformer : ITransformer
     {

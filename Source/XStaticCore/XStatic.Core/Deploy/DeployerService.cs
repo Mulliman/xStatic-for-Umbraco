@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace XStatic.Deploy
+namespace XStatic.Core.Deploy
 {
     public class DeployerService : IDeployerService
     {
@@ -34,7 +34,7 @@ namespace XStatic.Deploy
 
         public IDeployerDefinition GetDefinition(string id)
         {
-            if(!_definitions.ContainsKey(id))
+            if (!_definitions.ContainsKey(id))
             {
                 return null;
             }

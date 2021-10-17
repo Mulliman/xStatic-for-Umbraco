@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
-using XStatic.Common;
-using XStatic.Generator;
-using XStatic.Generator.Storage;
-using XStatic.Plugin;
-using XStatic.Repositories;
+using XStatic.Core.Generator.Db;
+using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Jobs;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Helpers;
+using XStatic.Core.Repositories;
 
 namespace XStatic.Core.Generator.Processes
 {

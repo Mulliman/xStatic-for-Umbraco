@@ -1,6 +1,6 @@
-﻿using XStatic.Plugin;
+﻿using XStatic.Core.Generator.Db;
 
-namespace XStatic.Models
+namespace XStatic.Core.Models
 {
     public class SiteUpdateModel
     {

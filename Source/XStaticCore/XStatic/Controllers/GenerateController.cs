@@ -3,15 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
-//using System.Web.Http;
-//using System.Web.UI;
 using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Processes;
-using XStatic.Generator;
-using XStatic.Models;
-using XStatic.Plugin;
-using XStatic.Repositories;
-namespace XStatic.Plugin.Controllers
+using XStatic.Core.Repositories;
+
+namespace XStatic.Controllers
 {
     [PluginController("xstatic")]
     public class GenerateController : UmbracoAuthorizedJsonController

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator
 {
     public interface ISiteConfig
     {

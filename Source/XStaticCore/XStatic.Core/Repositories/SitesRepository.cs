@@ -3,17 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Core.Scoping;
-using XStatic.Common;
-using XStatic.Generator;
-using XStatic.Generator.Storage;
-using XStatic.Models;
+using XStatic.Core.Generator.Db;
+using XStatic.Core.Models;
 using XStatic.Plugin;
 
-namespace XStatic.Repositories
+namespace XStatic.Core.Repositories
 {
     public class SitesRepository : ISitesRepository
     {
-        const string SitesTableName = "XStaticSiteConfigs";
+        const string SitesTableName = SiteConfig.TableName;
         private readonly IScopeProvider _scopeProvider;
 
         public SitesRepository(IScopeProvider scopeProvider)
@@ -192,7 +190,7 @@ namespace XStatic.Repositories
                         entity.LastDeployDurationInSeconds = secondsTaken;
                     }
 
-                    scope.Database.Save<SiteConfig>(entity);
+                    scope.Database.Save(entity);
 
                     scope.Complete();
 

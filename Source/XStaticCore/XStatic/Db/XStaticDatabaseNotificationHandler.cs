@@ -5,7 +5,6 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
-using XStatic.Plugin.Db;
 
 namespace XStatic.Db
 {

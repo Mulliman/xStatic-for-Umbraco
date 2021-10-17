@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using XStatic.Generator.Transformers;
 
 namespace XStatic.Core.Generator.Transformers
 {

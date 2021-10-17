@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public interface ITransformerListFactory
     {

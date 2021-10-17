@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Umbraco.Cms.Core.Web;
-using XStatic.Generator.Storage;
+using XStatic.Core.Generator.Storage;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public class CroppedImageUrlTransformer : ITransformer
     {

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using XStatic.Common;
-using XStatic.Deploy;
-using XStatic.Generator.Storage;
-using XStatic.Plugin;
-using XStatic.Repositories;
+using XStatic.Core.Generator.Db;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Repositories;
 
 namespace XStatic.Core.Deploy.Processes
 {

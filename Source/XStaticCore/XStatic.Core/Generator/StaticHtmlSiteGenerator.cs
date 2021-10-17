@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using XStatic.Generator.Ssl;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Core.IO;
-using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
-using XStatic.Generator;
+using XStatic.Core.Generator.Ssl;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
 
 namespace XStatic.Core.Generator
 {
@@ -20,7 +19,7 @@ namespace XStatic.Core.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IHostingEnvironment hostingEnvironment) 
+            IHostingEnvironment hostingEnvironment)
             : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
         {
         }
@@ -41,7 +40,7 @@ namespace XStatic.Core.Generator
 
             var fileData = await GetFileDataFromWebClient(absoluteUrl);
 
-            if(fileData == null)
+            if (fileData == null)
             {
                 return null;
             }

@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
-using XStatic.Generator;
 
-namespace XStatic.Plugin
+namespace XStatic.Core.Generator.Db
 {
     [TableName(TableName)]
     [PrimaryKey("Id", AutoIncrement = true)]

@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
-using XStatic.Common;
+using XStatic.Core;
+using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Processes;
-using XStatic.Deploy;
-using XStatic.Generator.Storage;
-using XStatic.Repositories;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Repositories;
 
-namespace XStatic.Plugin.Controllers
+namespace XStatic.Controllers
 {
     [PluginController("xstatic")]
     public class DeployController : UmbracoAuthorizedJsonController

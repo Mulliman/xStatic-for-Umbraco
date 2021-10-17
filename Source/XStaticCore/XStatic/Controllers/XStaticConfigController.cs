@@ -1,20 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Core.Deploy;
 using XStatic.Core.Generator;
+using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Models;
-using XStatic.Deploy;
-using XStatic.Generator;
-using XStatic.Models;
 
 namespace XStatic.Controllers
 {
@@ -28,8 +23,8 @@ namespace XStatic.Controllers
         private readonly TransformerList _transformerList;
         private readonly FileNameGeneratorList _fileNameGeneratorList;
 
-        public XStaticConfigController(IDeployerService deployerService, 
-            IExportTypeService exportTypeService, 
+        public XStaticConfigController(IDeployerService deployerService,
+            IExportTypeService exportTypeService,
             IExportTypeRepository repo,
             GeneratorList generatorList,
             TransformerList transformerList,

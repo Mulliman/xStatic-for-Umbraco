@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XStatic.Common
+namespace XStatic.Core
 {
     public class XStaticException : Exception
     {

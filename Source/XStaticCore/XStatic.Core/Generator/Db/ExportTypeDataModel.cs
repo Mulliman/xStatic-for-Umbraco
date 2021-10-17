@@ -1,8 +1,8 @@
 ﻿using NPoco;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
-using XStatic.Generator;
+using XStatic.Core.Generator.ExportTypes;
 
-namespace XStatic.Core.Generator.ExportTypes
+namespace XStatic.Core.Generator.Db
 {
     [TableName(TableName)]
     [PrimaryKey("Id")]

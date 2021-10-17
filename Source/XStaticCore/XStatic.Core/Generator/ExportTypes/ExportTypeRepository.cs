@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Core.Scoping;
-using XStatic.Common;
+using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Generator.ExportTypes
 {

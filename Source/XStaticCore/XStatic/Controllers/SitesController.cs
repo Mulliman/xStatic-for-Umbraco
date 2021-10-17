@@ -7,13 +7,15 @@ using System.Linq;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
-using XStatic.Common;
+using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.ExportTypes;
-using XStatic.Generator.Storage;
-using XStatic.Models;
-using XStatic.Repositories;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Helpers;
+using XStatic.Core.Models;
+using XStatic.Core.Repositories;
+using XStatic.Plugin;
 
-namespace XStatic.Plugin.Controllers
+namespace XStatic.Controllers
 {
     [PluginController("xstatic")]
     public class SitesController : UmbracoAuthorizedJsonController

@@ -2,14 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Core.Routing;
-using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
+using XStatic.Core.Generator;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
 
 namespace XStatic.Generator
 {
@@ -64,7 +65,7 @@ namespace XStatic.Generator
             obj.Add("__templateId", content.TemplateId);
             obj.Add("__writerId", content.WriterId);
 
-            foreach(var prop in content.Properties)
+            foreach (var prop in content.Properties)
             {
                 var jsonVal = content.Value<JToken>(_fallback, prop.Alias);
                 if (jsonVal != null)

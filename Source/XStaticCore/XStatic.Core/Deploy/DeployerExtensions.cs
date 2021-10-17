@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using XStatic.Deploy.Configuration;
+using XStatic.Core.App;
 
-namespace XStatic.Deploy
+namespace XStatic.Core.Deploy
 {
     public static class DeployerExtensions
     {

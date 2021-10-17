@@ -1,4 +1,4 @@
-﻿namespace XStatic.Generator.Storage
+﻿namespace XStatic.Core.Generator.Storage
 {
     public class ImageCropNameGenerator : IImageCropNameGenerator
     {

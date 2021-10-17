@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using XStatic.Deploy.Configuration;
-using XStatic.Generator.Startup;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace XStatic.Core.App
 {

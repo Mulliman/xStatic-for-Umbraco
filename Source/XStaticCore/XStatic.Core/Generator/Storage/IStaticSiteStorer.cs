@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using System.IO;
+﻿using System.IO;
+using System.Threading.Tasks;
 
-namespace XStatic.Generator.Storage
+namespace XStatic.Core.Generator.Storage
 {
     public interface IStaticSiteStorer
     {

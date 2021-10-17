@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace XStatic.Deploy
+namespace XStatic.Core.Deploy
 {
     public interface IDeployerService
     {

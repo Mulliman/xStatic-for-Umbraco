@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using XStatic.Core.Deploy;
 
-namespace XStatic.Deploy.Configuration
+namespace XStatic.Core.App
 {
     public class DeployServiceBuilder : IDeployServiceBuilder
     {
@@ -34,7 +34,7 @@ namespace XStatic.Deploy.Configuration
                 .Where(x => typeof(IDeployerAutoInstaller).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
                 .ToList();
 
-            foreach(var installer in deployerInstallers)
+            foreach (var installer in deployerInstallers)
             {
                 var instance = Activator.CreateInstance(installer) as IDeployerAutoInstaller;
 

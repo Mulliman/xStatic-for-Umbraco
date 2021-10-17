@@ -1,4 +1,4 @@
-﻿using XStatic.Deploy.Configuration;
+﻿using XStatic.Core.App;
 
 namespace XStatic.Netlify
 {

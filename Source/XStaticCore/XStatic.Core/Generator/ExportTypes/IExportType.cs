@@ -1,7 +1,7 @@
-﻿using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
+﻿using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator.ExportTypes
 {
     public interface IExportType : IExportTypeDetails
     {

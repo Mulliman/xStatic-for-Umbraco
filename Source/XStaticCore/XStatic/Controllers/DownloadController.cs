@@ -3,11 +3,12 @@ using System.IO;
 using System.IO.Compression;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
-using XStatic.Common;
-using XStatic.Generator.Storage;
-using XStatic.Repositories;
+using XStatic.Core;
+using XStatic.Core.Generator.Db;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Repositories;
 
-namespace XStatic.Plugin.Controllers
+namespace XStatic.Controllers
 {
     [PluginController("xstatic")]
     public class DownloadController : UmbracoAuthorizedApiController

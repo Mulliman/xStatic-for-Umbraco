@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using XStatic.Common;
+﻿using System.Threading.Tasks;
 
-namespace XStatic.Deploy
+namespace XStatic.Core.Deploy
 {
     public interface IDeployer
     {

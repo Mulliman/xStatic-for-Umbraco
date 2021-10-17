@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XStatic.Generator;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
+﻿using System.Collections.Generic;
+using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Core.Generator.Transformers
 {

@@ -1,12 +1,12 @@
 ﻿using Umbraco.Cms.Core.Web;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public class CachedByTransformer : ITransformer
     {
         public string Transform(string input, IUmbracoContext context)
         {
-            if(string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
             {
                 return input;
             }

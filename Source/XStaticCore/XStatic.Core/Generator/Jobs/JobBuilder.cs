@@ -1,71 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Extensions;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator.Jobs
 {
-    public class Job
-    {
-        public int StaticSiteId { get; set; }
-
-        public IFileNameGenerator NameGenerator { get; set; }
-
-        public List<ITransformer> Transformers { get; set; } = new List<ITransformer>();
-
-        public List<int> PageIds { get; set; } = new List<int>();
-
-        public List<int> MediaIds { get; set; } = new List<int>();
-
-        public List<Crop> MediaCropSizes { get; set; } = new List<Crop>();
-
-        public List<string> Folders { get; set; } = new List<string>();
-
-        public List<string> Files { get; set; } = new List<string>();
-    }
-
-    public class JobRunner
-    {
-        private readonly IGenerator _generator;
-
-        public JobRunner(IGenerator generator)
-        {
-            _generator = generator;
-        }
-
-        public async Task<IEnumerable<string>> RunJob(Job job)
-        {
-            var returnList = new List<string>();
-
-            foreach (var id in job.PageIds)
-            {
-                returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
-            }
-
-            foreach (var id in job.MediaIds)
-            {
-                returnList.Add(await _generator.GenerateMedia(id, job.StaticSiteId, job.MediaCropSizes));
-            }
-
-            foreach (var folder in job.Folders)
-            {
-                returnList.AddRange(await _generator.GenerateFolder(folder, job.StaticSiteId));
-            }
-
-            foreach (var file in job.Files)
-            {
-                returnList.Add(await _generator.GenerateFile(file, job.StaticSiteId));
-            }
-
-            return returnList.Where(x => x != null);
-        }
-    }
-
     public class JobBuilder
     {
         private Job job;
@@ -136,7 +77,7 @@ namespace XStatic.Generator
 
             return this;
         }
-        
+
         public JobBuilder AddMediaCrops(IEnumerable<Crop> crops)
         {
             if (crops == null) return this;
@@ -168,7 +109,7 @@ namespace XStatic.Generator
         {
             if (relativePaths?.Any() != true) return this;
 
-            foreach(var path in relativePaths)
+            foreach (var path in relativePaths)
             {
                 job.Files.Add(path);
             }

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Hosting;
 
-namespace XStatic.Generator.Storage
+namespace XStatic.Core.Generator.Storage
 {
     public class AppDataSiteStorer : IStaticSiteStorer
     {
@@ -21,11 +19,11 @@ namespace XStatic.Generator.Storage
             string root = _hostingEnvironment.MapPathContentRoot("~/");
             var filePath = Path.Combine(root, storagePath);
 
-            var fi = new System.IO.FileInfo(filePath);
+            var fi = new FileInfo(filePath);
             if (fi.Exists) fi.Delete();
             if (!fi.Directory.Exists) fi.Directory.Create();
 
-            System.IO.File.WriteAllText(storagePath, contents, encoding);
+            File.WriteAllText(storagePath, contents, encoding);
 
             return filePath;
         }
@@ -34,7 +32,7 @@ namespace XStatic.Generator.Storage
         {
             var filePath = GetFileDestinationPath(subFolder, partialDestinationPath);
 
-            System.IO.File.Copy(sourcePath, filePath);
+            File.Copy(sourcePath, filePath);
 
             return filePath;
         }
@@ -58,7 +56,7 @@ namespace XStatic.Generator.Storage
             string root = _hostingEnvironment.MapPathContentRoot("~/");
             var filePath = Path.Combine(root, storagePath);
 
-            var fi = new System.IO.FileInfo(filePath);
+            var fi = new FileInfo(filePath);
             if (fi.Exists) fi.Delete();
             if (!fi.Directory.Exists) fi.Directory.Create();
 

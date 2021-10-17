@@ -1,4 +1,4 @@
-﻿namespace XStatic.Common
+﻿namespace XStatic.Core
 {
     public interface IXStaticWebResult
     {

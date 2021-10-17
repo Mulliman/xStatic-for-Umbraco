@@ -6,8 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using XStatic.Common;
-using XStatic.Deploy;
+using XStatic.Core;
+using XStatic.Core.Deploy;
 
 namespace XStatic.Netlify
 {

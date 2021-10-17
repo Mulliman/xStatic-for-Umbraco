@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using XStatic.Core.Deploy;
 
-namespace XStatic.Deploy.Configuration
+namespace XStatic.Core.App
 {
     public interface IDeployServiceBuilder
     {

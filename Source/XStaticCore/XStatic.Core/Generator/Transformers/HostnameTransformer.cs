@@ -1,6 +1,6 @@
 ﻿using Umbraco.Cms.Core.Web;
 
-namespace XStatic.Generator.Transformers
+namespace XStatic.Core.Generator.Transformers
 {
     public class HostnameTransformer : ITransformer
     {
@@ -20,7 +20,7 @@ namespace XStatic.Generator.Transformers
 
             var output = input;
 
-            foreach(var domain in context.Domains.GetAll(false))
+            foreach (var domain in context.Domains.GetAll(false))
             {
                 output = output.Replace(domain.Name, _targetHostname);
             }

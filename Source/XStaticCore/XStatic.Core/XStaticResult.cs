@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace XStatic.Common
+namespace XStatic.Core
 {
-
     public class XStaticResult : IXStaticWebResult
     {
         public bool WasSuccessful { get; set; }
@@ -15,6 +14,7 @@ namespace XStatic.Common
         {
             return new XStaticResult() { WasSuccessful = true };
         }
+
         public static XStaticResult Success(string message)
         {
             return new XStaticResult() { WasSuccessful = true, Message = message };

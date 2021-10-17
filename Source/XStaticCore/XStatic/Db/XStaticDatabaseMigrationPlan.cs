@@ -1,6 +1,7 @@
 ﻿using Umbraco.Cms.Infrastructure.Migrations;
+using XStatic.Core.Generator.Db;
 
-namespace XStatic.Plugin.Db
+namespace XStatic.Db
 {
     public class XStaticDatabaseMigrationPlan : MigrationPlan
     {
@@ -25,9 +26,9 @@ namespace XStatic.Plugin.Db
 
         protected override void Migrate()
         {
-            if (!TableExists("XStaticSiteConfigs"))
+            if (!TableExists(SiteConfig.TableName))
             {
-                var builder = Create.Table("XStaticSiteConfigs")
+                var builder = Create.Table(SiteConfig.TableName)
                     .WithColumn("Id").AsInt16().Identity()
                     .WithColumn("Name").AsString()
                     .WithColumn("AutoPublish").AsBoolean()
@@ -55,9 +56,9 @@ namespace XStatic.Plugin.Db
 
         protected override void Migrate()
         {
-            if (TableExists("XStaticSiteConfigs"))
+            if (TableExists(SiteConfig.TableName))
             {
-                var builder = Alter.Table("XStaticSiteConfigs")
+                var builder = Alter.Table(SiteConfig.TableName)
                     .AddColumn("TargetHostname").AsString().Nullable();
 
                 builder.Do();
@@ -74,9 +75,9 @@ namespace XStatic.Plugin.Db
 
         protected override void Migrate()
         {
-            if (TableExists("XStaticSiteConfigs"))
+            if (TableExists(SiteConfig.TableName))
             {
-                var builder = Alter.Table("XStaticSiteConfigs")
+                var builder = Alter.Table(SiteConfig.TableName)
                     .AddColumn("ImageCrops").AsString().Nullable();
 
                 builder.Do();
@@ -93,9 +94,9 @@ namespace XStatic.Plugin.Db
 
         protected override void Migrate()
         {
-            if (TableExists("XStaticSiteConfigs"))
+            if (TableExists(SiteConfig.TableName))
             {
-                var builder = Alter.Table("XStaticSiteConfigs")
+                var builder = Alter.Table(SiteConfig.TableName)
                     .AlterColumn("AssetPaths").AsString(1000).Nullable()
                     .AlterColumn("DeploymentTarget").AsString(2500).Nullable();
 
@@ -113,17 +114,17 @@ namespace XStatic.Plugin.Db
 
         protected override void Migrate()
         {
-            if (TableExists("XStaticSiteConfigs"))
+            if (TableExists(SiteConfig.TableName))
             {
-                var builder = Alter.Table("XStaticSiteConfigs")
+                var builder = Alter.Table(SiteConfig.TableName)
                     .AlterColumn("ExportFormat").AsInt16();
 
                 builder.Do();
             }
 
-            if (!TableExists("XStaticExportTypes"))
+            if (!TableExists(ExportTypeDataModel.TableName))
             {
-                var builder = Create.Table("XStaticExportTypes")
+                var builder = Create.Table(ExportTypeDataModel.TableName)
                     .WithColumn("Id").AsInt16().Identity()
                     .WithColumn("Name").AsString(100)
                     .WithColumn("TransformerFactory").AsString(500).Nullable()
@@ -133,11 +134,12 @@ namespace XStatic.Plugin.Db
                 builder.Do();
             }
 
-            Insert.IntoTable("XStaticExportTypes").Row(new
+            Insert.IntoTable(ExportTypeDataModel.TableName).Row(new
             {
                 Name = "HTML Website",
                 TransformerFactory = "XStatic.Core.Generator.Transformers.DefaultHtmlTransformerListFactory, XStatic.Core",
-                Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core"
+                Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
+                FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
         }
     }

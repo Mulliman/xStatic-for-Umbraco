@@ -1,15 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using XStatic.Core.Generator;
-using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
-using XStatic.Models;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator.ExportTypes
 {
     public class DatabaseExportTypeService : IExportTypeService
     {

@@ -4,20 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using XStatic.Generator.Ssl;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Core.IO;
-using Umbraco.Cms.Core.Hosting;
-using XStatic.Common;
-using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core;
-using Umbraco.Extensions;
-using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
+using XStatic.Core.Generator.Ssl;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
+using XStatic.Core.Helpers;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator
 {
     public abstract class GeneratorBase : IGenerator
     {
@@ -36,7 +36,7 @@ namespace XStatic.Generator
 
         protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory,
             IPublishedUrlProvider publishedUrlProvider,
-            IStaticSiteStorer storer, 
+            IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
             IHostingEnvironment hostingEnvironment)
@@ -101,7 +101,7 @@ namespace XStatic.Generator
 
             var generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
 
-            if(crops?.Any() == true)
+            if (crops?.Any() == true)
             {
                 var fileName = Path.GetFileName(partialPath);
                 var fileExtension = Path.GetExtension(partialPath)?.ToLower();
@@ -120,7 +120,7 @@ namespace XStatic.Generator
                         var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
                         await SaveFileDataFromWebClient(cropUrl, destinationPath);
                     }
-                }                
+                }
             }
 
             return generatedFileLocation;
@@ -227,7 +227,7 @@ namespace XStatic.Generator
 
                 return downloadedSource;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
                 //throw;
@@ -253,7 +253,7 @@ namespace XStatic.Generator
 
                 return filePath;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
                 //throw;

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace XStatic.Common
+namespace XStatic.Core.Helpers
 {
     public static class FileHelpers
     {
@@ -71,7 +71,7 @@ namespace XStatic.Common
             return path;
         }
 
-        public static long GetDirectorySize(System.IO.DirectoryInfo directoryInfo, bool recursive = true)
+        public static long GetDirectorySize(DirectoryInfo directoryInfo, bool recursive = true)
         {
             var startDirectorySize = default(long);
             if (directoryInfo == null || !directoryInfo.Exists)

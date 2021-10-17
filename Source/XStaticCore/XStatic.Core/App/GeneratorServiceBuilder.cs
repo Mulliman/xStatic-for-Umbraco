@@ -4,11 +4,10 @@ using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
-using XStatic.Repositories;
+using XStatic.Core.Repositories;
+using XStatic.Generator;
 
-namespace XStatic.Generator.Startup
+namespace XStatic.Core.App
 {
     public class GeneratorServiceBuilder
     {
@@ -81,6 +80,7 @@ namespace XStatic.Generator.Startup
                 .AddDefaultComponentLists()
                 .AddDefaultExportTypeServices()
                 .AddDefaultHtmlGeneratorServices()
+                .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
                 .AddDefaultSiteStorageServices();
         }

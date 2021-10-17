@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using XStatic.Deploy;
 
 namespace XStatic.Core.Deploy
 {

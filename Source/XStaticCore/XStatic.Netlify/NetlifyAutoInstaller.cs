@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using XStatic.Core.Deploy;
-using XStatic.Deploy;
 
 namespace XStatic.Netlify
 {

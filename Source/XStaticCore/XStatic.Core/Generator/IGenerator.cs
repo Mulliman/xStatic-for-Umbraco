@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using XStatic.Generator.Storage;
-using XStatic.Generator.Transformers;
+using XStatic.Core.Generator.Storage;
+using XStatic.Core.Generator.Transformers;
 
-namespace XStatic.Generator
+namespace XStatic.Core.Generator
 {
     public interface IGenerator
     {

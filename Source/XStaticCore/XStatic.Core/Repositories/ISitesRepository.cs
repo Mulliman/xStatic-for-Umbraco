@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using XStatic.Models;
+using XStatic.Core.Generator.Db;
+using XStatic.Core.Models;
 using XStatic.Plugin;
 
-namespace XStatic.Repositories
+namespace XStatic.Core.Repositories
 {
     public interface ISitesRepository
     {

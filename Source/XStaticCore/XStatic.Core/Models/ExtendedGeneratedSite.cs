@@ -1,11 +1,4 @@
-﻿//using System.Web.Http;
-//using System.Web.UI;
-//using Umbraco.Core.Composing;
-//using Umbraco.Web.Editors;
-//using Umbraco.Web.Mvc;
-//using XStatic.Generator.Storage;
-//using XStatic.Library;
-//using XStatic.Plugin.Repositories;
+﻿using XStatic.Core.Generator.Db;
 
 namespace XStatic.Plugin
 {
