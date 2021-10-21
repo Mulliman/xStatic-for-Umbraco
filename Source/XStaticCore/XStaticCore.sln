@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic.Netlify", "XStatic.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{314A3A25-88AA-4B6D-972D-3A98E9ECB80D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XStatic.Core", "XStatic.Core\XStatic.Core.csproj", "{0E7F35CC-323D-44AF-8EC0-69DF529011CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic.Core", "XStatic.Core\XStatic.Core.csproj", "{0E7F35CC-323D-44AF-8EC0-69DF529011CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XStatic.Git", "XStatic.Git\XStatic.Git.csproj", "{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,17 @@ Global
 		{0E7F35CC-323D-44AF-8EC0-69DF529011CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E7F35CC-323D-44AF-8EC0-69DF529011CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E7F35CC-323D-44AF-8EC0-69DF529011CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E867F908-FFA5-4C0D-8A62-86509D24767C} = {314A3A25-88AA-4B6D-972D-3A98E9ECB80D}
+		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A} = {314A3A25-88AA-4B6D-972D-3A98E9ECB80D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F379456F-DE78-46F5-B1E2-7CE04B51346A}
