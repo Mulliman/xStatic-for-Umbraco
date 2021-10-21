@@ -2,12 +2,21 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <ContentTargetFolders>.</ContentTargetFolders>
-        <Product>XStatic</Product>
-        <PackageId>XStatic</PackageId>
-        <Title>XStatic</Title>
-        <Description>...</Description>
-        <Product>...</Product>
-        <PackageTags>umbraco plugin package</PackageTags>
+        <Product>xStatic</Product>
+        <PackageId>xStatic</PackageId>
+        <Title>xStatic</Title>
+        <Version>2.0.1-alpha</Version>
+        <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
+        <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
+        <Copyright>Sam Mullins</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageIcon>Logo.png</PackageIcon>
+        <PackageIconUrl />
+        <Authors>Sam Mullins</Authors>
+        <Company>Sam Mullins</Company>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +29,10 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
+        <None Include="..\..\..\Brand\Logo.png">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        </None>
         <None Include="build\**\*.*">
             <Pack>True</Pack>
             <PackagePath>buildTransitive</PackagePath>
