@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using XStatic.Core.Actions;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
@@ -31,6 +32,13 @@ namespace XStatic.Core.App
         {
             _services.AddSingleton<IExportTypeService, DatabaseExportTypeService>();
             _services.AddSingleton<IExportTypeRepository, ExportTypeRepository>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultActionServices()
+        {
+            _services.AddSingleton<IActionRepository, ActionRepository>();
 
             return this;
         }
@@ -70,6 +78,7 @@ namespace XStatic.Core.App
             _services.AddSingleton<GeneratorList>();
             _services.AddSingleton<TransformerList>();
             _services.AddSingleton<FileNameGeneratorList>();
+            _services.AddSingleton<PostGenerationActionsList>();
 
             return this;
         }
@@ -79,6 +88,7 @@ namespace XStatic.Core.App
             return AddDefaultSiteRepository()
                 .AddDefaultComponentLists()
                 .AddDefaultExportTypeServices()
+                .AddDefaultActionServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()

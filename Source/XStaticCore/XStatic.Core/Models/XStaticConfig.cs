@@ -13,5 +13,7 @@ namespace XStatic.Core.Models
         public List<TypeModel> TransformerFactories { get; set; }
 
         public List<TypeModel> FileNameGenerators { get; set; }
+
+        public List<TypeModel> PostGenerationActions { get; set; }
     }
 }

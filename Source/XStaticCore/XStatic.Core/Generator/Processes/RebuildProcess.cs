@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
+using XStatic.Core.Actions;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Jobs;
@@ -70,6 +71,8 @@ namespace XStatic.Core.Generator.Processes
                 }
 
                 var results = await GetResults(entity, builder);
+
+                await RunPostActions(entity);
 
                 stopwatch.Stop();
 
@@ -165,6 +168,25 @@ namespace XStatic.Core.Generator.Processes
 
             var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
             builder.AddMediaCrops(crops);
+        }
+
+        private async Task RunPostActions(SiteConfig entity)
+        {
+            var actions = new[]
+            {
+                new FileRenameAction(new AppDataSiteStorer(_webHostEnvironment))
+            };
+
+            foreach(var action in actions)
+            {
+                var dict = new Dictionary<string, string>
+                {
+                    { "FilePath", "/404/index.html" },
+                    { "NewFilePath", "/404.html" }
+                };
+
+                await action.RunAction(entity.Id, dict);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Umbraco.Cms.Infrastructure.Migrations;
+using XStatic.Core.Actions.Db;
 using XStatic.Core.Generator.Db;
 
 namespace XStatic.Db
@@ -13,7 +14,8 @@ namespace XStatic.Db
                 .To<MigrationAddTargetHostnameField>("Add Target Hostname field")
                 .To<MigrationAddImageCropsField>("Add Image crops field")
                 .To<MigrationMakeSomeFieldsLonger>("Make some fields longer")
-                .To<MigrationCreateExportTypesTable>("Manage Export Types in DB");
+                .To<MigrationCreateExportTypesTable>("Manage Export Types in DB")
+                .To<MigrationCreateActionsTable>("Manage Actions in DB");
         }
     }
 
@@ -141,6 +143,29 @@ namespace XStatic.Db
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
+        }
+    }
+
+    public class MigrationCreateActionsTable : MigrationBase
+    {
+        public MigrationCreateActionsTable(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        protected override void Migrate()
+        {
+            if (!TableExists(ActionDataModel.TableName))
+            {
+                var builder = Create.Table(ActionDataModel.TableName)
+                    .WithColumn("Id").AsInt16().Identity()
+                    .WithColumn("Name").AsString(100)
+                    .WithColumn("Category").AsString(100)
+                    .WithColumn("Type").AsString(500).Nullable()
+                    .WithColumn("Config").AsString(2500).Nullable();
+
+                builder.Do();
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.Db;
@@ -22,13 +23,15 @@ namespace XStatic.Controllers
         private readonly GeneratorList _generatorList;
         private readonly TransformerList _transformerList;
         private readonly FileNameGeneratorList _fileNameGeneratorList;
+        private readonly PostGenerationActionsList _postGenerationActionsList;
 
         public XStaticConfigController(IDeployerService deployerService,
             IExportTypeService exportTypeService,
             IExportTypeRepository repo,
             GeneratorList generatorList,
             TransformerList transformerList,
-            FileNameGeneratorList fileNameGeneratorList)
+            FileNameGeneratorList fileNameGeneratorList,
+            PostGenerationActionsList postGenerationActionsList)
         {
             _deployerService = deployerService;
             _exportTypeService = exportTypeService;
@@ -36,6 +39,7 @@ namespace XStatic.Controllers
             _generatorList = generatorList;
             _transformerList = transformerList;
             _fileNameGeneratorList = fileNameGeneratorList;
+            _postGenerationActionsList = postGenerationActionsList;
         }
 
         [HttpGet]
@@ -51,7 +55,8 @@ namespace XStatic.Controllers
                 ExportTypes = exportTypes.Select(e => new ExportTypeModel(e)),
                 Generators = _generatorList.Generators.Select(g => new Core.Models.TypeModel(g)).ToList(),
                 TransformerFactories = _transformerList.TransformerListFactories.Select(g => new Core.Models.TypeModel(g)).ToList(),
-                FileNameGenerators = _fileNameGeneratorList.FileNameGenerators.Select(g => new Core.Models.TypeModel(g)).ToList()
+                FileNameGenerators = _fileNameGeneratorList.FileNameGenerators.Select(g => new Core.Models.TypeModel(g)).ToList(),
+                PostGenerationActions = _postGenerationActionsList.PostActions.Select(g => new Core.Models.TypeModel(g)).ToList()
             };
         }
 
