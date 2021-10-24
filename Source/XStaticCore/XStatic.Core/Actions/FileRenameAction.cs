@@ -7,6 +7,8 @@ using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions
 {
+    [XStaticEditableField("FilePath")]
+    [XStaticEditableField("NewFilePath")]
     public class FileRenameAction : IPostGenerationAction
     {
         private readonly IStaticSiteStorer _staticSiteStorer;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
@@ -56,7 +57,7 @@ namespace XStatic.Controllers
                 Generators = _generatorList.Generators.Select(g => new Core.Models.TypeModel(g)).ToList(),
                 TransformerFactories = _transformerList.TransformerListFactories.Select(g => new Core.Models.TypeModel(g)).ToList(),
                 FileNameGenerators = _fileNameGeneratorList.FileNameGenerators.Select(g => new Core.Models.TypeModel(g)).ToList(),
-                PostGenerationActions = _postGenerationActionsList.PostActions.Select(g => new Core.Models.TypeModel(g)).ToList()
+                PostGenerationActions = _postGenerationActionsList.PostActions.Select(g => new ConfigurableTypeModel(g)).ToList()
             };
         }
 

@@ -1,4 +1,5 @@
 ﻿using NPoco;
+using System.Collections.Generic;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace XStatic.Core.Actions.Db
@@ -18,6 +19,7 @@ namespace XStatic.Core.Actions.Db
 
         public string Type { get; set; }
 
-        public string Config { get; set; }
+        [SerializedColumn]
+        public Dictionary<string, string> Config { get; set; }
     }
 }

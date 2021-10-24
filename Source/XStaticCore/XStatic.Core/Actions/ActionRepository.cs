@@ -34,7 +34,7 @@ namespace XStatic.Core.Actions
         {
             using (IScope scope = _scopeProvider.CreateScope())
             {
-                var query = new Sql().Select("*").Where("Category = '@0'", category).From(ActionDataModel.TableName);
+                var query = new Sql().Select("*").From(ActionDataModel.TableName).Where("Category = @0", category);
 
                 var sites = scope.Database.Fetch<ActionDataModel>(query);
 

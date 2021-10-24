@@ -6,6 +6,7 @@ using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Netlify.Actions
 {
+    [XStaticEditableField("FilePath")]
     public class Netlify404Action : FileRenameAction
     {
         const string Netlify404FilePath = "/404.html";
