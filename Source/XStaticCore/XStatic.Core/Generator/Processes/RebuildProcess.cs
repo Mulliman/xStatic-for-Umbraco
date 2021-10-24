@@ -23,16 +23,19 @@ namespace XStatic.Core.Generator.Processes
         private readonly IExportTypeService _exportTypeService;
         private ISitesRepository _sitesRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IActionFactory _actionFactory;
 
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository repo,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            IActionFactory actionFactory)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _exportTypeService = exportTypeService;
             _sitesRepo = repo;
             _webHostEnvironment = webHostEnvironment;
+            _actionFactory = actionFactory;
         }
 
         public async Task<string> RebuildSite(int staticSiteId)
@@ -72,7 +75,8 @@ namespace XStatic.Core.Generator.Processes
 
                 var results = await GetResults(entity, builder);
 
-                await RunPostActions(entity);
+                var postActionResults = await RunPostActions(entity);
+                results.AddRange(postActionResults.Select(r => r.WasSuccessful + " - " + r.Message));
 
                 stopwatch.Stop();
 
@@ -170,23 +174,25 @@ namespace XStatic.Core.Generator.Processes
             builder.AddMediaCrops(crops);
         }
 
-        private async Task RunPostActions(SiteConfig entity)
+        private async Task<IEnumerable<XStaticResult>> RunPostActions(SiteConfig entity)
         {
-            var actions = new[]
-            {
-                new FileRenameAction(new AppDataSiteStorer(_webHostEnvironment))
-            };
+            var actions = _actionFactory.CreateConfiguredPostGenerationActions(entity.PostGenerationActionIds.ToArray());
+            var results = new List<XStaticResult>();
 
             foreach(var action in actions)
             {
-                var dict = new Dictionary<string, string>
+                try
                 {
-                    { "FilePath", "/404/index.html" },
-                    { "NewFilePath", "/404.html" }
-                };
-
-                await action.RunAction(entity.Id, dict);
+                    var result = await action.Action.RunAction(entity.Id, action.Config);
+                    results.Add(result);
+                }
+                catch (Exception e)
+                {
+                    results.Add(XStaticResult.Error($"Error thrown in RunPostActions for {action?.Action?.GetType()?.Name} - {e.Message}", e));
+                }
             }
+
+            return results;
         }
     }
 }

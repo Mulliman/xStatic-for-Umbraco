@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using XStatic.Core;
-using XStatic.Core.Actions;
+using XStatic.Core.Actions.FileActions;
 using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Netlify.Actions

@@ -32,6 +32,8 @@ namespace XStatic.Core.Generator
         string TargetHostname { get; set; }
 
         string ImageCrops { get; set; }
+
+        List<int> PostGenerationActionIds { get; set; }
     }
 
     public interface IDeploymentTarget

@@ -41,6 +41,9 @@ namespace XStatic.Core.Generator.Db
         [SerializedColumn]
         public DeploymentTargetModel DeploymentTarget { get; set; }
 
+        [SerializedColumn]
+        public List<int> PostGenerationActionIds { get; set; }
+
         public IDeploymentTarget GetDeploymentTarget()
         {
             return DeploymentTarget;

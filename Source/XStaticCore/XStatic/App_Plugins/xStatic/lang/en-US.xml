@@ -6,5 +6,6 @@
   <area alias="dashboards">
     <key alias="MainDashboard">Static Sites</key>
     <key alias="ConfigDashboard">Technical Settings</key>
+    <key alias="ActionsDashboard">Actions</key>
   </area>
 </language>

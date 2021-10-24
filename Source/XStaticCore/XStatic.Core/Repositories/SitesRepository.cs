@@ -78,6 +78,7 @@ namespace XStatic.Core.Repositories
                     entity.MediaRootNodes = update.MediaRootNodes;
                     entity.RootNode = update.RootNode;
                     entity.TargetHostname = update.TargetHostname;
+                    entity.PostGenerationActionIds = update.PostGenerationActionIds;
 
                     scope.Database.Insert(entity);
                 }
@@ -109,12 +110,13 @@ namespace XStatic.Core.Repositories
                     entity.MediaRootNodes = update.MediaRootNodes;
                     entity.RootNode = update.RootNode;
                     entity.TargetHostname = update.TargetHostname;
+                    entity.PostGenerationActionIds = update.PostGenerationActionIds;
 
                     scope.Database.Save(entity);
                 }
                 catch (Exception ex)
                 {
-                    throw new XStaticException("Unable to insert into the database.");
+                    throw new XStaticException("Unable to update the database.");
                 }
 
                 var updatedEntity = Get<ExtendedGeneratedSite>(update.Id);

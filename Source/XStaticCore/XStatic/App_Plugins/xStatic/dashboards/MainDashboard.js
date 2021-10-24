@@ -11,6 +11,12 @@
                     'Failed to get all'
                 );
             },
+            getActions: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("/umbraco/backoffice/xstatic/actions/GetPostActions"),
+                    'Failed to generate'
+                );
+            },
             generateSite: function (id) {
                 return umbRequestHelper.resourcePromise(
                     $http.get("/umbraco/backoffice/xstatic/Generate/RebuildStaticSite/?staticSiteId=" + id),
@@ -66,11 +72,13 @@
             mediaPicker: "/umbraco/views/propertyeditors/mediapicker/mediapicker.html",
             // Custom
             exportType: "/App_Plugins/xStatic/fields/ExportTypeField.html",
-            deploymentTarget: "/App_Plugins/xStatic/fields/DeploymentTargetField.html"
+            deploymentTarget: "/App_Plugins/xStatic/fields/DeploymentTargetField.html",
+            checkBoxList: "/App_Plugins/xStatic/fields/CheckBoxListField.html"
         };
 
-        this.getBuildProperties = function (form) {
+        this.getBuildProperties = function (form, actions) {
             console.log("getProperties", form, form.site.ExportFormat);
+            console.log("getBuildProperties actions", actions);
 
             return [
                 {
@@ -112,6 +120,14 @@
                     config: null,
                     value: form.site.ImageCrops,
                     view: this.editorTypes.csv
+                },
+                {
+                    key: "PostGenerationActionIds",
+                    name: "Post Generation Actions",
+                    description: "Choose which actions should be performed once the pages have been created.",
+                    config: { actions: actions },
+                    value: form.site.PostGenerationActionIds,
+                    view: this.editorTypes.checkBoxList
                 }];
         };
 
@@ -175,7 +191,7 @@
 
         vm.form = $scope.model;
 
-        vm.buildProperties = xStaticSiteEditingService.getBuildProperties(vm.form);
+        vm.buildProperties = xStaticSiteEditingService.getBuildProperties(vm.form, $scope.model.actions);
         vm.deployProperties = xStaticSiteEditingService.getDeployProperties(vm.form);
 
         vm.submit = function() {
@@ -224,6 +240,7 @@
                 title: "My custom infinite editor",
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
                 site: site,
+                actions: vm.actions,
                 styles: { hello: "me" },
                 config: { hello: "me" },
                 submit: function (model) {
@@ -248,6 +265,7 @@
         vm.downloadLink = "/umbraco/backoffice/xstatic/Download/DownloadStaticSite/?staticSiteId=";
 
         vm.sites = [];
+        vm.actions = [];
         vm.config = {};
 
         vm.timers = [];
@@ -258,6 +276,12 @@
         vm.getSites = function () {
             xStaticResource.getAll().then(function (data) {
                 vm.sites = data;
+            });
+        }
+
+        vm.getActions = function () {
+            xStaticResource.getActions().then(function (data) {
+                vm.actions = data;
             });
         }
 
@@ -357,4 +381,5 @@
         // on init
         vm.getSites();
         vm.getConfig();
+        vm.getActions();
     });

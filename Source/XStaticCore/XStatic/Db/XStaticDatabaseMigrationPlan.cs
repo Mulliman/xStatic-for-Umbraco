@@ -15,7 +15,8 @@ namespace XStatic.Db
                 .To<MigrationAddImageCropsField>("Add Image crops field")
                 .To<MigrationMakeSomeFieldsLonger>("Make some fields longer")
                 .To<MigrationCreateExportTypesTable>("Manage Export Types in DB")
-                .To<MigrationCreateActionsTable>("Manage Actions in DB");
+                .To<MigrationCreateActionsTable>("Manage Actions in DB")
+                .To<MigrationAddPostGenActionsField>("Add actions to sites.");
         }
     }
 
@@ -163,6 +164,25 @@ namespace XStatic.Db
                     .WithColumn("Category").AsString(100)
                     .WithColumn("Type").AsString(500).Nullable()
                     .WithColumn("Config").AsString(2500).Nullable();
+
+                builder.Do();
+            }
+        }
+    }
+
+    public class MigrationAddPostGenActionsField : MigrationBase
+    {
+        public MigrationAddPostGenActionsField(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        protected override void Migrate()
+        {
+            if (TableExists(SiteConfig.TableName))
+            {
+                var builder = Alter.Table(SiteConfig.TableName)
+                    .AddColumn("PostGenerationActionIds").AsString(200).Nullable();
 
                 builder.Do();
             }

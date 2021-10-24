@@ -1,4 +1,6 @@
-﻿using XStatic.Core.App;
+﻿using Microsoft.Extensions.DependencyInjection;
+using XStatic.Core.App;
+using XStatic.Netlify.Actions;
 
 namespace XStatic.Netlify
 {
@@ -9,6 +11,13 @@ namespace XStatic.Netlify
             builder.AddDeployer(new NetlifyDeployerDefinition(), (x) => new NetlifyDeployer(x));
 
             return builder;
+        }
+
+        public static IServiceCollection AddNetlifyActions(this IServiceCollection services)
+        {
+            services.AddTransient<Netlify404Action>();
+
+            return services;
         }
     }
 }

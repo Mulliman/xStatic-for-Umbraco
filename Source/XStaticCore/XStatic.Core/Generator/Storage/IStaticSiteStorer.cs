@@ -13,6 +13,8 @@ namespace XStatic.Core.Generator.Storage
 
         Task<string> SaveFile(string subFolder, Stream stream, string partialDestinationPath);
 
+        Task DeleteFile(string sourcePath);
+
         string GetFileDestinationPath(string subFolder, string partialDestinationPath);
 
         Task<string> MoveFile(string subFolder, string sourcePath, string partialDestinationPath);

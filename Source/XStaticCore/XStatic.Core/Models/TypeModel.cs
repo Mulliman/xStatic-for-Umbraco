@@ -12,26 +12,21 @@ namespace XStatic.Core.Models
 
         public TypeModel(Type type)
         {
-            Id = type.AssemblyQualifiedName;
-            Name = type.Name;
+            Id = type?.AssemblyQualifiedName;
+            Name = type?.Name;
         }
 
         public string Id { get; set; }
 
         public string Name { get; set; }
-
-        internal object GetType(string type)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     public class ConfigurableTypeModel : TypeModel
     {
         public ConfigurableTypeModel(Type type)
         {
-            Id = type.AssemblyQualifiedName;
-            Name = type.Name;
+            Id = type?.AssemblyQualifiedName;
+            Name = type?.Name;
 
             var attrs = type?.GetCustomAttributes(typeof(XStaticEditableFieldAttribute), false)?.Cast<XStaticEditableFieldAttribute>()?.Select(a => a.FieldName);
 
@@ -43,8 +38,8 @@ namespace XStatic.Core.Models
 
         public ConfigurableTypeModel(Type type, Dictionary<string, string> config)
         {
-            Id = type.AssemblyQualifiedName;
-            Name = type.Name;
+            Id = type?.AssemblyQualifiedName;
+            Name = type?.Name;
             Fields = config;
         }
 

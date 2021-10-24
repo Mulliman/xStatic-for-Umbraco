@@ -1,4 +1,5 @@
-﻿using XStatic.Core.Generator.Db;
+﻿using System.Collections.Generic;
+using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Models
 {
@@ -23,5 +24,7 @@ namespace XStatic.Core.Models
         public string ImageCrops { get; set; }
 
         public DeploymentTargetModel DeploymentTarget { get; set; }
+
+        public List<int> PostGenerationActionIds { get; set; }
     }
 }

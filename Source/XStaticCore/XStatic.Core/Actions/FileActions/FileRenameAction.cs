@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Helpers;
 
-namespace XStatic.Core.Actions
+namespace XStatic.Core.Actions.FileActions
 {
     [XStaticEditableField("FilePath")]
     [XStaticEditableField("NewFilePath")]

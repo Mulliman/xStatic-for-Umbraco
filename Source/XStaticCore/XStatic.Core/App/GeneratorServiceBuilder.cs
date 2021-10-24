@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
+using XStatic.Core.Actions.FileActions;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
@@ -39,6 +40,16 @@ namespace XStatic.Core.App
         public GeneratorServiceBuilder AddDefaultActionServices()
         {
             _services.AddSingleton<IActionRepository, ActionRepository>();
+            _services.AddSingleton<IActionFactory, ActionFactory>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultActions()
+        {
+            _services.AddTransient<FileCopyAction>();
+            _services.AddTransient<FileDeleteAction>();
+            _services.AddTransient<FileRenameAction>();
 
             return this;
         }
@@ -89,6 +100,7 @@ namespace XStatic.Core.App
                 .AddDefaultComponentLists()
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
+                .AddDefaultActions()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
