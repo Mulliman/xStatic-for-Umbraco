@@ -7,5 +7,6 @@
     <key alias="MainDashboard">Static Sites</key>
     <key alias="ConfigDashboard">Technical Settings</key>
     <key alias="ActionsDashboard">Actions</key>
+    <key alias="ExportTypesDashboard">Export Types</key>
   </area>
 </language>

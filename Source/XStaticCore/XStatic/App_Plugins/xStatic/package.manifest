@@ -3,6 +3,7 @@
     "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ActionsDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ConfigDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/ExportTypesDashboard.js",
     "~/App_Plugins/xStatic/fields/ConfigurableTypeField.js",
     "~/App_Plugins/xStatic/fields/ExportTypeField.js",
     "~/App_Plugins/xStatic/fields/TypeField.js",
@@ -34,6 +35,15 @@
     {
       "alias": "ActionsDashboard",
       "view": "/App_Plugins/xStatic/dashboards/ActionsDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "ExportTypesDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/ExportTypesDashboard.html",
       "sections": [ "xstatic" ],
       "access": [
         { "deny": "translator" },
