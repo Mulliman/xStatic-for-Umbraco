@@ -1,5 +1,6 @@
 ﻿{
   "javascript": [
+    "~/App_Plugins/xStatic/api/apis.js",
     "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ActionsDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ConfigDashboard.js",

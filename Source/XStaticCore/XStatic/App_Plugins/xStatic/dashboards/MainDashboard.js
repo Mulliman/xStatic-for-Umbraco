@@ -1,66 +1,4 @@
 ﻿angular.module("umbraco")
-    .factory("xStaticResource", function ($http, umbRequestHelper) {
-        return {
-            getAll: function (type, sortColumn, sortOrder) {
-                if (sortColumn == undefined)
-                    sortColumn = "";
-                if (sortOrder == undefined)
-                    sortOrder = "";
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/Sites/GetAll"),
-                    'Failed to get all'
-                );
-            },
-            getActions: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/actions/GetPostActions"),
-                    'Failed to generate'
-                );
-            },
-            generateSite: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/Generate/RebuildStaticSite/?staticSiteId=" + id),
-                    'Failed to generate'
-                );
-            },
-            deploySite: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/Deploy/DeployStaticSite/?staticSiteId=" + id),
-                    'Failed to generate'
-                );
-            },
-            createSite: function (site) {
-                return umbRequestHelper.resourcePromise(
-                    $http.post("/umbraco/backoffice/xstatic/Sites/Create", site),
-                    'Failed to update'
-                );
-            },
-            updateSite: function (site) {
-                return umbRequestHelper.resourcePromise(
-                    $http.post("/umbraco/backoffice/xstatic/Sites/Update", site),
-                    'Failed to update'
-                );
-            },
-            deleteSite: function (siteId) {
-                return umbRequestHelper.resourcePromise(
-                    $http.delete("/umbraco/backoffice/xstatic/Sites/Delete?staticSiteId=" + siteId),
-                    'Failed to delete'
-                );
-            },
-            clearSite: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.delete("/umbraco/backoffice/xstatic/Sites/ClearStoredSite?staticSiteId=" + id),
-                    'Failed to get all'
-                );
-            },
-            getConfig: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/xstaticconfig/get"),
-                    'Failed to generate'
-                );
-            },
-        }
-    })
     .service("xStaticSiteEditingService", function ($http, umbRequestHelper) {
 
         this.editorTypes = {
@@ -187,30 +125,22 @@
 
         $scope.passwordFields = ["PersonalAccessToken", "Password"];
 
-        console.log("xStaticFormController", $scope);
-
         vm.form = $scope.model;
 
         vm.buildProperties = xStaticSiteEditingService.getBuildProperties(vm.form, $scope.model.actions);
         vm.deployProperties = xStaticSiteEditingService.getDeployProperties(vm.form);
 
         vm.submit = function() {
-            console.log("submit pre map", vm.form);
-
             vm.form = xStaticSiteEditingService.updateFormValues(vm.form, vm.buildProperties, vm.deployProperties);
-
-            console.log("pre save site", vm.form.site);
 
             if (vm.form.site.Id) {
                 xStaticResource.updateSite(vm.form.site).then(function (data) {
-                    console.log("saved", data);
                     if ($scope.model.submit) {
                         $scope.model.submit($scope.model);
                     }
                 });
             } else {
                 xStaticResource.createSite(vm.form.site).then(function (data) {
-                    console.log("saved", data);
                     if ($scope.model.submit) {
                         $scope.model.submit($scope.model);
                     }
@@ -219,14 +149,12 @@
         }
 
         vm.close = function() {
-            console.log("close", $scope.model);
-
             if ($scope.model.close) {
                 $scope.model.close();
             }
         }
     })
-    .controller("xStaticMainDashboardController", function ($scope, notificationsService, editorService, xStaticResource, $window, $timeout) {
+    .controller("xStaticMainDashboardController", function ($scope, notificationsService, editorService, xStaticResource, xStaticActionsResource, $window, $timeout) {
         var vm = this;
 
         vm.open = open;
@@ -234,15 +162,13 @@
         function open(site) {
             site = site || {};
 
-            console.log("Open", site);
-
             var options = {
                 title: "My custom infinite editor",
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
                 site: site,
                 actions: vm.actions,
-                styles: { hello: "me" },
-                config: { hello: "me" },
+                styles: {  },
+                config: {  },
                 submit: function (model) {
                     editorService.close();
                     vm.getSites();
@@ -280,7 +206,7 @@
         }
 
         vm.getActions = function () {
-            xStaticResource.getActions().then(function (data) {
+            xStaticActionsResource.getActions().then(function (data) {
                 vm.actions = data;
             });
         }
@@ -288,7 +214,6 @@
         vm.getConfig = function () {
             xStaticResource.getConfig().then(function (data) {
                 vm.config = data;
-                console.log("Config", vm.config);
             });
         }
 

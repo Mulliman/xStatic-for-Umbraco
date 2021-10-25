@@ -1,52 +1,14 @@
 ﻿angular.module("umbraco")
-    .factory("xStaticActionsResource", function ($http, umbRequestHelper) {
-        return {
-            getConfig: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/xstaticconfig/get"),
-                    'Failed to generate'
-                );
-            },
-            getActions: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/xstatic/actions/GetPostActions"),
-                    'Failed to generate'
-                );
-            },
-            createAction: function (exportType) {
-                return umbRequestHelper.resourcePromise(
-                    $http.post("/umbraco/backoffice/xstatic/actions/CreatePostAction", exportType),
-                    'Failed to update'
-                );
-            },
-            updateAction: function (exportType) {
-                return umbRequestHelper.resourcePromise(
-                    $http.post("/umbraco/backoffice/xstatic/actions/UpdatePostAction", exportType),
-                    'Failed to update'
-                );
-            },
-            deleteAction: function (id) {
-                return umbRequestHelper.resourcePromise(
-                    $http.delete("/umbraco/backoffice/xstatic/actions/DeletePostAction?id=" + id),
-                    'Failed to delete'
-                );
-            },
-        }
-    })
-    .service("xStaticActionsEditingService", function ($http, umbRequestHelper, xStaticActionsResource) {
+    .service("xStaticActionsEditingService", function () {
 
         this.editorTypes = {
-            // Umbraco
             textbox: "/umbraco/views/propertyeditors/textbox/textbox.html",
             checkbox: "/umbraco/views/propertyeditors/boolean/boolean.html",
             typeField: "/App_Plugins/xStatic/fields/TypeField.html",
             configurableTypeField: "/App_Plugins/xStatic/fields/ConfigurableTypeField.html",
-
         };
 
         this.getProperties = function (form, config) {
-            console.log("getProperties", form, form.action);
-
             return [
                 {
                     key: "Type",
@@ -63,9 +25,6 @@
                 var val = field.value;
 
                 if (field.key = "Type") {
-                    console.log("updateFormValues", field);
-                    console.log("val", val);
-
                     if (val) {
                         form.action[field.key] = val.Id;
                         form.action["Config"] = val.Fields;
@@ -73,9 +32,6 @@
                         form.action[field.key] = null;
                         form.action["Config"] = null;
                     }
-                    
-
-                    console.log("type vals", form.action[field.key], form.action["Config"]);
                 }
             }
 
@@ -83,7 +39,7 @@
         }
 
     })
-    .controller("xStaticActionsFormController", function ($scope, notificationsService, editorService, xStaticActionsResource, xStaticActionsEditingService, $window, $timeout) {
+    .controller("xStaticActionsFormController", function ($scope, xStaticActionsResource, xStaticActionsEditingService) {
         var vm = this;
 
         vm.form = $scope.model;
@@ -95,14 +51,12 @@
 
             if (vm.form.action.Id) {
                 xStaticActionsResource.updateAction(vm.form.action).then(function (data) {
-                    console.log("saved", data);
                     if ($scope.model.submit) {
                         $scope.model.submit($scope.model);
                     }
                 });
             } else {
                 xStaticActionsResource.createAction(vm.form.action).then(function (data) {
-                    console.log("created", data);
                     if ($scope.model.submit) {
                         $scope.model.submit($scope.model);
                     }
@@ -111,14 +65,12 @@
         }
 
         vm.close = function() {
-            console.log("close", $scope.model);
-
             if ($scope.model.close) {
                 $scope.model.close();
             }
         }
     })
-    .controller("xStaticActionsDashboardController", function ($scope, notificationsService, editorService, xStaticActionsResource, $window, $timeout) {
+    .controller("xStaticActionsDashboardController", function ($scope, editorService, xStaticResource, xStaticActionsResource) {
         var vm = this;
 
         vm.actions = [];
@@ -131,7 +83,7 @@
         }
 
         vm.getConfig = function () {
-            xStaticActionsResource.getConfig().then(function (data) {
+            xStaticResource.getConfig().then(function (data) {
                 vm.config = data;
             });
         }
@@ -140,8 +92,6 @@
 
         function open(action) {
             action = action || {};
-
-            console.log("Open", action);
 
             var options = {
                 title: "My custom infinite editor",
