@@ -52,7 +52,7 @@ namespace XStatic.Core.Generator
         public virtual async Task<IEnumerable<string>> GenerateFolder(string folderPath, int staticSiteId)
         {
             var partialPath = folderPath;
-            var absolutePath = _hostingEnvironment.MapPathContentRoot(partialPath);
+            var absolutePath = _hostingEnvironment.MapPathWebRoot(partialPath);
 
             var files = Directory.GetFiles(absolutePath);
             var created = new List<string>();
@@ -70,7 +70,7 @@ namespace XStatic.Core.Generator
 
         public virtual async Task<string> GenerateFile(string partialPath, int staticSiteId)
         {
-            var rootPath = _hostingEnvironment.MapPathContentRoot("~/");
+            var rootPath = _hostingEnvironment.MapPathWebRoot("~/");
             var absolutePath = FileHelpers.PathCombine(rootPath, partialPath);
 
             var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);

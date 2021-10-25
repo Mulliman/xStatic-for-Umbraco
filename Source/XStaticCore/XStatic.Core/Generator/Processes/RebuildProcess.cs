@@ -108,8 +108,8 @@ namespace XStatic.Core.Generator.Processes
         {
             if (!string.IsNullOrEmpty(entity.AssetPaths))
             {
-                var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                var rootPath = _webHostEnvironment.ContentRootPath;
+                var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim());
+                var rootPath = _webHostEnvironment.WebRootPath;
 
                 foreach (var path in splitPaths)
                 {
