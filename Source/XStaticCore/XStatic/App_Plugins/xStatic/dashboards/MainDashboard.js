@@ -15,9 +15,6 @@
         };
 
         this.getBuildProperties = function (form, actions) {
-            console.log("getProperties", form, form.site.ExportFormat);
-            console.log("getBuildProperties actions", actions);
-
             return [
                 {
                     key: "RootNode",

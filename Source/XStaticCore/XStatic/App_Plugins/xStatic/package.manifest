@@ -5,6 +5,7 @@
     "~/App_Plugins/xStatic/dashboards/ActionsDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ConfigDashboard.js",
     "~/App_Plugins/xStatic/dashboards/ExportTypesDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/InfoDashboard.js",
     "~/App_Plugins/xStatic/fields/ConfigurableTypeField.js",
     "~/App_Plugins/xStatic/fields/ExportTypeField.js",
     "~/App_Plugins/xStatic/fields/TypeField.js",
@@ -54,6 +55,15 @@
     {
       "alias": "ConfigDashboard",
       "view": "/App_Plugins/xStatic/dashboards/ConfigDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "InfoDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/InfoDashboard.html",
       "sections": [ "xstatic" ],
       "access": [
         { "deny": "translator" },

@@ -30,6 +30,10 @@
     padding-bottom: 10px;
 }
 
+.x-no-padding-bottom {
+    padding-bottom: 0;
+}
+
 .x-icon-large{
     font-size:36px;
 }

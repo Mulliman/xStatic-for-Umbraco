@@ -104,4 +104,14 @@
                 );
             },
         }
+    })
+    .factory("xStaticInfoResource", function ($http, umbRequestHelper) {
+        return {
+            getInfo: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("https://xstaticplugins.netlify.app/plugins.json"),
+                    'Failed to get plugins from external URL'
+                );
+            },
+        }
     });
