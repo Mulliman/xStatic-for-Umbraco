@@ -64,7 +64,7 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultJsonGeneratorServices()
         {
-            _services.AddSingleton<JsonApiGenerator>();
+            _services.AddSingleton<BasicJsonApiGenerator>();
             _services.AddTransient<DefaultJsonTransformerListFactory>();
 
             return this;

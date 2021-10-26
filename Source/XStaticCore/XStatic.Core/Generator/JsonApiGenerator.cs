@@ -14,9 +14,9 @@ using XStatic.Core.Generator.Transformers;
 
 namespace XStatic.Generator
 {
-    public class JsonApiGenerator : GeneratorBase
+    public class BasicJsonApiGenerator : GeneratorBase
     {
-        public JsonApiGenerator(IUmbracoContextFactory umbracoContextFactory,
+        public BasicJsonApiGenerator(IUmbracoContextFactory umbracoContextFactory,
             IPublishedUrlProvider publishedUrlProvider,
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
