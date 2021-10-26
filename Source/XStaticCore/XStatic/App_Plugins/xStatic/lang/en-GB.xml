@@ -8,6 +8,6 @@
     <key alias="ConfigDashboard">Technical Settings</key>
     <key alias="ActionsDashboard">Actions</key>
     <key alias="ExportTypesDashboard">Export Types</key>
-    <key alias="InfoDashboard">Information</key>
+    <key alias="InfoDashboard">Information &amp; Plugins</key>
   </area>
 </language>

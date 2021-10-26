@@ -34,6 +34,10 @@
     padding-bottom: 0;
 }
 
+.x-no-padding-left {
+    padding-left: 0 !important;
+}
+
 .x-icon-large{
     font-size:36px;
 }

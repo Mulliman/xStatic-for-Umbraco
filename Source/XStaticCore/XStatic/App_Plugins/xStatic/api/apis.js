@@ -113,5 +113,11 @@
                     'Failed to get plugins from external URL'
                 );
             },
+            getHelp: function (id) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get("https://xstaticplugins.netlify.app/help.json"),
+                    'Failed to get help pages from external URL'
+                );
+            }
         }
     });

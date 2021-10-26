@@ -9,11 +9,37 @@
     <umb-drawer-view>
 
         <div class="dashboard-header">
-            <umb-drawer-header title="xStatic Information">
+            <umb-drawer-header title="Documentation" description="xStatic was built by Sam Mullins and you can read the xStatic documentation on his website.">
             </umb-drawer-header>
         </div>
 
         <umb-drawer-content>
+
+            <div class="sites-grid">
+                <umb-box style="position: relative;" ng-repeat="page in vm.helpPages">
+                    <umb-box-header title="{{page.title}}">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small x-no-padding-bottom">
+                                <div class="">{{page.description}}</div>
+
+                            </div>
+                        </div>
+
+                        <div class="box-footer ">
+                            <a href="{{page.link}}" target="_blank" class="btn umb-button__button">Read on external site</a>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </div>
+
+            <div class="umb-drawer-header ng-isolate-scope x-no-padding-left">
+                <div class="umb-drawer-header__title ng-binding">Plugins</div>
+                <div class="umb-drawer-header__subtitle ng-binding">xStatic is extensible and plugins can be custom built or installed from NuGet. Below are all the plugins currently publicly registered.</div>
+            </div>
+
             <div class="sites-grid">
                 <umb-box style="position: relative;" ng-repeat="plugin in vm.plugins">
                     <umb-box-header title="{{plugin.id}}">
