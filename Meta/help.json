@@ -1,0 +1,9 @@
+[
+	{ "title": "Building your first static site", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/building-your-first-static-site/", "description": "Setting up xStatic is easy, and following these steps you can configure your first static site within minutes." },
+	{ "title": "Deploying to Netlify", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-netlify/", "description": "Setting up a Netlify site is free, and should only take a few minutes to create and configure within xStatic." },
+	{ "title": "Deploying using Git", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/deploying-using-git/", "description": "Using Git to deploy your static site means that you can easily release to GitHub Pages, as well as any other continuous deployment platform." },
+	{ "title": "Deploying to FTP server", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-ftp-server/", "description": "If you have an existing server with FTP access, this may an easy option. xStatic will update the remote server to mirror the files built locally; this seems to be slower than the Git and Netlify deployment methods." },
+	{ "title": "Image crops", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/image-crops/", "description": "xStatic works with the built in Umbraco image cropping functionality, but you do need to do a little bit of configuration." },
+	{ "title": "Troubleshooting", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/troubleshooting/", "description": "xStatic should work out of the box, but if it doesn't, this is the place to check first." },
+	{ "title": "Extending xStatic", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic/", "description": "You can extend xStatic to generate and transform the output to fit your specific requirements." }
+]
