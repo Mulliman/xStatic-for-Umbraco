@@ -1,0 +1,6 @@
+[
+	{ "id": "xStatic.Ftp", "authors": "Sam Mullins", "nugetLink": "https://www.nuget.org/packages/xStatic.Ftp", "description": "FTP functionality for xStatic for Umbraco." },
+	{ "id": "xStatic.Netlify", "authors": "Sam Mullins", "nugetLink": "https://www.nuget.org/packages/xStatic.Netlify", "description": "Netlify functionality for xStatic for Umbraco." },
+	{ "id": "xStatic.Git", "authors": "Sam Mullins", "nugetLink": "https://www.nuget.org/packages/xStatic.Git", "description": "Git functionality for xStatic for Umbraco." },
+	{ "id": "xStatic.UmbracoContentApi", "authors": "Sam Mullins", "nugetLink": "https://www.nuget.org/packages/xStatic.UmbracoContentApi", "description": "Integration of UmbracoContentApi open source package into xStatic for Umbraco." }
+]
