@@ -13,7 +13,6 @@ using XStatic.Core.Generator.Storage;
 using XStatic.Core.Helpers;
 using XStatic.Core.Models;
 using XStatic.Core.Repositories;
-using XStatic.Plugin;
 
 namespace XStatic.Controllers
 {

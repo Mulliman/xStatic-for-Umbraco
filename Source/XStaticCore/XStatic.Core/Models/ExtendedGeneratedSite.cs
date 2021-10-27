@@ -1,6 +1,6 @@
 ﻿using XStatic.Core.Generator.Db;
 
-namespace XStatic.Plugin
+namespace XStatic.Core.Models
 {
     public class ExtendedGeneratedSite : SiteConfig
     {

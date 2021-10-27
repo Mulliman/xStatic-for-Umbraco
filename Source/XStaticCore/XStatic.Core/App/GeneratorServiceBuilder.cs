@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.FileActions;
+using XStatic.Core.AutoPublish;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
@@ -84,6 +85,13 @@ namespace XStatic.Core.App
             return this;
         }
 
+        public GeneratorServiceBuilder AddDefaultAutoDeployServices()
+        {
+            _services.AddSingleton<IAutoPublisher, DefaultAutoPublisher>();
+
+            return this;
+        }
+
         public GeneratorServiceBuilder AddDefaultComponentLists()
         {
             _services.AddSingleton<GeneratorList>();
@@ -104,6 +112,7 @@ namespace XStatic.Core.App
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
+                .AddDefaultAutoDeployServices()
                 .AddDefaultSiteStorageServices();
         }
 

@@ -5,7 +5,6 @@ using System.Linq;
 using Umbraco.Cms.Core.Scoping;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Models;
-using XStatic.Plugin;
 
 namespace XStatic.Core.Repositories
 {
