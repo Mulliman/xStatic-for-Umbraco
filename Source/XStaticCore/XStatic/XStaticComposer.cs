@@ -12,8 +12,6 @@ namespace XStatic
         {
             builder.AddNotificationHandler<UmbracoApplicationStartingNotification, XStaticDatabaseNotificationHandler>();
             builder.AddNotificationHandler<ContentPublishingNotification, AutoPublishNotificationHandler>();
-
-            
         }
     }
 }
