@@ -1,0 +1,180 @@
+﻿<div data-ng-controller="xStaticMainDashboardController as vm">
+
+    <umb-overlay ng-if="overlay.show"
+                 model="overlay"
+                 view="overlay.view"
+                 position="right">
+    </umb-overlay>
+
+
+
+    <umb-drawer-view>
+
+        <div class="dashboard-header">
+            <umb-drawer-header title="Manage generated static sites"
+                               description="This dashboard can be used to trigger builds of the static sites configured within Umbraco. To change settings for each static site use the tree to create and edit the settings.">
+                <umb-badge color="success"><a href="{{createLink}}">Create</a></umb-badge>
+            </umb-drawer-header>
+
+            <div class="dashboard-header__button">
+                <umb-button type="link"
+                            action="vm.open()"
+                            button-style="success"
+                            label="Create new site">
+                </umb-button>
+            </div>
+        </div>
+
+        <umb-drawer-content>
+
+            <h4 data-ng-show="vm.sites.length == 0">You currently don't have any static sites configured!</h4>
+            <h6 data-ng-show="vm.sites.length == 0">You can create sites using the "Generated Sites" tree.</h6>
+
+            <div class="sites-grid">
+                <umb-box data-ng-repeat="site in vm.sites" style="position: relative;">
+                    <umb-box-header title="{{site.Name}}">
+                        <umb-button type="button"
+                                    action="vm.delete(site.Id)"
+                                    button-style="danger"
+                                    icon="icon-trash"
+                                    size="s">
+                        </umb-button>
+                        <umb-button type="button"
+                                    action="vm.open(site)"
+                                    label="Edit"
+                                    icon="icon-brush">
+                        </umb-button>
+
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div data-ng-show="site.AutoPublish == false" class="x-text-center x-padding-bottom">
+                                <umb-badge color="primary" size="s">Manual Deploy</umb-badge>
+                            </div>
+
+                            <div data-ng-show="site.AutoPublish == true" class="x-text-center x-padding-bottom">
+                                <umb-badge color="warning" size="s">Auto Deploy</umb-badge>
+                            </div>
+
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastRun">This site has never been built.</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="site.LastRun">Last generated on {{site.LastRun | date:'dd MMM yy'}} at {{site.LastRun | date:'HH:mm'}}</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.DeploymentTarget">&nbsp;</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="!site.LastDeployed && site.DeploymentTarget">This site has never been deployed.</div>
+                                <div class="umb-panel-group__details-check-name" data-ng-show="site.LastDeployed">Last deployed on {{site.LastDeployed | date:'dd MMM yy'}} at {{site.LastDeployed | date:'HH:mm'}}</div>
+                            </div>
+                            <!-- Root -->
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-home" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        <span style="color:#999;">Root:</span> {{site.RootPath}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Export Type -->
+
+                            <div class="umb-panel-group__details-status" data-ng-show="site.ExportTypeName">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        Exports as {{site.ExportTypeName}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-umb-deploy" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text" data-ng-show="site.DeploymentTarget">
+                                        Deploys using {{site.DeploymentTarget.Name}}
+                                    </div>
+                                    <div class="umb-panel-group__details-status-text" data-ng-show="!site.DeploymentTarget">
+                                        No deployment configured
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-folder" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        Size: {{site.FolderSize}} <a data-ng-click="vm.clearData(site.Id)" class="lighter-text">(Clean up)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box-footer">
+                            <umb-button action="vm.generateSite(site.Id)"
+                                        type="button"
+                                        button-style="success"
+                                        label="Build"
+                                        data-ng-show="site.ExportTypeName"
+                                        disabled="false">
+                            </umb-button>
+
+                            <umb-button action="vm.deploySite(site.Id)"
+                                        type="button"
+                                        button-style="danger"
+                                        label="Deploy"
+                                        data-ng-show="site.DeploymentTarget">
+                            </umb-button>
+
+                            <umb-button action="vm.downloadSite(site.Id)"
+                                        type="button"
+                                        button-style="action"
+                                        label="Download"
+                                        data-ng-show="site.LastRun && site.FolderSize != '0B'">
+                            </umb-button>
+                        </div>
+
+                    </umb-box-content>
+
+                    <div class="box-overlay box-overlay__deploy" data-ng-show="vm.currentDeployTime[site.Id]">
+                        <div class="box-overlay__content">
+                            <div class="x-text-center">
+                                <i class="icon-timer x-icon-large" aria-hidden="true"></i>
+                                <h5>{{site.Name}} is currently deploying...</h5>
+                                <p>Elapsed Time: {{vm.formatTime(vm.currentDeployTime[site.Id])}}</p>
+                                <p>Estimated Time: {{vm.formatTime(site.LastDeployDurationInSeconds)}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box-overlay box-overlay__build" data-ng-show="vm.currentTime[site.Id]">
+                        <div class="box-overlay__content">
+                            <div class="x-text-center">
+                                <i class="icon-timer x-icon-large" aria-hidden="true"></i>
+                                <h5>{{site.Name}} is currently building...</h5>
+                                <p>Elapsed Time: {{vm.formatTime(vm.currentTime[site.Id])}}</p>
+                                <p>Estimated Time: {{vm.formatTime(site.LastBuildDurationInSeconds)}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </umb-box>
+            </div>
+
+        </umb-drawer-content>
+        <umb-drawer-footer>
+        </umb-drawer-footer>
+
+    </umb-drawer-view>
+</div>

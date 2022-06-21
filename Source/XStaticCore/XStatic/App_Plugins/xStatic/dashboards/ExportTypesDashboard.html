@@ -1,0 +1,110 @@
+﻿<div data-ng-controller="xStaticExportTypeDashboardController as vm">
+
+    <umb-overlay ng-if="overlay.show"
+                 model="overlay"
+                 view="overlay.view"
+                 position="right">
+    </umb-overlay>
+
+    <umb-drawer-view>
+
+        <div class="dashboard-header">
+            <umb-drawer-header title="Manage xStatic Export Types"
+                               description="Export types define what technical components will be used in the generation process (e.g. the generator and transformer list); these can then be assigned to site configurations.">
+            </umb-drawer-header>
+
+            <div class="dashboard-header__button">
+                <umb-button type="link"
+                            action="vm.open()"
+                            button-style="success"
+                            label="Create Export Type">
+                </umb-button>
+            </div>
+        </div>
+
+        <umb-drawer-content>            
+            <h4 data-ng-show="vm.config.ExportTypes.length == 0">You currently don't have any Export Types!</h4>
+            <h6 data-ng-show="vm.config.ExportTypes.length == 0">You can create sites using the "Create Export Type" button.</h6>
+
+            <div class="sites-grid">
+                <umb-box data-ng-repeat="exportType in vm.config.ExportTypes" style="position: relative;">
+                    <umb-box-header title="{{exportType.Name}}">
+                        <umb-button type="button"
+                                    action="vm.delete(exportType.Id)"
+                                    button-style="danger"
+                                    icon="icon-trash"
+                                    size="s">
+                        </umb-button>
+                        <umb-button type="button"
+                                    action="vm.open(exportType)"
+                                    label="Edit"
+                                    icon="icon-brush">
+                        </umb-button>
+
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+
+                            <div class="umb-panel-group__details-status" style="border:none;">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-info" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{exportType.Id}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-untitled" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{exportType.Generator.Name}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{exportType.TransformerFactory.Name}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-notepad-alt" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{exportType.FileNameGenerator.Name}}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </div>
+        </umb-drawer-content>
+        <umb-drawer-footer>
+        </umb-drawer-footer>
+
+    </umb-drawer-view>
+</div>

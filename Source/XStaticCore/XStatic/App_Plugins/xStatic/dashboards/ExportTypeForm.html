@@ -1,0 +1,44 @@
+﻿﻿<form name="objectForm"
+       ng-controller="xStaticExportTypeFormController as vm"
+       ng-submit="vm.save()"
+       class="">
+    <umb-editor-view>
+
+            <umb-editor-header name="vm.form.exportType.Name"
+                               name-locked="false"
+                               hide-icon="true"
+                               hide-description="true"
+                               hide-alias="true"
+                               navigation="type.apps">
+            </umb-editor-header>
+
+            <umb-editor-container>
+                <umb-box>
+                    <umb-box-header title="Build"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property" ng-repeat="model in vm.properties">
+                            <umb-control-group label="{{model.name}}" description="{{model.description}}">
+                                <div ng-include="model.view"></div>
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </umb-editor-container>
+
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button"
+                            button-style="link"
+                            label-key="general_close"
+                            shortcut="esc"
+                            action="vm.close()">
+                </umb-button>
+                <umb-button type="button"
+                            button-style="action"
+                            label-key="general_submit"
+                            action="vm.submit(model)">
+                </umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</form>

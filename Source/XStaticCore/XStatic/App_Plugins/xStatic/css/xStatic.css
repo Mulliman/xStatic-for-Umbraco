@@ -1,0 +1,116 @@
+﻿/* Text */
+
+.lighter-text {
+    color: #666;
+}
+
+/* Utilities */
+
+.x-text-center {
+    text-align: center;
+}
+
+.x-no-padding-top {
+    padding-top: 0;
+}
+
+.x-padding-top-small {
+    padding-top: 5px;
+}
+
+.x-padding-top {
+    padding-top: 10px;
+}
+
+.x-padding-bottom-small {
+    padding-bottom: 5px;
+}
+
+.x-padding-bottom {
+    padding-bottom: 10px;
+}
+
+.x-no-padding-bottom {
+    padding-bottom: 0;
+}
+
+.x-no-padding-left {
+    padding-left: 0 !important;
+}
+
+.x-icon-large{
+    font-size:36px;
+}
+
+/* Boxes */
+.box-with-footer {
+}
+
+.box-inner {
+}
+    .box-inner .umb-panel-group__details-status {
+        padding: 10px 0;
+    }
+
+    .box-inner .umb-panel-group__details-status {
+        align-items: center;
+        display: flex;
+    }
+
+.box-footer {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.box-overlay {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    backdrop-filter: blur(6px);
+}
+
+.box-overlay__build {
+    background: rgba(20, 240, 20, 0.3);
+}
+
+.box-overlay__deploy {
+    background: rgba(240, 20, 20, 0.3);
+}
+
+.box-overlay__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+    .box-overlay__content div {
+        padding: 20px;
+    }
+
+/* Dashboards */
+
+.sites-grid {
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill,minmax(450px,1fr));
+}
+
+.dashboard-header {
+    display: flex;
+    width: 100%;
+}
+
+    .dashboard-header .umb-drawer-header {
+        flex-grow: 1;
+    }
+
+    .dashboard-header .dashboard-header__button {
+        padding: 20px 30px 20px 0;
+        display: flex;
+        align-items: center;
+    }

@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <ContentTargetFolders>.</ContentTargetFolders>
+    <Product>xStatic.Core</Product>
+    <PackageId>xStatic.Core</PackageId>
+    <Title>xStatic.Core</Title>
+    <Version>2.0.3-beta</Version>
+    <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 9+.</Description>
+    <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
+    <Authors>Sam Mullins</Authors>
+    <Copyright>Sam Mullins</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageIcon>Logo.png</PackageIcon>
+    <PackageIconUrl />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="9.0.0" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="9.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\Brand\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

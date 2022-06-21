@@ -1,0 +1,9 @@
+﻿<div ng-controller="xStaticCheckBoxListController">
+    <label ng-repeat="action in actions" style="display:block">
+        <input type="checkbox"
+               name="selectedActions[]"
+               value="{{action.Name}}"
+               ng-checked="model.value.indexOf(action.Id) > -1"
+               ng-click="toggle(action.Id)"> {{action.Name}}
+    </label>
+</div>

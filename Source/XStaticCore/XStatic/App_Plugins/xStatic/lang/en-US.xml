@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<language>
+  <area alias="sections">
+    <key alias="xstatic">xStatic Generated Sites</key>
+  </area>
+  <area alias="dashboards">
+    <key alias="MainDashboard">Static Sites</key>
+    <key alias="ConfigDashboard">Technical Settings</key>
+    <key alias="ActionsDashboard">Actions</key>
+    <key alias="ExportTypesDashboard">Export Types</key>
+    <key alias="InfoDashboard">Information &amp; Plugins</key>
+  </area>
+</language>

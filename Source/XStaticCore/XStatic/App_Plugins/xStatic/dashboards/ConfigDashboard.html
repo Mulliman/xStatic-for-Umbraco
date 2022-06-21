@@ -1,0 +1,155 @@
+﻿<div data-ng-controller="xStaticConfigDashboardController as vm">
+
+    <umb-overlay ng-if="overlay.show"
+                 model="overlay"
+                 view="overlay.view"
+                 position="right">
+    </umb-overlay>
+
+    <umb-drawer-view>
+
+        <div class="dashboard-header">
+            <umb-drawer-header title="Installed components"
+                               description="This dashboard can be used view the current components detected by xStatic.">
+            </umb-drawer-header>
+        </div>
+
+        <umb-drawer-content>
+            <div class="sites-grid">
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed Generators">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">Generators are the components that create the HTML/JSON version of the pages of the website pages.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="gen in vm.config.Generators">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-untitled" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{gen.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed Transformer List Factories">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">A transformer changes the exported static data, for example changing URLs. These factories define which transformers are run and in which order.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="factory in vm.config.TransformerFactories">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{factory.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed Deployers">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">A deployer is the component that pushes the generated site to a remote service e.g. Netlify.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="deployer in vm.config.Deployers">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-umb-deploy" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{deployer.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed File Name Generators">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">A file name generator is a component that creates the file names for each statically generated page.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="generator in vm.config.FileNameGenerators">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-notepad-alt" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{generator.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box style="position: relative;">
+                    <umb-box-header title="Installed Post Generation Actions">
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+                            <div class="umb-panel-group__details-check-title x-text-center x-padding-top-small">
+                                <div class="">A Post Generation Action is a process that runs after all the pages have been generated.</div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status" data-ng-repeat="action in vm.config.PostGenerationActions">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-connection" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{action.Name}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </div>
+
+        </umb-drawer-content>
+        <umb-drawer-footer>
+        </umb-drawer-footer>
+
+    </umb-drawer-view>
+</div>

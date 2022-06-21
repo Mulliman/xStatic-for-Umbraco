@@ -1,0 +1,74 @@
+﻿{
+  "javascript": [
+    "~/App_Plugins/xStatic/api/apis.js",
+    "~/App_Plugins/xStatic/dashboards/MainDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/ActionsDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/ConfigDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/ExportTypesDashboard.js",
+    "~/App_Plugins/xStatic/dashboards/InfoDashboard.js",
+    "~/App_Plugins/xStatic/fields/ConfigurableTypeField.js",
+    "~/App_Plugins/xStatic/fields/ExportTypeField.js",
+    "~/App_Plugins/xStatic/fields/TypeField.js",
+    "~/App_Plugins/xStatic/fields/DeploymentTargetField.js",
+    "~/App_Plugins/xStatic/fields/CheckBoxListField.js",
+    "~/App_Plugins/xStatic/fields/multipicker.js",
+    "~/App_Plugins/xStatic/fields/mediapicker.js"
+  ],
+  "css": [
+    "~/App_Plugins/xStatic/fields/DeploymentTargetField.css",
+    "~/App_Plugins/xStatic/css/xStatic.css"
+  ],
+  "sections": [
+    {
+      "alias": "xstatic",
+      "name": "xStatic"
+    }
+  ],
+  "dashboards": [
+    {
+      "alias": "MainDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/MainDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "ActionsDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/ActionsDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "ExportTypesDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/ExportTypesDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "ConfigDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/ConfigDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    },
+    {
+      "alias": "InfoDashboard",
+      "view": "/App_Plugins/xStatic/dashboards/InfoDashboard.html",
+      "sections": [ "xstatic" ],
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    }
+  ]
+}

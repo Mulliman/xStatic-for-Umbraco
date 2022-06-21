@@ -1,0 +1,97 @@
+﻿<div data-ng-controller="xStaticActionsDashboardController as vm">
+
+    <umb-overlay ng-if="overlay.show"
+                 model="overlay"
+                 view="overlay.view"
+                 position="right">
+    </umb-overlay>
+
+    <umb-drawer-view>
+
+        <div class="dashboard-header">
+            <umb-drawer-header title="Manage xStatic Actions"
+                               description="This dashboard can be used view and manage the additional actions that can be added to site generators.">
+                <umb-badge color="success"><a href="{{createLink}}">Create Action</a></umb-badge>
+            </umb-drawer-header>
+
+            <div class="dashboard-header__button">
+                <umb-button type="link"
+                            action="vm.open()"
+                            button-style="success"
+                            label="Create Action">
+                </umb-button>
+            </div>
+        </div>
+
+        <umb-drawer-content>            
+            <h4 data-ng-show="vm.actions.length == 0">You currently don't have any Actions!</h4>
+            <h6 data-ng-show="vm.actions.length == 0">You can create actions using the "Create Action" button.</h6>
+
+            <div class="sites-grid">
+                <umb-box data-ng-repeat="action in vm.actions" style="position: relative;">
+                    <umb-box-header title="{{action.Name}}">
+                        <umb-button type="button"
+                                    action="vm.delete(action.Id)"
+                                    button-style="danger"
+                                    icon="icon-trash"
+                                    size="s">
+                        </umb-button>
+                        <umb-button type="button"
+                                    action="vm.open(action)"
+                                    label="Edit"
+                                    icon="icon-brush">
+                        </umb-button>
+
+                    </umb-box-header>
+
+                    <umb-box-content class="box-with-footer">
+                        <div class="umb-panel-group__details-check box-inner">
+
+                            <div class="umb-panel-group__details-status" style="border:none;">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-info" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{action.Id}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-untitled" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        {{action.Type.Name}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="umb-panel-group__details-status">
+
+                                <div class="umb-panel-group__details-status-icon-container">
+                                    <i class="umb-panel-status-icon icon-brackets" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="umb-panel-group__details-status-content">
+                                    <div class="umb-panel-group__details-status-text">
+                                        <span style="display:block" data-ng-repeat="(key, value) in action.Type.Fields">{{key}}: {{value}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </div>
+        </umb-drawer-content>
+        <umb-drawer-footer>
+        </umb-drawer-footer>
+
+    </umb-drawer-view>
+</div>

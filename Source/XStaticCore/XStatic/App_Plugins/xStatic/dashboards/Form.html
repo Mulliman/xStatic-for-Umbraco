@@ -1,0 +1,86 @@
+﻿﻿<form name="objectForm"
+       ng-controller="xStaticFormController as vm"
+       ng-submit="vm.save()"
+       class="">
+    <umb-editor-view>
+
+            <umb-editor-header name="vm.form.site.Name"
+                               name-locked="false"
+                               hide-icon="true"
+                               hide-description="true"
+                               hide-alias="true"
+                               navigation="type.apps">
+            </umb-editor-header>
+
+            <umb-editor-container>
+                <umb-box>
+                    <umb-box-header title="Build"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property" ng-repeat="model in vm.buildProperties">
+                            <umb-control-group label="{{model.name}}" description="{{model.description}}">
+                                <div ng-include="model.view"></div>
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box>
+                    <umb-box-header title="Deploy"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property" ng-repeat="model in vm.deployProperties">
+                            <umb-control-group label="{{model.name}}" description="{{model.description}}">
+                                <div ng-include="model.view"></div>
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+
+                <umb-box ng-show="vm.form.site.Id">
+                    <umb-box-header title="Statistics"></umb-box-header>
+                    <umb-box-content>
+                        <div class="umb-property">
+                            <umb-control-group label="ID" description="">
+                                {{vm.form.site.Id}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Build" description="">
+                                {{vm.form.site.LastRunString}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Build Duration" description="">
+                                <span ng-show="vm.form.site.LastBuildDurationInSeconds">{{vm.form.site.LastBuildDurationInSeconds}} seconds</span>
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Deployed" description="">
+                                {{vm.form.site.LastDeployedString}}
+                            </umb-control-group>
+                        </div>
+                        <div class="umb-property">
+                            <umb-control-group label="Last Deploy Duration" description="">
+                                <span ng-show="vm.form.site.LastDeployDurationInSeconds">{{vm.form.site.LastDeployDurationInSeconds}} seconds</span>
+                            </umb-control-group>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+            </umb-editor-container>
+
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button"
+                            button-style="link"
+                            label-key="general_close"
+                            shortcut="esc"
+                            action="vm.close()">
+                </umb-button>
+                <umb-button type="button"
+                            button-style="action"
+                            label-key="general_submit"
+                            action="vm.submit(model)">
+                </umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</form>

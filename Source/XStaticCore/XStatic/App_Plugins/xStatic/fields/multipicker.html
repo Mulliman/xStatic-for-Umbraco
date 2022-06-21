@@ -1,0 +1,33 @@
+<div ng-controller="multiPickerController" class="umb-property-editor umb-contentpicker">
+
+    <p ng-if="(renderModel|filter:{trashed:true}).length == 1"><localize key="contentPicker_pickedTrashedItem"></localize></p>
+    <p ng-if="(renderModel|filter:{trashed:true}).length > 1"><localize key="contentPicker_pickedTrashedItems"></localize></p>
+
+    <ng-form name="contentPickerForm">
+
+        <div ui-sortable="sortableOptions" ng-model="sortableModel">
+            <umb-node-preview ng-repeat="node in renderModel track by node.id"
+                              icon="node.icon"
+                              name="node.name"
+                              published="node.published"
+                              description="node.url"
+                              sortable="!sortableOptions.disabled"
+                              allow-remove="allowRemoveButton"
+                              allow-open="property.config.showOpenButton && allowOpenButton && !dialogEditor"
+                              on-remove="remove($index)"
+                              on-open="openEditor(node)">
+            </umb-node-preview>
+        </div>
+
+        <button type="button"
+                class="umb-node-preview-add"
+                ng-click="openCurrentPicker()"
+                id="{{property.key}}"
+                aria-label="{{property.key}}: {{labels.general_add}}">
+            <localize key="general_add">Add</localize>
+            <span class="sr-only">...</span>
+        </button>
+
+    </ng-form>
+
+</div>

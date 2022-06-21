@@ -1,0 +1,28 @@
+﻿.deployment-target__help{
+    background: #eee;
+    border: 1px solid #ddd;
+    padding:10px 10px 5px;
+    margin:10px 0;
+}
+
+.deployment-target__help p {
+    padding: 5px;
+    margin: 0;
+}
+
+    .deployment-target__help a {
+        text-decoration:underline;
+    }
+
+        .deployment-target__help a:hover {
+            color: #1b264f;
+        }
+
+.controls-row  .deployment-target__row {
+    margin: 10px 0;
+}
+
+    .controls-row .deployment-target__row .deployment-target__label {
+        margin: 0 0 5px;
+        padding: 0;
+    }

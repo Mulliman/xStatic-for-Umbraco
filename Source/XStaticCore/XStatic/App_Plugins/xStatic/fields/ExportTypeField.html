@@ -1,0 +1,6 @@
+﻿<div ng-controller="xStaticExportTypeController">
+    <select ng-model="model.value"
+            ng-options='type.Id as (type.Name) for type in exportTypes'>
+        <option value="">---Please select---</option>
+    </select><br>
+</div>

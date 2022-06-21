@@ -1,0 +1,14 @@
+﻿<div ng-controller="xStaticConfigurableTypeController">
+    <select ng-model="model.value"
+            ng-options='type as (type.Name) for type in types track by type.Name'>
+        <option value="">---Please select---</option>
+    </select><br>
+
+    <ng-form name="contentPickerForm">
+        <div ng-repeat="(key, value) in model.value.Fields" class="deployment-target__row">
+            <label class="deployment-target__label">{{key}}</label>
+            <input ng-if="getInputType(key) == 'text'" type="text" class="umb-property-editor" ng-model="model.value.Fields[key]" />
+        </div>
+
+    </ng-form>
+</div>

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <TargetFramework>net5.0</TargetFramework>
+      <ContentTargetFolders>.</ContentTargetFolders>
+      <Product>xStatic.UmbracoContentApi</Product>
+      <PackageId>xStatic.UmbracoContentApi</PackageId>
+      <Title>xStatic.UmbracoContentApi</Title>
+      <Version>2.0.3-beta</Version>
+      <Description>Integration of UmbracoContentApi open source package into xStatic for Umbraco.</Description>
+      <PackageTags>umbraco umbraco9 xstatic static site generation UmbracoContentApi json headless</PackageTags>
+      <Copyright>Sam Mullins</Copyright>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+      <RepositoryType>Git</RepositoryType>
+      <PackageIconUrl />
+      <Authors>Sam Mullins</Authors>
+      <Company>Sam Mullins</Company>
+      <PackageIcon>Logo.png</PackageIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-beta003" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-beta003" />
+        <PackageReference Include="UmbracoContentApi.Core" Version="9.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="App_Plugins\XStatic.UmbracoContentApi\**\*.*">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\..\..\Brand\Logo.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+    </ItemGroup>
+</Project>

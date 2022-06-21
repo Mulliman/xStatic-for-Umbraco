@@ -1,0 +1,86 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <ContentTargetFolders>.</ContentTargetFolders>
+        <Product>xStatic</Product>
+        <PackageId>xStatic</PackageId>
+        <Title>xStatic</Title>
+        <Version>2.0.3-beta</Version>
+        <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
+        <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
+        <Copyright>Sam Mullins</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageIcon>Logo.png</PackageIcon>
+        <PackageIconUrl />
+        <Authors>Sam Mullins</Authors>
+        <Company>Sam Mullins</Company>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="App_Plugins\xStatic\**\*.*">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <None Include="..\..\..\Brand\Logo.png">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        </None>
+        <None Include="build\**\*.*">
+            <Pack>True</Pack>
+            <PackagePath>buildTransitive</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="App_Plugins\xStatic\fields\htmlpage.html" />
+      <Content Remove="App_Plugins\xStatic\fields\mediapicker.html" />
+      <Content Remove="App_Plugins\xStatic\fields\mediapicker.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\css\xStatic.css" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ConfigDashboard.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ConfigDashboard.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ExportTypeForm.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\Form.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\MainDashboard.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\MainDashboard.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.css" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\ExportTypeField.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\ExportTypeField.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\htmlpage.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\mediapicker.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\mediapicker.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\multipicker.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\multipicker.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\TypeField.html" />
+      <Content Remove="App_Plugins\xStatic\xStatic\fields\TypeField.js" />
+      <Content Remove="App_Plugins\xStatic\xStatic\lang\en-GB.xml" />
+      <Content Remove="App_Plugins\xStatic\xStatic\lang\en-US.xml" />
+      <Content Remove="App_Plugins\xStatic\xStatic\package.manifest" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="App_Plugins\xStatic\fields\Text.html" />
+      <None Remove="App_Plugins\xStatic\xStatic\fields\Text.html" />
+      <None Remove="App_Plugins\xStatic\xStatic\xStaticConfig.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="App_Plugins\xStatic\xStatic\xStaticConfig.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+</Project>
