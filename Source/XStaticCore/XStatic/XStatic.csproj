@@ -5,7 +5,7 @@
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-        <Version>2.0.3-beta</Version>
+        <Version>3.0.0-beta</Version>
         <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
         <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
         <Copyright>Sam Mullins</Copyright>
