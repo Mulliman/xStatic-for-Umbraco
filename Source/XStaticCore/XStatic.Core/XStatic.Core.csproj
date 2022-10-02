@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ContentTargetFolders>.</ContentTargetFolders>
     <Product>xStatic.Core</Product>
     <PackageId>xStatic.Core</PackageId>
@@ -21,8 +21,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="10.2.1" />
     <PackageReference Include="Umbraco.Cms.Infrastructure" Version="9.0.0" />
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
   </ItemGroup>
