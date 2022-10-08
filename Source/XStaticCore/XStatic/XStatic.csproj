@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ContentTargetFolders>.</ContentTargetFolders>
@@ -37,40 +37,6 @@
             <Pack>True</Pack>
             <PackagePath>buildTransitive</PackagePath>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Remove="App_Plugins\xStatic\fields\htmlpage.html" />
-      <Content Remove="App_Plugins\xStatic\fields\mediapicker.html" />
-      <Content Remove="App_Plugins\xStatic\fields\mediapicker.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\css\xStatic.css" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ConfigDashboard.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ConfigDashboard.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\ExportTypeForm.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\Form.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\MainDashboard.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\dashboards\MainDashboard.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.css" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\DeploymentTargetField.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\ExportTypeField.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\ExportTypeField.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\htmlpage.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\mediapicker.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\mediapicker.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\multipicker.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\multipicker.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\TypeField.html" />
-      <Content Remove="App_Plugins\xStatic\xStatic\fields\TypeField.js" />
-      <Content Remove="App_Plugins\xStatic\xStatic\lang\en-GB.xml" />
-      <Content Remove="App_Plugins\xStatic\xStatic\lang\en-US.xml" />
-      <Content Remove="App_Plugins\xStatic\xStatic\package.manifest" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="App_Plugins\xStatic\fields\Text.html" />
-      <None Remove="App_Plugins\xStatic\xStatic\fields\Text.html" />
-      <None Remove="App_Plugins\xStatic\xStatic\xStaticConfig.json" />
     </ItemGroup>
 
     <ItemGroup>
