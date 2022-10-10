@@ -7,7 +7,7 @@
       <Title>xStatic.Ftp</Title>
       <Version>3.0.1-beta</Version>
       <Description>FTP functionality for xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco9 xstatic static site generation ftp</PackageTags>
+      <PackageTags>umbraco umbraco10 xstatic static site generation ftp</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -21,8 +21,8 @@
 
     <ItemGroup>
         <PackageReference Include="FluentFTP" Version="35.0.5" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -7,7 +7,7 @@
         <Title>xStatic</Title>
         <Version>3.0.1-beta</Version>
         <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
-        <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
+        <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
         <Copyright>Sam Mullins</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -20,8 +20,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
     </ItemGroup>
 
     <ItemGroup>

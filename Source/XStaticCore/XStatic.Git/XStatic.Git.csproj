@@ -7,7 +7,7 @@
       <Title>xStatic.Git</Title>
       <Version>3.0.1-beta</Version>
       <Description>Git functionality for xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco9 xstatic static site generation git</PackageTags>
+      <PackageTags>umbraco umbraco10 xstatic static site generation git</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -21,8 +21,8 @@
 
     <ItemGroup>
         <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -8,7 +8,7 @@
     <Title>xStatic.Core</Title>
     <Version>3.0.1-beta</Version>
     <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 9+.</Description>
-    <PackageTags>umbraco umbraco9 xstatic static site generation</PackageTags>
+    <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
     <Authors>Sam Mullins</Authors>
     <Copyright>Sam Mullins</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -23,8 +23,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Umbraco.Cms.Core" Version="10.2.1" />
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="9.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="10.2.1" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.2.1" />
   </ItemGroup>
 
   <ItemGroup>
