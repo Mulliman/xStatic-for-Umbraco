@@ -39,7 +39,7 @@ namespace XStatic.Controllers
                 throw new FileNotFoundException();
             }
 
-            var localZipFilePath = localFolderPath.Trim('/').Trim('\\') + ".zip";
+            var localZipFilePath = localFolderPath.TrimEnd(new char[]  { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }) + ".zip";
 
             if (System.IO.File.Exists(localZipFilePath))
             {
