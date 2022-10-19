@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Hosting;
@@ -9,24 +10,31 @@ namespace XStatic.Core.Generator.Storage
     public class AppDataSiteStorer : IStaticSiteStorer
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILogger<IStaticSiteStorer> _logger;
+        private readonly string _xStaticPublishRoot;
 
-        public AppDataSiteStorer(IWebHostEnvironment hostingEnvironment)
+        public AppDataSiteStorer(IWebHostEnvironment hostingEnvironment, ILogger<IStaticSiteStorer> logger)
         {
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
+
+            _xStaticPublishRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "App_Data", "xStatic", "output" });
         }
 
         public async Task<string> StoreSiteItem(string subFolder, string path, string contents, System.Text.Encoding encoding)
         {
-            string root = _hostingEnvironment.ContentRootPath;
-            string storagePath = FileHelpers.PathCombine(root, "App_Data/xStatic/output/" + subFolder + "/" + path);
+            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, subFolder + "/" + path);
+            var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
 
-            var filePath = FileHelpers.PathCombine(root, storagePath);
+            _logger.LogInformation("[StoreSiteItem] storagePath = {storagePath} | filePath = {filePath}", storagePath, filePath);
 
             var fi = new FileInfo(filePath);
             if (fi.Exists) fi.Delete();
             if (!fi.Directory.Exists) fi.Directory.Create();
 
             File.WriteAllText(storagePath, contents, encoding);
+
+            _logger.LogInformation("[StoreSiteItem] File.WriteAllText is successful!");
 
             return filePath;
         }
@@ -35,7 +43,11 @@ namespace XStatic.Core.Generator.Storage
         {
             var filePath = GetFileDestinationPath(subFolder, partialDestinationPath);
 
+            _logger.LogInformation("[CopyFile] subFolder = {subFolder} | partialDestinationPath = {partialDestinationPath} | filePath = {filePath}", subFolder, partialDestinationPath, filePath);
+
             File.Copy(sourcePath, filePath);
+
+            _logger.LogInformation("[CopyFile] File.Copy is successful!");
 
             return filePath;
         }
@@ -69,9 +81,8 @@ namespace XStatic.Core.Generator.Storage
 
         public string GetFileDestinationPath(string subFolder, string partialDestinationPath)
         {
-            string root = _hostingEnvironment.ContentRootPath;
-            string storagePath = FileHelpers.PathCombine(root, "App_Data/xStatic/output/" + subFolder + "/" + partialDestinationPath);
-            var filePath = FileHelpers.PathCombine(root, storagePath);
+            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, subFolder + "/" + partialDestinationPath);
+            var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
 
             var fi = new FileInfo(filePath);
             if (fi.Exists) fi.Delete();
@@ -82,10 +93,10 @@ namespace XStatic.Core.Generator.Storage
 
         public string GetStorageLocationOfSite(int staticSiteId)
         {
-            string root = _hostingEnvironment.ContentRootPath;
-            string storagePath = FileHelpers.PathCombine(root, "App_Data/xStatic/output/" + staticSiteId.ToString());
-            
-            var folderPath = Path.Combine(root, storagePath);
+            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, staticSiteId.ToString());            
+            var folderPath = Path.Combine(_xStaticPublishRoot, storagePath);
+
+            _logger.LogInformation("[GetStorageLocationOfSite] storagePath = {storagePath} | folderPath = {folderPath}", storagePath, folderPath);
 
             return folderPath;
         }
