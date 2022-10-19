@@ -6,7 +6,7 @@
     <Product>xStatic.Core</Product>
     <PackageId>xStatic.Core</PackageId>
     <Title>xStatic.Core</Title>
-    <Version>3.0.1-beta</Version>
+    <Version>3.0.2-beta</Version>
     <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 9+.</Description>
     <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
     <Authors>Sam Mullins</Authors>

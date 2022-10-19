@@ -5,7 +5,7 @@
       <Product>xStatic.Git</Product>
       <PackageId>xStatic.Git</PackageId>
       <Title>xStatic.Git</Title>
-      <Version>3.0.1-beta</Version>
+      <Version>3.0.2-beta</Version>
       <Description>Git functionality for xStatic for Umbraco.</Description>
       <PackageTags>umbraco umbraco10 xstatic static site generation git</PackageTags>
       <Copyright>Sam Mullins</Copyright>
