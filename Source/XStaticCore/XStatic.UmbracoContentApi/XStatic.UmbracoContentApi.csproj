@@ -5,9 +5,9 @@
       <Product>xStatic.UmbracoContentApi</Product>
       <PackageId>xStatic.UmbracoContentApi</PackageId>
       <Title>xStatic.UmbracoContentApi</Title>
-      <Version>3.0.0-beta</Version>
+      <Version>3.0.2-beta</Version>
       <Description>Integration of UmbracoContentApi open source package into xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco9 xstatic static site generation UmbracoContentApi json headless</PackageTags>
+      <PackageTags>umbraco umbraco10 xstatic static site generation UmbracoContentApi json headless</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -20,8 +20,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-beta003" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-beta003" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
         <PackageReference Include="UmbracoContentApi.Core" Version="9.2.1" />
     </ItemGroup>
 
