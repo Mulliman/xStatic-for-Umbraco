@@ -5,7 +5,7 @@
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-        <Version>3.0.2-beta</Version>
+        <Version>3.0.21-beta</Version>
         <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
         <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
         <Copyright>Sam Mullins</Copyright>
@@ -18,6 +18,10 @@
         <Authors>Sam Mullins</Authors>
         <Company>Sam Mullins</Company>
     </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="ReadMe.txt" pack="true" PackagePath="." />
+	</ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
