@@ -13,6 +13,8 @@ namespace XStatic.Core.Actions.FileActions
     {
         private readonly IStaticSiteStorer _staticSiteStorer;
 
+        public virtual string Name => nameof(FileCopyAction);
+
         public FileCopyAction(IStaticSiteStorer staticSiteStorer)
         {
             _staticSiteStorer = staticSiteStorer;

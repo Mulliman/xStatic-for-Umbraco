@@ -26,7 +26,7 @@ namespace XStatic.Generator
         {
         }
 
-        public override async Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
             var node = GetNode(id);
 
@@ -35,16 +35,23 @@ namespace XStatic.Generator
                 return null;
             }
 
-            var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
-            var fileData = GetJsonData(node);
+            try
+            {
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
+                var fileData = GetJsonData(node);
 
-            var transformedData = RunTransformers(fileData, transformers);
+                var transformedData = RunTransformers(fileData, transformers);
 
-            var filePath = fileNamer.GetFilePartialPath(url);
+                var filePath = fileNamer.GetFilePartialPath(url);
 
-            var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
+                var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
 
-            return generatedFileLocation;
+                return GenerateItemResult.Success("Page", node.UrlSegment, generatedFileLocation);
+            }
+            catch (Exception e)
+            {
+                return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
+            }            
         }
 
         protected virtual string GetJsonData(IPublishedContent content)

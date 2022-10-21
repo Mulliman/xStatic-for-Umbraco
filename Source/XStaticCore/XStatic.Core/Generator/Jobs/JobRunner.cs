@@ -14,9 +14,9 @@ namespace XStatic.Core.Generator.Jobs
             _generator = generator;
         }
 
-        public async Task<IEnumerable<string>> RunJob(Job job)
+        public async Task<IEnumerable<GenerateItemResult>> RunJob(Job job)
         {
-            var returnList = new List<string>();
+            var returnList = new List<GenerateItemResult>();
 
             foreach (var id in job.PageIds)
             {

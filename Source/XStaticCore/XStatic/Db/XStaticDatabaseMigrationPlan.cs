@@ -10,19 +10,13 @@ namespace XStatic.Db
             : base("xStatic")
         {
             From(string.Empty)
-                .To<MigrationCreateTable>("init")
-                .To<MigrationAddTargetHostnameField>("Add Target Hostname field")
-                .To<MigrationAddImageCropsField>("Add Image crops field")
-                .To<MigrationMakeSomeFieldsLonger>("Make some fields longer")
-                .To<MigrationCreateExportTypesTable>("Manage Export Types in DB")
-                .To<MigrationCreateActionsTable>("Manage Actions in DB")
-                .To<MigrationAddPostGenActionsField>("Add actions to sites.");
+                .To<MigrationAllTheThings>("init");
         }
     }
 
-    public class MigrationCreateTable : MigrationBase
+    public class MigrationAllTheThings : MigrationBase
     {
-        public MigrationCreateTable(IMigrationContext context)
+        public MigrationAllTheThings(IMigrationContext context)
             : base(context)
         {
         }
@@ -37,90 +31,28 @@ namespace XStatic.Db
                     .WithColumn("AutoPublish").AsBoolean()
                     .WithColumn("RootNode").AsString()
                     .WithColumn("MediaRootNodes").AsString().Nullable()
-                    .WithColumn("ExportFormat").AsString()
+                    .WithColumn("ExportFormat").AsInt16()
                     .WithColumn("LastRun").AsDateTime().Nullable()
                     .WithColumn("LastBuildDurationInSeconds").AsInt16().Nullable()
                     .WithColumn("LastDeployed").AsDateTime().Nullable()
                     .WithColumn("LastDeployDurationInSeconds").AsInt16().Nullable()
-                    .WithColumn("AssetPaths").AsString().Nullable()
-                    .WithColumn("DeploymentTarget").AsString().Nullable();
+                    .WithColumn("AssetPaths").AsString(1000).Nullable()
+                    .WithColumn("DeploymentTarget").AsString(2500).Nullable()
+                    .WithColumn("TargetHostname").AsString().Nullable()
+                    .WithColumn("ImageCrops").AsString().Nullable()
+                    .WithColumn("PostGenerationActionIds").AsString(200).Nullable();
 
                 builder.Do();
             }
-        }
-    }
 
-    public class MigrationAddTargetHostnameField : MigrationBase
-    {
-        public MigrationAddTargetHostnameField(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (TableExists(SiteConfig.TableName))
+            if (!TableExists(ActionDataModel.TableName))
             {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AddColumn("TargetHostname").AsString().Nullable();
-
-                builder.Do();
-            }
-        }
-    }
-
-    public class MigrationAddImageCropsField : MigrationBase
-    {
-        public MigrationAddImageCropsField(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (TableExists(SiteConfig.TableName))
-            {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AddColumn("ImageCrops").AsString().Nullable();
-
-                builder.Do();
-            }
-        }
-    }
-
-    public class MigrationMakeSomeFieldsLonger : MigrationBase
-    {
-        public MigrationMakeSomeFieldsLonger(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (TableExists(SiteConfig.TableName))
-            {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AlterColumn("AssetPaths").AsString(1000).Nullable()
-                    .AlterColumn("DeploymentTarget").AsString(2500).Nullable();
-
-                builder.Do();
-            }
-        }
-    }
-
-    public class MigrationCreateExportTypesTable : MigrationBase
-    {
-        public MigrationCreateExportTypesTable(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (TableExists(SiteConfig.TableName))
-            {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AlterColumn("ExportFormat").AsInt16();
+                var builder = Create.Table(ActionDataModel.TableName)
+                    .WithColumn("Id").AsInt16().Identity()
+                    .WithColumn("Name").AsString(100)
+                    .WithColumn("Category").AsString(100)
+                    .WithColumn("Type").AsString(500).Nullable()
+                    .WithColumn("Config").AsString(2500).Nullable();
 
                 builder.Do();
             }
@@ -144,48 +76,6 @@ namespace XStatic.Db
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
-        }
-    }
-
-    public class MigrationCreateActionsTable : MigrationBase
-    {
-        public MigrationCreateActionsTable(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (!TableExists(ActionDataModel.TableName))
-            {
-                var builder = Create.Table(ActionDataModel.TableName)
-                    .WithColumn("Id").AsInt16().Identity()
-                    .WithColumn("Name").AsString(100)
-                    .WithColumn("Category").AsString(100)
-                    .WithColumn("Type").AsString(500).Nullable()
-                    .WithColumn("Config").AsString(2500).Nullable();
-
-                builder.Do();
-            }
-        }
-    }
-
-    public class MigrationAddPostGenActionsField : MigrationBase
-    {
-        public MigrationAddPostGenActionsField(IMigrationContext context)
-            : base(context)
-        {
-        }
-
-        protected override void Migrate()
-        {
-            if (TableExists(SiteConfig.TableName))
-            {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AddColumn("PostGenerationActionIds").AsString(200).Nullable();
-
-                builder.Do();
-            }
         }
     }
 }

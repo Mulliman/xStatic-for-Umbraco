@@ -11,6 +11,8 @@ namespace XStatic.Core.Actions.FileActions
     {
         private readonly IStaticSiteStorer _staticSiteStorer;
 
+        public virtual string Name => nameof(FileDeleteAction);
+
         public FileDeleteAction(IStaticSiteStorer staticSiteStorer)
         {
             _staticSiteStorer = staticSiteStorer;

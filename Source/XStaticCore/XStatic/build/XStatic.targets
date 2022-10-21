@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <XStaticContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\XStatic\**\*.*</XStaticContentFilesPath>
+        <XStaticContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\xStatic\**\*.*</XStaticContentFilesPath>
     </PropertyGroup>
 
     <Target Name="CopyXStaticAssets" BeforeTargets="Build">
@@ -11,16 +11,16 @@
         <Message Text="Copying XStatic files: $(XStaticContentFilesPath) - #@(XStaticContentFiles->Count()) files"  Importance="high" />
         <Copy
             SourceFiles="@(XStaticContentFiles)"
-            DestinationFiles="@(XStaticContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\XStatic\%(RecursiveDir)%(Filename)%(Extension)')"
+            DestinationFiles="@(XStaticContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\xStatic\%(RecursiveDir)%(Filename)%(Extension)')"
             SkipUnchangedFiles="true" />
 
     </Target>
 
     <Target Name="ClearXStaticAssets" BeforeTargets="Clean">
         <ItemGroup>
-            <XStaticDir Include="$(MSBuildProjectDirectory)\App_Plugins\XStatic\" />
+            <XStaticDir Include="$(MSBuildProjectDirectory)\App_Plugins\xStatic\" />
         </ItemGroup>
-        <Message Text="Clear old XStatic data"  Importance="high" />
+        <Message Text="Clear old xStatic data"  Importance="high" />
         <RemoveDir Directories="@(XStaticDir)"  />
     </Target>
 
