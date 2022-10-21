@@ -49,36 +49,51 @@ namespace XStatic.Core.Generator
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public virtual async Task<IEnumerable<string>> GenerateFolder(string folderPath, int staticSiteId)
+        public virtual async Task<IEnumerable<GenerateItemResult>> GenerateFolder(string folderPath, int staticSiteId)
         {
             var partialPath = folderPath;
             var absolutePath = _hostingEnvironment.MapPathWebRoot(partialPath);
 
             var files = Directory.GetFiles(absolutePath);
-            var created = new List<string>();
+            var created = new List<GenerateItemResult>();
 
             foreach (var file in files)
             {
                 var outputPath = Path.Combine(partialPath, Path.GetFileName(file));
-                var generatedFileLocation = await Copy(staticSiteId, file, outputPath);
 
-                created.Add(generatedFileLocation);
+                try
+                {
+                    var generatedFileLocation = await Copy(staticSiteId, file, outputPath);
+
+                    created.Add(GenerateItemResult.Success("Folder", outputPath, generatedFileLocation));
+                }
+                catch (Exception e)
+                {
+                    created.Add(GenerateItemResult.Error("Folder", outputPath, e.Message));
+                }
             }
 
             return created;
         }
 
-        public virtual async Task<string> GenerateFile(string partialPath, int staticSiteId)
+        public virtual async Task<GenerateItemResult> GenerateFile(string partialPath, int staticSiteId)
         {
             var rootPath = _hostingEnvironment.MapPathWebRoot("~/");
             var absolutePath = FileHelpers.PathCombine(rootPath, partialPath);
 
-            var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
+            try
+            {
+                var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
 
-            return generatedFileLocation;
+                return GenerateItemResult.Success("File", partialPath, generatedFileLocation);
+            }
+            catch (Exception e)
+            {
+                return GenerateItemResult.Error("File", partialPath, e.Message);
+            }
         }
 
-        public virtual async Task<string> GenerateMedia(int id, int staticSiteId, IEnumerable<Crop> crops = null)
+        public virtual async Task<GenerateItemResult> GenerateMedia(int id, int staticSiteId, IEnumerable<Crop> crops = null)
         {
             var mediaItem = GetMedia(id);
 
@@ -97,36 +112,43 @@ namespace XStatic.Core.Generator
                 return null;
             }
 
-            var mediaFileStream = _mediaFileSystem.FileSystem.OpenFile(partialPath);
-
-            var generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
-
-            if (crops?.Any() == true)
+            try
             {
-                var fileName = Path.GetFileName(partialPath);
-                var fileExtension = Path.GetExtension(partialPath)?.ToLower();
-                var pathSegment = partialPath.Replace(fileName, string.Empty);
+                var mediaFileStream = _mediaFileSystem.FileSystem.OpenFile(partialPath);
 
-                if (ResizeExtensions.Contains(fileExtension.Trim('.')))
+                var generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
+
+                if (crops?.Any() == true)
                 {
-                    foreach (var crop in crops)
+                    var fileName = Path.GetFileName(partialPath);
+                    var fileExtension = Path.GetExtension(partialPath)?.ToLower();
+                    var pathSegment = partialPath.Replace(fileName, string.Empty);
+
+                    if (ResizeExtensions.Contains(fileExtension.Trim('.')))
                     {
-                        var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
-                        var cropUrl = absoluteUrl + query;
+                        foreach (var crop in crops)
+                        {
+                            var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
+                            var cropUrl = absoluteUrl + query;
 
-                        var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
-                        var newPath = Path.Combine(pathSegment, newName + fileExtension);
+                            var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
+                            var newPath = Path.Combine(pathSegment, newName + fileExtension);
 
-                        var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
-                        await SaveFileDataFromWebClient(cropUrl, destinationPath);
+                            var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
+                            await SaveFileDataFromWebClient(cropUrl, destinationPath);
+                        }
                     }
                 }
-            }
 
-            return generatedFileLocation;
+                return GenerateItemResult.Success("Media", partialPath, generatedFileLocation);
+            }
+            catch (Exception e)
+            {
+                return GenerateItemResult.Error("Media", partialPath, e.Message);
+            }
         }
 
-        public abstract Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null);
+        public abstract Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null);
 
         protected string RunTransformers(string fileData, IEnumerable<ITransformer> transformers)
         {

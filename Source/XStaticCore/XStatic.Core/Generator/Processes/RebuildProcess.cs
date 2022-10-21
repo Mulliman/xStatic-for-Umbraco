@@ -38,7 +38,7 @@ namespace XStatic.Core.Generator.Processes
             _actionFactory = actionFactory;
         }
 
-        public async Task<string> RebuildSite(int staticSiteId)
+        public async Task<RebuildProcessResult> RebuildSite(int staticSiteId)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -52,43 +52,62 @@ namespace XStatic.Core.Generator.Processes
 
             using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
             {
-                IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
-
-                int rootNodeId = entity.RootNode;
-                var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);
-
-                var builder = new JobBuilder(entity.Id, fileNamer)
-                    .AddPageWithDescendants(rootNode);
-
-                AddMediaToBuilder(entity, umbracoContext, builder);
-                AddMediaCropsToBuilder(entity, builder);
-
-                AddAssetsToBuilder(entity, builder);
-
-                var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
-                var transformers = listFactory.BuildTransformers(entity);
-
-                if (transformers.Any())
+                try
                 {
-                    builder.AddTransformers(transformers);
+                    IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
+
+                    int rootNodeId = entity.RootNode;
+                    var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);
+
+                    var builder = new JobBuilder(entity.Id, fileNamer)
+                        .AddPageWithDescendants(rootNode);
+
+                    AddMediaToBuilder(entity, umbracoContext, builder);
+                    AddMediaCropsToBuilder(entity, builder);
+
+                    AddAssetsToBuilder(entity, builder);
+
+                    var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
+                    var transformers = listFactory.BuildTransformers(entity);
+
+                    if (transformers.Any())
+                    {
+                        builder.AddTransformers(transformers);
+                    }
+
+                    var results = await GetResults(entity, builder);
+
+                    var postActionResults = await RunPostActions(entity);
+                    results.AddRange(postActionResults);
+
+                    stopwatch.Stop();
+
+                    _sitesRepo.UpdateLastRun(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
+
+                    return new RebuildProcessResult
+                    {
+                        SiteId = staticSiteId,
+                        BuildTime = stopwatch.ElapsedMilliseconds,
+                        WasSuccessful = results.All(r => r.WasSuccessful),
+                        Results = results
+                    };
                 }
-
-                var results = await GetResults(entity, builder);
-
-                var postActionResults = await RunPostActions(entity);
-                results.AddRange(postActionResults.Select(r => r.WasSuccessful + " - " + r.Message));
-
-                stopwatch.Stop();
-
-                _sitesRepo.UpdateLastRun(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
-
-                return string.Join(Environment.NewLine, results);
+                catch (Exception e)
+                {
+                    return new RebuildProcessResult
+                    {
+                        SiteId = staticSiteId,
+                        Exception = e.Message,
+                        ExceptionTrace = e.StackTrace,
+                        WasSuccessful = false
+                    };
+                }
             }
         }
 
-        private async Task<List<string>> GetResults(SiteConfig entity, JobBuilder builder)
+        private async Task<List<GenerateItemResult>> GetResults(SiteConfig entity, JobBuilder builder)
         {
-            var results = new List<string>();
+            var results = new List<GenerateItemResult>();
 
             var generator = _exportTypeService.GetGenerator(entity.ExportFormat);
 
@@ -174,21 +193,24 @@ namespace XStatic.Core.Generator.Processes
             builder.AddMediaCrops(crops);
         }
 
-        private async Task<IEnumerable<XStaticResult>> RunPostActions(SiteConfig entity)
+        private async Task<IEnumerable<GenerateItemResult>> RunPostActions(SiteConfig entity)
         {
             var actions = _actionFactory.CreateConfiguredPostGenerationActions(entity.PostGenerationActionIds.ToArray());
-            var results = new List<XStaticResult>();
+            var results = new List<GenerateItemResult>();
 
             foreach(var action in actions)
             {
                 try
                 {
                     var result = await action.Action.RunAction(entity.Id, action.Config);
-                    results.Add(result);
+
+                    var convertedResult = GenerateItemResult.Success("PostAction", action.Name, "Completed");
+                    results.Add(convertedResult);
                 }
                 catch (Exception e)
                 {
-                    results.Add(XStaticResult.Error($"Error thrown in RunPostActions for {action?.Action?.GetType()?.Name} - {e.Message}", e));
+                    var convertedResult = GenerateItemResult.Error("PostAction", action.Name, e.Message);
+                    results.Add(convertedResult);
                 }
             }
 

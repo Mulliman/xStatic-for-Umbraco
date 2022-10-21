@@ -110,7 +110,7 @@ namespace XStatic.Netlify
             {
                 response = client.UploadString(Api + "sites/" + siteId + "/deploys", "POST", json);
             }
-            catch (WebException ex)
+            catch
             {
                 client.Dispose();
                 throw;

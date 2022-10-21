@@ -1,45 +1,49 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-      <TargetFramework>net6.0</TargetFramework>
-      <ContentTargetFolders>.</ContentTargetFolders>
-      <Product>xStatic.Git</Product>
-      <PackageId>xStatic.Git</PackageId>
-      <Title>xStatic.Git</Title>
-      <Version>3.0.2-beta</Version>
-      <Description>Git functionality for xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco10 xstatic static site generation git</PackageTags>
-      <Copyright>Sam Mullins</Copyright>
-      <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
-      <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
-      <RepositoryType>Git</RepositoryType>
-      <PackageIconUrl />
-      <Authors>Sam Mullins</Authors>
-      <Company>Sam Mullins</Company>
-      <PackageIcon>Logo.png</PackageIcon>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ContentTargetFolders>.</ContentTargetFolders>
+		<Product>xStatic.Git</Product>
+		<PackageId>xStatic.Git</PackageId>
+		<Title>xStatic.Git</Title>
+		<Version>3.0.2-beta</Version>
+		<Description>Git functionality for xStatic for Umbraco.</Description>
+		<PackageTags>umbraco umbraco10 xstatic static site generation git</PackageTags>
+		<Copyright>Sam Mullins</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<PackageIconUrl />
+		<Authors>Sam Mullins</Authors>
+		<Company>Sam Mullins</Company>
+		<PackageIcon>Logo.png</PackageIcon>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<None Include="ReadMe.txt" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <Content Include="App_Plugins\XStatic.Git\**\*.*">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<Content Include="App_Plugins\XStatic.Git\**\*.*">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
 
-    <ItemGroup>
-      <None Include="..\..\..\Brand\Logo.png">
-        <Pack>True</Pack>
-        <PackagePath></PackagePath>
-      </None>
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\Brand\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 </Project>

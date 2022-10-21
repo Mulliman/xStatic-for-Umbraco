@@ -35,7 +35,7 @@ namespace XStatic.Controllers
         }
 
         [HttpGet]
-        public async Task<string> RebuildStaticSite(int staticSiteId)
+        public async Task<RebuildProcessResult> RebuildStaticSite(int staticSiteId)
         {
             var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory);
 

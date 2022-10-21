@@ -1,41 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ContentTargetFolders>.</ContentTargetFolders>
-    <Product>xStatic.Netlify</Product>
-    <PackageId>xStatic.Netlify</PackageId>
-    <Title>xStatic.Netlify</Title>
-    <Version>3.0.2-beta</Version>
-    <Description>Netlify functionality for xStatic for Umbraco.</Description>
-    <PackageTags>umbraco umbraco10 xstatic static site generation netlify</PackageTags>
-    <Copyright>Sam Mullins</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <PackageIcon>Logo.png</PackageIcon>
-    <PackageIconUrl />
-    <Authors>Sam Mullins</Authors>
-    <Company>Sam Mullins</Company>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ContentTargetFolders>.</ContentTargetFolders>
+		<Product>xStatic.Netlify</Product>
+		<PackageId>xStatic.Netlify</PackageId>
+		<Title>xStatic.Netlify</Title>
+		<Version>3.0.2-beta</Version>
+		<Description>Netlify functionality for xStatic for Umbraco.</Description>
+		<PackageTags>umbraco umbraco10 xstatic static site generation netlify</PackageTags>
+		<Copyright>Sam Mullins</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<PackageIcon>Logo.png</PackageIcon>
+		<PackageIconUrl />
+		<Authors>Sam Mullins</Authors>
+		<Company>Sam Mullins</Company>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="ReadMe.txt" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="App_Plugins\XStatic.Netlify\**\*.*">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
-    <None Include="..\..\..\Brand\Logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="App_Plugins\XStatic.Netlify\**\*.*">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+		<None Include="..\..\..\Brand\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+	</ItemGroup>
 </Project>

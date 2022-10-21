@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
@@ -24,7 +25,7 @@ namespace XStatic.Core.Generator
         {
         }
 
-        public override async Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
             SslTruster.TrustSslIfAppSettingConfigured();
 
@@ -35,23 +36,25 @@ namespace XStatic.Core.Generator
                 return null;
             }
 
-            var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
-            string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute);
-
-            var fileData = await GetFileDataFromWebClient(absoluteUrl);
-
-            if (fileData == null)
+            try
             {
-                return null;
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
+                string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute);
+
+                var fileData = await GetFileDataFromWebClient(absoluteUrl);
+
+                var transformedData = RunTransformers(fileData, transformers);
+
+                var filePath = fileNamer.GetFilePartialPath(url);
+
+                var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
+
+                return GenerateItemResult.Success("Page", node.UrlSegment, generatedFileLocation);
             }
-
-            var transformedData = RunTransformers(fileData, transformers);
-
-            var filePath = fileNamer.GetFilePartialPath(url);
-
-            var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
-
-            return generatedFileLocation;
+            catch (Exception e)
+            {
+                return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
+            }
         }
     }
 }

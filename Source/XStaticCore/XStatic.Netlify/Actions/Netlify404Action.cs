@@ -11,6 +11,8 @@ namespace XStatic.Netlify.Actions
     {
         const string Netlify404FilePath = "/404.html";
 
+        public override string Name => nameof(Netlify404Action);
+
         public Netlify404Action(IStaticSiteStorer staticSiteStorer) : base(staticSiteStorer)
         {
         }

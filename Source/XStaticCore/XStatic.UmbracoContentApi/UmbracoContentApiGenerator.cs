@@ -32,7 +32,7 @@ namespace XStatic.UmbracoContentApi
             _contentResolver = contentResolver;
         }
 
-        public override async Task<string> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
             SslTruster.TrustSslIfAppSettingConfigured();
 
@@ -43,24 +43,26 @@ namespace XStatic.UmbracoContentApi
                 return null;
             }
 
-            var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
-
-            var model = _contentResolver.Value.ResolveContent(node);
-
-            var fileData = JsonConvert.SerializeObject(model);
-
-            if (fileData == null)
+            try
             {
-                return null;
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
+
+                var model = _contentResolver.Value.ResolveContent(node);
+
+                var fileData = JsonConvert.SerializeObject(model);
+
+                var transformedData = RunTransformers(fileData, transformers);
+
+                var filePath = fileNamer.GetFilePartialPath(url);
+
+                var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
+
+                return GenerateItemResult.Success("Page", node.UrlSegment,  generatedFileLocation);
             }
-
-            var transformedData = RunTransformers(fileData, transformers);
-
-            var filePath = fileNamer.GetFilePartialPath(url);
-
-            var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
-
-            return generatedFileLocation;
+            catch (Exception e)
+            {
+                return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
+            }
         }
     }
 }

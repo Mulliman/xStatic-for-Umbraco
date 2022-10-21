@@ -229,8 +229,20 @@
 
             setTimeout(function () {
                 xStaticResource.generateSite(id).then(function (data) {
-                    notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
 
+                    if (data.WasSuccessful) {
+                        notificationsService.success("Site Generated Successfully", "The static files are now cached ready for download or deployment.");
+                    } else if (data.Warnings && data.Warnings.length) {
+
+                        for (var warning of data.Warnings) {
+                            var message = warning.Type + " - " + warning.Item + " => " + warning.Message;
+                            notificationsService.warning("Site Generation Warning", message);
+                        }
+                        
+                    } else {
+                        notificationsService.error("Site Generation Error", data.Exception + " " + data.ExceptionTrace);
+                    }
+                    
                     vm.getSites();
 
                     vm.currentTime[id] = 0;
