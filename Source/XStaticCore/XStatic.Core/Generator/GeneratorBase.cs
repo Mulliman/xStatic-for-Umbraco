@@ -128,7 +128,9 @@ namespace XStatic.Core.Generator
                     {
                         foreach (var crop in crops)
                         {
-                            var query = $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
+                            var query = crop.QualityPercentage.HasValue && crop.QualityPercentage.Value > 0
+                                ? $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}&quality={crop.QualityPercentage}"
+                                : $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
                             var cropUrl = absoluteUrl + query;
 
                             var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);

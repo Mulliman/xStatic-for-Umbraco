@@ -51,7 +51,7 @@
                 {
                     key: "ImageCrops",
                     name: "Media Crops",
-                    description: "Comma delimit the image crops you want to generate in the format {width}x{height}. E.g. 1600x900,800x450,320x0",
+                    description: "Comma delimit the image crops you want to generate in the format {width}x{height}. You can also optionally add compression after each with @{quality}. E.g. 1600x900@80,800x450@50,320x0",
                     config: null,
                     value: form.site.ImageCrops,
                     view: this.editorTypes.csv
@@ -127,7 +127,7 @@
         vm.buildProperties = xStaticSiteEditingService.getBuildProperties(vm.form, $scope.model.actions);
         vm.deployProperties = xStaticSiteEditingService.getDeployProperties(vm.form);
 
-        vm.submit = function() {
+        vm.submit = function () {
             vm.form = xStaticSiteEditingService.updateFormValues(vm.form, vm.buildProperties, vm.deployProperties);
 
             if (vm.form.site.Id) {
@@ -145,7 +145,7 @@
             }
         }
 
-        vm.close = function() {
+        vm.close = function () {
             if ($scope.model.close) {
                 $scope.model.close();
             }
@@ -164,8 +164,8 @@
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/xStatic/dashboards/Form.html",
                 site: site,
                 actions: vm.actions,
-                styles: {  },
-                config: {  },
+                styles: {},
+                config: {},
                 submit: function (model) {
                     editorService.close();
                     vm.getSites();
@@ -238,11 +238,11 @@
                             var message = warning.Type + " - " + warning.Item + " => " + warning.Message;
                             notificationsService.warning("Site Generation Warning", message);
                         }
-                        
+
                     } else {
                         notificationsService.error("Site Generation Error", data.Exception + " " + data.ExceptionTrace);
                     }
-                    
+
                     vm.getSites();
 
                     vm.currentTime[id] = 0;
