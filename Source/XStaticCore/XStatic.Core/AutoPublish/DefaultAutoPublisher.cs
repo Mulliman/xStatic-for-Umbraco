@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
@@ -40,7 +42,7 @@ namespace XStatic.Core.AutoPublish
             _actionFactory = actionFactory;
         }
 
-        public void RunAutoPublish(IEnumerable<Umbraco.Cms.Core.Models.IContent> publishedEntities)
+        public async Task RunAutoPublish(IEnumerable<Umbraco.Cms.Core.Models.IContent> publishedEntities)
         {
             var autoPublishSites = _sitesRepository.GetAutoPublishSites();
 
@@ -65,13 +67,10 @@ namespace XStatic.Core.AutoPublish
             var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepository, _webHostEnvironment, _actionFactory);
             var deployProcess = new DeployProcess(_storer, _deployerService, _sitesRepository);
 
-            foreach (var site in sitesToDeploy)
+            foreach (var site in sitesToDeploy.Where(s => s.DeploymentTarget != null))
             {
-                Task.Run(async () =>
-                {
-                    await process.RebuildSite(site.Id);
-                    await deployProcess.DeployStaticSite(site.Id);
-                });
+                await process.RebuildSite(site.Id);
+                await deployProcess.DeployStaticSite(site.Id);
             }
         }
     }

@@ -1,9 +1,11 @@
-﻿using Umbraco.Cms.Core.Events;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 
 namespace XStatic.Core.AutoPublish
 {
-    public class AutoPublishNotificationHandler : INotificationHandler<ContentPublishingNotification>
+    public class AutoPublishNotificationHandler : INotificationAsyncHandler<ContentPublishedNotification>
     {
         private readonly IAutoPublisher _publisher;
 
@@ -12,11 +14,11 @@ namespace XStatic.Core.AutoPublish
             _publisher = publisher;
         }
 
-        public void Handle(ContentPublishingNotification notification)
+        public Task HandleAsync(ContentPublishedNotification notification, CancellationToken cancellationToken)
         {
             var publishedEntities = notification.PublishedEntities;
 
-            _publisher.RunAutoPublish(publishedEntities);
+            return _publisher.RunAutoPublish(publishedEntities);
         }
     }
 }
