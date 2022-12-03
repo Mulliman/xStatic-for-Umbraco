@@ -6,13 +6,21 @@ xStatic- Static Site Generation for Umbraco
 Basic setup
 -----------
 
-Add the following to the ConfigureServices method in your Startup.cs file
+1. Ensure that Umbraco is installed and working before running the site with xStatic installed. 
+
+2. Add the following to the ConfigureServices method in your Startup.cs file
 
 services.AddXStatic().Automatic().Build();
 
 You will need to add using XStatic.Core.App; to the top of the file.
 
 This will automatically register all the built in services as required for an out of the box solution.
+
+3. Ensure that the \App_Plugins\xStatic folder and files are included in your csproj. These need to be present in your website for the xStatic section to appear.
+
+4. In the users section, add 'xStatic Generated Sites' to the roles you want to have access.
+
+5. Create your site configs and build / deploy your static sites.
 
 
 Custom setup
@@ -29,5 +37,5 @@ Both of these can be accessed from the XStatic app you get by using services.Add
 Plugins
 -------
 
-Plugins can be found by search NuGet for xStatic. 
+Plugins can be found by search NuGet for xStatic or looking at the Information & Plugins tab. 
 These will likely require more services to be registered in the startup class. See specific plugins for details.
