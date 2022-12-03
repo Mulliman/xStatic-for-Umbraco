@@ -22,9 +22,8 @@ namespace XStatic.Core.Models
                     Type = new ConfigurableTypeModel(type, data.Config);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                var hi = "";
                 // Types must've changed since db updated.
                 // Swallow for now until a good enough solution.
             }

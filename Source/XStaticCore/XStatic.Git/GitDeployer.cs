@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Deploy;
@@ -29,11 +28,14 @@ namespace XStatic.Git
             _branch = parameters["Branch"];
         }
 
-        public async Task<XStaticResult> DeployWholeSite(string folderPath)
+        public Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            var result = Deploy(folderPath);
+            return TaskHelper.FromResultOf(() =>
+            {
+                var result = Deploy(folderPath);
 
-            return result;
+                return result;
+            });
         }
 
         public XStaticResult Deploy(string folderPath)
@@ -92,35 +94,34 @@ namespace XStatic.Git
         {
             try
             {
-                using (var repo = new Repository(folderPath))
+                using var repo = new Repository(folderPath);
+
+                if (!repo.Branches.Any())
                 {
-                    if (!repo.Branches.Any())
-                    {
-                        var initSig = GetSignature();
-                        repo.Commit($"xStatic init", initSig, initSig);
-                    }
-
-                    if (repo.Branches?.FirstOrDefault(b => b.FriendlyName == branch) == null)
-                    {
-                        repo.CreateBranch(branch);
-                    }
-
-                    var gitBranch = Commands.Checkout(repo, branch);
-
-                    Commands.Stage(repo, "*");
-
-                    if (repo.RetrieveStatus().IsDirty)
-                    {
-                        var sig = GetSignature();
-
-                        repo.Commit($"xStatic build {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}", sig, sig);
-                    }
-
-                    Remote remote = repo.Network.Remotes["origin"];
-                    var options = new PushOptions();
-                    options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = _username, Password = _password };
-                    repo.Network.Push(remote, gitBranch.CanonicalName, options);
+                    var initSig = GetSignature();
+                    repo.Commit($"xStatic init", initSig, initSig);
                 }
+
+                if (repo.Branches?.FirstOrDefault(b => b.FriendlyName == branch) == null)
+                {
+                    repo.CreateBranch(branch);
+                }
+
+                var gitBranch = Commands.Checkout(repo, branch);
+
+                Commands.Stage(repo, "*");
+
+                if (repo.RetrieveStatus().IsDirty)
+                {
+                    var sig = GetSignature();
+
+                    repo.Commit($"xStatic build {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}", sig, sig);
+                }
+
+                Remote remote = repo.Network.Remotes["origin"];
+                var options = new PushOptions();
+                options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = _username, Password = _password };
+                repo.Network.Push(remote, gitBranch.CanonicalName, options);
             }
             catch (Exception e)
             {

@@ -15,18 +15,21 @@ namespace XStatic.Core.Deploy
             _folderPath = parameters["FolderPath"];
         }
 
-        public async Task<XStaticResult> DeployWholeSite(string folderPath)
+        public Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            try
+            return TaskHelper.FromResultOf(() =>
             {
-                FileHelpers.CopyFilesInFolder(folderPath, _folderPath);
-            }
-            catch (Exception e)
-            {
-                return XStaticResult.Error("Error deploying site to file system.", e);
-            }
+                try
+                {
+                    FileHelpers.CopyFilesInFolder(folderPath, _folderPath);
+                }
+                catch (Exception e)
+                {
+                    return XStaticResult.Error("Error deploying site to file system.", e);
+                }
 
-            return XStaticResult.Success("Folder on file system updated.");
+                return XStaticResult.Success("Folder on file system updated.");
+            });
         }
     }
 }

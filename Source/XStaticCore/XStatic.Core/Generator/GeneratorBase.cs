@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
@@ -16,6 +17,7 @@ using XStatic.Core.Generator.Ssl;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Helpers;
+using static Umbraco.Cms.Core.Constants;
 
 namespace XStatic.Core.Generator
 {
@@ -30,7 +32,8 @@ namespace XStatic.Core.Generator
         protected readonly IStaticSiteStorer _storer;
         protected readonly IImageCropNameGenerator _imageCropNameGenerator;
         protected readonly MediaFileManager _mediaFileSystem;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        protected readonly HttpClient HttpClient;
 
         protected NoopPublishedValueFallback _fallback = new NoopPublishedValueFallback();
 
@@ -39,7 +42,7 @@ namespace XStatic.Core.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IHostingEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _publishedUrlProvider = publishedUrlProvider;
@@ -47,6 +50,8 @@ namespace XStatic.Core.Generator
             _imageCropNameGenerator = imageCropNameGenerator;
             _mediaFileSystem = mediaFileSystem;
             _hostingEnvironment = hostingEnvironment;
+
+            HttpClient = new HttpClient();
         }
 
         public virtual async Task<IEnumerable<GenerateItemResult>> GenerateFolder(string folderPath, int staticSiteId)
@@ -232,7 +237,7 @@ namespace XStatic.Core.Generator
             return relativeFilePath;
         }
 
-        protected async Task<string> GetFileDataFromWebClient(string absoluteUrl)
+        protected virtual async Task<string> GetFileDataFromWebClient(string absoluteUrl)
         {
             SslTruster.TrustSslIfAppSettingConfigured();
 
@@ -240,15 +245,8 @@ namespace XStatic.Core.Generator
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
 
-                string downloadedSource;
-
-                using (var client = new System.Net.WebClient())
-                {
-                    client.Encoding = DefaultEncoder;
-
-                    downloadedSource = await client.DownloadStringTaskAsync(absoluteUrl);
-                }
-
+                string downloadedSource = await HttpClient.GetStringAsync(absoluteUrl);
+                
                 return downloadedSource;
             }
             catch (Exception ex)
@@ -268,12 +266,8 @@ namespace XStatic.Core.Generator
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
 
-                using (var client = new System.Net.WebClient())
-                {
-                    client.Encoding = DefaultEncoder;
-
-                    await client.DownloadFileTaskAsync(new Uri(absoluteUrl), filePath);
-                }
+                byte[] fileBytes = await HttpClient.GetByteArrayAsync(absoluteUrl);
+                File.WriteAllBytes(filePath, fileBytes);
 
                 return filePath;
             }

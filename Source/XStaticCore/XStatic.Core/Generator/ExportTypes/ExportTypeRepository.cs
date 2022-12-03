@@ -1,8 +1,7 @@
 ﻿using NPoco;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Infrastructure.Scoping;
 using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Generator.ExportTypes
@@ -18,94 +17,88 @@ namespace XStatic.Core.Generator.ExportTypes
 
         public IEnumerable<ExportTypeDataModel> GetAll()
         {
-            using (IScope scope = _scopeProvider.CreateScope())
-            {
-                var query = new Sql().Select("*").From(ExportTypeDataModel.TableName);
+            using IScope scope = _scopeProvider.CreateScope();
 
-                var sites = scope.Database.Fetch<ExportTypeDataModel>(query);
+            var query = new Sql().Select("*").From(ExportTypeDataModel.TableName);
 
-                scope.Complete();
+            var sites = scope.Database.Fetch<ExportTypeDataModel>(query);
 
-                return sites;
-            }
+            scope.Complete();
+
+            return sites;
         }
 
         public virtual ExportTypeDataModel Get(int dbId)
         {
-            using (IScope scope = _scopeProvider.CreateScope())
-            {
-                var query = new Sql().Select("*").From(ExportTypeDataModel.TableName).Where("Id = " + dbId);
+            using IScope scope = _scopeProvider.CreateScope();
 
-                var sites = scope.Database.Fetch<ExportTypeDataModel>(query);
+            var query = new Sql().Select("*").From(ExportTypeDataModel.TableName).Where("Id = " + dbId);
 
-                scope.Complete();
+            var sites = scope.Database.Fetch<ExportTypeDataModel>(query);
 
-                return sites.FirstOrDefault();
-            }
+            scope.Complete();
+
+            return sites.FirstOrDefault();
         }
 
         public virtual ExportTypeDataModel Create(ExportTypeDataModel data)
         {
-            using (IScope scope = _scopeProvider.CreateScope())
+            using IScope scope = _scopeProvider.CreateScope();
+
+            try
             {
-                try
-                {
-                    scope.Database.Insert(data);
-                }
-                catch (Exception ex)
-                {
-                    throw new XStaticException("Unable to insert Export Type into the database.");
-                }
-
-                scope.Complete();
-
-                return data;
+                scope.Database.Insert(data);
             }
+            catch
+            {
+                throw new XStaticException("Unable to insert Export Type into the database.");
+            }
+
+            scope.Complete();
+
+            return data;
         }
 
         public virtual ExportTypeDataModel Update(ExportTypeDataModel update)
         {
-            using (IScope scope = _scopeProvider.CreateScope())
+            using IScope scope = _scopeProvider.CreateScope();
+            var entity = Get(update.Id);
+
+            try
             {
-                var entity = Get(update.Id);
+                entity.Name = update.Name;
+                entity.Generator = update.Generator;
+                entity.TransformerFactory = update.TransformerFactory;
+                entity.FileNameGenerator = update.FileNameGenerator;
 
-                try
-                {
-                    entity.Name = update.Name;
-                    entity.Generator = update.Generator;
-                    entity.TransformerFactory = update.TransformerFactory;
-                    entity.FileNameGenerator = update.FileNameGenerator;
-
-                    scope.Database.Save(entity);
-                }
-                catch (Exception ex)
-                {
-                    throw new XStaticException("Unable to insert Export Type into the database.");
-                }
-
-                var updatedEntity = Get(update.Id);
-
-                scope.Complete();
-
-                return updatedEntity;
+                scope.Database.Save(entity);
             }
+            catch
+            {
+                throw new XStaticException("Unable to insert Export Type into the database.");
+            }
+
+            var updatedEntity = Get(update.Id);
+
+            scope.Complete();
+
+            return updatedEntity;
         }
 
         public virtual void Delete(int id)
         {
-            using (IScope scope = _scopeProvider.CreateScope())
-            {
-                try
-                {
-                    scope.Database.Delete<ExportTypeDataModel>(id);
-                }
-                catch (Exception ex)
-                {
-                    throw new XStaticException("Unable to delete Export Type from database.");
-                }
+            using IScope scope = _scopeProvider.CreateScope();
 
-                scope.Complete();
+            try
+            {
+                scope.Database.Delete<ExportTypeDataModel>(id);
             }
+            catch
+            {
+                throw new XStaticException("Unable to delete Export Type from database.");
+            }
+
+            scope.Complete();
         }
     }
 }

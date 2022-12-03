@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Infrastructure.Scoping;
 using XStatic.Core.Actions.Db;
 
 namespace XStatic.Core.Actions
@@ -18,7 +18,7 @@ namespace XStatic.Core.Actions
 
         public IEnumerable<ActionDataModel> GetAll()
         {
-            using (IScope scope = _scopeProvider.CreateScope())
+            using (var scope = _scopeProvider.CreateScope())
             {
                 var query = new Sql().Select("*").From(ActionDataModel.TableName);
 
@@ -66,7 +66,7 @@ namespace XStatic.Core.Actions
                 {
                     scope.Database.Insert(data);
                 }
-                catch (Exception ex)
+                catch
                 {
                     throw new XStaticException("Unable to insert Action into the database.");
                 }
@@ -92,7 +92,7 @@ namespace XStatic.Core.Actions
 
                     scope.Database.Save(entity);
                 }
-                catch (Exception ex)
+                catch
                 {
                     throw new XStaticException("Unable to insert Action into the database.");
                 }
@@ -113,7 +113,7 @@ namespace XStatic.Core.Actions
                 {
                     scope.Database.Delete<ActionDataModel>(id);
                 }
-                catch (Exception ex)
+                catch
                 {
                     throw new XStaticException("Unable to delete Action from database.");
                 }

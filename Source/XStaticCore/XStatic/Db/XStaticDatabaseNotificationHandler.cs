@@ -11,12 +11,12 @@ namespace XStatic.Db
     public class XStaticDatabaseNotificationHandler : INotificationHandler<UmbracoApplicationStartingNotification>
     {
         private readonly IMigrationPlanExecutor _migrationPlanExecutor;
-        private readonly IScopeProvider _scopeProvider;
+        private readonly ICoreScopeProvider _scopeProvider;
         private readonly IKeyValueService _keyValueService;
         private readonly IRuntimeState _runtimeState;
 
         public XStaticDatabaseNotificationHandler(
-            IScopeProvider scopeProvider,
+            ICoreScopeProvider scopeProvider,
             IMigrationPlanExecutor migrationPlanExecutor,
             IKeyValueService keyValueService,
             IRuntimeState runtimeState)

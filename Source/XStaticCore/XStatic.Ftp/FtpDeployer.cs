@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using XStatic.Core;
+using XStatic.Core.Helpers;
 using XStatic.Core.Deploy;
 
 namespace XStatic.Ftp
@@ -27,9 +28,12 @@ namespace XStatic.Ftp
             int.TryParse(parameters["Port"], out _port);
         }
 
-        public virtual async Task<XStaticResult> DeployWholeSite(string folderPath)
+        public virtual Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            return Deploy(folderPath);
+            return TaskHelper.FromResultOf(() =>
+            {
+                return Deploy(folderPath);
+            });
         }
 
         public virtual XStaticResult Deploy(string folderPath)

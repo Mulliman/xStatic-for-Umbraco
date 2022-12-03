@@ -8,13 +8,14 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Deploy;
+using XStatic.Core.Helpers;
 
 namespace XStatic.Netlify
 {
     public class NetlifyDeployer : IDeployer
     {
         public const string DeployerKey = "netlify";
-        private static string Api = "https://api.netlify.com/api/v1/";
+        private static readonly string Api = "https://api.netlify.com/api/v1/";
         private readonly string _pat;
         private readonly string _appId;
 
@@ -24,9 +25,12 @@ namespace XStatic.Netlify
             _appId = parameters["SiteId"];
         }
 
-        public virtual async Task<XStaticResult> DeployWholeSite(string folderPath)
+        public virtual Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            return Deploy(_appId, folderPath);
+            return TaskHelper.FromResultOf(() =>
+            {
+                return Deploy(_appId, folderPath);
+            });
         }
 
         public virtual XStaticResult Deploy(string siteId, string folderPath)
@@ -49,6 +53,7 @@ namespace XStatic.Netlify
             }
 
             var client = new WebClient();
+
             client.Headers.Add("Authorization", "Bearer " + _pat);
 
             foreach (var hash in deployment.required)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Hosting;
@@ -20,7 +21,7 @@ namespace XStatic.Core.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IHostingEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment)
             : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
         {
         }
