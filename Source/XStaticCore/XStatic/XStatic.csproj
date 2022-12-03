@@ -5,12 +5,11 @@
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-        <Version>3.0.21-beta</Version>
         <Description>Static site generation for Umbraco 9+ without changing the method of building Umbraco sites.</Description>
-        <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
+        <PackageTags>umbraco umbraco10 umbraco11 xstatic static site generation umbraco-marketplace</PackageTags>
         <Copyright>Sam Mullins</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageIcon>Logo.png</PackageIcon>
