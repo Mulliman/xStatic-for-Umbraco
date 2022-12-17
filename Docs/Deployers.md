@@ -12,47 +12,47 @@ The expected constructor for the deploy includes a dictionary of strings as the 
 
 ```
 public class FtpDeployer : IDeployer
+{
+    public const string DeployerKey = "ftp";
+    private readonly string _hostname;
+    private readonly int _port;
+    private readonly string _username;
+    private readonly string _password;
+    private readonly string _folder;
+
+    public FtpDeployer(Dictionary<string, string> parameters)
     {
-        public const string DeployerKey = "ftp";
-        private readonly string _hostname;
-        private readonly int _port;
-        private readonly string _username;
-        private readonly string _password;
-        private readonly string _folder;
+        _hostname = parameters["Hostname"];
+        _username = parameters["Username"];
+        _password = parameters["Password"];
+        _folder = parameters["Folder"];
 
-        public FtpDeployer(Dictionary<string, string> parameters)
-        {
-            _hostname = parameters["Hostname"];
-            _username = parameters["Username"];
-            _password = parameters["Password"];
-            _folder = parameters["Folder"];
-
-            _port = 21;
-            int.TryParse(parameters["Port"], out _port);
-        }
-
-        public virtual Task<XStaticResult> DeployWholeSite(string folderPath)
-        {
-            return TaskHelper.FromResultOf(() =>
-            {
-                return Deploy(folderPath);
-            });
-        }
-
-        public virtual XStaticResult Deploy(string folderPath)
-        {
-            try
-            {
-                // Do the upload
-            }
-            catch (Exception e)
-            {
-                return XStaticResult.Error("Error deploying the site using FTP.", e);
-            }
-
-            return XStaticResult.Success("Site deployed using FTP.");
-        }
+        _port = 21;
+        int.TryParse(parameters["Port"], out _port);
     }
+
+    public virtual Task<XStaticResult> DeployWholeSite(string folderPath)
+    {
+        return TaskHelper.FromResultOf(() =>
+        {
+            return Deploy(folderPath);
+        });
+    }
+
+    public virtual XStaticResult Deploy(string folderPath)
+    {
+        try
+        {
+            // Do the upload
+        }
+        catch (Exception e)
+        {
+            return XStaticResult.Error("Error deploying the site using FTP.", e);
+        }
+
+        return XStaticResult.Success("Site deployed using FTP.");
+    }
+}
 ```
 
 ## Deployer Definition
@@ -60,7 +60,7 @@ public class FtpDeployer : IDeployer
 Implementing the `IDeployerDefinition` interface allows you to set the metadata for your custom deployer. The ID must be unique; there will be errors if two definitions are added with the same ID.
 
 ```
- public class FtpDeployerDefinition : IDeployerDefinition
+public class FtpDeployerDefinition : IDeployerDefinition
 {
     public string Id => FtpDeployer.DeployerKey;
 
