@@ -5,5 +5,5 @@
 	{ "title": "Deploying to FTP server", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-ftp-server/", "description": "If you have an existing server with FTP access, this may an easy option. xStatic will update the remote server to mirror the files built locally; this seems to be slower than the Git and Netlify deployment methods." },
 	{ "title": "Image crops", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/image-crops/", "description": "xStatic works with the built in Umbraco image cropping functionality, but you do need to do a little bit of configuration." },
 	{ "title": "Troubleshooting", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/troubleshooting/", "description": "xStatic should work out of the box, but if it doesn't, this is the place to check first." },
-	{ "title": "Extending xStatic", "link":"https://sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic/", "description": "You can extend xStatic to generate and transform the output to fit your specific requirements." }
+	{ "title": "Extending xStatic", "link":"https://www.sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic-2/", "description": "You can extend xStatic to generate and transform the output to fit your specific requirements." }
 ]
