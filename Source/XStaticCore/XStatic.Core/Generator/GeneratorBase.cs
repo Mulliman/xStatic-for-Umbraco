@@ -161,6 +161,7 @@ namespace XStatic.Core.Generator
         {
             if (transformers == null) return fileData;
 
+            if (fileData==null) return fileData;
             var context = GetContext();
             foreach (var transformer in transformers)
             {
