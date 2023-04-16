@@ -36,7 +36,10 @@ namespace XStatic.Core.Generator
             {
                 return null;
             }
-
+            if (node.TemplateId== null)
+            {
+                return null;
+            }
             try
             {
                 var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
