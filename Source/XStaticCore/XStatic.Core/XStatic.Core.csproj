@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ContentTargetFolders>.</ContentTargetFolders>
     <Product>xStatic.Core</Product>
     <PackageId>xStatic.Core</PackageId>
     <Title>xStatic.Core</Title>
-    <Version>3.0.2-beta</Version>
+    <Version>12.0.0-beta</Version>
     <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 9+.</Description>
-    <PackageTags>umbraco umbraco10 xstatic static site generation</PackageTags>
+    <PackageTags>umbraco umbraco12 xstatic static site generation</PackageTags>
     <Authors>Sam Mullins</Authors>
     <Copyright>Sam Mullins</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,10 +21,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="10.2.1" />
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="10.2.1" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.2.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="12.0.0" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="12.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="12.0.0" />
   </ItemGroup>
 
   <ItemGroup>

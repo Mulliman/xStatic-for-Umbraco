@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <TargetFramework>net6.0</TargetFramework>
+      <TargetFramework>net7.0</TargetFramework>
       <ContentTargetFolders>.</ContentTargetFolders>
       <Product>xStatic.UmbracoContentApi</Product>
       <PackageId>xStatic.UmbracoContentApi</PackageId>
       <Title>xStatic.UmbracoContentApi</Title>
-      <Version>3.0.2-beta</Version>
+      <Version>12.0.0-beta</Version>
       <Description>Integration of UmbracoContentApi open source package into xStatic for Umbraco.</Description>
       <PackageTags>umbraco umbraco10 xstatic static site generation UmbracoContentApi json headless</PackageTags>
       <Copyright>Sam Mullins</Copyright>
@@ -24,8 +24,8 @@
 	</ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
-        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="12.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="12.0.0" />
         <PackageReference Include="UmbracoContentApi.Core" Version="9.2.1" />
     </ItemGroup>
 
