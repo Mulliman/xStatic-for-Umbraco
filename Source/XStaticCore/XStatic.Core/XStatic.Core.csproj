@@ -20,6 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Generator\Headless\HeadlessApiRequestRespository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="Umbraco.Cms.Core" Version="12.0.0" />
@@ -32,6 +36,7 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="Generator\Headless\HeadlessApiRequestRespository.cs" />
   </ItemGroup>
 
 </Project>

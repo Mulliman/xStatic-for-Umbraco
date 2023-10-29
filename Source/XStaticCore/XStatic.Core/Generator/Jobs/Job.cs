@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using XStatic.Core.Generator.Headless;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 
@@ -21,5 +22,7 @@ namespace XStatic.Core.Generator.Jobs
         public List<string> Folders { get; set; } = new List<string>();
 
         public List<string> Files { get; set; } = new List<string>();
+
+        public List<HeadlessApiTask> ApiTasks { get; set; }
     }
 }

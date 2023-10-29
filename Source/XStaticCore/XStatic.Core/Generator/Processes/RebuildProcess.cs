@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +11,7 @@ using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Headless;
 using XStatic.Core.Generator.Jobs;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Helpers;
@@ -24,18 +26,21 @@ namespace XStatic.Core.Generator.Processes
         private ISitesRepository _sitesRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IActionFactory _actionFactory;
+        private readonly IHeadlessApiRequestService _headlessApiRequestService;
 
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository repo,
             IWebHostEnvironment webHostEnvironment,
-            IActionFactory actionFactory)
+            IActionFactory actionFactory,
+            IHeadlessApiRequestService headlessApiRequestService)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _exportTypeService = exportTypeService;
             _sitesRepo = repo;
             _webHostEnvironment = webHostEnvironment;
             _actionFactory = actionFactory;
+            _headlessApiRequestService = headlessApiRequestService;
         }
 
         public async Task<RebuildProcessResult> RebuildSite(int staticSiteId)
@@ -44,6 +49,7 @@ namespace XStatic.Core.Generator.Processes
             stopwatch.Start();
 
             var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
+            var allApiRequests = _headlessApiRequestService.GetApiRequests();
 
             if (entity?.ExportFormat == null)
             {
@@ -66,6 +72,17 @@ namespace XStatic.Core.Generator.Processes
                     AddMediaCropsToBuilder(entity, builder);
 
                     AddAssetsToBuilder(entity, builder);
+
+                    foreach(var api in entity.HeadlessApiRequestIds)
+                    {
+                        var data = allApiRequests.FirstOrDefault(a => a.Id == api);
+
+                        if(data != null)
+                        {
+                            if(data.)
+                            builder.AddHeadlessApiRequest()
+                        }
+                    }
 
                     var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
                     var transformers = listFactory.BuildTransformers(entity);

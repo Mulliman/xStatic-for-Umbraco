@@ -5,6 +5,7 @@ using XStatic.Core.Actions.FileActions;
 using XStatic.Core.AutoPublish;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Headless;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Repositories;
@@ -34,6 +35,14 @@ namespace XStatic.Core.App
         {
             _services.AddSingleton<IExportTypeService, DatabaseExportTypeService>();
             _services.AddSingleton<IExportTypeRepository, ExportTypeRepository>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultHeadlessServices()
+        {
+            _services.AddSingleton<IHeadlessApiRequestService, DatabaseHeadlessApiRequestService>();
+            _services.AddSingleton<IHeadlessApiRequestRespository, TestHeadlessApiRequestRepository>();
 
             return this;
         }
@@ -107,6 +116,7 @@ namespace XStatic.Core.App
             return AddDefaultSiteRepository()
                 .AddDefaultComponentLists()
                 .AddDefaultExportTypeServices()
+                .AddDefaultHeadlessServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
                 .AddDefaultHtmlGeneratorServices()

@@ -22,13 +22,13 @@ namespace XStatic.Controllers
         private readonly IUmbracoContextFactory _context;
 
         private readonly IStaticSiteStorer _storer;
-        private readonly IExportTypeRepository _exportTypeRepo;
+        private readonly IHeadlessApiRequestRespository _exportTypeRepo;
         private ISitesRepository _sitesRepo;
 
         public SitesController(IUmbracoContextFactory context,
             ISitesRepository sitesRepository,
             IStaticSiteStorer storer,
-            IExportTypeRepository exportTypeRepo)
+            IHeadlessApiRequestRespository exportTypeRepo)
         {
             _context = context;
             _sitesRepo = sitesRepository;

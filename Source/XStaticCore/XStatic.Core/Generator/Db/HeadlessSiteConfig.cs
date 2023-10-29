@@ -1,16 +1,15 @@
 ﻿using NPoco;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace XStatic.Core.Generator.Db
 {
     [TableName(TableName)]
     [PrimaryKey("Id", AutoIncrement = true)]
-    public class SiteConfig : ISiteConfig
+    public class HeadlessSiteConfig : ISiteConfig
     {
-        public const string TableName = "XStaticSiteConfigs";
+        public const string TableName = "XStaticHeadlessSiteConfigs";
 
         #region Common
 
@@ -50,8 +49,8 @@ namespace XStatic.Core.Generator.Db
 
         public bool DefaultUsePreview { get; set; }
 
-        //[SerializedColumn]
-        public List<int> HeadlessApiRequestIds => new [] { 1, 2}.ToList(); 
+        [SerializedColumn]
+        public List<int> HeadlessApiRequestIds { get; set; }
 
         #endregion
 
@@ -90,14 +89,5 @@ namespace XStatic.Core.Generator.Db
         public int? LastDeployDurationInSeconds { get; set; }
 
         #endregion
-    }
-
-    public class DeploymentTargetModel : IDeploymentTarget
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public Dictionary<string, string> Fields { get; set; }
     }
 }

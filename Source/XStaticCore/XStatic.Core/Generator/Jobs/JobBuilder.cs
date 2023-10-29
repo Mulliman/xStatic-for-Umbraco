@@ -56,6 +56,16 @@ namespace XStatic.Core.Generator.Jobs
             return this;
         }
 
+        public JobBuilder AddHeadlessApiRequest(string requestPath, string storagePath, Dictionary<string, string> headers)
+        {
+            if (requestPath == null) return this;
+            if (storagePath == null) return this;
+
+            job.ApiTasks.Add(new Headless.HeadlessApiTask(requestPath, storagePath, headers));
+
+            return this;
+        }
+
         public JobBuilder AddMedia(IPublishedContent media)
         {
             if (media == null) return this;

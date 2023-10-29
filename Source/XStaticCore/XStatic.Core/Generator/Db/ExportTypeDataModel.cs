@@ -1,6 +1,7 @@
 ﻿using NPoco;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Headless;
 
 namespace XStatic.Core.Generator.Db
 {

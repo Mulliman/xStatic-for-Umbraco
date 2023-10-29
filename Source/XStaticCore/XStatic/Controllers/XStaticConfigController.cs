@@ -20,7 +20,7 @@ namespace XStatic.Controllers
     {
         private readonly IDeployerService _deployerService;
         private readonly IExportTypeService _exportTypeService;
-        private readonly IExportTypeRepository _repo;
+        private readonly IHeadlessApiRequestRespository _repo;
         private readonly GeneratorList _generatorList;
         private readonly TransformerList _transformerList;
         private readonly FileNameGeneratorList _fileNameGeneratorList;
@@ -28,7 +28,7 @@ namespace XStatic.Controllers
 
         public XStaticConfigController(IDeployerService deployerService,
             IExportTypeService exportTypeService,
-            IExportTypeRepository repo,
+            IHeadlessApiRequestRespository repo,
             GeneratorList generatorList,
             TransformerList transformerList,
             FileNameGeneratorList fileNameGeneratorList,
