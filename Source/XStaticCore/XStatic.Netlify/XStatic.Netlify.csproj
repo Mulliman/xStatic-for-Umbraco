@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ContentTargetFolders>.</ContentTargetFolders>
 		<Product>xStatic.Netlify</Product>
 		<PackageId>xStatic.Netlify</PackageId>
 		<Title>xStatic.Netlify</Title>
-		<Version>3.0.2-beta</Version>
+		<Version>13.0.0</Version>
 		<Description>Netlify functionality for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco10 xstatic static site generation netlify</PackageTags>
+		<PackageTags>umbraco umbraco13 xstatic static site generation netlify</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -24,8 +24,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="10.2.1" />
-		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.2.1" />
+		<PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="13.4.1" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.4.1" />
 	</ItemGroup>
 
 	<ItemGroup>
