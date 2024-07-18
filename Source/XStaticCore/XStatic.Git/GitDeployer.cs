@@ -70,14 +70,14 @@ namespace XStatic.Git
 
                 Directory.Move(folderPath, tempdir);
 
-                string clonedRepoPath = Repository.Clone(_remoteUrl, folderPath, new CloneOptions()
+                var cloneOptions = new CloneOptions();
+                cloneOptions.FetchOptions.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
                 {
-                    CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
-                    {
-                        Username = _username,
-                        Password = _password,
-                    }
-                });
+                    Username = _username,
+                    Password = _password,
+                };
+
+                string clonedRepoPath = Repository.Clone(_remoteUrl, folderPath, cloneOptions);
 
                 FileHelpers.CopyFilesInFolder(tempdir, folderPath);
                 Directory.Delete(tempdir, true);
