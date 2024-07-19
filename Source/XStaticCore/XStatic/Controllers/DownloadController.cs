@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.IO.Compression;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
 using XStatic.Core;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
@@ -10,17 +10,12 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Controllers
 {
-    [PluginController("xstatic")]
-    public class DownloadController : UmbracoAuthorizedApiController
+    [VersionedApiBackOfficeRoute("xstatic/download")]
+    [ApiExplorerSettings(GroupName = "xStatic")]
+    public class DownloadController(IStaticSiteStorer storer, ISitesRepository sitesRepo) : ManagementApiControllerBase
     {
-        private readonly IStaticSiteStorer _storer;
-        private ISitesRepository _sitesRepo;
-
-        public DownloadController(IStaticSiteStorer storer, ISitesRepository sitesRepo)
-        {
-            _storer = storer;
-            _sitesRepo = sitesRepo;
-        }
+        private readonly IStaticSiteStorer _storer = storer;
+        private readonly ISitesRepository _sitesRepo = sitesRepo;
 
         [HttpGet]
         public FileStreamResult DownloadStaticSite(int staticSiteId)

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
 using XStatic.Core;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Processes;
@@ -11,21 +11,14 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Controllers
 {
-    [PluginController("xstatic")]
-    public class DeployController : UmbracoAuthorizedJsonController
+    [VersionedApiBackOfficeRoute("xstatic/deploy")]
+    [ApiExplorerSettings(GroupName = "xStatic")]
+    public class DeployController(IStaticSiteStorer storer, IDeployerService deployerService, ISitesRepository sitesRepository, ILogger<DeployController> logger) : ManagementApiControllerBase
     {
-        private readonly IStaticSiteStorer _storer;
-        private readonly IDeployerService _deployerService;
-        private readonly ISitesRepository _sitesRepo;
-        private readonly ILogger<DeployController> _logger;
-
-        public DeployController(IStaticSiteStorer storer, IDeployerService deployerService, ISitesRepository sitesRepository, ILogger<DeployController> logger)
-        {
-            _storer = storer;
-            _deployerService = deployerService;
-            _sitesRepo = sitesRepository;
-            _logger = logger;
-        }
+        private readonly IStaticSiteStorer _storer = storer;
+        private readonly IDeployerService _deployerService = deployerService;
+        private readonly ISitesRepository _sitesRepo = sitesRepository;
+        private readonly ILogger<DeployController> _logger = logger;
 
         [HttpGet]
         public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)

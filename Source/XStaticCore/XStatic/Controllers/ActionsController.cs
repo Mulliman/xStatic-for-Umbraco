@@ -2,23 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.Db;
 using XStatic.Core.Models;
 
 namespace XStatic.Controllers
 {
-    [PluginController("xstatic")]
-    public class ActionsController : UmbracoAuthorizedJsonController
+    [VersionedApiBackOfficeRoute("xstatic/actions")]
+    [ApiExplorerSettings(GroupName = "xStatic")]
+    public class ActionsController(IActionRepository repo) : ManagementApiControllerBase
     {
-        private readonly IActionRepository _repo;
-
-        public ActionsController(IActionRepository repo)
-        {
-            _repo = repo;
-        }
+        private readonly IActionRepository _repo = repo;
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

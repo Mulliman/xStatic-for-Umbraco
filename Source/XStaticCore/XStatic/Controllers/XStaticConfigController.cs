@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
 using XStatic.Core.Generator;
@@ -15,33 +14,23 @@ using XStatic.Core.Models;
 
 namespace XStatic.Controllers
 {
-    [PluginController("xstatic")]
-    public class XStaticConfigController : UmbracoAuthorizedJsonController
+    [VersionedApiBackOfficeRoute("xstatic/config")]
+    [ApiExplorerSettings(GroupName = "xStatic")]
+    public class XStaticConfigController(IDeployerService deployerService,
+        IExportTypeService exportTypeService,
+        IExportTypeRepository repo,
+        GeneratorList generatorList,
+        TransformerList transformerList,
+        FileNameGeneratorList fileNameGeneratorList,
+        PostGenerationActionsList postGenerationActionsList) : ManagementApiControllerBase
     {
-        private readonly IDeployerService _deployerService;
-        private readonly IExportTypeService _exportTypeService;
-        private readonly IExportTypeRepository _repo;
-        private readonly GeneratorList _generatorList;
-        private readonly TransformerList _transformerList;
-        private readonly FileNameGeneratorList _fileNameGeneratorList;
-        private readonly PostGenerationActionsList _postGenerationActionsList;
-
-        public XStaticConfigController(IDeployerService deployerService,
-            IExportTypeService exportTypeService,
-            IExportTypeRepository repo,
-            GeneratorList generatorList,
-            TransformerList transformerList,
-            FileNameGeneratorList fileNameGeneratorList,
-            PostGenerationActionsList postGenerationActionsList)
-        {
-            _deployerService = deployerService;
-            _exportTypeService = exportTypeService;
-            _repo = repo;
-            _generatorList = generatorList;
-            _transformerList = transformerList;
-            _fileNameGeneratorList = fileNameGeneratorList;
-            _postGenerationActionsList = postGenerationActionsList;
-        }
+        private readonly IDeployerService _deployerService = deployerService;
+        private readonly IExportTypeService _exportTypeService = exportTypeService;
+        private readonly IExportTypeRepository _repo = repo;
+        private readonly GeneratorList _generatorList = generatorList;
+        private readonly TransformerList _transformerList = transformerList;
+        private readonly FileNameGeneratorList _fileNameGeneratorList = fileNameGeneratorList;
+        private readonly PostGenerationActionsList _postGenerationActionsList = postGenerationActionsList;
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
