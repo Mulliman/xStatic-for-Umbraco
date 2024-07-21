@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31019.35
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic", "XStatic\XStatic.csproj", "{0B565F30-023F-4B4C-BD6C-01EDAEA9D166}"
 EndProject
@@ -16,6 +16,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic.Ftp", "XStatic.Ftp\XStatic.Ftp.csproj", "{0458F77A-9EE8-4829-A622-8FFC9208B5FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic.UmbracoContentApi", "XStatic.UmbracoContentApi\XStatic.UmbracoContentApi.csproj", "{399EAE9A-03D1-49E1-9289-19D3B53F6D52}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "14Plus", "14Plus", "{CFBCA908-713C-4639-B43D-E5FBA4E2666C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14", "XStatic14\XStatic14\XStatic14.csproj", "{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14.Client", "XStatic14\XStatic14.Client\XStatic14.Client.csproj", "{5788ED5B-7177-4676-A570-098213B8E784}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14.Website", "XStatic14\XStatic14.Website\XStatic14.Website.csproj", "{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +55,18 @@ Global
 		{399EAE9A-03D1-49E1-9289-19D3B53F6D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{399EAE9A-03D1-49E1-9289-19D3B53F6D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{399EAE9A-03D1-49E1-9289-19D3B53F6D52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5788ED5B-7177-4676-A570-098213B8E784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5788ED5B-7177-4676-A570-098213B8E784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5788ED5B-7177-4676-A570-098213B8E784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5788ED5B-7177-4676-A570-098213B8E784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,6 +76,9 @@ Global
 		{AC1C7F51-5220-4F56-AAA6-DBA1E1835B6A} = {314A3A25-88AA-4B6D-972D-3A98E9ECB80D}
 		{0458F77A-9EE8-4829-A622-8FFC9208B5FA} = {314A3A25-88AA-4B6D-972D-3A98E9ECB80D}
 		{399EAE9A-03D1-49E1-9289-19D3B53F6D52} = {314A3A25-88AA-4B6D-972D-3A98E9ECB80D}
+		{D7D2EFE3-26E1-4999-87CA-78E4577CC37A} = {CFBCA908-713C-4639-B43D-E5FBA4E2666C}
+		{5788ED5B-7177-4676-A570-098213B8E784} = {CFBCA908-713C-4639-B43D-E5FBA4E2666C}
+		{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9} = {CFBCA908-713C-4639-B43D-E5FBA4E2666C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F379456F-DE78-46F5-B1E2-7CE04B51346A}

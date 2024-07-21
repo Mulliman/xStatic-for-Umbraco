@@ -1,0 +1,21 @@
+{
+    "$schema": "../umbraco-package-schema.json",
+    "name": "XStatic14",
+    "id": "XStatic14",
+    "version": "14.0.0",
+    "allowTelemetry": true,
+    "extensions": [
+        {
+            "name": "xStatic",
+            "type": "backofficeEntryPoint",
+            "alias": "My.Custom.Section",
+            "js": "/app_plugins/XStatic14/assets.js"
+        },
+        {
+            "name": "XStatic14.entrypoint",
+            "alias": "XStatic14.EntryPoint",
+            "type": "entryPoint",
+            "js": "/app_plugins/XStatic14/assets.js"
+        }
+    ]
+}
