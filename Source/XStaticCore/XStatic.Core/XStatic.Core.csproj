@@ -23,10 +23,10 @@
     <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="14.1.1" />
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="14.1.1" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.1.1" />
-	<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.1.1" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="14.0.0" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="14.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.0.0" />
+	<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
 	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
   </ItemGroup>
 

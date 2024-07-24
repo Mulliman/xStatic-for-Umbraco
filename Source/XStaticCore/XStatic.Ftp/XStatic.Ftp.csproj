@@ -26,7 +26,7 @@
     <ItemGroup>
         <PackageReference Include="FluentFTP" Version="35.0.5" />
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.1.1" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
     </ItemGroup>
 
     <ItemGroup>

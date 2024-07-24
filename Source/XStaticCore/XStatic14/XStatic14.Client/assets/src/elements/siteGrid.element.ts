@@ -1,9 +1,13 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
+import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { Site, exampleSite, exampleSite2 } from '../models/site';
 import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
+import { V1Service } from '../api/services';
 
 import "./siteElement.element";
+import "./newSiteElement.element";
+import { SiteApiModel } from '../api';
 
 @customElement('xstatic-site-grid')
 class SiteGrid extends UmbElementMixin(LitElement) {
@@ -12,7 +16,7 @@ class SiteGrid extends UmbElementMixin(LitElement) {
     isLoaded = false;
 
     @state()
-    sites?: Array<Site>;
+    sites?: Array<SiteApiModel>;
 
     static styles = css`
         :host {
@@ -31,8 +35,17 @@ class SiteGrid extends UmbElementMixin(LitElement) {
     async connectedCallback() {
         super.connectedCallback();
         
-        console.log('fetching sites');
-        this.sites = [exampleSite, exampleSite2];
+        console.log('fetching sites proper');
+
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticGetAll());
+
+        if(data){
+            this.sites = data;
+            this.isLoaded = true;
+        }
+        
+
+        // this.sites = [exampleSite, exampleSite2];
     }
 
     #renderSites() {
@@ -57,6 +70,7 @@ class SiteGrid extends UmbElementMixin(LitElement) {
         }
 
         return html`
+            <xstatic-new-site-element></xstatic-new-site-element>
             ${this.#renderSites()}
         `;
     }
