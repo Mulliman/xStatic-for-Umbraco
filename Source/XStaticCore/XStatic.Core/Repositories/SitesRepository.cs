@@ -71,7 +71,7 @@ namespace XStatic.Core.Repositories
                 entity.DeploymentTarget = update.DeploymentTarget;
                 entity.ExportFormat = update.ExportFormat;
                 entity.ImageCrops = update.ImageCrops;
-                entity.MediaRootNodes = update.MediaRootNodes;
+                entity.MediaRootNodes = SiteConfig.SerializeMediaRootNodes(update.MediaRootNodes);
                 entity.RootNode = update.RootNode;
                 entity.TargetHostname = update.TargetHostname;
                 entity.PostGenerationActionIds = update.PostGenerationActionIds;
@@ -102,7 +102,7 @@ namespace XStatic.Core.Repositories
                 entity.DeploymentTarget = update.DeploymentTarget;
                 entity.ExportFormat = update.ExportFormat;
                 entity.ImageCrops = update.ImageCrops;
-                entity.MediaRootNodes = update.MediaRootNodes;
+                entity.MediaRootNodes = SiteConfig.SerializeMediaRootNodes(update.MediaRootNodes);
                 entity.RootNode = update.RootNode;
                 entity.TargetHostname = update.TargetHostname;
                 entity.PostGenerationActionIds = update.PostGenerationActionIds;

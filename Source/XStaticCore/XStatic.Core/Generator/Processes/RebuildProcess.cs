@@ -56,8 +56,7 @@ namespace XStatic.Core.Generator.Processes
                 {
                     IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
 
-                    int rootNodeId = entity.RootNode;
-                    var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);
+                    var rootNode = umbracoContext.UmbracoContext.Content.GetById(entity.RootNode);
 
                     var builder = new JobBuilder(entity.Id, fileNamer)
                         .AddPageWithDescendants(rootNode);

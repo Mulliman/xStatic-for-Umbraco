@@ -1,6 +1,7 @@
 ﻿using NPoco;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace XStatic.Core.Generator.Db
@@ -9,7 +10,7 @@ namespace XStatic.Core.Generator.Db
     [PrimaryKey("Id", AutoIncrement = true)]
     public class SiteConfig : ISiteConfig
     {
-        public const string TableName = "XStaticSiteConfigs";
+        public const string TableName = "XStaticSiteConfigs14Plus";
 
         [PrimaryKeyColumn(AutoIncrement = true)]
         public int Id { get; set; }
@@ -18,7 +19,7 @@ namespace XStatic.Core.Generator.Db
 
         public bool AutoPublish { get; set; }
 
-        public int RootNode { get; set; }
+        public Guid RootNode { get; set; }
 
         public string MediaRootNodes { get; set; }
 
@@ -48,6 +49,26 @@ namespace XStatic.Core.Generator.Db
         {
             return DeploymentTarget;
         }
+
+        public IEnumerable<Guid> GetMediaRootNodes()
+        {
+            if (string.IsNullOrWhiteSpace(MediaRootNodes))
+            {
+                return new List<Guid>();
+            }
+
+            return MediaRootNodes.Split(',').Select(Guid.Parse);
+        }
+
+        public static string SerializeMediaRootNodes(IEnumerable<Guid> mediaNodes)
+        {
+            if (mediaNodes?.Any() != true)
+            {
+                return string.Empty;
+            }
+
+            return mediaNodes.Select(x => x.ToString()).Aggregate((x, y) => $"{x},{y}");
+        }
     }
 
     public class DeploymentTargetModel : IDeploymentTarget
@@ -57,5 +78,14 @@ namespace XStatic.Core.Generator.Db
         public string Name { get; set; }
 
         public Dictionary<string, string> Fields { get; set; }
+    }
+
+    public class DeploymentTargetField
+    {
+        public string FieldType { get; set; }
+
+        public string Value { get; set; }
+
+        public bool IsMandatory { get; set; }
     }
 }

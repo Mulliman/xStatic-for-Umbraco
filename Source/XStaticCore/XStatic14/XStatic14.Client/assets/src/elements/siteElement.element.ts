@@ -8,6 +8,8 @@ import type {
     UmbTableItem,
   } from "@umbraco-cms/backoffice/components";
 import { SiteApiModel } from '../api';
+import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { EditSiteModal } from '../dialogs/site/editSiteDialog';
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {
@@ -42,6 +44,12 @@ class SiteElement extends UmbElementMixin(LitElement) {
             margin-top: 20px;
         }
     `;
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
+            manager.open(this, EditSiteModal, { data: { content: this.site!, headline: `Edit ${this.site?.name} site` } });
+        } )
+    }
 
     getSiteTable() : Array<UmbTableItem> {
 
@@ -128,7 +136,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
             <uui-box>
                 <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${site.name}</div>
                 <div slot="header-actions" >
-                    <uui-button pristine="" label="Edit" color="warning" look="primary"><uui-icon name="icon-brush"></uui-icon></uui-button>
+                    <uui-button pristine="" label="Edit" color="warning" look="primary" @click=${() => this.#openCreateDialog()}><uui-icon name="icon-brush"></uui-icon></uui-button>
                     <uui-button pristine="" label="Delete" color="danger" look="primary"><uui-icon name="icon-trash"></uui-icon></uui-button>
                 </div>
                 

@@ -15,9 +15,9 @@ namespace XStatic.Models
 
         public bool AutoPublish { get; set; }
 
-        public int RootNode { get; set; }
+        public Guid RootNode { get; set; }
 
-        public string MediaRootNodes { get; set; }
+        public IEnumerable<Guid> MediaRootNodes { get; set; }
 
         public int ExportFormat { get; set; }
 
@@ -55,7 +55,7 @@ namespace XStatic.Models
             FolderSize = site.FolderSize;
             AutoPublish = site.AutoPublish;
             RootNode = site.RootNode;
-            MediaRootNodes = site.MediaRootNodes;
+            MediaRootNodes = site.GetMediaRootNodes();
             ExportFormat = site.ExportFormat;
             LastRun = site.LastRun;
             LastBuildDurationInSeconds = site.LastBuildDurationInSeconds;

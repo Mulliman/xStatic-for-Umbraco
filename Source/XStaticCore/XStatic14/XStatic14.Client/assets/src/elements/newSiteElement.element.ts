@@ -1,9 +1,17 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement, property, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
+import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { EditSiteModal } from '../dialogs/site/editSiteDialog';
 
 @customElement('xstatic-new-site-element')
 class NewSiteElement extends UmbElementMixin(LitElement) {
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
+            manager.open(this, EditSiteModal, {});
+        } )
+    }
 
     static styles = css`
         :host {
@@ -29,9 +37,9 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
 
         return html`
             <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">Create new site</div>
+                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">Create new site sam</div>
                 <div slot="header-actions" >
-                    <uui-button pristine="" label="Create" color="positive" look="primary"><uui-icon name="icon-add"></uui-icon></uui-button>
+                    <uui-button pristine="" label="Create" color="positive" look="primary" @click=${this.#openCreateDialog}><uui-icon name="icon-add"></uui-icon></uui-button>
                 </div>
                 
                 <div style="position:relative; display: block">
@@ -42,7 +50,7 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
                     </div>
                     <div class="buttons">
                         <uui-button-group>
-                            <uui-button label="Create new static site" color="positive" look="primary" icon="icon-brush"></uui-button>
+                            <uui-button label="Create new static site" color="positive" look="primary" icon="icon-brush" @click=${this.#openCreateDialog}></uui-button>
                         </uui-button-group>
                     </div>
                 </div>

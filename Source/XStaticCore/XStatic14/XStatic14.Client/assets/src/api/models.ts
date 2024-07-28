@@ -24,8 +24,8 @@ export type SiteApiModel = {
         id: number
 name?: string | null
 autoPublish: boolean
-rootNode: number
-mediaRootNodes?: string | null
+rootNode: string
+mediaRootNodes?: Array<string> | null
 exportFormat: number
 lastRun?: string | null
 lastBuildDurationInSeconds?: number | null
@@ -45,7 +45,7 @@ export type SiteConfig = {
         id: number
 name?: string | null
 autoPublish: boolean
-rootNode: number
+rootNode: string
 mediaRootNodes?: string | null
 exportFormat: number
 lastRun?: string | null
@@ -63,8 +63,8 @@ export type SiteUpdateModel = {
         id: number
 name?: string | null
 autoPublish: boolean
-rootNode: number
-mediaRootNodes?: string | null
+rootNode: string
+mediaRootNodes?: Array<string> | null
 exportFormat: number
 assetPaths?: string | null
 targetHostname?: string | null

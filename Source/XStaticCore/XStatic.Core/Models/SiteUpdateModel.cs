@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Models
@@ -11,9 +12,9 @@ namespace XStatic.Core.Models
 
         public bool AutoPublish { get; set; }
 
-        public int RootNode { get; set; }
+        public Guid RootNode { get; set; }
 
-        public string MediaRootNodes { get; set; }
+        public IEnumerable<Guid> MediaRootNodes { get; set; }
 
         public int ExportFormat { get; set; }
 

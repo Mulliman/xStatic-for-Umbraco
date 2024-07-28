@@ -11,7 +11,7 @@ namespace XStatic.Core.Generator
 
         bool AutoPublish { get; set; }
 
-        int RootNode { get; set; }
+        Guid RootNode { get; set; }
 
         string MediaRootNodes { get; set; }
 
