@@ -2,7 +2,7 @@ import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement, property, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditSiteModal } from '../dialogs/site/editSiteDialog';
+import { EditSiteModal } from './dialog.editSite';
 
 @customElement('xstatic-new-site-element')
 class NewSiteElement extends UmbElementMixin(LitElement) {

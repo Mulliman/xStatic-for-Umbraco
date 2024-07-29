@@ -6,6 +6,7 @@ import { SiteApiModel, SiteUpdateModel, V1Service } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 
 export interface EditSiteModalData {
     headline?: string;
@@ -30,8 +31,23 @@ export const EditSiteModal = new UmbModalToken<EditSiteModalData, EditSiteModalV
 export class EditSiteModalElement extends
     UmbModalBaseElement<EditSiteModalData, EditSiteModalValue>
 {
+    #siteContext?: SiteContext;
+
+    @state()
+    content: SiteApiModel = {} as SiteApiModel;
+
+    @state() 
+    _values: Array<UmbPropertyValueData> = [];
+
     constructor() {
         super();
+
+        this.consumeContext(
+            SITE_CONTEXT_TOKEN,
+            (context) => {
+              this.#siteContext = context;
+            }
+          );
     }
 
     connectedCallback(): void {
@@ -63,12 +79,6 @@ export class EditSiteModalElement extends
         }
     }
 
-    @state()
-    content: SiteApiModel = {} as SiteApiModel;
-
-    @state() 
-    _values: Array<UmbPropertyValueData> = [];
-
     async #handleConfirm() {
         if (!this._values) {
             throw new Error('No data provided');
@@ -78,9 +88,13 @@ export class EditSiteModalElement extends
 
         var postModel = this.createPostModel();
 
-        const { data } = postModel.id > 0
-            ? await tryExecuteAndNotify(this, V1Service.postApiV1XstaticUpdate({ requestBody: postModel }))
-            : await tryExecuteAndNotify(this, V1Service.postApiV1XstaticCreate({ requestBody: postModel }));
+        // const { data } = postModel.id > 0
+        //     ? await tryExecuteAndNotify(this, V1Service.postApiV1XstaticUpdate({ requestBody: postModel }))
+        //     : await tryExecuteAndNotify(this, V1Service.postApiV1XstaticCreate({ requestBody: postModel }));
+
+        const data = postModel.id > 0
+            ? await this.#siteContext!.updateSite(postModel)
+            : await this.#siteContext!.createSite(postModel);
 
         if(data) {
             this.modalContext?.submit();

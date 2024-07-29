@@ -111,12 +111,12 @@ namespace XStatic.Controllers
 
         [HttpPost("create")]
         [MapToApiVersion("1.0")]
-        [ProducesResponseType(typeof(SiteConfig), StatusCodes.Status200OK)]
-        public SiteConfig Create([FromBody] SiteUpdateModel site)
+        [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
+        public SiteApiModel Create([FromBody] SiteUpdateModel site)
         {
             var entity = _sitesRepo.Create(site);
 
-            return entity;
+            return new SiteApiModel(entity);
         }
 
         [HttpPost("update")]

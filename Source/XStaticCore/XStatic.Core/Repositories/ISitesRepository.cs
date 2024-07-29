@@ -6,7 +6,7 @@ namespace XStatic.Core.Repositories
 {
     public interface ISitesRepository
     {
-        SiteConfig Create(SiteUpdateModel update);
+        ExtendedGeneratedSite Create(SiteUpdateModel update);
 
         T Get<T>(int staticSiteId) where T : SiteConfig;
 

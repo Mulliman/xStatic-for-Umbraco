@@ -57,7 +57,7 @@ namespace XStatic.Core.Repositories
             return sites.FirstOrDefault();
         }
 
-        public virtual SiteConfig Create(SiteUpdateModel update)
+        public virtual ExtendedGeneratedSite Create(SiteUpdateModel update)
         {
             using IScope scope = _scopeProvider.CreateScope();
 
@@ -83,9 +83,11 @@ namespace XStatic.Core.Repositories
                 throw new XStaticException("Unable to insert into the database.");
             }
 
+            var newEntity = Get<ExtendedGeneratedSite>(entity.Id);
+
             scope.Complete();
 
-            return entity;
+            return newEntity;
         }
 
         public virtual ExtendedGeneratedSite Update(SiteUpdateModel update)

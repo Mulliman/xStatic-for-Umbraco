@@ -1,13 +1,11 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { Site, exampleSite, exampleSite2 } from '../models/site';
 import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
-import { V1Service } from '../api/services';
+import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 
-import "./siteElement.element";
-import "./newSiteElement.element";
-import { SiteApiModel } from '../api';
+import "./element.site";
+import "./element.newSite";
+import { SiteApiModel } from '../../api';
 
 @customElement('xstatic-site-grid')
 class SiteGrid extends UmbElementMixin(LitElement) {
@@ -17,6 +15,8 @@ class SiteGrid extends UmbElementMixin(LitElement) {
 
     @state()
     sites?: Array<SiteApiModel>;
+
+    #siteContext?: SiteContext;
 
     static styles = css`
         :host {
@@ -32,20 +32,27 @@ class SiteGrid extends UmbElementMixin(LitElement) {
         }
     `;
 
+    constructor() {
+        super();
+
+        this.consumeContext(
+            SITE_CONTEXT_TOKEN,
+            (context) => {
+              this.#siteContext = context;
+            }
+          );
+    }
+
     async connectedCallback() {
         super.connectedCallback();
-        
-        console.log('fetching sites proper');
 
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticGetAll());
-
-        if(data){
-            this.sites = data;
+        this.#siteContext!.getSites().then(() => {
             this.isLoaded = true;
-        }
-        
+        });
 
-        // this.sites = [exampleSite, exampleSite2];
+        this.observe(this.#siteContext?.sites, (sites) => {
+            this.sites = sites;
+        });
     }
 
     #renderSites() {

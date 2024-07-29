@@ -7,9 +7,9 @@ import type {
     UmbTableConfig,
     UmbTableItem,
   } from "@umbraco-cms/backoffice/components";
-import { SiteApiModel } from '../api';
+import { SiteApiModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditSiteModal } from '../dialogs/site/editSiteDialog';
+import { EditSiteModal } from './dialog.editSite';
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {

@@ -41,24 +41,6 @@ exportTypeName?: string | null
 folderSize?: string | null
     };
 
-export type SiteConfig = {
-        id: number
-name?: string | null
-autoPublish: boolean
-rootNode: string
-mediaRootNodes?: string | null
-exportFormat: number
-lastRun?: string | null
-lastBuildDurationInSeconds?: number | null
-lastDeployed?: string | null
-lastDeployDurationInSeconds?: number | null
-assetPaths?: string | null
-targetHostname?: string | null
-imageCrops?: string | null
-deploymentTarget?: DeploymentTargetModel | null
-postGenerationActionIds?: Array<number> | null
-    };
-
 export type SiteUpdateModel = {
         id: number
 name?: string | null
@@ -97,7 +79,7 @@ PostApiV1XstaticUpdate: {
         
         responses: {
             DeleteApiV1XstaticClearStoredSite: Array<SiteApiModel>
-                ,PostApiV1XstaticCreate: SiteConfig
+                ,PostApiV1XstaticCreate: SiteApiModel
                 ,DeleteApiV1XstaticDelete: string
                 ,GetApiV1XstaticGetAll: Array<SiteApiModel>
                 ,PostApiV1XstaticUpdate: SiteApiModel
