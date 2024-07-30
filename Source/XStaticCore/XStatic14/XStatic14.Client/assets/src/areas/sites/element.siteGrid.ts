@@ -23,7 +23,8 @@ class SiteGrid extends UmbElementMixin(LitElement) {
             position: relative;
             display: grid;
             grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(450px,1fr));
+            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
+            grid-auto-rows: 1fr
         }
 
         :host > div{
