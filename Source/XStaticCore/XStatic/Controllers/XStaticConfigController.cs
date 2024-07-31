@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Api.Common.Attributes;
+using Umbraco.Cms.Api.Common.Filters;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Web.Common.Authorization;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
 using XStatic.Core.Generator;
@@ -14,15 +18,19 @@ using XStatic.Core.Models;
 
 namespace XStatic.Controllers
 {
-    [VersionedApiBackOfficeRoute("xstatic/config")]
-    [ApiExplorerSettings(GroupName = "xStatic")]
+    [ApiController]
+    [ApiVersion("1.0")]
+    [MapToApi("xstatic-v1")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
+    [Route("api/v{version:apiVersion}/xstatic/config")]
     public class XStaticConfigController(IDeployerService deployerService,
         IExportTypeService exportTypeService,
         IExportTypeRepository repo,
         GeneratorList generatorList,
         TransformerList transformerList,
         FileNameGeneratorList fileNameGeneratorList,
-        PostGenerationActionsList postGenerationActionsList) : ManagementApiControllerBase
+        PostGenerationActionsList postGenerationActionsList) : Controller
     {
         private readonly IDeployerService _deployerService = deployerService;
         private readonly IExportTypeService _exportTypeService = exportTypeService;
@@ -32,8 +40,9 @@ namespace XStatic.Controllers
         private readonly FileNameGeneratorList _fileNameGeneratorList = fileNameGeneratorList;
         private readonly PostGenerationActionsList _postGenerationActionsList = postGenerationActionsList;
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("get-config")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(XStaticConfig), StatusCodes.Status200OK)]
         public ActionResult<XStaticConfig> Get()
         {
             var deployers = _deployerService.GetDefinitions();
@@ -50,7 +59,9 @@ namespace XStatic.Controllers
             };
         }
 
-        [HttpPost]
+        [HttpPost("create-export-type")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(ExportTypeModel), StatusCodes.Status200OK)]
         public ExportTypeModel CreateExportType([FromBody] ExportTypeUpdateModel model)
         {
             var dataModel = new ExportTypeDataModel
@@ -66,7 +77,9 @@ namespace XStatic.Controllers
             return new ExportTypeModel(entity);
         }
 
-        [HttpPost]
+        [HttpPost("update-export-type")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(ExportTypeModel), StatusCodes.Status200OK)]
         public ExportTypeModel UpdateExportType([FromBody] ExportTypeUpdateModel model)
         {
             var dataModel = new ExportTypeDataModel
@@ -83,7 +96,9 @@ namespace XStatic.Controllers
             return new ExportTypeModel(entity);
         }
 
-        [HttpDelete]
+        [HttpDelete("delete-export-type")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public void DeleteExportType(int id)
         {
             _repo.Delete(id);

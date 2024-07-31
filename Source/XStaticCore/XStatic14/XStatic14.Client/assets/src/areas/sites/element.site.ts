@@ -6,12 +6,12 @@ import type {
     xStaticTableColumn,
     xStaticTableConfig,
     xStaticTableItem,
-  } from "./element.siteTable";
+  } from "../../elements/element.siteTable";
 import { SiteApiModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditSiteModal } from './dialog.editSite';
 
-import "./element.siteTable";
+import "../../elements/element.siteTable";
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {

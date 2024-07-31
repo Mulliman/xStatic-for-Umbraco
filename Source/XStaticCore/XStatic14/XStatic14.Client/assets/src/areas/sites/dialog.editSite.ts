@@ -1,11 +1,10 @@
-import { customElement, html, property, state } from "@umbraco-cms/backoffice/external/lit";
+import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { SiteApiModel, SiteUpdateModel, V1Service } from "../../api";
+import { SiteApiModel, SiteUpdateModel } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 
 export interface EditSiteModalData {
@@ -71,11 +70,6 @@ export class EditSiteModalElement extends
             ];
 
             console.log('values', this._values);
-
-            // this._values = Object.keys(model).map((fieldName) => ({
-            //     alias: fieldName,
-            //     value: (model as any)[fieldName],
-            // } as UmbPropertyValueData));
         }
     }
 
@@ -84,13 +78,7 @@ export class EditSiteModalElement extends
             throw new Error('No data provided');
         }
 
-        // this.value = { content: this.data?.content };
-
         var postModel = this.createPostModel();
-
-        // const { data } = postModel.id > 0
-        //     ? await tryExecuteAndNotify(this, V1Service.postApiV1XstaticUpdate({ requestBody: postModel }))
-        //     : await tryExecuteAndNotify(this, V1Service.postApiV1XstaticCreate({ requestBody: postModel }));
 
         const data = postModel.id > 0
             ? await this.#siteContext!.updateSite(postModel)
@@ -240,16 +228,6 @@ export class EditSiteModalElement extends
             propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
         }
     ];
-
-    #onPropertyValueChange(e: Event) {
-        const newValue = (e.target as UmbPropertyDatasetElement).value;
-        this.baseProperties = this.baseProperties.map((p) => ({
-            ...p,
-            ...{ value: newValue.find((x) => x.alias === p.alias)?.value },
-        }));
-
-        this.requestUpdate();
-    }
 
     #onPropertyDataChange(e: Event) {
         // Grab the value

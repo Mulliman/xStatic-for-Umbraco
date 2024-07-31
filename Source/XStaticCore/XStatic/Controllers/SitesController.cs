@@ -2,10 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,11 +10,8 @@ using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.OpenApi;
 using Umbraco.Cms.Api.Management.Routing;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Authorization;
@@ -32,32 +25,12 @@ using XStatic.Models;
 
 namespace XStatic.Controllers
 {
-    public class XStaticBackOfficeSecurityRequirementsOperationFilter : BackOfficeSecurityRequirementsOperationFilterBase
-    {
-        protected override string ApiName => "xstatic-sites-v1";
-    }
-
-    public class XStaticConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenOptions>
-    {
-        public void Configure(SwaggerGenOptions options)
-        {
-            options.SwaggerDoc("xstatic-sites-v1", new OpenApiInfo { Title = "xStatic Sites v1", Version = "1.0" });
-            options.OperationFilter<XStaticBackOfficeSecurityRequirementsOperationFilter>();
-        }
-    }
-
-    public class MyComposer : IComposer
-    {
-        public void Compose(IUmbracoBuilder builder)
-            => builder.Services.ConfigureOptions<XStaticConfigureSwaggerGenOptions>();
-    }
-
     [ApiController]
     [ApiVersion("1.0")]
-    [MapToApi("xstatic-sites-v1")]
+    [MapToApi("xstatic-v1")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
-    [Route("api/v{version:apiVersion}/xstatic")]
+    [Route("api/v{version:apiVersion}/xstatic/sites")]
     public class SitesController(IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         IUmbracoContextFactory context,
         ISitesRepository sitesRepository,

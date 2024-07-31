@@ -18,7 +18,7 @@ export class SiteContext extends UmbControllerBase {
     public async getSites() {
         console.log('fetching sites proper');
 
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticGetAll());
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticSitesGetAll());
 
         if(data){
             this.#sites.setValue(data);
@@ -28,7 +28,7 @@ export class SiteContext extends UmbControllerBase {
     public async createSite(site: SiteUpdateModel) : Promise<SiteApiModel | null> {
         console.log('creating site', site);
 
-        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticCreate({ requestBody: site }));
+        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticSitesCreate({ requestBody: site }));
 
         if(data){
             await this.getSites();
@@ -42,7 +42,7 @@ export class SiteContext extends UmbControllerBase {
     public async updateSite(site: SiteUpdateModel) : Promise<SiteApiModel | null> {
         console.log('updating site', site);
 
-        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticUpdate({ requestBody: site }));
+        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticSitesUpdate({ requestBody: site }));
 
         if(data){
             await this.getSites();

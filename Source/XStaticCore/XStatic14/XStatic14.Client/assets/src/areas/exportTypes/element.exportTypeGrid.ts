@@ -1,22 +1,23 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
-import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
+import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.exportType';
 
-import "./element.site";
-import "./element.newSite";
-import { SiteApiModel } from '../../api';
+import "./element.exportType";
+import "./element.newExportType";
 
-@customElement('xstatic-site-grid')
-class SiteGrid extends UmbElementMixin(LitElement) {
+import { ExportTypeModel } from '../../api';
+
+@customElement('xstatic-export-type-grid')
+class ExportTypeGrid extends UmbElementMixin(LitElement) {
 
     @state()
     isLoaded = false;
 
     @state()
-    sites?: Array<SiteApiModel>;
+    exportTypes?: Array<ExportTypeModel>;
 
-    #siteContext?: SiteContext;
+    #exportTypeContext?: ExportTypeContext;
 
     static styles = css`
         :host {
@@ -37,16 +38,16 @@ class SiteGrid extends UmbElementMixin(LitElement) {
         super();
 
         this.consumeContext(
-            SITE_CONTEXT_TOKEN,
+            EXPORT_TYPE_CONTEXT_TOKEN,
             (context) => {
-              this.#siteContext = context;
+              this.#exportTypeContext = context;
 
-              this.#siteContext!.getSites().then(() => {
+              this.#exportTypeContext!.getConfig().then(() => {
                 this.isLoaded = true;
                 });
         
-                this.observe(this.#siteContext?.sites, (sites) => {
-                    this.sites = sites;
+                this.observe(this.#exportTypeContext?.exportTypes, (x) => {
+                    this.exportTypes = x;
                 });
             }
           );
@@ -58,38 +59,34 @@ class SiteGrid extends UmbElementMixin(LitElement) {
         
     }
 
-    #renderSites() {
-        console.log('rendering sites loop', this.sites);
-
-        if(!this.sites) {
+    #renderTypes() {
+        if(!this.exportTypes) {
             return null;
         }
 
-        return this.sites.map(site => {
+        return this.exportTypes.map(x => {
             return html`
-                <xstatic-site-element .site=${site}></xstatic-site-element>
+                <xstatic-export-type-element .exportType=${x}></xstatic-export-type-element>
             `
         });
     }
 
     render() {
-        console.log('rendering sites', this.sites);
-
-        if(!this.sites) {
+        if(!this.exportTypes) {
             return this.isLoaded ? html`` : html`Loading...`;
         }
 
         return html`
-            <xstatic-new-site-element></xstatic-new-site-element>
-            ${this.#renderSites()}
+            <xstatic-new-export-type-element></xstatic-new-export-type-element>
+            ${this.#renderTypes()}
         `;
     }
 }
 
-export default SiteGrid;
+export default ExportTypeGrid;
 
 declare global {
     interface HtmlElementTagNameMap {
-        'xstatic-site-grid': SiteGrid
+        'xstatic-export-type-grid': ExportTypeGrid
     }
 }

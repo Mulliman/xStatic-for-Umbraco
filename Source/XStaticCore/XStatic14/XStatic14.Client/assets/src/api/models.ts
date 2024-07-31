@@ -1,5 +1,18 @@
 
 
+export type ConfigurableTypeModel = {
+        id?: string | null
+name?: string | null
+fields?: Record<string, string | null> | null
+    };
+
+export type DeployerModel = {
+        readonly id?: string | null
+readonly name?: string | null
+readonly help?: string | null
+readonly fields?: Record<string, string | null> | null
+    };
+
 export type DeploymentTargetModel = {
         id?: string | null
 name?: string | null
@@ -13,6 +26,22 @@ export enum EventMessageTypeModel {
     SUCCESS = 'Success',
     WARNING = 'Warning'
 }
+
+export type ExportTypeModel = {
+        id: number
+name?: string | null
+generator?: TypeModel | null
+transformerFactory?: TypeModel | null
+fileNameGenerator?: TypeModel | null
+    };
+
+export type ExportTypeUpdateModel = {
+        id: number
+name?: string | null
+transformerFactory?: string | null
+generator?: string | null
+fileNameGenerator?: string | null
+    };
 
 export type NotificationHeaderModel = {
         message: string
@@ -55,22 +84,48 @@ deploymentTarget?: DeploymentTargetModel | null
 postGenerationActionIds?: Array<number> | null
     };
 
+export type TypeModel = {
+        id?: string | null
+name?: string | null
+    };
+
+export type XStaticConfig = {
+        deployers?: Array<DeployerModel> | null
+exportTypes?: Array<ExportTypeModel> | null
+generators?: Array<TypeModel> | null
+transformerFactories?: Array<TypeModel> | null
+fileNameGenerators?: Array<TypeModel> | null
+postGenerationActions?: Array<ConfigurableTypeModel> | null
+    };
+
 export type V1Data = {
         
         payloads: {
-            DeleteApiV1XstaticClearStoredSite: {
+            PostApiV1XstaticConfigCreateExportType: {
+                        requestBody?: ExportTypeUpdateModel
+                        
+                    };
+DeleteApiV1XstaticConfigDeleteExportType: {
+                        id?: number
+                        
+                    };
+PostApiV1XstaticConfigUpdateExportType: {
+                        requestBody?: ExportTypeUpdateModel
+                        
+                    };
+DeleteApiV1XstaticSitesClearStoredSite: {
                         staticSiteId?: number
                         
                     };
-PostApiV1XstaticCreate: {
+PostApiV1XstaticSitesCreate: {
                         requestBody?: SiteUpdateModel
                         
                     };
-DeleteApiV1XstaticDelete: {
+DeleteApiV1XstaticSitesDelete: {
                         staticSiteId?: number
                         
                     };
-PostApiV1XstaticUpdate: {
+PostApiV1XstaticSitesUpdate: {
                         requestBody?: SiteUpdateModel
                         
                     };
@@ -78,11 +133,15 @@ PostApiV1XstaticUpdate: {
         
         
         responses: {
-            DeleteApiV1XstaticClearStoredSite: Array<SiteApiModel>
-                ,PostApiV1XstaticCreate: SiteApiModel
-                ,DeleteApiV1XstaticDelete: string
-                ,GetApiV1XstaticGetAll: Array<SiteApiModel>
-                ,PostApiV1XstaticUpdate: SiteApiModel
+            PostApiV1XstaticConfigCreateExportType: ExportTypeModel
+                ,DeleteApiV1XstaticConfigDeleteExportType: string
+                ,GetApiV1XstaticConfigGetConfig: XStaticConfig
+                ,PostApiV1XstaticConfigUpdateExportType: ExportTypeModel
+                ,DeleteApiV1XstaticSitesClearStoredSite: Array<SiteApiModel>
+                ,PostApiV1XstaticSitesCreate: SiteApiModel
+                ,DeleteApiV1XstaticSitesDelete: string
+                ,GetApiV1XstaticSitesGetAll: Array<SiteApiModel>
+                ,PostApiV1XstaticSitesUpdate: SiteApiModel
                 
         }
         

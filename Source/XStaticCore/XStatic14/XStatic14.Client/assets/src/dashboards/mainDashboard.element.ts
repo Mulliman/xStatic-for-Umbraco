@@ -1,6 +1,5 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 
 import "../areas/sites/element.siteGrid";
 
@@ -13,12 +12,6 @@ export class XStaticMainDashboard extends UmbElementMixin(LitElement) {
 
     @property()
     title = 'XStatic Sites'
-
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, 'xstatic.editSiteModal', {});
-        } )
-    }
 
     render() {
         return html`
