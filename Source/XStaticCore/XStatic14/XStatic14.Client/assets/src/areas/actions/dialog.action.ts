@@ -2,22 +2,22 @@ import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { ExportTypeModel, ExportTypeUpdateModel, XStaticConfig } from "../../api";
+import { ActionModel, ActionUpdateModel, ConfigurableTypeModel, ExportTypeUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "./context.exportType";
+import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
-export interface EditExportTypeModalData {
+export interface EditActionModalData {
     headline?: string;
-    content: ExportTypeModel;
+    content: ActionModel;
 }
 
-export interface EditExportTypeModalValue {
-    content: ExportTypeUpdateModel;
+export interface EditActionModalValue {
+    content: ActionUpdateModel;
 }
 
-export const EditExportTypeModal = new UmbModalToken<EditExportTypeModalData, EditExportTypeModalValue>(
-    "xstatic.editExportTypeModal",
+export const EditActionModal = new UmbModalToken<EditActionModalData, EditActionModalValue>(
+    "xstatic.editActionModal",
     {
         modal: {
             type: 'sidebar',
@@ -26,14 +26,14 @@ export const EditExportTypeModal = new UmbModalToken<EditExportTypeModalData, Ed
     }
 );
 
-@customElement('xstatic-edit-export-type-modal')
-export class EditExportTypeModalElement extends
-    UmbModalBaseElement<EditExportTypeModalData, EditExportTypeModalValue>
+@customElement('xstatic-edit-action-modal')
+export class EditActionModalElement extends
+    UmbModalBaseElement<EditActionModalData, EditActionModalValue>
 {
-    #exportTypeContext?: ExportTypeContext;
+    #actionContext?: ActionContext;
 
     @state()
-    content: ExportTypeModel = {} as ExportTypeModel;
+    content: ActionModel = {} as ActionModel;
 
     @state() 
     _values: Array<UmbPropertyValueData> = [];
@@ -48,17 +48,16 @@ export class EditExportTypeModalElement extends
         super();
 
         this.consumeContext(
-            EXPORT_TYPE_CONTEXT_TOKEN,
+            ACTION_CONTEXT_TOKEN,
             (context) => {
-              this.#exportTypeContext = context;
+              this.#actionContext = context;
 
               if(this.data?.content) {
-                var updateModel = {
+                var updateModel : ActionUpdateModel = {
                     id: this.data?.content?.id ?? 0,
                     name: this.data?.content?.name,
-                    fileNameGenerator: this.data?.content?.fileNameGenerator?.id,
-                    generator: this.data?.content?.generator?.id,
-                    transformerFactory: this.data?.content?.transformerFactory?.id,
+                    type: this.data?.content?.type?.id,
+                    config: this.data?.content?.type?.fields,
                 };
     
                 this.updateValue({ content: updateModel });
@@ -66,29 +65,22 @@ export class EditExportTypeModalElement extends
                 this._values = [
                     { alias: 'id', value: updateModel.id },
                     { alias: 'name', value: updateModel.name },
-                    { alias: 'fileNameGenerator', value: [updateModel.fileNameGenerator] },
-                    { alias: 'generator', value: [updateModel.generator] },
-                    { alias: 'transformerFactory', value: [updateModel.transformerFactory] },
+                    { alias: 'type', value: [updateModel.type] },
+                    { alias: 'config', value: updateModel.config },
                 ];
     
                 console.log('values', this._values);
             }
     
-            this.#exportTypeContext!.getConfig().then(() => {
+            this.#actionContext!.getConfig().then(() => {
                 this.isLoaded = true;
             });
     
-            this.observe(this.#exportTypeContext?.config, (x) => {
+            this.observe(this.#actionContext?.config, (x) => {
                 this.config = x;
             });
             }
           );
-    }
-
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        
     }
 
     async #handleConfirm() {
@@ -99,23 +91,19 @@ export class EditExportTypeModalElement extends
         var postModel = this.createPostModel();
 
         const data = postModel.id > 0
-            ? await this.#exportTypeContext!.updateExportType(postModel)
-            : await this.#exportTypeContext!.createExportType(postModel);
+            ? await this.#actionContext!.updateAction(postModel)
+            : await this.#actionContext!.createAction(postModel);
 
         if(data) {
             this.modalContext?.submit();
         }
     }
 
-    createCsvString(value: any[]) {
-        return value?.length > 0 ? value.join(',') : null;
-    }
-
     getFirst(value: any[]) {
         return value?.length > 0 ? value[0] : null;
     }
     
-    createPostModel() : ExportTypeUpdateModel {
+    createPostModel() : ActionUpdateModel {
 
         console.log('createPostModel values', this._values);
 
@@ -123,10 +111,9 @@ export class EditExportTypeModalElement extends
         {
             name: this._values.find((x) => x.alias === 'name')?.value,
             id: this.data?.content.id,
-            fileNameGenerator: this.getFirst(this._values.find((x) => x.alias === 'fileNameGenerator')?.value as Array<string>),
-            generator: this.getFirst(this._values.find((x) => x.alias === 'generator')?.value as Array<string>),
-            transformerFactory: this.getFirst(this._values.find((x) => x.alias === 'transformerFactory')?.value as Array<string>),
-        } as ExportTypeUpdateModel;
+            type: this.getFirst(this._values.find((x) => x.alias === 'type')?.value as Array<string>),
+            config: this._values.find((x) => x.alias === 'config')?.value as Record<string, string | null>,
+        } as ActionUpdateModel;
 
         console.log('createPostModel model', model);
 
@@ -137,14 +124,55 @@ export class EditExportTypeModalElement extends
         this.modalContext?.reject();
     }
 
+    recordAsArray(record: Record<string, string | null> | null | undefined): { key: string, value: string | null }[] {
+        if(!record) {
+            return [];
+        }
 
+        return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
+    }
+
+    isExistingConfigValid(existingConfig: Record<string, string | null> | null | undefined, 
+        selectedActionType: ConfigurableTypeModel | null | undefined) {
+        if(!existingConfig || !selectedActionType) {
+            return false;
+        }
+
+        var existingFields = this.recordAsArray(existingConfig);
+        var selectedFields = this.recordAsArray(selectedActionType.fields);
+
+        if(existingFields.length !== selectedFields.length) {
+            return false;
+        }
+
+        for (let i = 0; i < selectedFields.length; i++) {
+            const selectedField = selectedFields[i];
+            const existingField = existingFields.find((x) => x.key === selectedField.key);
+
+            if(!existingField) {
+                console.log('existingField not found', selectedField.key);
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     getBaseProperties(): PropertyEditorSettingsProperty[] {
+
+        var selectedType = this.getFirst(this._values.find((x) => x.alias === 'type')?.value as Array<string>);
+        
+        var existingConfig = this._values.find((x) => x.alias === 'config')?.value as Record<string, string | null>;
+        var selectedActionType = this.config?.postGenerationActions?.find((x) => x.id === selectedType);
+
+        var selectedConfig = this.isExistingConfigValid(existingConfig, selectedActionType)
+            ? existingConfig
+            : selectedActionType?.fields;
 
         return [
             {
                 alias: "name",
-                label: "Export Type Name",
+                label: "Action Name",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
                 config: [
                     {
@@ -160,38 +188,26 @@ export class EditExportTypeModalElement extends
                 ],
             },
             {
-                alias: "transformerFactory",
-                label: "Transformer Factory",
-                description: "This is the component that decides what transformers are run and in which order.",
+                alias: "type",
+                label: "Action Type",
+                description: "This is the type of action that you want to configure a specific instance of.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
                     {
                         alias: 'items',
-                        value: this.config?.transformerFactories?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.config?.postGenerationActions?.map((x) => ({ name: x.name, value: x.id })) ?? []
                     },
                 ],
             },
             {
-                alias: "generator",
-                label: "Generator",
-                description: "This is the component that creates the static files for each page.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                alias: "config",
+                label: "Configuration",
+                description: "Use this to set what specific configuration you want to use for the selected type. The fields may change depending on the type selected.",
+                propertyEditorUiAlias: "xstatic.propertyEditorUi.dynamicForm",
                 config: [
                     {
-                        alias: 'items',
-                        value: this.config?.generators?.map((x) => ({ name: x.name, value: x.id })) ?? []
-                    },
-                ],
-            },
-            {
-                alias: "fileNameGenerator",
-                label: "File Name Generator",
-                description: "This is the component that decides the folder and the file name for each page.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
-                config: [
-                    {
-                        alias: 'items',
-                        value: this.config?.fileNameGenerators?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        alias: 'fields',
+                        value: selectedConfig
                     },
                 ],
             },
@@ -199,14 +215,10 @@ export class EditExportTypeModalElement extends
     } 
 
     #onPropertyDataChange(e: Event) {
-        // Grab the value
         const value = (e.target as UmbPropertyDatasetElement).value;
-        // Convert the value back into an object
-        // var data = value.reduce((acc, curr)=>({...acc, [curr.alias]: curr.value}), {});
-        // Update our model
         this._values = value;
 
-        console.log('values', this._values);
+        console.log('onPropertyDataChange values', this._values);
     }
 
     render() {
@@ -248,4 +260,4 @@ export class EditExportTypeModalElement extends
 
 }
 
-export default EditExportTypeModalElement;
+export default EditActionModalElement;

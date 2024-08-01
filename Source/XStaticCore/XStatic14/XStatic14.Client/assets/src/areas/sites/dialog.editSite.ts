@@ -2,10 +2,11 @@ import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { SiteApiModel, SiteUpdateModel } from "../../api";
+import { SiteApiModel, SiteUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
+import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "../exportTypes/context.exportType";
 
 export interface EditSiteModalData {
     headline?: string;
@@ -31,12 +32,16 @@ export class EditSiteModalElement extends
     UmbModalBaseElement<EditSiteModalData, EditSiteModalValue>
 {
     #siteContext?: SiteContext;
+    #exportTypeContext?: ExportTypeContext;
 
     @state()
     content: SiteApiModel = {} as SiteApiModel;
 
     @state() 
     _values: Array<UmbPropertyValueData> = [];
+
+    @state()
+    config: XStaticConfig | undefined;
 
     constructor() {
         super();
@@ -45,6 +50,21 @@ export class EditSiteModalElement extends
             SITE_CONTEXT_TOKEN,
             (context) => {
               this.#siteContext = context;
+            }
+          );
+
+          this.consumeContext(
+            EXPORT_TYPE_CONTEXT_TOKEN,
+            (context) => {
+              this.#exportTypeContext = context;
+    
+            this.#exportTypeContext!.getConfig().then(() => {
+                
+            });
+    
+            this.observe(this.#exportTypeContext?.config, (x) => {
+                this.config = x;
+            });
             }
           );
     }
@@ -60,7 +80,7 @@ export class EditSiteModalElement extends
                 { alias: 'name', value: model.name },
                 { alias: 'rootNode', value: [{ unique: model.rootNode }] },
                 { alias: 'mediaRootNodes', value: model.mediaRootNodes?.map(x => ({ key: x, mediaKey: x, unique: x })) },
-                { alias: 'exportFormat', value: model.exportFormat },
+                { alias: 'exportFormat', value: [model.exportFormat] },
                 { alias: 'assetPaths', value: model.assetPaths?.split(',') },
                 { alias: 'imageCrops', value: model.imageCrops?.split(',') },
                 { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
@@ -92,6 +112,18 @@ export class EditSiteModalElement extends
     createCsvString(value: any[]) {
         return value?.length > 0 ? value.join(',') : null;
     }
+
+    getFirst(value: any[]) {
+        return value?.length > 0 ? value[0] : null;
+    }
+
+    getIds(value: any) {
+        if (!value || !Array.isArray(value)) {
+           return null;
+        }
+
+        return value; //.map(x => x.value);
+    }
     
     createPostModel() : SiteUpdateModel {
 
@@ -108,10 +140,10 @@ export class EditSiteModalElement extends
             autoPublish: this._values.find((x) => x.alias === 'autoPublish')?.value,
             assetPaths: this.createCsvString(this._values.find((x) => x.alias === 'assetPaths')?.value as string[]),
             deploymentTarget: this._values.find((x) => x.alias === 'deploymentTarget')?.value,
-            exportFormat: this._values.find((x) => x.alias === 'exportFormat')?.value,
+            exportFormat: this.getFirst(this._values.find((x) => x.alias === 'exportFormat')?.value as Array<string>),
             imageCrops: this.createCsvString(this._values.find((x) => x.alias === 'imageCrops')?.value as string[]),
             mediaRootNodes: mediaRootNodeIds,
-            postGenerationActionIds: this._values.find((x) => x.alias === 'postGenerationActionIds')?.value,
+            postGenerationActionIds: null, // this.getIds(this._values.find((x) => x.alias === 'postGenerationActionIds')?.value),
             rootNode: rootNodeId,
             targetHostname: this._values.find((x) => x.alias === 'targetHostname')?.value,
             id: this.data?.content.id,
@@ -125,7 +157,11 @@ export class EditSiteModalElement extends
         this.modalContext?.reject();
     }
 
-    baseProperties: PropertyEditorSettingsProperty[] = [
+    getBaseProperties(): PropertyEditorSettingsProperty[] {
+        
+
+
+        return [
         {
             alias: "name",
             label: "Site Name",
@@ -163,7 +199,7 @@ export class EditSiteModalElement extends
             config: [
                 {
                     alias: "items",
-                    value: ["hi", "hello"],
+                    value: this.config?.exportTypes?.map((x) => ({ name: x.name, value: x.id })) ?? []
                 },
             ],
         },
@@ -199,7 +235,7 @@ export class EditSiteModalElement extends
             config: [
                 {
                     alias: "items",
-                    value: ["hi", "hello"],
+                    value: this.config?.postGenerationActions?.map((x) => ({ name: x.name, value: x.id })) ?? []
                 },
             ],
         },
@@ -226,8 +262,8 @@ export class EditSiteModalElement extends
             label: "Target Hostname",
             description: "The site hostname you've configured for viewing the site locally will be replaced with this value.",
             propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
-        }
-    ];
+        }];
+    }
 
     #onPropertyDataChange(e: Event) {
         // Grab the value
@@ -248,7 +284,7 @@ export class EditSiteModalElement extends
                   .value=${this._values as Array<UmbPropertyValueData>}
                   @change=${this.#onPropertyDataChange}
                 >
-                  ${this.baseProperties
+                  ${this.getBaseProperties()
                 .map(
                     (prop) =>
 
@@ -262,10 +298,6 @@ export class EditSiteModalElement extends
                 )}
                 </umb-property-dataset>
 
-                </uui-box>
-                <uui-box>
-                    <h2>Return Value</h2>
-                    <pre>${this.baseProperties.map((x: any) => x.value)}</pre>
                 </uui-box>
 
                 <div slot="actions">

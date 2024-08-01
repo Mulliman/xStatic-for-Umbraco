@@ -9,6 +9,87 @@ export class V1Service {
 	 * @returns unknown OK
 	 * @throws ApiError
 	 */
+	public static postApiV1XstaticActionsCreatePostAction(data: V1Data['payloads']['PostApiV1XstaticActionsCreatePostAction'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticActionsCreatePostAction']> {
+		const {
+                    
+                    requestBody
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/actions/create-post-action',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns string OK
+	 * @throws ApiError
+	 */
+	public static deleteApiV1XstaticActionsDeletePostAction(data: V1Data['payloads']['DeleteApiV1XstaticActionsDeletePostAction'] = {}): CancelablePromise<V1Data['responses']['DeleteApiV1XstaticActionsDeletePostAction']> {
+		const {
+                    
+                    id
+                } = data;
+		return __request(OpenAPI, {
+			method: 'DELETE',
+			url: '/api/v1/xstatic/actions/delete-post-action',
+			query: {
+				id
+			},
+			responseHeader: 'Umb-Notifications',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static getApiV1XstaticActionsGetPostActions(): CancelablePromise<V1Data['responses']['GetApiV1XstaticActionsGetPostActions']> {
+		
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/xstatic/actions/get-post-actions',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static postApiV1XstaticActionsUpdatePostAction(data: V1Data['payloads']['PostApiV1XstaticActionsUpdatePostAction'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticActionsUpdatePostAction']> {
+		const {
+                    
+                    requestBody
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/actions/update-post-action',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
 	public static postApiV1XstaticConfigCreateExportType(data: V1Data['payloads']['PostApiV1XstaticConfigCreateExportType'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticConfigCreateExportType']> {
 		const {
                     

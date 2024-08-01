@@ -1,5 +1,18 @@
 
 
+export type ActionModel = {
+        id: number
+name?: string | null
+type?: ConfigurableTypeModel | null
+    };
+
+export type ActionUpdateModel = {
+        id: number
+name?: string | null
+type?: string | null
+config?: Record<string, string | null> | null
+    };
+
 export type ConfigurableTypeModel = {
         id?: string | null
 name?: string | null
@@ -101,7 +114,19 @@ postGenerationActions?: Array<ConfigurableTypeModel> | null
 export type V1Data = {
         
         payloads: {
-            PostApiV1XstaticConfigCreateExportType: {
+            PostApiV1XstaticActionsCreatePostAction: {
+                        requestBody?: ActionUpdateModel
+                        
+                    };
+DeleteApiV1XstaticActionsDeletePostAction: {
+                        id?: number
+                        
+                    };
+PostApiV1XstaticActionsUpdatePostAction: {
+                        requestBody?: ActionUpdateModel
+                        
+                    };
+PostApiV1XstaticConfigCreateExportType: {
                         requestBody?: ExportTypeUpdateModel
                         
                     };
@@ -133,7 +158,11 @@ PostApiV1XstaticSitesUpdate: {
         
         
         responses: {
-            PostApiV1XstaticConfigCreateExportType: ExportTypeModel
+            PostApiV1XstaticActionsCreatePostAction: ActionModel
+                ,DeleteApiV1XstaticActionsDeletePostAction: string
+                ,GetApiV1XstaticActionsGetPostActions: Array<ActionModel>
+                ,PostApiV1XstaticActionsUpdatePostAction: ActionModel
+                ,PostApiV1XstaticConfigCreateExportType: ExportTypeModel
                 ,DeleteApiV1XstaticConfigDeleteExportType: string
                 ,GetApiV1XstaticConfigGetConfig: XStaticConfig
                 ,PostApiV1XstaticConfigUpdateExportType: ExportTypeModel
