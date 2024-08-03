@@ -11,13 +11,13 @@ namespace XStatic.Ftp
 
         public string Help => "The remote FTP files will be mirrored to match the generated site.";
 
-        public IEnumerable<string> Fields => new[]
+        public IEnumerable<DeployerField> Fields => new[]
         {
-            "Hostname",
-            "Username",
-            "Password",
-            "Folder",
-            "Port"
+            new DeployerField { Name = "Hostname", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Name = "Username", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Name = "Password", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Name = "Folder", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Name = "Port", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
         };
     }
 }

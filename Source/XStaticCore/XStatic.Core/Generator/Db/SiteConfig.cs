@@ -39,16 +39,10 @@ namespace XStatic.Core.Generator.Db
 
         public string ImageCrops { get; set; }
 
-        [SerializedColumn]
-        public DeploymentTargetModel DeploymentTarget { get; set; }
+        public int? DeploymentTarget { get; set; }
 
         [SerializedColumn]
         public List<int> PostGenerationActionIds { get; set; }
-
-        public IDeploymentTarget GetDeploymentTarget()
-        {
-            return DeploymentTarget;
-        }
 
         public IEnumerable<Guid> GetMediaRootNodes()
         {
@@ -71,21 +65,21 @@ namespace XStatic.Core.Generator.Db
         }
     }
 
-    public class DeploymentTargetModel : IDeploymentTarget
-    {
-        public string Id { get; set; }
+    //public class DeploymentTargetModel : IDeploymentTarget
+    //{
+    //    public string Id { get; set; }
 
-        public string Name { get; set; }
+    //    public string Name { get; set; }
 
-        public Dictionary<string, string> Fields { get; set; }
-    }
+    //    public Dictionary<string, string> Fields { get; set; }
+    //}
 
-    public class DeploymentTargetField
-    {
-        public string FieldType { get; set; }
+    //public class DeploymentTargetField
+    //{
+    //    public string FieldType { get; set; }
 
-        public string Value { get; set; }
+    //    public string Value { get; set; }
 
-        public bool IsMandatory { get; set; }
-    }
+    //    public bool IsMandatory { get; set; }
+    //}
 }

@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Processes;
+using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Processes;
 using XStatic.Core.Generator.Storage;
@@ -21,6 +22,7 @@ namespace XStatic.Core.AutoPublish
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly IStaticSiteStorer _storer;
         private readonly IDeployerService _deployerService;
+        private readonly IDeploymentTargetRepository _deploymentTargetRepository;
         private readonly IExportTypeService _exportTypeService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IActionFactory _actionFactory;
@@ -28,6 +30,7 @@ namespace XStatic.Core.AutoPublish
         public DefaultAutoPublisher(ISitesRepository sitesRepository,
             IUmbracoContextFactory umbracoContextFactory,
             IDeployerService deployerService,
+            IDeploymentTargetRepository deploymentTargetRepository,
             IStaticSiteStorer storer,
             IExportTypeService exportTypeService,
             IWebHostEnvironment webHostEnvironment,
@@ -37,6 +40,7 @@ namespace XStatic.Core.AutoPublish
             _umbracoContextFactory = umbracoContextFactory;
             _storer = storer;
             _deployerService = deployerService;
+            _deploymentTargetRepository = deploymentTargetRepository;
             _exportTypeService = exportTypeService;
             _webHostEnvironment = webHostEnvironment;
             _actionFactory = actionFactory;
@@ -65,7 +69,7 @@ namespace XStatic.Core.AutoPublish
             }
 
             var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepository, _webHostEnvironment, _actionFactory);
-            var deployProcess = new DeployProcess(_storer, _deployerService, _sitesRepository);
+            var deployProcess = new DeployProcess(_storer, _deploymentTargetRepository, _deployerService, _sitesRepository);
 
             foreach (var site in sitesToDeploy.Where(s => s.DeploymentTarget != null))
             {

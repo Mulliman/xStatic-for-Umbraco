@@ -4,44 +4,47 @@ import { UmbPropertyValueChangeEvent } from '@umbraco-cms/backoffice/property-ed
 import type { UmbPropertyEditorConfigCollection } from '@umbraco-cms/backoffice/property-editor';
 import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
+import { DeployerField } from '../api';
 
-@customElement('xstatic-property-editor-dynamic-form')
-export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement implements UmbPropertyEditorUiElement {
+@customElement('xstatic-property-editor-deployment-target')
+export class XStaticPropertyEditorDeploymentTypeElement extends UmbLitElement implements UmbPropertyEditorUiElement {
 
-    // @state()
-	// private _fields: Record<string, string | null> | null | undefined;
+    @state()
+	private _fields: DeployerField[] | null | undefined;
 
     @state() 
-    _values: Array<UmbPropertyValueData> = [];
+    private _values: Array<UmbPropertyValueData> = [];
 
 	@property({ type: Array })
-	public set value(value: Record<string, string | null> | null | undefined) {
-        let array = this.recordAsArray(value);
+	public set value(value: DeployerField[] | null | undefined) {
+        if(!value) {
+            this._values = [];
+            return; 
+        }
 
-        console.log('set value array', array);
+        this._fields = value;
 
-		this._values = array.map((field) => {
+       	this._values = value.filter((f) => f.name).map((field) => {
             return {
-                alias: field.key,
+                alias: field.name,
                 value: field.value
-            }
+            } as UmbPropertyValueData;
         });
         
         console.log('set _values', this._values);
 	}
 
-    public get value(): Record<string, string | null> | null | undefined {
-        let record: Record<string, string | null> = {};
-
-        this._values.forEach((x) => record[x.alias] = x.value as string | null);
-
-        return record;
+    public get value(): DeployerField[] {
+        return this._fields?.map((f) => ({
+            name: f.name,
+            value: this._values.find((x) => x.alias === f.name)?.value
+        } as DeployerField)) ?? [];
     }
 
 	public set config(config: UmbPropertyEditorConfigCollection | undefined) {
 		if (!config) return;
 
-		const fields = config.getValueByAlias('fields') as Record<string, string | null> | null | undefined;
+		const fields = config.getValueByAlias('fields') as DeployerField[] | null | undefined;
 
         console.log('config', fields);
 
@@ -58,21 +61,21 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
         this.dispatchEvent(new UmbPropertyValueChangeEvent());
     }
 
-    recordAsArray(record: Record<string, string | null> | null | undefined): { key: string, value: string | null }[] {
-        if(!record) {
-            return [];
-        }
+    // recordAsArray(record: Record<string, string | null> | null | undefined): { key: string, value: string | null }[] {
+    //     if(!record) {
+    //         return [];
+    //     }
 
-        return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
-    }
+    //     return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
+    // }
 
 	override render() {
 		return this.#renderForm();
 	}
 
 	#renderForm() {
-        if(!this._values) {
-            return html`<h3>No Action Type selected</h3>`;
+        if(!this._values || !this._fields) {
+            return html`<h3>No Deployer selected</h3>`;
         }
 
         console.log('renderForm', this._values);
@@ -82,14 +85,14 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
                   .value=${this._values as Array<UmbPropertyValueData>}
                   @change=${this.#onPropertyDataChange}
                 >
-                  ${this._values
+                  ${this._fields
                 .map(
                     (prop) =>
 
                         html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.alias}
-                          property-editor-ui-alias="Umb.PropertyEditorUi.TextBox"
+                          alias=${prop.name!}
+                          label=${prop.name!}
+                          property-editor-ui-alias=${prop.editorUiAlias ?? "Umb.PropertyEditorUi.TextBox"}
                         ></umb-property>`
                 )}
                 </umb-property-dataset>
@@ -105,10 +108,10 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
 	];
 }
 
-export default XStaticPropertyEditorDynamicFormElement;
+export default XStaticPropertyEditorDeploymentTypeElement;
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'xstatic-property-editor-dynamic-form': XStaticPropertyEditorDynamicFormElement;
+		'xstatic-property-editor-deployment-target': XStaticPropertyEditorDeploymentTypeElement;
 	}
 }

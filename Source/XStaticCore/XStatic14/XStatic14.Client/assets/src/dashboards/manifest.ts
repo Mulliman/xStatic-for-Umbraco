@@ -39,6 +39,24 @@ const dashboards: Array<ManifestDashboard> = [
     },
     {
         type: 'dashboard',
+        name: 'XStatic Deployment Targets',
+        alias: 'XStatic.deploymentTargetDashboard',
+        elementName: 'xstatic-deployment-target-dashboard',
+        js: ()=> import('./deploymentTargetDashboard.element.js'),
+        weight: -10,
+        meta: {
+            label: 'Deployment Targets',
+            pathname: 'xstatic-deployment-targets'
+        },
+        conditions: [
+            {
+                alias: 'Umb.Condition.SectionAlias',
+                match: 'xStatic.Section'
+            }
+        ]
+    },
+    {
+        type: 'dashboard',
         name: 'XStatic Actions',
         alias: 'XStatic.actionsDashboard',
         elementName: 'xstatic-actions-dashboard',

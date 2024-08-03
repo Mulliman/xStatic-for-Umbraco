@@ -21,7 +21,6 @@ export class V1Service {
 			mediaType: 'application/json',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
-				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
@@ -44,7 +43,6 @@ export class V1Service {
 			responseHeader: 'Umb-Notifications',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
-				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
@@ -60,7 +58,6 @@ export class V1Service {
 			url: '/api/v1/xstatic/actions/get-post-actions',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
-				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
@@ -81,7 +78,6 @@ export class V1Service {
 			mediaType: 'application/json',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
-				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
@@ -155,6 +151,83 @@ export class V1Service {
 		return __request(OpenAPI, {
 			method: 'POST',
 			url: '/api/v1/xstatic/config/update-export-type',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static postApiV1XstaticDeploymentTargetsCreateDeploymentTarget(data: V1Data['payloads']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget']> {
+		const {
+                    
+                    requestBody
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/deployment-targets/create-deployment-target',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns string OK
+	 * @throws ApiError
+	 */
+	public static deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget(data: V1Data['payloads']['DeleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['DeleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget']> {
+		const {
+                    
+                    id
+                } = data;
+		return __request(OpenAPI, {
+			method: 'DELETE',
+			url: '/api/v1/xstatic/deployment-targets/delete-deployment-target',
+			query: {
+				id
+			},
+			responseHeader: 'Umb-Notifications',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static getApiV1XstaticDeploymentTargetsGetDeploymentTargets(): CancelablePromise<V1Data['responses']['GetApiV1XstaticDeploymentTargetsGetDeploymentTargets']> {
+		
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/xstatic/deployment-targets/get-deployment-targets',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget(data: V1Data['payloads']['PostApiV1XstaticDeploymentTargetsUpdateDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeploymentTargetsUpdateDeploymentTarget']> {
+		const {
+                    
+                    requestBody
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/deployment-targets/update-deployment-target',
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {

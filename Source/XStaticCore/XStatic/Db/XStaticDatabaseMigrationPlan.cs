@@ -1,5 +1,7 @@
 ﻿using Umbraco.Cms.Infrastructure.Migrations;
+using Umbraco.Cms.Infrastructure.Migrations.Expressions.Create.Table;
 using XStatic.Core.Actions.Db;
+using XStatic.Core.Deploy.Targets.Db;
 using XStatic.Core.Generator.Db;
 
 namespace XStatic.Db
@@ -10,7 +12,8 @@ namespace XStatic.Db
             : base("xStatic")
         {
             From(string.Empty)
-                .To<MigrationAllTheThings>("init");
+                .To<MigrationAllTheThings>("init")
+                .To<MigrationDeployerTargets>("DeployerTargets");
         }
     }
 
@@ -76,6 +79,36 @@ namespace XStatic.Db
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
+        }
+    }
+
+    public class MigrationDeployerTargets : MigrationBase
+    {
+        public MigrationDeployerTargets(IMigrationContext context)
+            : base(context)
+        {
+        }
+
+        protected override void Migrate()
+        {
+            if (!TableExists(DeploymentTargetDataModel.TableName))
+            {
+                var builder = Create.Table(DeploymentTargetDataModel.TableName)
+                    .WithColumn("Id").AsInt16().Identity()
+                    .WithColumn("Name").AsString(200)
+                    .WithColumn("DeployerDefinition").AsString(1000)
+                    .WithColumn("Config").AsString(2500).Nullable();
+
+                builder.Do();
+            }
+
+            if (!TableExists(SiteConfig.TableName))
+            {
+                var builder = Alter.Table(SiteConfig.TableName)
+                    .AlterColumn("DeploymentTarget").AsInt16().Nullable();
+
+                builder.Do();
+            }
         }
     }
 }

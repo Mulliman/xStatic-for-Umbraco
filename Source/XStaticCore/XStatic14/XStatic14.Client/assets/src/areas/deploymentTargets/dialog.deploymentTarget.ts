@@ -2,22 +2,22 @@ import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { ActionModel, ActionUpdateModel, ConfigurableTypeModel, XStaticConfig } from "../../api";
+import { DeployerField, DeployerModel, DeploymentTargetModel, DeploymentTargetUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
-import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
+import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deploymentTargets";
 
-export interface EditActionModalData {
+export interface EditDeploymentTargetModalData {
     headline?: string;
-    content: ActionModel;
+    content: DeploymentTargetModel;
 }
 
-export interface EditActionModalValue {
-    content: ActionUpdateModel;
+export interface EditDeploymentTargetModalValue {
+    content: DeploymentTargetUpdateModel;
 }
 
-export const EditActionModal = new UmbModalToken<EditActionModalData, EditActionModalValue>(
-    "xstatic.editActionModal",
+export const EditDeploymentTargetModal = new UmbModalToken<EditDeploymentTargetModalData, EditDeploymentTargetModalValue>(
+    "xstatic.deploymentTargetModal",
     {
         modal: {
             type: 'sidebar',
@@ -26,14 +26,14 @@ export const EditActionModal = new UmbModalToken<EditActionModalData, EditAction
     }
 );
 
-@customElement('xstatic-edit-action-modal')
-export class EditActionModalElement extends
-    UmbModalBaseElement<EditActionModalData, EditActionModalValue>
+@customElement('xstatic-edit-deployment-target-modal')
+export class EditDeploymentTargetModalElement extends
+    UmbModalBaseElement<EditDeploymentTargetModalData, EditDeploymentTargetModalValue>
 {
-    #actionContext?: ActionContext;
+    #deploymentTargetContext?: DeploymentTargetContext;
 
     @state()
-    content: ActionModel = {} as ActionModel;
+    content: DeploymentTargetModel = {} as DeploymentTargetModel;
 
     @state() 
     _values: Array<UmbPropertyValueData> = [];
@@ -48,16 +48,16 @@ export class EditActionModalElement extends
         super();
 
         this.consumeContext(
-            ACTION_CONTEXT_TOKEN,
+            DEPLOYMENT_TARGET_CONTEXT_TOKEN,
             (context) => {
-              this.#actionContext = context;
+              this.#deploymentTargetContext = context;
 
               if(this.data?.content) {
-                var updateModel : ActionUpdateModel = {
+                var updateModel : DeploymentTargetUpdateModel = {
                     id: this.data?.content?.id ?? 0,
                     name: this.data?.content?.name,
-                    type: this.data?.content?.type?.id,
-                    config: this.data?.content?.type?.fields,
+                    deployerDefinition: this.data?.content?.deployerDefinition,
+                    fields: this.arrayAsRecord(this.data?.content?.fields),
                 };
     
                 this.updateValue({ content: updateModel });
@@ -65,22 +65,21 @@ export class EditActionModalElement extends
                 this._values = [
                     { alias: 'id', value: updateModel.id },
                     { alias: 'name', value: updateModel.name },
-                    { alias: 'type', value: [updateModel.type] },
-                    { alias: 'config', value: updateModel.config },
+                    { alias: 'deployerDefinition', value: [updateModel.deployerDefinition] },
+                    { alias: 'fields', value: updateModel.fields },
                 ];
     
                 console.log('values', this._values);
             }
     
-            this.#actionContext!.getConfig().then(() => {
+            this.#deploymentTargetContext!.getConfig().then(() => {
                 this.isLoaded = true;
+
+                this.observe(this.#deploymentTargetContext?.config, (x) => {
+                    this.config = x;
+                });
             });
-    
-            this.observe(this.#actionContext?.config, (x) => {
-                this.config = x;
-            });
-            }
-          );
+        });
     }
 
     async #handleConfirm() {
@@ -91,8 +90,8 @@ export class EditActionModalElement extends
         var postModel = this.createPostModel();
 
         const data = postModel.id > 0
-            ? await this.#actionContext!.updateAction(postModel)
-            : await this.#actionContext!.createAction(postModel);
+            ? await this.#deploymentTargetContext!.updateDeploymentTarget(postModel)
+            : await this.#deploymentTargetContext!.createDeploymentTarget(postModel);
 
         if(data) {
             this.modalContext?.submit();
@@ -103,17 +102,19 @@ export class EditActionModalElement extends
         return value?.length > 0 ? value[0] : null;
     }
     
-    createPostModel() : ActionUpdateModel {
+    createPostModel() : DeploymentTargetUpdateModel {
 
         console.log('createPostModel values', this._values);
+
+        var deployerFields = this._values.find((x) => x.alias === 'fields')?.value as DeployerField[];
 
         var model = 
         {
             name: this._values.find((x) => x.alias === 'name')?.value,
             id: this.data?.content.id,
-            type: this.getFirst(this._values.find((x) => x.alias === 'type')?.value as Array<string>),
-            config: this._values.find((x) => x.alias === 'config')?.value as Record<string, string | null>,
-        } as ActionUpdateModel;
+            deployerDefinition: this.getFirst(this._values.find((x) => x.alias === 'deployerDefinition')?.value as Array<string>),
+            fields: this.arrayAsRecord(deployerFields),
+        } as DeploymentTargetUpdateModel;
 
         console.log('createPostModel model', model);
 
@@ -132,25 +133,35 @@ export class EditActionModalElement extends
         return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
     }
 
+    arrayAsRecord(array: DeployerField[] | null | undefined): Record<string, string | null> {
+        var record: Record<string, string | null> = {};
+
+        if(array) {
+            array.forEach((x) => { if(x?.name) { record[x.name] = x.value ?? null } });
+        }
+        
+        return record;
+    }
+
     isExistingConfigValid(existingConfig: Record<string, string | null> | null | undefined, 
-        selectedActionType: ConfigurableTypeModel | null | undefined) {
-        if(!existingConfig || !selectedActionType) {
+        selectedDeployer: DeployerModel | null | undefined) {
+        if(!existingConfig || !selectedDeployer) {
             return false;
         }
 
         var existingFields = this.recordAsArray(existingConfig);
-        var selectedFields = this.recordAsArray(selectedActionType.fields);
+        var selectedFields = selectedDeployer.fields;
 
-        if(existingFields.length !== selectedFields.length) {
+        if(existingFields.length !== selectedFields?.length) {
             return false;
         }
 
         for (let i = 0; i < selectedFields.length; i++) {
             const selectedField = selectedFields[i];
-            const existingField = existingFields.find((x) => x.key === selectedField.key);
+            const existingField = existingFields.find((x) => x.key === selectedField.name);
 
             if(!existingField) {
-                console.log('existingField not found', selectedField.key);
+                console.log('existingField not found', selectedField.name);
                 return false;
             }
         }
@@ -160,10 +171,10 @@ export class EditActionModalElement extends
 
     getBaseProperties(): PropertyEditorSettingsProperty[] {
 
-        var selectedType = this.getFirst(this._values.find((x) => x.alias === 'type')?.value as Array<string>);
+        var selectedType = this.getFirst(this._values.find((x) => x.alias === 'deployerDefinition')?.value as Array<string>);
         
-        var existingConfig = this._values.find((x) => x.alias === 'config')?.value as Record<string, string | null>;
-        var selectedActionType = this.config?.postGenerationActions?.find((x) => x.id === selectedType);
+        var existingConfig = this._values.find((x) => x.alias === 'fields')?.value as Record<string, string | null>;
+        var selectedActionType = this.config?.deployers?.find((x) => x.id === selectedType);
 
         var selectedConfig = this.isExistingConfigValid(existingConfig, selectedActionType)
             ? existingConfig
@@ -188,22 +199,22 @@ export class EditActionModalElement extends
                 ],
             },
             {
-                alias: "type",
-                label: "Action Type",
-                description: "This is the type of action that you want to configure a specific instance of.",
+                alias: "deployerDefinition",
+                label: "Deployer",
+                description: "This is the type of deployer that you want to configure a specific instance of.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
                     {
                         alias: 'items',
-                        value: this.config?.postGenerationActions?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.config?.deployers?.map((x) => ({ name: x.name, value: x.id })) ?? []
                     },
                 ],
             },
             {
-                alias: "config",
+                alias: "fields",
                 label: "Configuration",
-                description: "Use this to set what specific configuration you want to use for the selected type. The fields may change depending on the type selected.",
-                propertyEditorUiAlias: "xstatic.propertyEditorUi.dynamicForm",
+                description: "Use this to set what specific configuration you want to use for the selected deployer. The fields may change depending on the type selected.",
+                propertyEditorUiAlias: "xstatic.propertyEditorUi.deploymentTargetForm",
                 config: [
                     {
                         alias: 'fields',
@@ -223,7 +234,7 @@ export class EditActionModalElement extends
 
     render() {
         return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Create new export type'}>
+            <umb-body-layout .headline=${this.data?.headline ?? 'Create new Deployment Target'}>
                 <uui-box>
                 <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}
@@ -260,4 +271,4 @@ export class EditActionModalElement extends
 
 }
 
-export default EditActionModalElement;
+export default EditDeploymentTargetModalElement;

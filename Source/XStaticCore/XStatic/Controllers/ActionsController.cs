@@ -21,7 +21,7 @@ namespace XStatic.Controllers
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/actions")]
-    public class ActionsController(IActionRepository repo) : ManagementApiControllerBase
+    public class ActionsController(IActionRepository repo) : Controller
     {
         private readonly IActionRepository _repo = repo;
 

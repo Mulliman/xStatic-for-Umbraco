@@ -35,8 +35,7 @@ namespace XStatic.Models
 
         public string ImageCrops { get; set; }
         
-        public DeploymentTargetModel DeploymentTarget { get; set; }
-
+        public int? DeploymentTarget { get; set; }
 
         public List<int> PostGenerationActionIds { get; set; }
 

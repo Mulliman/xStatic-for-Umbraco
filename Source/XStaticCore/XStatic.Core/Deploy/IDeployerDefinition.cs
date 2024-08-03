@@ -10,6 +10,17 @@ namespace XStatic.Core.Deploy
 
         string Help { get; }
 
-        IEnumerable<string> Fields { get; }
+        IEnumerable<DeployerField> Fields { get; }
+    }
+
+    public class DeployerField
+    {
+        public string Name { get; set; }
+
+        public string Value { get; set; }
+
+        public string Help { get; set; }
+
+        public string EditorUiAlias { get; set; } = "Umb.PropertyEditorUi.TextBox";
     }
 }

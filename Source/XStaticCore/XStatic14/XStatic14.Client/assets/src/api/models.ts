@@ -19,17 +19,33 @@ name?: string | null
 fields?: Record<string, string | null> | null
     };
 
+export type DeployerField = {
+        name?: string | null
+value?: string | null
+help?: string | null
+editorUiAlias?: string | null
+    };
+
 export type DeployerModel = {
         readonly id?: string | null
 readonly name?: string | null
 readonly help?: string | null
-readonly fields?: Record<string, string | null> | null
+readonly fields?: Array<DeployerField> | null
     };
 
 export type DeploymentTargetModel = {
-        id?: string | null
+        readonly id: number
+readonly name?: string | null
+readonly deployerDefinition?: string | null
+readonly help?: string | null
+readonly fields?: Array<DeployerField> | null
+    };
+
+export type DeploymentTargetUpdateModel = {
+        readonly id: number
 name?: string | null
-fields?: Record<string, string | null> | null
+readonly deployerDefinition?: string | null
+readonly fields?: Record<string, string | null> | null
     };
 
 export enum EventMessageTypeModel {
@@ -76,7 +92,7 @@ lastDeployDurationInSeconds?: number | null
 assetPaths?: string | null
 targetHostname?: string | null
 imageCrops?: string | null
-deploymentTarget?: DeploymentTargetModel | null
+deploymentTarget?: number | null
 postGenerationActionIds?: Array<number> | null
 rootPath?: string | null
 exportTypeName?: string | null
@@ -93,7 +109,7 @@ exportFormat: number
 assetPaths?: string | null
 targetHostname?: string | null
 imageCrops?: string | null
-deploymentTarget?: DeploymentTargetModel | null
+deploymentTarget?: number | null
 postGenerationActionIds?: Array<number> | null
     };
 
@@ -138,6 +154,18 @@ PostApiV1XstaticConfigUpdateExportType: {
                         requestBody?: ExportTypeUpdateModel
                         
                     };
+PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget: {
+                        requestBody?: DeploymentTargetUpdateModel
+                        
+                    };
+DeleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget: {
+                        id?: number
+                        
+                    };
+PostApiV1XstaticDeploymentTargetsUpdateDeploymentTarget: {
+                        requestBody?: DeploymentTargetUpdateModel
+                        
+                    };
 DeleteApiV1XstaticSitesClearStoredSite: {
                         staticSiteId?: number
                         
@@ -166,6 +194,10 @@ PostApiV1XstaticSitesUpdate: {
                 ,DeleteApiV1XstaticConfigDeleteExportType: string
                 ,GetApiV1XstaticConfigGetConfig: XStaticConfig
                 ,PostApiV1XstaticConfigUpdateExportType: ExportTypeModel
+                ,PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget: DeploymentTargetModel
+                ,DeleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget: string
+                ,GetApiV1XstaticDeploymentTargetsGetDeploymentTargets: Array<DeploymentTargetModel>
+                ,PostApiV1XstaticDeploymentTargetsUpdateDeploymentTarget: DeploymentTargetModel
                 ,DeleteApiV1XstaticSitesClearStoredSite: Array<SiteApiModel>
                 ,PostApiV1XstaticSitesCreate: SiteApiModel
                 ,DeleteApiV1XstaticSitesDelete: string

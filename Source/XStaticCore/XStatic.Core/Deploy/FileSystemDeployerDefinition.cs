@@ -11,5 +11,14 @@ namespace XStatic.Core.Deploy
         public string Help => "Deploys the contents of the site to a folder path";
 
         public IEnumerable<string> Fields => new[] { "FolderPath" };
+
+        IEnumerable<DeployerField> IDeployerDefinition.Fields => new[]
+        {
+            new DeployerField
+            {
+                Name = "FolderPath",
+                EditorUiAlias = "Umb.PropertyEditorUi.TextBox"
+            }
+        };
     }
 }

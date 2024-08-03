@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Repositories;
@@ -11,12 +12,14 @@ namespace XStatic.Core.Deploy.Processes
     {
         private readonly IStaticSiteStorer _storer;
         private readonly IDeployerService _deployerFactory;
+        private readonly IDeploymentTargetRepository _deployerTargetRepo;
         private ISitesRepository _sitesRepo;
 
-        public DeployProcess(IStaticSiteStorer storer, IDeployerService deployerFactory, ISitesRepository sitesRepo)
+        public DeployProcess(IStaticSiteStorer storer, IDeploymentTargetRepository deploymentTargetRepo, IDeployerService deployerFactory, ISitesRepository sitesRepo)
         {
             _storer = storer;
             _deployerFactory = deployerFactory;
+            _deployerTargetRepo = deploymentTargetRepo;
             _sitesRepo = sitesRepo;
         }
 
@@ -39,7 +42,19 @@ namespace XStatic.Core.Deploy.Processes
                 throw new FileNotFoundException();
             }
 
-            var deployer = _deployerFactory.GetDeployer(entity.DeploymentTarget.Id, entity.DeploymentTarget.Fields);
+            if(entity.DeploymentTarget == null)
+            {
+                throw new XStaticException("Failed to deploy. Deployment target null");
+            }
+
+            var deploymentTarget = _deployerTargetRepo.Get(entity.DeploymentTarget.Value);
+
+            if (deploymentTarget == null)
+            {
+                throw new XStaticException("Failed to deploy. Deployment target not found with id " + entity.DeploymentTarget);
+            }
+
+            var deployer = _deployerFactory.GetDeployer(deploymentTarget.DeployerDefinition, deploymentTarget.Config);
 
             var result = await deployer.DeployWholeSite(path);
 

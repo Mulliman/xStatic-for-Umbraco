@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using XStatic.Core.Deploy;
 
 namespace XStatic.Core.Models
@@ -15,7 +14,7 @@ namespace XStatic.Core.Models
             Id = details.Id;
             Name = details.Name;
             Help = details.Help;
-            Fields = details.Fields.ToDictionary(f => f, f => "");
+            Fields = details.Fields;
         }
 
         public string Id { get; }
@@ -24,6 +23,6 @@ namespace XStatic.Core.Models
 
         public string Help { get; }
 
-        public Dictionary<string, string> Fields { get; }
+        public IEnumerable<DeployerField> Fields { get; }
     }
 }

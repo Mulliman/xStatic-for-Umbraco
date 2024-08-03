@@ -27,8 +27,6 @@ namespace XStatic.Core.Generator
 
         string AssetPaths { get; set; }
 
-        IDeploymentTarget GetDeploymentTarget();
-
         string TargetHostname { get; set; }
 
         string ImageCrops { get; set; }

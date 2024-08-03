@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
+using XStatic.Core.Deploy.Targets;
 
 namespace XStatic.Core.App
 {
@@ -45,11 +47,19 @@ namespace XStatic.Core.App
             return this;
         }
 
+        public DeployServiceBuilder AddDefaultDeploymentTargetServices()
+        {
+            _services.AddSingleton<IDeploymentTargetRepository, DeploymentTargetRepository>();
+
+            return this;
+        }
+
         public void Build()
         {
             var factory = new DeployerService(_deployers, _definitions);
 
             _services.AddSingleton<IDeployerService>(factory);
+            AddDefaultDeploymentTargetServices();
         }
     }
 }
