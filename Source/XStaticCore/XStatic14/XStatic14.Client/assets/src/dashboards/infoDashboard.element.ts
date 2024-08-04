@@ -1,7 +1,9 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
 
-@customElement('xstatic-info-dashboard')
+import "../areas/docs/element.docsGrid";
+
+@customElement('xstatic-docs-dashboard')
 export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
 
     constructor() {
@@ -14,15 +16,11 @@ export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
     render() {
         return html`
             <umb-body-layout>
-                <div slot="header"></div>
-                <uui-button color="" look="placeholder" pristine="">Main slot</uui-button>
-                <div slot="footer-info"><uui-button color="" look="placeholder" pristine="">Footer slot</uui-button></div>
+                <xstatic-docs-grid></xstatic-docs-grid>
             </umb-body-layout>
-            <uui-box headline="${this.title}">
-                dashboard content goes here
-            </uui-box>
         `
     }
+
 
     static styles = css`
         :host {
@@ -37,6 +35,6 @@ export default XStaticInfoDashboard;
 
 declare global {
     interface HtmlElementTagNameMap {
-        'xstatic-info-dashboard': XStaticInfoDashboard
+        'xstatic-docs-dashboard': XStaticInfoDashboard
     }
 }

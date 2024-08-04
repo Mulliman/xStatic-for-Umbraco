@@ -42,15 +42,17 @@ class ActionGrid extends UmbElementMixin(LitElement) {
             (context) => {
                 this.#actionContext = context;
 
-                this.#actionContext!.getConfig().then(() => {
-                    this.isLoaded = true;
-
-                    this.#actionContext!.getActions().then(() => {
-                        this.observe(this.#actionContext?.actions, (x) => {
-                            this.actions = x;
-                        });
+                this.#actionContext!.getActions().then(() => {
+                    this.observe(this.#actionContext?.actions, (x) => {
+                        this.actions = x;
                     });
+
+                    this.isLoaded = true;
                 });
+
+                // this.#actionContext!.getConfig().then(() => {
+                //     this.isLoaded = true;
+                // });
             }
         );
     }

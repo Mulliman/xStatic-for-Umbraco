@@ -3,6 +3,7 @@ import { modalManifests, contextManifests } from "./areas/sites/manifests.js";
 import { exportTypesModalManifests, exportTypesContextManifests } from "./areas/exportTypes/manifests.js";
 import { actionModalManifests, actionContextManifests } from "./areas/actions/manifests.js";
 import { deploymentTargetModalManifests, deploymentTargetContextManifests } from "./areas/deploymentTargets/manifests.js";
+import { docsContextManifests } from "./areas/docs/manifests.js";
 import { manifests as properEditors } from "./propertyEditors/manifests.js";
 import sectionManifest from "./sections/manifests.js";
 import { configContextManifests } from "./areas/config/manifests.js";
@@ -19,6 +20,7 @@ const manifests = [
   ...actionContextManifests,
   ...deploymentTargetModalManifests,
   ...deploymentTargetContextManifests,
+  ...docsContextManifests,
   ...properEditors,
 ];
 
