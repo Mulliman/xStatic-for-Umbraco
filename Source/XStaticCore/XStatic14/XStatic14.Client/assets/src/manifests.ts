@@ -5,19 +5,21 @@ import { actionModalManifests, actionContextManifests } from "./areas/actions/ma
 import { deploymentTargetModalManifests, deploymentTargetContextManifests } from "./areas/deploymentTargets/manifests.js";
 import { manifests as properEditors } from "./propertyEditors/manifests.js";
 import sectionManifest from "./sections/manifests.js";
+import { configContextManifests } from "./areas/config/manifests.js";
 
 const manifests = [
   ...dashboardManifests,
   sectionManifest,
   ...modalManifests,
   ...contextManifests,
+  ...configContextManifests,
   ...exportTypesModalManifests,
   ...exportTypesContextManifests,
   ...actionModalManifests,
   ...actionContextManifests,
   ...deploymentTargetModalManifests,
   ...deploymentTargetContextManifests,
-  ...properEditors
+  ...properEditors,
 ];
 
 export default manifests;

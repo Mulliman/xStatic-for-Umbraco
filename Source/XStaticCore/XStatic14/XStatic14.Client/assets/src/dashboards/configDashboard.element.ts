@@ -1,6 +1,8 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
 
+import "../areas/config/element.configGrid";
+
 @customElement('xstatic-config-dashboard')
 export class XStaticConfigDashboard extends UmbElementMixin(LitElement) {
 
@@ -14,13 +16,8 @@ export class XStaticConfigDashboard extends UmbElementMixin(LitElement) {
     render() {
         return html`
             <umb-body-layout>
-                <div slot="header"></div>
-                <uui-button color="" look="placeholder" pristine="">Main slot</uui-button>
-                <div slot="footer-info"><uui-button color="" look="placeholder" pristine="">Footer slot</uui-button></div>
+                <xstatic-config-grid></xstatic-config-grid>
             </umb-body-layout>
-            <uui-box headline="${this.title}">
-                dashboard content goes here
-            </uui-box>
         `
     }
 

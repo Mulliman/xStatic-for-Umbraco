@@ -40,23 +40,23 @@ class ActionGrid extends UmbElementMixin(LitElement) {
         this.consumeContext(
             ACTION_CONTEXT_TOKEN,
             (context) => {
-              this.#actionContext = context;
+                this.#actionContext = context;
 
-              this.#actionContext!.getConfig().then(() => {
-                this.isLoaded = true;
-                });
+                this.#actionContext!.getConfig().then(() => {
+                    this.isLoaded = true;
 
-                this.#actionContext!.getActions().then(() => {
-                    this.observe(this.#actionContext?.actions, (x) => {
-                        this.actions = x;
+                    this.#actionContext!.getActions().then(() => {
+                        this.observe(this.#actionContext?.actions, (x) => {
+                            this.actions = x;
+                        });
                     });
                 });
             }
-          );
+        );
     }
 
     #renderTypes() {
-        if(!this.actions) {
+        if (!this.actions) {
             return null;
         }
 
@@ -68,7 +68,7 @@ class ActionGrid extends UmbElementMixin(LitElement) {
     }
 
     render() {
-        if(!this.actions) {
+        if (!this.actions) {
             return this.isLoaded ? html`` : html`Loading...`;
         }
 
