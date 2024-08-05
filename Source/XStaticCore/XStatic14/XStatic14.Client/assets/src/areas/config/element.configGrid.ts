@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import ConfigContext, { CONFIG_CONTEXT_TOKEN } from './context.config';
 
-import {  XStaticConfig } from '../../api';
+import { XStaticConfig } from '../../api';
 
 import "./element.configSection";
 
@@ -18,21 +18,6 @@ class ConfigGrid extends UmbElementMixin(LitElement) {
 
     #configContext?: ConfigContext;
 
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
-
     constructor() {
         super();
 
@@ -41,21 +26,27 @@ class ConfigGrid extends UmbElementMixin(LitElement) {
             (context) => {
                 this.#configContext = context;
 
-                this.#configContext!.getConfig().then(() => {
-                    this.isLoaded = true;
-
-                    this.observe(this.#configContext?.config, (c) => {
-                        this.config = c;
-                    });
+                this.observe(this.#configContext?.config, (c) => {
+                    this.config = c;
                 });
+
+                this.isLoaded = true;
             }
         );
     }
 
-    async connectedCallback() {
-        super.connectedCallback();
+    render() {
+        if (!this.config) {
+            return this.isLoaded ? html`` : html`Loading...`;
+        }
 
-
+        return html`
+            ${this.#renderGenerators()}
+            ${this.#renderTransformerFactories()}
+            ${this.#renderDeployers()}
+            ${this.#renderFileNameGenerators()}
+            ${this.#renderPostGenActions()}
+        `;
     }
 
     #renderGenerators() {
@@ -133,24 +124,20 @@ class ConfigGrid extends UmbElementMixin(LitElement) {
             description="A Post Generation Action is a process that runs after all the pages have been generated."></xstatic-config-section-element>
         `;
     }
-    
 
-    render() {
-        if (!this.config) {
-            return this.isLoaded ? html`` : html`Loading...`;
+    static styles = css`
+        :host {
+            position: relative;
+            display: grid;
+            grid-gap: 20px;
+            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
         }
 
-        return html`
-            
-
-            ${this.#renderGenerators()}
-            ${this.#renderTransformerFactories()}
-            ${this.#renderDeployers()}
-            ${this.#renderFileNameGenerators()}
-            ${this.#renderPostGenActions()}
-
-        `;
-    }
+        :host > div{
+            display: block;
+            position: relative;
+        }
+    `;
 }
 
 export default ConfigGrid;

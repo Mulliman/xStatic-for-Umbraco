@@ -36,23 +36,23 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
         super();
     }
 
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        .desc{
-            margin-bottom: 1rem;
-            font-size: 1rem;;
-        }
-
-        .components{
-            margin-bottom: 1rem;
-            font-size: 1rem;;
-        }
-    `;
+    render() {
+        return html`
+            <uui-box>
+                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${this.heading}</div>
+                
+                <div style="position:relative; display: block">
+                    <div class="desc">
+                        ${this.description}
+                    </div>
+                    <div>
+                        <h4>Installed Components:</h4>
+                        <xstatic-site-table .items=${this.getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
+                    </div>
+                </div>
+            </uui-box>
+        `;
+    }
 
     addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
         if(!id || !alias || !value) {
@@ -82,24 +82,23 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
         return array;
     }
 
-    render() {
-        return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${this.heading}</div>
-                
-                <div style="position:relative; display: block">
-                    <div class="desc">
-                        ${this.description}
-                    </div>
-                    <div>
-                        <h4>Installed Components:</h4>
-                    <xstatic-site-table .items=${this.getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
+    static styles = css`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
 
-                    </div>
-                </div>
-            </uui-box>
-        `;
-    }
+        .desc{
+            margin-bottom: 1rem;
+            font-size: 1rem;;
+        }
+
+        .components{
+            margin-bottom: 1rem;
+            font-size: 1rem;;
+        }
+    `;
 }
 
 export default ConfigSectionElement;

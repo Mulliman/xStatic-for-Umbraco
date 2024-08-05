@@ -1,27 +1,22 @@
-﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { ActionModel, ActionUpdateModel, V1Service, XStaticConfig } from "../../api";
+import { ActionModel, ActionUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
+import ConfigContextBase from "../../ConfigContextBase";
 
-export class ActionContext extends UmbControllerBase {
+export class ActionContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(ACTION_CONTEXT_TOKEN, this);
     }
 
-    isConfigLoaded: boolean = false;
     isActionsLoaded: boolean = false;
-
-    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public readonly config : Observable<XStaticConfig> = this.#initConfig();
 
     #actions = new UmbArrayState<ActionModel>([], (x) => x.id);
     public readonly actions : Observable<ActionModel[]> = this.#initActions();
-
 
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         console.log('creating action', action);
@@ -65,16 +60,6 @@ export class ActionContext extends UmbControllerBase {
         await this.#getActions();
     }
 
-    #initConfig() : Observable<XStaticConfig> {
-        console.log('init config');
-
-        if(!this.isConfigLoaded){
-            this.#getConfig();
-        }
-
-        return this.#config.asObservable();
-    }
-
     #initActions() : Observable<ActionModel[]> {
         console.log('init actions');
 
@@ -83,21 +68,6 @@ export class ActionContext extends UmbControllerBase {
         }
 
         return this.#actions.asObservable();
-    }
-
-    async #getConfig() {
-        
-        console.log('fetching config');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
-
-        if(data){
-            console.log('data', data);
-
-            this.#config.setValue(data);
-
-            this.isConfigLoaded = true;
-        }
     }
 
     async #getActions() {
