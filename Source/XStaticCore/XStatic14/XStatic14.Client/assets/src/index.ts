@@ -13,9 +13,11 @@ const manifestsList: Array<ManifestTypes> = [
 ];
 
 export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
-    
-    // register them here. 
-    extensionRegistry.registerMany(manifestsList);
+    manifestsList.forEach((manifest) => {
+      if(!extensionRegistry.isRegistered(manifest.alias)){
+        extensionRegistry.register(manifest);
+      }
+    });
 
     _host.consumeContext(UMB_AUTH_CONTEXT, (_auth) => {
         const umbOpenApi = _auth.getOpenApiConfiguration();

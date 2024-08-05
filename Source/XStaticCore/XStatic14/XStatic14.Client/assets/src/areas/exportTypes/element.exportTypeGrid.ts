@@ -19,44 +19,38 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
 
     #exportTypeContext?: ExportTypeContext;
 
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
+    #inited: Promise<ExportTypeContext>;
 
     constructor() {
         super();
 
-        this.consumeContext(
+        this.#inited = this.consumeContext(
             EXPORT_TYPE_CONTEXT_TOKEN,
             (context) => {
               this.#exportTypeContext = context;
-
-              this.#exportTypeContext!.getConfig().then(() => {
-                this.isLoaded = true;
-                });
-        
-                this.observe(this.#exportTypeContext?.exportTypes, (x) => {
-                    this.exportTypes = x;
-                });
             }
-          );
+          ).asPromise();
     }
 
     async connectedCallback() {
         super.connectedCallback();
 
-        
+        setTimeout(async () => {
+
+            console.log('ExportTypeGrid connectedCallback', this.#exportTypeContext);
+
+            var context = await this.#inited;
+
+            console.log('ExportTypeGrid inited', this.#exportTypeContext);
+
+            await context.getConfig();
+
+            this.observe(context?.exportTypes, (x) => {
+                this.exportTypes = x;
+            });
+
+            this.isLoaded = true; 
+        }, 1000);
     }
 
     #renderTypes() {
@@ -81,6 +75,21 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
             ${this.#renderTypes()}
         `;
     }
+
+    static styles = css`
+        :host {
+            position: relative;
+            display: grid;
+            grid-gap: 20px;
+            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
+            grid-auto-rows: 1fr
+        }
+
+        :host > div{
+            display: block;
+            position: relative;
+        }
+    `;
 }
 
 export default ExportTypeGrid;

@@ -13,33 +13,15 @@ export class ActionContext extends UmbControllerBase {
         this.provideContext(ACTION_CONTEXT_TOKEN, this);
     }
 
+    isConfigLoaded: boolean = false;
+    isActionsLoaded: boolean = false;
+
     #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public readonly config : Observable<XStaticConfig> = this.#config.asObservable();
+    public readonly config : Observable<XStaticConfig> = this.#initConfig();
 
     #actions = new UmbArrayState<ActionModel>([], (x) => x.id);
-    public readonly actions : Observable<ActionModel[]> = this.#actions.asObservable();
+    public readonly actions : Observable<ActionModel[]> = this.#initActions();
 
-    public async getConfig() {
-        console.log('fetching config');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
-
-        if(data){
-            console.log('data', data);
-
-            this.#config.setValue(data);
-        }
-    }
-
-    public async getActions() {
-        console.log('fetching actions');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticActionsGetPostActions());
-
-        if(data){
-            this.#actions.setValue(data);
-        }
-    }
 
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         console.log('creating action', action);
@@ -47,7 +29,7 @@ export class ActionContext extends UmbControllerBase {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsCreatePostAction({ requestBody: action }));
 
         if(data){
-            await this.getActions();
+            await this.#getActions();
 
             return data;
         }
@@ -61,7 +43,7 @@ export class ActionContext extends UmbControllerBase {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsUpdatePostAction({ requestBody: action }));
 
         if(data){
-            await this.getActions();
+            await this.#getActions();
 
             return data;
         }
@@ -80,7 +62,54 @@ export class ActionContext extends UmbControllerBase {
         });
 
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticActionsDeletePostAction({ id : id } ));
-        await this.getActions();
+        await this.#getActions();
+    }
+
+    #initConfig() : Observable<XStaticConfig> {
+        console.log('init config');
+
+        if(!this.isConfigLoaded){
+            this.#getConfig();
+        }
+
+        return this.#config.asObservable();
+    }
+
+    #initActions() : Observable<ActionModel[]> {
+        console.log('init actions');
+
+        if(!this.isActionsLoaded){
+            this.#getActions();
+        }
+
+        return this.#actions.asObservable();
+    }
+
+    async #getConfig() {
+        
+        console.log('fetching config');
+
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
+
+        if(data){
+            console.log('data', data);
+
+            this.#config.setValue(data);
+
+            this.isConfigLoaded = true;
+        }
+    }
+
+    async #getActions() {
+        console.log('fetching actions');
+
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticActionsGetPostActions());
+
+        if(data){
+            this.#actions.setValue(data);
+
+            this.isActionsLoaded = true;
+        }
     }
 }
 

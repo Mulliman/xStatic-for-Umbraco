@@ -6,28 +6,7 @@ import { EditActionModal } from './dialog.action';
 
 @customElement('xstatic-new-action-element')
 class NewSiteElement extends UmbElementMixin(LitElement) {
-
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditActionModal, {});
-        } )
-    }
-
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-    `;
-    
     render() {
-
         return html`
             <uui-box>
                 <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">Create new Action</div>
@@ -50,6 +29,25 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
             </uui-box>
         `;
     }
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) => {
+            manager.open(this, EditActionModal, {});
+        })
+    }
+
+    static styles = css`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+    `;
 }
 
 export default NewSiteElement;

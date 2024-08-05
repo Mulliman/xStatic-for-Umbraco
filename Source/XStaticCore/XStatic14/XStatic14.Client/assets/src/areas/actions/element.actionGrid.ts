@@ -19,21 +19,6 @@ class ActionGrid extends UmbElementMixin(LitElement) {
 
     #actionContext?: ActionContext;
 
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
-
     constructor() {
         super();
 
@@ -42,19 +27,24 @@ class ActionGrid extends UmbElementMixin(LitElement) {
             (context) => {
                 this.#actionContext = context;
 
-                this.#actionContext!.getActions().then(() => {
-                    this.observe(this.#actionContext?.actions, (x) => {
-                        this.actions = x;
-                    });
+                this.observe(this.#actionContext?.actions, (x) => {
+                    this.actions = x;
 
                     this.isLoaded = true;
                 });
-
-                // this.#actionContext!.getConfig().then(() => {
-                //     this.isLoaded = true;
-                // });
             }
         );
+    }
+
+    render() {
+        if (!this.actions) {
+            return this.isLoaded ? html`` : html`Loading...`;
+        }
+
+        return html`
+            <xstatic-new-action-element></xstatic-new-action-element>
+            ${this.#renderTypes()}
+        `;
     }
 
     #renderTypes() {
@@ -69,16 +59,21 @@ class ActionGrid extends UmbElementMixin(LitElement) {
         });
     }
 
-    render() {
-        if (!this.actions) {
-            return this.isLoaded ? html`` : html`Loading...`;
+    
+    static styles = css`
+        :host {
+            position: relative;
+            display: grid;
+            grid-gap: 20px;
+            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
+            grid-auto-rows: 1fr
         }
 
-        return html`
-            <xstatic-new-action-element></xstatic-new-action-element>
-            ${this.#renderTypes()}
-        `;
-    }
+        :host > div{
+            display: block;
+            position: relative;
+        }
+    `;
 }
 
 export default ActionGrid;
