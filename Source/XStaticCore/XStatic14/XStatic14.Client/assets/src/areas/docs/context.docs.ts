@@ -7,26 +7,35 @@ import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { DocModel } from './element.doc';
 
 export class DocsContext extends UmbControllerBase {
+    #isDocsLoaded: any;
+    #isPluginsLoaded: any;
+
+    #plugins = new UmbArrayState<DocModel>([], (d) => d.heading);
+    public readonly plugins : Observable<DocModel[]> = this.#initPlugins();
+
+    #docs = new UmbArrayState<DocModel>([], (d) => d.heading);
+    public readonly docs : Observable<DocModel[]> = this.#initDocs();
+    
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(DOCS_CONTEXT_TOKEN, this);
     }
 
-    #plugins = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public readonly plugins : Observable<DocModel[]> = this.#plugins.asObservable();
+    #initDocs() : Observable<DocModel[]> {
+        if(!this.#isDocsLoaded){
+            this.#getDocs();
+        }
 
-    #docs = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public readonly docs : Observable<DocModel[]> = this.#docs.asObservable();
+        return this.#docs.asObservable();
+    }
 
-    public async getDocs() {
+    async #getDocs() {
         console.log('fetching docs');
 
         const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/help.json')).json());
 
         if(data){
-            console.log('data', data);
-
             const arr = data as Array<any>;
 
             var mapped = arr.map((d) => ({
@@ -39,28 +48,34 @@ export class DocsContext extends UmbControllerBase {
         }
     }
 
-    public async getPlugins() {
+    #initPlugins() : Observable<DocModel[]> {
+        if(!this.#isPluginsLoaded){
+            this.#getPlugins();
+        }
+
+        return this.#plugins.asObservable();
+    }
+
+    async #getPlugins() {
         console.log('fetching plugins');
 
         const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/plugins.json')).json());
 
         if(data){
-            console.log('data', data);
-
             const arr = data as Array<any>;
 
             var mapped = arr.map((d) => ({
                 heading: d['id'],
                 author: d['authors'],
                 description : d['description'],
-                links: this.getLinks(d)
+                links: this.#getLinks(d)
             }) as DocModel);
 
             this.#plugins.setValue(mapped);
         }
     }
 
-    getLinks(item: any){
+    #getLinks(item: any){
         let arr : Array<{href: string, text: string}>= [];
 
         if(item['nugetLink']){
