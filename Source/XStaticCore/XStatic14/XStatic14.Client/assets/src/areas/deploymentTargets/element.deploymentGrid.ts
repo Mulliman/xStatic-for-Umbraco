@@ -19,44 +19,35 @@ class ActionGrid extends UmbElementMixin(LitElement) {
 
     #deploymentTargetContext?: DeploymentTargetContext;
 
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
-
     constructor() {
         super();
 
         this.consumeContext(
             DEPLOYMENT_TARGET_CONTEXT_TOKEN,
             (context) => {
-              this.#deploymentTargetContext = context;
+                this.#deploymentTargetContext = context;
 
-              this.#deploymentTargetContext!.getConfig().then(() => {
-                this.isLoaded = true;
-                });
-
-                this.#deploymentTargetContext!.getDeploymentTargets().then(() => {
-                    this.observe(this.#deploymentTargetContext?.deploymentTargets, (x) => {
-                        this.deploymentTargets = x;
-                    });
+                this.observe(this.#deploymentTargetContext?.deploymentTargets, (x) => {
+                    this.deploymentTargets = x;
+                    this.isLoaded = true;
                 });
             }
-          );
+        );
+    }
+
+    render() {
+        if (!this.deploymentTargets) {
+            return this.isLoaded ? html`` : html`Loading...`;
+        }
+
+        return html`
+            <xstatic-new-deployment-target-element></xstatic-new-deployment-target-element>
+            ${this.#renderTypes()}
+        `;
     }
 
     #renderTypes() {
-        if(!this.deploymentTargets) {
+        if (!this.deploymentTargets) {
             return null;
         }
 
@@ -67,16 +58,19 @@ class ActionGrid extends UmbElementMixin(LitElement) {
         });
     }
 
-    render() {
-        if(!this.deploymentTargets) {
-            return this.isLoaded ? html`` : html`Loading...`;
+    static styles = css`
+        :host {
+            position: relative;
+            display: grid;
+            grid-gap: 20px;
+            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
         }
 
-        return html`
-            <xstatic-new-deployment-target-element></xstatic-new-deployment-target-element>
-            ${this.#renderTypes()}
-        `;
-    }
+        :host > div{
+            display: block;
+            position: relative;
+        }
+    `;
 }
 
 export default ActionGrid;

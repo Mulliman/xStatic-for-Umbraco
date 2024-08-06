@@ -30,8 +30,6 @@ export class XStaticPropertyEditorDeploymentTypeElement extends UmbLitElement im
                 value: field.value
             } as UmbPropertyValueData;
         });
-        
-        console.log('set _values', this._values);
 	}
 
     public get value(): DeployerField[] {
@@ -46,8 +44,6 @@ export class XStaticPropertyEditorDeploymentTypeElement extends UmbLitElement im
 
 		const fields = config.getValueByAlias('fields') as DeployerField[] | null | undefined;
 
-        console.log('config', fields);
-
         this.value = fields;
 	}
 
@@ -56,18 +52,8 @@ export class XStaticPropertyEditorDeploymentTypeElement extends UmbLitElement im
 
         this._values = value;
 
-        console.log('values', this._values);
-
         this.dispatchEvent(new UmbPropertyValueChangeEvent());
     }
-
-    // recordAsArray(record: Record<string, string | null> | null | undefined): { key: string, value: string | null }[] {
-    //     if(!record) {
-    //         return [];
-    //     }
-
-    //     return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
-    // }
 
 	override render() {
 		return this.#renderForm();
@@ -77,8 +63,6 @@ export class XStaticPropertyEditorDeploymentTypeElement extends UmbLitElement im
         if(!this._values || !this._fields) {
             return html`<h3>No Deployer selected</h3>`;
         }
-
-        console.log('renderForm', this._values);
 
 		return html`
             <umb-property-dataset

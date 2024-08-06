@@ -1,45 +1,23 @@
-﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service, XStaticConfig } from "../../api";
+import { DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
+import ConfigContextBase from "../../ConfigContextBase";
 
-export class DeploymentTargetContext extends UmbControllerBase {
+export class DeploymentTargetContext extends ConfigContextBase {
+
+    isTargetsLoaded: boolean = false;
+
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(DEPLOYMENT_TARGET_CONTEXT_TOKEN, this);
     }
 
-    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public readonly config : Observable<XStaticConfig> = this.#config.asObservable();
-
     #deploymentTargets = new UmbArrayState<DeploymentTargetModel>([], (x) => x.id);
-    public readonly deploymentTargets : Observable<DeploymentTargetModel[]> = this.#deploymentTargets.asObservable();
-
-    public async getConfig() {
-        console.log('fetching config');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
-
-        if(data){
-            console.log('data', data);
-
-            this.#config.setValue(data);
-        }
-    }
-
-    public async getDeploymentTargets() {
-        console.log('fetching deployment targets');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticDeploymentTargetsGetDeploymentTargets());
-
-        if(data){
-            this.#deploymentTargets.setValue(data);
-        }
-    }
+    public readonly deploymentTargets : Observable<DeploymentTargetModel[]> = this.#initDeploymentTargets();
 
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         console.log('creating deployment target', action);
@@ -47,7 +25,7 @@ export class DeploymentTargetContext extends UmbControllerBase {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
 
         if(data){
-            await this.getDeploymentTargets();
+            await this.#getDeploymentTargets();
 
             return data;
         }
@@ -61,7 +39,7 @@ export class DeploymentTargetContext extends UmbControllerBase {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
 
         if(data){
-            await this.getDeploymentTargets();
+            await this.#getDeploymentTargets();
 
             return data;
         }
@@ -80,7 +58,26 @@ export class DeploymentTargetContext extends UmbControllerBase {
         });
 
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget({ id : id } ));
-        await this.getDeploymentTargets();
+        await this.#getDeploymentTargets();
+    }
+
+    #initDeploymentTargets() : Observable<DeploymentTargetModel[]> {
+        if(!this.isTargetsLoaded){
+            this.#getDeploymentTargets();
+        }
+
+        return this.#deploymentTargets.asObservable();
+    }
+
+    async #getDeploymentTargets() {
+        console.log('fetching deployment targets');
+
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticDeploymentTargetsGetDeploymentTargets());
+
+        if(data){
+            this.#deploymentTargets.setValue(data);
+            this.isTargetsLoaded = true;
+        }
     }
 }
 

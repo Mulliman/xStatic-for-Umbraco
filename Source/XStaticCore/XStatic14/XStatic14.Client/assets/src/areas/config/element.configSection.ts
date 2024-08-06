@@ -47,14 +47,14 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
                     </div>
                     <div>
                         <h4>Installed Components:</h4>
-                        <xstatic-site-table .items=${this.getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
+                        <xstatic-site-table .items=${this.#getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
                     </div>
                 </div>
             </uui-box>
         `;
     }
 
-    addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
+    #addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
         if(!id || !alias || !value) {
             return;
         }
@@ -72,11 +72,11 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
         array.push(item);
     }
 
-    getTable() : Array<xStaticTableItem> {
+    #getTable() : Array<xStaticTableItem> {
         let array : Array<xStaticTableItem> = [];
 
         this.values?.forEach((value, i) => {
-            this.addTableItem(array, `${value}-${i}`, this.icon || "icon-untitled", "value", value);
+            this.#addTableItem(array, `${value}-${i}`, this.icon || "icon-untitled", "value", value);
         });
 
         return array;

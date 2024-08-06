@@ -15,8 +15,6 @@ export abstract class ConfigContextBase extends UmbControllerBase {
     public readonly config : Observable<XStaticConfig> = this.#initConfig();
 
     #initConfig() : Observable<XStaticConfig> {
-        console.log('init config');
-
         if(!this.isConfigLoaded){
             this.#getConfig();
         }

@@ -18,16 +18,12 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
 	public set value(value: Record<string, string | null> | null | undefined) {
         let array = this.recordAsArray(value);
 
-        console.log('set value array', array);
-
 		this._values = array.map((field) => {
             return {
                 alias: field.key,
                 value: field.value
             }
         });
-        
-        console.log('set _values', this._values);
 	}
 
     public get value(): Record<string, string | null> | null | undefined {

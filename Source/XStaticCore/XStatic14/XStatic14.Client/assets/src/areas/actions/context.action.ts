@@ -61,8 +61,6 @@ export class ActionContext extends ConfigContextBase {
     }
 
     #initActions() : Observable<ActionModel[]> {
-        console.log('init actions');
-
         if(!this.isActionsLoaded){
             this.#getActions();
         }

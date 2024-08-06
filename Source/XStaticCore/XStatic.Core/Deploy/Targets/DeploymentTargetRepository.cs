@@ -70,6 +70,7 @@ namespace XStatic.Core.Deploy.Targets
 
                 try
                 {
+                    entity.Name = update.Name;
                     entity.Config = update.Config;
                     entity.DeployerDefinition = update.DeployerDefinition;
 

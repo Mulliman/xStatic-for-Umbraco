@@ -7,25 +7,6 @@ import { EditDeploymentTargetModal } from './dialog.deploymentTarget';
 @customElement('xstatic-new-deployment-target-element')
 class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
 
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditDeploymentTargetModal, {});
-        } )
-    }
-
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-    `;
-    
     render() {
 
         return html`
@@ -50,6 +31,25 @@ class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
             </uui-box>
         `;
     }
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
+            manager.open(this, EditDeploymentTargetModal, {});
+        } )
+    }
+
+    static styles = css`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+    `;
 }
 
 export default NewDeploymentTargetElement;
