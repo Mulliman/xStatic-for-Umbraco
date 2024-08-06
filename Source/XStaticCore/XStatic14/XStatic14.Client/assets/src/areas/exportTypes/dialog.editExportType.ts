@@ -35,7 +35,7 @@ export class EditExportTypeModalElement extends
     @state()
     content: ExportTypeModel = {} as ExportTypeModel;
 
-    @state() 
+    @state()
     _values: Array<UmbPropertyValueData> = [];
 
     @state()
@@ -50,46 +50,62 @@ export class EditExportTypeModalElement extends
         this.consumeContext(
             EXPORT_TYPE_CONTEXT_TOKEN,
             (context) => {
-              this.#exportTypeContext = context;
+                this.#exportTypeContext = context;
 
-              if(this.data?.content) {
-                var updateModel = {
-                    id: this.data?.content?.id ?? 0,
-                    name: this.data?.content?.name,
-                    fileNameGenerator: this.data?.content?.fileNameGenerator?.id,
-                    generator: this.data?.content?.generator?.id,
-                    transformerFactory: this.data?.content?.transformerFactory?.id,
-                };
-    
-                this.updateValue({ content: updateModel });
-    
-                this._values = [
-                    { alias: 'id', value: updateModel.id },
-                    { alias: 'name', value: updateModel.name },
-                    { alias: 'fileNameGenerator', value: [updateModel.fileNameGenerator] },
-                    { alias: 'generator', value: [updateModel.generator] },
-                    { alias: 'transformerFactory', value: [updateModel.transformerFactory] },
-                ];
-    
-                console.log('values', this._values);
+                if (this.data?.content) {
+                    this.#mapToPropertyValueData();
+                }
+
+                this.observe(this.#exportTypeContext?.config, (x) => {
+                    this.config = x;
+                    this.isLoaded = true;
+                });
             }
-    
-            this.#exportTypeContext!.getConfig().then(() => {
-                this.isLoaded = true;
-            });
-    
-            this.observe(this.#exportTypeContext?.config, (x) => {
-                this.config = x;
-            });
-            }
-          );
+        );
     }
 
-    connectedCallback(): void {
-        super.connectedCallback();
+    //#region Render
 
-        
+    render() {
+        return html`
+            <umb-body-layout .headline=${this.data?.headline ?? 'Create new export type'}>
+                <uui-box>
+                <umb-property-dataset
+                  .value=${this._values as Array<UmbPropertyValueData>}
+                  @change=${this.#onPropertyDataChange}
+                >
+                  ${this.getBaseProperties()
+                .map(
+                    (prop) =>
+
+                        html`<umb-property
+                          alias=${prop.alias}
+                          label=${prop.label}
+                          .description=${prop.description}
+                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                          .config=${prop.config}
+                        ></umb-property>`
+                )}
+                </umb-property-dataset>
+
+                </uui-box>
+
+                <div slot="actions">
+                        <uui-button id="cancel" label="Cancel" @click="${this.#handleCancel}">Cancel</uui-button>
+                        <uui-button
+                            id="submit"
+                            color='positive'
+                            look="primary"
+                            label="Submit"
+                            @click=${this.#handleConfirm}></uui-button>
+            </div>
+            </umb-body-layout>
+        `;
     }
+
+    // #endregion Render
+
+    // #region Handlers
 
     async #handleConfirm() {
         if (!this._values) {
@@ -102,42 +118,23 @@ export class EditExportTypeModalElement extends
             ? await this.#exportTypeContext!.updateExportType(postModel)
             : await this.#exportTypeContext!.createExportType(postModel);
 
-        if(data) {
+        if (data) {
             this.modalContext?.submit();
         }
-    }
-
-    createCsvString(value: any[]) {
-        return value?.length > 0 ? value.join(',') : null;
-    }
-
-    getFirst(value: any[]) {
-        return value?.length > 0 ? value[0] : null;
-    }
-    
-    createPostModel() : ExportTypeUpdateModel {
-
-        console.log('createPostModel values', this._values);
-
-        var model = 
-        {
-            name: this._values.find((x) => x.alias === 'name')?.value,
-            id: this.data?.content.id,
-            fileNameGenerator: this.getFirst(this._values.find((x) => x.alias === 'fileNameGenerator')?.value as Array<string>),
-            generator: this.getFirst(this._values.find((x) => x.alias === 'generator')?.value as Array<string>),
-            transformerFactory: this.getFirst(this._values.find((x) => x.alias === 'transformerFactory')?.value as Array<string>),
-        } as ExportTypeUpdateModel;
-
-        console.log('createPostModel model', model);
-
-        return model;
     }
 
     #handleCancel() {
         this.modalContext?.reject();
     }
 
+    #onPropertyDataChange(e: Event) {
+        const value = (e.target as UmbPropertyDatasetElement).value;
+        this._values = value;
+    }
 
+    // #endregion Handlers
+
+    // #region Form
 
     getBaseProperties(): PropertyEditorSettingsProperty[] {
 
@@ -196,56 +193,63 @@ export class EditExportTypeModalElement extends
                 ],
             },
         ];
-    } 
-
-    #onPropertyDataChange(e: Event) {
-        // Grab the value
-        const value = (e.target as UmbPropertyDatasetElement).value;
-        // Convert the value back into an object
-        // var data = value.reduce((acc, curr)=>({...acc, [curr.alias]: curr.value}), {});
-        // Update our model
-        this._values = value;
-
-        console.log('values', this._values);
     }
 
-    render() {
-        return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Create new export type'}>
-                <uui-box>
-                <umb-property-dataset
-                  .value=${this._values as Array<UmbPropertyValueData>}
-                  @change=${this.#onPropertyDataChange}
-                >
-                  ${this.getBaseProperties()
-                .map(
-                    (prop) =>
+    // #endregion Form
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
-                )}
-                </umb-property-dataset>
+    // #region Mappers
 
-                </uui-box>
+    #mapToPropertyValueData() {
+        var updateModel = {
+            id: this.data?.content?.id ?? 0,
+            name: this.data?.content?.name,
+            fileNameGenerator: this.data?.content?.fileNameGenerator?.id,
+            generator: this.data?.content?.generator?.id,
+            transformerFactory: this.data?.content?.transformerFactory?.id,
+        };
 
-                <div slot="actions">
-                        <uui-button id="cancel" label="Cancel" @click="${this.#handleCancel}">Cancel</uui-button>
-                        <uui-button
-                            id="submit"
-                            color='positive'
-                            look="primary"
-                            label="Submit"
-                            @click=${this.#handleConfirm}></uui-button>
-            </div>
-            </umb-body-layout>
-        `;
+        this.updateValue({ content: updateModel });
+
+        this._values = [
+            { alias: 'id', value: updateModel.id },
+            { alias: 'name', value: updateModel.name },
+            { alias: 'fileNameGenerator', value: [updateModel.fileNameGenerator] },
+            { alias: 'generator', value: [updateModel.generator] },
+            { alias: 'transformerFactory', value: [updateModel.transformerFactory] },
+        ];
     }
 
+    createPostModel(): ExportTypeUpdateModel {
+
+        console.log('createPostModel values', this._values);
+
+        var model =
+            {
+                name: this._values.find((x) => x.alias === 'name')?.value,
+                id: this.data?.content.id,
+                fileNameGenerator: this.getFirst(this._values.find((x) => x.alias === 'fileNameGenerator')?.value as Array<string>),
+                generator: this.getFirst(this._values.find((x) => x.alias === 'generator')?.value as Array<string>),
+                transformerFactory: this.getFirst(this._values.find((x) => x.alias === 'transformerFactory')?.value as Array<string>),
+            } as ExportTypeUpdateModel;
+
+        console.log('createPostModel model', model);
+
+        return model;
+    }
+
+    // #endregion Mappers
+
+    // #region Utils
+
+    createCsvString(value: any[]) {
+        return value?.length > 0 ? value.join(',') : null;
+    }
+
+    getFirst(value: any[]) {
+        return value?.length > 0 ? value[0] : null;
+    }
+
+    // #endregion Utils 
 }
 
 export default EditExportTypeModalElement;

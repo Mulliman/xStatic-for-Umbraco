@@ -20,13 +20,6 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
             width: 100%;
         }
 
-        :host .badge{
-            display: block;
-            position: relative;
-            text-align: center;
-            width: 100%;
-        }
-
         .buttons {
             text-align: center;
             margin-top: 20px;

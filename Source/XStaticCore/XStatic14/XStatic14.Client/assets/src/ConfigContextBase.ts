@@ -16,13 +16,13 @@ export abstract class ConfigContextBase extends UmbControllerBase {
 
     #initConfig() : Observable<XStaticConfig> {
         if(!this.isConfigLoaded){
-            this.#getConfig();
+            this.getConfig();
         }
 
         return this.#config.asObservable();
     }
     
-    async #getConfig() {
+    async getConfig() {
         const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
 
         if(data){

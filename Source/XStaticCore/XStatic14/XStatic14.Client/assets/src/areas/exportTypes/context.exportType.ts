@@ -1,36 +1,15 @@
-﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { ExportTypeModel, ExportTypeUpdateModel, V1Service, XStaticConfig } from "../../api";
+import { ExportTypeModel, ExportTypeUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
+import ConfigContextBase from "../../ConfigContextBase";
 
-export class ExportTypeContext extends UmbControllerBase {
+export class ExportTypeContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(EXPORT_TYPE_CONTEXT_TOKEN, this);
-    }
-
-    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public readonly config : Observable<XStaticConfig> = this.#config.asObservable();
-
-    #exportTypes = new UmbArrayState<ExportTypeModel>([], (x) => x.id);
-    public readonly exportTypes : Observable<ExportTypeModel[]> = this.#exportTypes.asObservable();
-
-    public async getConfig() {
-        console.log('fetching sites proper');
-
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
-
-        if(data){
-            this.#config.setValue(data);
-        }
-
-        if(data?.exportTypes){
-            this.#exportTypes.setValue(data.exportTypes);
-        }
     }
 
     public async createExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {

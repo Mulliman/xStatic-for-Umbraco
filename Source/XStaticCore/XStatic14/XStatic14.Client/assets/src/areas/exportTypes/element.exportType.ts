@@ -27,7 +27,7 @@ class ExportTypeElement extends UmbElementMixin(LitElement) {
     @state()
     private _tableColumns: Array<xStaticTableColumn> = [ { alias: "value", name: "Details" } ];
     
-    #exportTypeContext: ExportTypeContext;
+    #exportTypeContext?: ExportTypeContext;
 
     constructor() {
         super();
@@ -38,53 +38,6 @@ class ExportTypeElement extends UmbElementMixin(LitElement) {
               this.#exportTypeContext = context;
             }
           );
-    }
-
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-    `;
-
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditExportTypeModal, { data: { content: this.exportType!, headline: `Edit ${this.exportType?.name} site` } });
-        } )
-    }
-
-    async #delete() {
-        await this.#exportTypeContext.deleteExportType(this.exportType!.id);
-    }
-
-    addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
-        if(!id || !alias || !value) {
-            return;
-        }
-
-        const item = {
-            id: id,
-            icon: icon,
-            data: [
-            {
-                columnAlias: alias,
-                value: value
-            }]
-        };
-
-        array.push(item);
-    }
-
-    getTable() : Array<xStaticTableItem> {
-        let array : Array<xStaticTableItem> = [];
-
-        this.addTableItem(array, "name", "icon-home", "value", this.exportType?.name);
-        this.addTableItem(array, "transformerFactory", "icon-brackets", "value", this.exportType?.transformerFactory?.name);
-        this.addTableItem(array, "generator", "icon-settings", "value", this.exportType?.generator?.name);
-        this.addTableItem(array, "fileNameGenerator", "icon-document", "value", this.exportType?.fileNameGenerator?.name);
-
-        return array;
     }
 
     render() {
@@ -107,12 +60,59 @@ class ExportTypeElement extends UmbElementMixin(LitElement) {
                         
                     </div>
                     <div>
-                        <xstatic-site-table .items=${this.getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
+                        <xstatic-site-table .items=${this.#getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
                     </div>
                 </div>
             </uui-box>
         `;
     }
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
+            manager.open(this, EditExportTypeModal, { data: { content: this.exportType!, headline: `Edit ${this.exportType?.name} site` } });
+        } )
+    }
+
+    async #delete() {
+        await this.#exportTypeContext!.deleteExportType(this.exportType!.id);
+    }
+
+    #addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
+        if(!id || !alias || !value) {
+            return;
+        }
+
+        const item = {
+            id: id,
+            icon: icon,
+            data: [
+            {
+                columnAlias: alias,
+                value: value
+            }]
+        };
+
+        array.push(item);
+    }
+
+    #getTable() : Array<xStaticTableItem> {
+        let array : Array<xStaticTableItem> = [];
+
+        this.#addTableItem(array, "name", "icon-home", "value", this.exportType?.name);
+        this.#addTableItem(array, "transformerFactory", "icon-brackets", "value", this.exportType?.transformerFactory?.name);
+        this.#addTableItem(array, "generator", "icon-settings", "value", this.exportType?.generator?.name);
+        this.#addTableItem(array, "fileNameGenerator", "icon-document", "value", this.exportType?.fileNameGenerator?.name);
+
+        return array;
+    }
+
+    static styles = css`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+    `;
 }
 
 export default ExportTypeElement;

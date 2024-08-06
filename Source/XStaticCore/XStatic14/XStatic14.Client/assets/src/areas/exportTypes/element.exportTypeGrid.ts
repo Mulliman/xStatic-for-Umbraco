@@ -19,42 +19,37 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
 
     #exportTypeContext?: ExportTypeContext;
 
-    #inited: Promise<ExportTypeContext>;
-
     constructor() {
         super();
 
-        this.#inited = this.consumeContext(
+        this.consumeContext(
             EXPORT_TYPE_CONTEXT_TOKEN,
             (context) => {
-              this.#exportTypeContext = context;
+                this.#exportTypeContext = context;
+
+                this.observe(this.#exportTypeContext?.config, (x) => {
+                    if(x.exportTypes){
+                        this.exportTypes = x.exportTypes;
+                        this.isLoaded = true;
+                    }
+                });
             }
-          ).asPromise();
+        )
     }
 
-    async connectedCallback() {
-        super.connectedCallback();
+    render() {
+        if (!this.exportTypes) {
+            return this.isLoaded ? html`` : html`Loading...`;
+        }
 
-        setTimeout(async () => {
-
-            console.log('ExportTypeGrid connectedCallback', this.#exportTypeContext);
-
-            var context = await this.#inited;
-
-            console.log('ExportTypeGrid inited', this.#exportTypeContext);
-
-            await context.getConfig();
-
-            this.observe(context?.exportTypes, (x) => {
-                this.exportTypes = x;
-            });
-
-            this.isLoaded = true; 
-        }, 1000);
+        return html`
+            <xstatic-new-export-type-element></xstatic-new-export-type-element>
+            ${this.#renderTypes()}
+        `;
     }
 
     #renderTypes() {
-        if(!this.exportTypes) {
+        if (!this.exportTypes) {
             return null;
         }
 
@@ -63,17 +58,6 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
                 <xstatic-export-type-element .exportType=${x}></xstatic-export-type-element>
             `
         });
-    }
-
-    render() {
-        if(!this.exportTypes) {
-            return this.isLoaded ? html`` : html`Loading...`;
-        }
-
-        return html`
-            <xstatic-new-export-type-element></xstatic-new-export-type-element>
-            ${this.#renderTypes()}
-        `;
     }
 
     static styles = css`
