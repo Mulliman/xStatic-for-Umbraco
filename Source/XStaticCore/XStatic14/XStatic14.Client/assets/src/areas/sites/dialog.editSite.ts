@@ -10,24 +10,7 @@ import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "../exportTypes/con
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "../actions/context.action";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "../deploymentTargets/context.deploymentTargets";
 
-export interface EditSiteModalData {
-    headline?: string;
-    content: SiteApiModel;
-}
 
-export interface EditSiteModalValue {
-    content: SiteUpdateModel;
-}
-
-export const EditSiteModal = new UmbModalToken<EditSiteModalData, EditSiteModalValue>(
-    "xstatic.editSiteModal",
-    {
-        modal: {
-            type: 'sidebar',
-            size: 'large',
-        }
-    }
-);
 
 @customElement('xstatic-edit-site-modal')
 export class EditSiteModalElement extends
@@ -52,7 +35,9 @@ export class EditSiteModalElement extends
 
     @state()
     deploymentTargets: DeploymentTargetModel[] | undefined;
-    
+
+    @state()
+    isReady: boolean = false;
 
     constructor() {
         super();
@@ -69,10 +54,8 @@ export class EditSiteModalElement extends
             (context) => {
                 this.#exportTypeContext = context;
 
-                this.#exportTypeContext!.getConfig().then(() => {
-                    this.observe(this.#exportTypeContext?.config, (x) => {
-                        this.config = x;
-                    });
+                this.observe(this.#exportTypeContext?.config, (x) => {
+                    this.config = x;
                 });
             }
         );
@@ -82,78 +65,83 @@ export class EditSiteModalElement extends
             (context) => {
                 this.#actionContext = context;
 
-                this.#actionContext!.getActions().then(() => {
-                    this.observe(this.#actionContext?.actions, (x) => {
-                        this.actions = x;
-                    });
-
-
-
-                    this.consumeContext(
-                        DEPLOYMENT_TARGET_CONTEXT_TOKEN,
-                        (context) => {
-                            this.#deploymentTargetContext = context;
-            
-                            this.#deploymentTargetContext!.getDeploymentTargets().then(() => {
-                                this.observe(this.#deploymentTargetContext?.deploymentTargets, (x) => {
-                                    this.deploymentTargets = x;
-                                });
-
-
-
-                                this.updateValue({ content: this.data?.content });
-
-                                if (this.data?.content) {
-                                    var model = this.data!.content;
-
-                                    this._values = [
-                                        { alias: 'name', value: model.name },
-                                        { alias: 'rootNode', value: [{ unique: model.rootNode }] },
-                                        { alias: 'mediaRootNodes', value: model.mediaRootNodes?.map(x => ({ key: x, mediaKey: x, unique: x })) },
-                                        { alias: 'exportFormat', value: [model.exportFormat] },
-                                        { alias: 'assetPaths', value: model.assetPaths?.split(',') },
-                                        { alias: 'imageCrops', value: model.imageCrops?.split(',') },
-                                        { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
-                                        { alias: 'autoPublish', value: model.autoPublish },
-                                        { alias: 'deploymentTarget', value: [model.deploymentTarget] },
-                                        { alias: 'targetHostname', value: model.targetHostname },
-                                    ];
-
-                                    console.log('values', this._values);
-                                }    
-                            });
-                        }
-                    );
+                this.observe(this.#actionContext?.actions, (x) => {
+                    this.actions = x;
                 });
             }
         );
 
-        
+        this.consumeContext(
+            DEPLOYMENT_TARGET_CONTEXT_TOKEN,
+            (context) => {
+                this.#deploymentTargetContext = context;
+
+                this.observe(this.#deploymentTargetContext?.deploymentTargets, (x) => {
+                    this.deploymentTargets = x;
+
+                    this.updateValue({ content: this.data?.content });
+
+                    if (this.data?.content) {
+                        this.#mapToPropertyValueData();
+                    }
+                });
+            }
+        );
     }
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        // this.updateValue({ content: this.data?.content });
+    // #region init
 
-        // if (this.data?.content) {
-        //     var model = this.data!.content;
 
-        //     this._values = [
-        //         { alias: 'name', value: model.name },
-        //         { alias: 'rootNode', value: [{ unique: model.rootNode }] },
-        //         { alias: 'mediaRootNodes', value: model.mediaRootNodes?.map(x => ({ key: x, mediaKey: x, unique: x })) },
-        //         { alias: 'exportFormat', value: [model.exportFormat] },
-        //         { alias: 'assetPaths', value: model.assetPaths?.split(',') },
-        //         { alias: 'imageCrops', value: model.imageCrops?.split(',') },
-        //         { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
-        //         { alias: 'autoPublish', value: model.autoPublish },
-        //         { alias: 'deploymentTarget', value: [model.deploymentTarget] },
-        //         { alias: 'targetHostname', value: model.targetHostname },
-        //     ];
 
-        //     console.log('values', this._values);
-        // }
+    // #endregion init
+
+    //#region Render
+
+    render() {
+
+        if (!this.config || !this.actions || !this.deploymentTargets) {
+            return html``;
+        }
+
+        return html`
+            <umb-body-layout .headline=${this.data?.headline ?? 'Create new site'}>
+                <uui-box>
+                <umb-property-dataset
+                  .value=${this._values as Array<UmbPropertyValueData>}
+                  @change=${this.#onPropertyDataChange}
+                >
+                  ${this.getBaseProperties()
+                .map(
+                    (prop) =>
+
+                        html`<umb-property
+                          alias=${prop.alias}
+                          label=${prop.label}
+                          .description=${prop.description}
+                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                          .config=${prop.config}
+                        ></umb-property>`
+                )}
+                </umb-property-dataset>
+
+                </uui-box>
+
+                <div slot="actions">
+                        <uui-button id="cancel" label="Cancel" @click="${this.#handleCancel}">Cancel</uui-button>
+                        <uui-button
+                            id="submit"
+                            color='positive'
+                            look="primary"
+                            label="Submit"
+                            @click=${this.#handleConfirm}></uui-button>
+            </div>
+            </umb-body-layout>
+        `;
     }
+
+    // #endregion Render
+
+    // #region Handlers
 
     async #handleConfirm() {
         if (!this._values) {
@@ -171,53 +159,18 @@ export class EditSiteModalElement extends
         }
     }
 
-    createCsvString(value: any[]) {
-        return value?.length > 0 ? value.join(',') : null;
-    }
-
-    getFirst(value: any[]) {
-        return value?.length > 0 ? value[0] : null;
-    }
-
-    getIds(value: any) {
-        if (!value || !Array.isArray(value)) {
-            return null;
-        }
-
-        return value; //.map(x => x.value);
-    }
-
-    createPostModel(): SiteUpdateModel {
-
-        console.log('values', this._values);
-
-        var rootNodes = this._values?.find((x) => x.alias === 'rootNode')?.value as Array<any>;
-        var rootNodeId = rootNodes ? rootNodes[0]?.unique as string : null;
-
-        var mediaRootNodes = this._values?.find((x) => x.alias === 'mediaRootNodes')?.value as Array<any>;
-        var mediaRootNodeIds = mediaRootNodes?.map(x => x?.mediaKey) as string[];
-
-        var model =
-            {
-                autoPublish: this._values.find((x) => x.alias === 'autoPublish')?.value,
-                assetPaths: this.createCsvString(this._values.find((x) => x.alias === 'assetPaths')?.value as string[]),
-                deploymentTarget: this.getFirst(this._values.find((x) => x.alias === 'deploymentTarget')?.value as string[]),
-                exportFormat: this.getFirst(this._values.find((x) => x.alias === 'exportFormat')?.value as Array<string>),
-                imageCrops: this.createCsvString(this._values.find((x) => x.alias === 'imageCrops')?.value as string[]),
-                mediaRootNodes: mediaRootNodeIds,
-                postGenerationActionIds: this.getIds(this._values.find((x) => x.alias === 'postGenerationActionIds')?.value),
-                rootNode: rootNodeId,
-                targetHostname: this._values.find((x) => x.alias === 'targetHostname')?.value,
-                id: this.data?.content.id,
-                name: this._values.find((x) => x.alias === 'name')?.value,
-            } as SiteUpdateModel;
-
-        return model;
-    }
-
     #handleCancel() {
         this.modalContext?.reject();
     }
+
+    #onPropertyDataChange(e: Event) {
+        const value = (e.target as UmbPropertyDatasetElement).value;
+        this._values = value;
+    }
+
+    // #endregion Handlers
+
+    // #region Form
 
     getBaseProperties(): PropertyEditorSettingsProperty[] {
         return [
@@ -258,7 +211,7 @@ export class EditSiteModalElement extends
                 config: [
                     {
                         alias: "items",
-                        value: this.config?.exportTypes?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.config?.exportTypes?.map((x) => ({ name: x.name, value: x.id?.toString() })) ?? []
                     },
                 ],
             },
@@ -312,7 +265,7 @@ export class EditSiteModalElement extends
                 config: [
                     {
                         alias: "items",
-                        value: this.deploymentTargets?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.deploymentTargets?.map((x) => ({ name: x.name, value: x.id?.toString() })) ?? []
                     },
                 ],
             },
@@ -324,54 +277,92 @@ export class EditSiteModalElement extends
             }];
     }
 
-    #onPropertyDataChange(e: Event) {
-        // Grab the value
-        const value = (e.target as UmbPropertyDatasetElement).value;
-        // Convert the value back into an object
-        // var data = value.reduce((acc, curr)=>({...acc, [curr.alias]: curr.value}), {});
-        // Update our model
-        this._values = value;
+    // #endregion Form
 
-        console.log('values', this._values);
+    // #region Mappers
+
+    #mapToPropertyValueData() {
+        var model = this.data!.content;
+
+        this._values = [
+            { alias: 'name', value: model.name },
+            { alias: 'rootNode', value: [{ unique: model.rootNode }] },
+            { alias: 'mediaRootNodes', value: model.mediaRootNodes?.map(x => ({ key: x, mediaKey: x, unique: x })) },
+            { alias: 'exportFormat', value: [model.exportFormat?.toString()] },
+            { alias: 'assetPaths', value: model.assetPaths?.split(',') },
+            { alias: 'imageCrops', value: model.imageCrops?.split(',') },
+            { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
+            { alias: 'autoPublish', value: model.autoPublish },
+            { alias: 'deploymentTarget', value: [model.deploymentTarget?.toString()] },
+            { alias: 'targetHostname', value: model.targetHostname },
+        ];
     }
 
-    render() {
-        return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Create new site'}>
-                <uui-box>
-                <umb-property-dataset
-                  .value=${this._values as Array<UmbPropertyValueData>}
-                  @change=${this.#onPropertyDataChange}
-                >
-                  ${this.getBaseProperties()
-                .map(
-                    (prop) =>
+    createPostModel(): SiteUpdateModel {
+        var rootNodes = this._values?.find((x) => x.alias === 'rootNode')?.value as Array<any>;
+        var rootNodeId = rootNodes ? rootNodes[0]?.unique as string : null;
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
-                )}
-                </umb-property-dataset>
+        var mediaRootNodes = this._values?.find((x) => x.alias === 'mediaRootNodes')?.value as Array<any>;
+        var mediaRootNodeIds = mediaRootNodes?.map(x => x?.mediaKey) as string[];
 
-                </uui-box>
+        var model =
+            {
+                autoPublish: this._values.find((x) => x.alias === 'autoPublish')?.value,
+                assetPaths: this.createCsvString(this._values.find((x) => x.alias === 'assetPaths')?.value as string[]),
+                deploymentTarget: this.getFirst(this._values.find((x) => x.alias === 'deploymentTarget')?.value as string[]),
+                exportFormat: this.getFirst(this._values.find((x) => x.alias === 'exportFormat')?.value as Array<string>),
+                imageCrops: this.createCsvString(this._values.find((x) => x.alias === 'imageCrops')?.value as string[]),
+                mediaRootNodes: mediaRootNodeIds,
+                postGenerationActionIds: this.getIds(this._values.find((x) => x.alias === 'postGenerationActionIds')?.value),
+                rootNode: rootNodeId,
+                targetHostname: this._values.find((x) => x.alias === 'targetHostname')?.value,
+                id: this.data?.content.id,
+                name: this._values.find((x) => x.alias === 'name')?.value,
+            } as SiteUpdateModel;
 
-                <div slot="actions">
-                        <uui-button id="cancel" label="Cancel" @click="${this.#handleCancel}">Cancel</uui-button>
-                        <uui-button
-                            id="submit"
-                            color='positive'
-                            look="primary"
-                            label="Submit"
-                            @click=${this.#handleConfirm}></uui-button>
-            </div>
-            </umb-body-layout>
-        `;
+        return model;
     }
 
+    // #endregion Mappers
+
+    // #region Utils
+
+    createCsvString(value: any[]) {
+        return value?.length > 0 ? value.join(',') : null;
+    }
+
+    getFirst(value: any[]) {
+        return value?.length > 0 ? value[0] : null;
+    }
+
+    getIds(value: any) {
+        if (!value || !Array.isArray(value)) {
+            return null;
+        }
+
+        return value; //.map(x => x.value);
+    }
+
+    // #endregion Utils
 }
+
+export interface EditSiteModalData {
+    headline?: string;
+    content: SiteApiModel;
+}
+
+export interface EditSiteModalValue {
+    content: SiteUpdateModel;
+}
+
+export const EditSiteModal = new UmbModalToken<EditSiteModalData, EditSiteModalValue>(
+    "xstatic.editSiteModal",
+    {
+        modal: {
+            type: 'sidebar',
+            size: 'large',
+        }
+    }
+);
 
 export default EditSiteModalElement;

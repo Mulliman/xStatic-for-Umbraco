@@ -19,8 +19,6 @@ export class ActionContext extends ConfigContextBase {
     public readonly actions : Observable<ActionModel[]> = this.#initActions();
 
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
-        console.log('creating action', action);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsCreatePostAction({ requestBody: action }));
 
         if(data){
@@ -33,8 +31,6 @@ export class ActionContext extends ConfigContextBase {
     }
 
     public async updateAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
-        console.log('updating action', action);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsUpdatePostAction({ requestBody: action }));
 
         if(data){
@@ -47,8 +43,6 @@ export class ActionContext extends ConfigContextBase {
     }
 
     public async deleteAction(id: number) : Promise<void> {
-        console.log('deleting action', id);
-
         await umbConfirmModal(this, {
             color: 'danger',
             headline: 'Delete Action',
@@ -69,8 +63,6 @@ export class ActionContext extends ConfigContextBase {
     }
 
     async #getActions() {
-        console.log('fetching actions');
-
         const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticActionsGetPostActions());
 
         if(data){

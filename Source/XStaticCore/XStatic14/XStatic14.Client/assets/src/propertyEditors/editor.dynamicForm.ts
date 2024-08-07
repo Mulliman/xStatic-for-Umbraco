@@ -39,8 +39,6 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
 
 		const fields = config.getValueByAlias('fields') as Record<string, string | null> | null | undefined;
 
-        console.log('config', fields);
-
         this.value = fields;
 	}
 
@@ -48,8 +46,6 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
         const value = (e.target as UmbPropertyDatasetElement).value;
 
         this._values = value;
-
-        console.log('values', this._values);
 
         this.dispatchEvent(new UmbPropertyValueChangeEvent());
     }
@@ -70,9 +66,7 @@ export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement imple
         if(!this._values) {
             return html`<h3>No Action Type selected</h3>`;
         }
-
-        console.log('renderForm', this._values);
-
+        
 		return html`
             <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}

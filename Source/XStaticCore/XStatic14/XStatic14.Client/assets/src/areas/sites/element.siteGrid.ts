@@ -18,6 +18,45 @@ class SiteGrid extends UmbElementMixin(LitElement) {
 
     #siteContext?: SiteContext;
 
+    constructor() {
+        super();
+
+        this.consumeContext(
+            SITE_CONTEXT_TOKEN,
+            (context) => {
+              this.#siteContext = context;
+
+              this.observe(this.#siteContext?.sites, (sites) => {
+                this.sites = sites;
+
+                this.isLoaded = true;
+            });
+        });
+    }
+
+    render() {
+        if(!this.sites) {
+            return this.isLoaded ? html`` : html`Loading...`;
+        }
+
+        return html`
+            <xstatic-new-site-element></xstatic-new-site-element>
+            ${this.#renderSites()}
+        `;
+    }
+
+    #renderSites() {
+        if(!this.sites) {
+            return null;
+        }
+
+        return this.sites.map(site => {
+            return html`
+                <xstatic-site-element .site=${site}></xstatic-site-element>
+            `
+        });
+    }
+
     static styles = css`
         :host {
             position: relative;
@@ -32,58 +71,6 @@ class SiteGrid extends UmbElementMixin(LitElement) {
             position: relative;
         }
     `;
-
-    constructor() {
-        super();
-
-        this.consumeContext(
-            SITE_CONTEXT_TOKEN,
-            (context) => {
-              this.#siteContext = context;
-
-              this.#siteContext!.getSites().then(() => {
-                this.isLoaded = true;
-                });
-        
-                this.observe(this.#siteContext?.sites, (sites) => {
-                    this.sites = sites;
-                });
-            }
-          );
-    }
-
-    async connectedCallback() {
-        super.connectedCallback();
-
-        
-    }
-
-    #renderSites() {
-        console.log('rendering sites loop', this.sites);
-
-        if(!this.sites) {
-            return null;
-        }
-
-        return this.sites.map(site => {
-            return html`
-                <xstatic-site-element .site=${site}></xstatic-site-element>
-            `
-        });
-    }
-
-    render() {
-        console.log('rendering sites', this.sites);
-
-        if(!this.sites) {
-            return this.isLoaded ? html`` : html`Loading...`;
-        }
-
-        return html`
-            <xstatic-new-site-element></xstatic-new-site-element>
-            ${this.#renderSites()}
-        `;
-    }
 }
 
 export default SiteGrid;

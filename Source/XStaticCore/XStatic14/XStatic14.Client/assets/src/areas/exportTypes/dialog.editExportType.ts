@@ -220,9 +220,6 @@ export class EditExportTypeModalElement extends
     }
 
     createPostModel(): ExportTypeUpdateModel {
-
-        console.log('createPostModel values', this._values);
-
         var model =
             {
                 name: this._values.find((x) => x.alias === 'name')?.value,
@@ -231,8 +228,6 @@ export class EditExportTypeModalElement extends
                 generator: this.getFirst(this._values.find((x) => x.alias === 'generator')?.value as Array<string>),
                 transformerFactory: this.getFirst(this._values.find((x) => x.alias === 'transformerFactory')?.value as Array<string>),
             } as ExportTypeUpdateModel;
-
-        console.log('createPostModel model', model);
 
         return model;
     }

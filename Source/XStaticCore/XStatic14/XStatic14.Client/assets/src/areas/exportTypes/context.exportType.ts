@@ -13,8 +13,6 @@ export class ExportTypeContext extends ConfigContextBase {
     }
 
     public async createExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
-        console.log('creating exportType', exportType);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticConfigCreateExportType({ requestBody: exportType }));
 
         if(data){
@@ -27,8 +25,6 @@ export class ExportTypeContext extends ConfigContextBase {
     }
 
     public async updateExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
-        console.log('updating exportType', exportType);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticConfigUpdateExportType({ requestBody: exportType }));
 
         if(data){
@@ -41,8 +37,6 @@ export class ExportTypeContext extends ConfigContextBase {
     }
 
     public async deleteExportType(id: number) : Promise<void> {
-        console.log('deleting exportType', id);
-
         await umbConfirmModal(this, {
             color: 'danger',
             headline: 'Delete Export Type',

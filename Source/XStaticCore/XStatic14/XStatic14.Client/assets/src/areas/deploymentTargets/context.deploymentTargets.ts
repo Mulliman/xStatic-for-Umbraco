@@ -20,8 +20,6 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public readonly deploymentTargets : Observable<DeploymentTargetModel[]> = this.#initDeploymentTargets();
 
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
-        console.log('creating deployment target', action);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
 
         if(data){
@@ -34,8 +32,6 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     public async updateDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
-        console.log('updating deployment target', action);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
 
         if(data){
@@ -48,8 +44,6 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     public async deleteDeploymentTarget(id: number) : Promise<void> {
-        console.log('deleting deployment target', id);
-
         await umbConfirmModal(this, {
             color: 'danger',
             headline: 'Delete Deployment Target',
@@ -70,8 +64,6 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     async #getDeploymentTargets() {
-        console.log('fetching deployment targets');
-
         const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticDeploymentTargetsGetDeploymentTargets());
 
         if(data){

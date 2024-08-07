@@ -4,8 +4,12 @@ import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { SiteApiModel, SiteUpdateModel, V1Service } from "../../api";
+import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 
 export class SiteContext extends UmbControllerBase {
+
+    #isSitesLoaded: boolean = false;
+
     constructor(host: UmbControllerHost) {
         super(host);
 
@@ -13,25 +17,30 @@ export class SiteContext extends UmbControllerBase {
     }
 
     #sites = new UmbArrayState<SiteApiModel>([], (x) => x.id);
-    public readonly sites : Observable<SiteApiModel[]> = this.#sites.asObservable();
+    public readonly sites : Observable<SiteApiModel[]> = this.#initSites();
 
-    public async getSites() {
-        console.log('fetching sites proper');
+    #initSites() : Observable<SiteApiModel[]> {
+        if(!this.#isSitesLoaded){
+            this.#getSites();
+        }
 
+        return this.#sites.asObservable();
+    }
+
+    async #getSites() {
         const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticSitesGetAll());
 
         if(data){
             this.#sites.setValue(data);
+            this.#isSitesLoaded = true;
         }
     }
 
     public async createSite(site: SiteUpdateModel) : Promise<SiteApiModel | null> {
-        console.log('creating site', site);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticSitesCreate({ requestBody: site }));
 
         if(data){
-            await this.getSites();
+            await this.#getSites();
 
             return data;
         }
@@ -40,17 +49,27 @@ export class SiteContext extends UmbControllerBase {
     }
 
     public async updateSite(site: SiteUpdateModel) : Promise<SiteApiModel | null> {
-        console.log('updating site', site);
-
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticSitesUpdate({ requestBody: site }));
 
         if(data){
-            await this.getSites();
+            await this.#getSites();
 
             return data;
         }
 
         return null;
+    }
+
+    public async deleteSite(id: number) : Promise<void> {
+        await umbConfirmModal(this, {
+            color: 'danger',
+            headline: 'Delete Site',
+            content: 'Are you sure you want to delete this Site?',
+            confirmLabel: 'Delete',
+        });
+
+        await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticSitesDelete({ staticSiteId : id } ));
+        await this.#getSites();
     }
 }
 

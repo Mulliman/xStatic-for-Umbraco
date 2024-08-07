@@ -31,8 +31,6 @@ export class DocsContext extends UmbControllerBase {
     }
 
     async #getDocs() {
-        console.log('fetching docs');
-
         const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/help.json')).json());
 
         if(data){
@@ -57,8 +55,6 @@ export class DocsContext extends UmbControllerBase {
     }
 
     async #getPlugins() {
-        console.log('fetching plugins');
-
         const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/plugins.json')).json());
 
         if(data){

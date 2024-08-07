@@ -1,5 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditSiteModal } from './dialog.editSite';
@@ -13,26 +13,6 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
         } )
     }
 
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        :host .badge{
-            display: block;
-            position: relative;
-            text-align: center;
-            width: 100%;
-        }
-
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-    `;
-    
     render() {
 
         return html`
@@ -57,6 +37,26 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
             </uui-box>
         `;
     }
+
+    static styles = css`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+
+        :host .badge{
+            display: block;
+            position: relative;
+            text-align: center;
+            width: 100%;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+    `;
 }
 
 export default NewSiteElement;

@@ -1,21 +1,22 @@
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { Observable, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { Observable, UmbBooleanState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { V1Service, XStaticConfig } from "./api";
 
 export abstract class ConfigContextBase extends UmbControllerBase {
-    isConfigLoaded: boolean = false;
+    #isReady = new UmbBooleanState(false);
+    public readonly isReady : Observable<boolean> = this.#isReady.asObservable();
+
+    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
+    public readonly config : Observable<XStaticConfig> = this.#initConfig();
 
     constructor(host: UmbControllerHost) {
         super(host);
     }
 
-    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public readonly config : Observable<XStaticConfig> = this.#initConfig();
-
     #initConfig() : Observable<XStaticConfig> {
-        if(!this.isConfigLoaded){
+        if(!this.#isReady.getValue()){
             this.getConfig();
         }
 
@@ -27,7 +28,7 @@ export abstract class ConfigContextBase extends UmbControllerBase {
 
         if(data){
             this.#config.setValue(data);
-            this.isConfigLoaded = true;
+            this.#isReady.setValue(true);
         }
     }
 }
