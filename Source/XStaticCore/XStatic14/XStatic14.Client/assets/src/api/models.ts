@@ -552,6 +552,7 @@ targetHostname?: string | null
 imageCrops?: string | null
 deploymentTarget?: number | null
 postGenerationActionIds?: Array<number> | null
+cultures?: Array<string> | null
 rootPath?: string | null
 exportTypeName?: string | null
 folderSize?: string | null
@@ -569,6 +570,7 @@ targetHostname?: string | null
 imageCrops?: string | null
 deploymentTarget?: number | null
 postGenerationActionIds?: Array<number> | null
+cultures?: Array<string> | null
     };
 
 export type StructLayoutAttribute = {

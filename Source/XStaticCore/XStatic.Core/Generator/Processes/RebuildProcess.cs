@@ -64,6 +64,8 @@ namespace XStatic.Core.Generator.Processes
                     var builder = new JobBuilder(entity.Id, fileNamer)
                         .AddPageWithDescendants(rootNode);
 
+                    AddCulturesToBuilder(entity, builder);
+
                     AddMediaToBuilder(entity, umbracoContext, builder);
                     AddMediaCropsToBuilder(entity, builder);
 
@@ -104,6 +106,19 @@ namespace XStatic.Core.Generator.Processes
                         WasSuccessful = false
                     };
                 }
+            }
+        }
+
+        private void AddCulturesToBuilder(SiteConfig entity, JobBuilder builder)
+        {
+            if (entity?.Cultures.Any() != true)
+            {
+                return;
+            }
+
+            foreach(var culture in entity.Cultures)
+            {
+                builder.AddCulture(culture);
             }
         }
 
@@ -192,10 +207,17 @@ namespace XStatic.Core.Generator.Processes
 
         private async Task<IEnumerable<GenerateItemResult>> RunPostActions(SiteConfig entity)
         {
-            var actions = _actionFactory.CreateConfiguredPostGenerationActions(entity.PostGenerationActionIds.ToArray());
+            var actionIds = entity?.PostGenerationActionIds?.ToArray();
+
+            if (actionIds?.Any() != true)
+            {
+                return new List<GenerateItemResult>();
+            }
+
+            var actions = _actionFactory.CreateConfiguredPostGenerationActions(actionIds);
             var results = new List<GenerateItemResult>();
 
-            foreach(var action in actions)
+            foreach(var action in actions.Where(a => a?.Action != null))
             {
                 try
                 {

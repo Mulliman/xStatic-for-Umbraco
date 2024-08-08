@@ -34,6 +34,15 @@ namespace XStatic.Core.Generator.Jobs
             return this;
         }
 
+        public JobBuilder AddCulture(string culture)
+        {
+            if (string.IsNullOrEmpty(culture)) return this;
+
+            job.Cultures.Add(culture);
+
+            return this;
+        }
+
         public JobBuilder AddPage(IPublishedContent node)
         {
             if (node == null) return this;

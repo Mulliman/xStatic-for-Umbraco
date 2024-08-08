@@ -44,6 +44,9 @@ namespace XStatic.Core.Generator.Db
         [SerializedColumn]
         public List<int> PostGenerationActionIds { get; set; }
 
+        [SerializedColumn]
+        public List<string> Cultures { get; set; }
+
         public IEnumerable<Guid> GetMediaRootNodes()
         {
             if (string.IsNullOrWhiteSpace(MediaRootNodes))

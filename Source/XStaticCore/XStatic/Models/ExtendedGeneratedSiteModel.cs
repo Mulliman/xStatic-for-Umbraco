@@ -1,7 +1,4 @@
-using NPoco;
 using System;
-using XStatic.Core.Generator.Db;
-using XStatic.Core.Generator;
 using XStatic.Core.Models;
 using System.Collections.Generic;
 
@@ -39,6 +36,8 @@ namespace XStatic.Models
 
         public List<int> PostGenerationActionIds { get; set; }
 
+        public List<string> Cultures { get; set; }
+
         public string RootPath { get; set; }
 
         public string ExportTypeName { get; set; }
@@ -65,6 +64,7 @@ namespace XStatic.Models
             ImageCrops = site.ImageCrops;
             DeploymentTarget = site.DeploymentTarget;
             PostGenerationActionIds = site.PostGenerationActionIds;
+            Cultures = site.Cultures;
         }
     }
 }

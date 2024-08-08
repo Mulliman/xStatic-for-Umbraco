@@ -119,6 +119,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
         let array : Array<xStaticTableItem> = [];
 
         this.addTableItem(array, "rootPath", "icon-home", "value", this.site?.rootPath);
+        this.addTableItem(array, "cultures", "icon-globe", "value", !this.site?.cultures?.length ?? 0 > 0 ? null : "Cultures: " + this.site?.cultures?.join(" | "));
         this.addTableItem(array, "exportType", "icon-brackets", "value", !this.site?.exportTypeName ? null : "Exports as " + this.site?.exportTypeName);
         this.addTableItem(array, "autoDeploy", "icon-settings", "value", autoDeployBadge);
         this.addTableItem(array, "lastGen", "icon-time", "value", lastGen);

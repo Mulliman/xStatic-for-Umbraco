@@ -10,16 +10,18 @@ namespace XStatic.Core.Generator.Jobs
 
         public IFileNameGenerator NameGenerator { get; set; }
 
-        public List<ITransformer> Transformers { get; set; } = new List<ITransformer>();
+        public List<ITransformer> Transformers { get; set; } = [];
 
-        public List<int> PageIds { get; set; } = new List<int>();
+        public List<int> PageIds { get; set; } = [];
 
-        public List<int> MediaIds { get; set; } = new List<int>();
+        public List<string> Cultures { get; set; } = [];
 
-        public List<Crop> MediaCropSizes { get; set; } = new List<Crop>();
+        public List<int> MediaIds { get; set; } = [];
 
-        public List<string> Folders { get; set; } = new List<string>();
+        public List<Crop> MediaCropSizes { get; set; } = [];
 
-        public List<string> Files { get; set; } = new List<string>();
+        public List<string> Folders { get; set; } = [];
+
+        public List<string> Files { get; set; } = [];
     }
 }

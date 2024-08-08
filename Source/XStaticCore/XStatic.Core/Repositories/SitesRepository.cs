@@ -75,6 +75,7 @@ namespace XStatic.Core.Repositories
                 entity.RootNode = update.RootNode;
                 entity.TargetHostname = update.TargetHostname;
                 entity.PostGenerationActionIds = update.PostGenerationActionIds;
+                entity.Cultures = update.Cultures;
 
                 scope.Database.Insert(entity);
             }
@@ -108,6 +109,7 @@ namespace XStatic.Core.Repositories
                 entity.RootNode = update.RootNode;
                 entity.TargetHostname = update.TargetHostname;
                 entity.PostGenerationActionIds = update.PostGenerationActionIds;
+                entity.Cultures = update.Cultures;
 
                 scope.Database.Save(entity);
             }

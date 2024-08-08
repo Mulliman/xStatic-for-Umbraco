@@ -26,7 +26,7 @@ namespace XStatic.Core.Generator
         {
         }
 
-        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
         {
             SslTruster.TrustSslIfAppSettingConfigured();
 
@@ -42,8 +42,8 @@ namespace XStatic.Core.Generator
             }
             try
             {
-                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
-                string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute);
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
+                string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute, culture: culture);
 
                 var fileData = await GetFileDataFromWebClient(absoluteUrl);
 

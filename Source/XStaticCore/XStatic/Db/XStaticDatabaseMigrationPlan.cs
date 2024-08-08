@@ -1,5 +1,4 @@
 ﻿using Umbraco.Cms.Infrastructure.Migrations;
-using Umbraco.Cms.Infrastructure.Migrations.Expressions.Create.Table;
 using XStatic.Core.Actions.Db;
 using XStatic.Core.Deploy.Targets.Db;
 using XStatic.Core.Generator.Db;
@@ -40,10 +39,11 @@ namespace XStatic.Db
                     .WithColumn("LastDeployed").AsDateTime().Nullable()
                     .WithColumn("LastDeployDurationInSeconds").AsInt16().Nullable()
                     .WithColumn("AssetPaths").AsString(1000).Nullable()
-                    .WithColumn("DeploymentTarget").AsString(2500).Nullable()
+                    .WithColumn("DeploymentTarget").AsInt16().Nullable()
                     .WithColumn("TargetHostname").AsString().Nullable()
                     .WithColumn("ImageCrops").AsString().Nullable()
-                    .WithColumn("PostGenerationActionIds").AsString(200).Nullable();
+                    .WithColumn("PostGenerationActionIds").AsString(200).Nullable()
+                    .WithColumn("Cultures").AsString(200).Nullable();
 
                 builder.Do();
             }
@@ -98,14 +98,6 @@ namespace XStatic.Db
                     .WithColumn("Name").AsString(200)
                     .WithColumn("DeployerDefinition").AsString(1000)
                     .WithColumn("Config").AsString(2500).Nullable();
-
-                builder.Do();
-            }
-
-            if (!TableExists(SiteConfig.TableName))
-            {
-                var builder = Alter.Table(SiteConfig.TableName)
-                    .AlterColumn("DeploymentTarget").AsInt16().Nullable();
 
                 builder.Do();
             }

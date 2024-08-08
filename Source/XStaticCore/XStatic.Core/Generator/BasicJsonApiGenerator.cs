@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
@@ -27,7 +26,7 @@ namespace XStatic.Generator
         {
         }
 
-        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
         {
             var node = GetNode(id);
 
@@ -38,7 +37,7 @@ namespace XStatic.Generator
 
             try
             {
-                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
                 var fileData = GetJsonData(node);
 
                 var transformedData = RunTransformers(fileData, transformers);

@@ -9,6 +9,7 @@ import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "../exportTypes/context.exportType";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "../actions/context.action";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "../deploymentTargets/context.deploymentTargets";
+import { UmbLanguageCollectionRepository, UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
 
 
 
@@ -16,6 +17,7 @@ import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "../dep
 export class EditSiteModalElement extends
     UmbModalBaseElement<EditSiteModalData, EditSiteModalValue>
 {
+    #languageRepository = new UmbLanguageCollectionRepository(this);
     #siteContext?: SiteContext;
     #exportTypeContext?: ExportTypeContext;
     #actionContext?: ActionContext;
@@ -38,6 +40,9 @@ export class EditSiteModalElement extends
 
     @state()
     isReady: boolean = false;
+
+	@state()
+	private _cultures: Array<UmbLanguageDetailModel> = [];
 
     constructor() {
         super();
@@ -91,7 +96,15 @@ export class EditSiteModalElement extends
 
     // #region init
 
+    override connectedCallback() {
+		super.connectedCallback();
+		this.#getCultures();
+	}
 
+    async #getCultures() {
+		const { data: langauges } = await this.#languageRepository.requestCollection({ skip: 0, take: 100 });
+		this._cultures = langauges?.items ?? [];
+	}
 
     // #endregion init
 
@@ -192,6 +205,18 @@ export class EditSiteModalElement extends
                 ],
             },
             {
+                alias: "cultures",
+                label: "Cultures",
+                description: "Choose which language variant(s) should be used. Leave blank to use the default language.",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.CheckBoxList",
+                config: [
+                    {
+                        alias: "items",
+                        value: this._cultures?.map((x) => ({ name: x.name, value: x.unique })) ?? []
+                    },
+                ],
+            },
+            {
                 alias: "mediaRootNodes",
                 label: "Media Root Nodes",
                 description: "Select the media folders you want to include in your static site.",
@@ -287,6 +312,7 @@ export class EditSiteModalElement extends
         this._values = [
             { alias: 'name', value: model.name },
             { alias: 'rootNode', value: [{ unique: model.rootNode }] },
+            { alias: 'cultures', value: model.cultures },
             { alias: 'mediaRootNodes', value: model.mediaRootNodes?.map(x => ({ key: x, mediaKey: x, unique: x })) },
             { alias: 'exportFormat', value: [model.exportFormat?.toString()] },
             { alias: 'assetPaths', value: model.assetPaths?.split(',') },
@@ -318,6 +344,7 @@ export class EditSiteModalElement extends
                 targetHostname: this._values.find((x) => x.alias === 'targetHostname')?.value,
                 id: this.data?.content.id,
                 name: this._values.find((x) => x.alias === 'name')?.value,
+                cultures: this.getIds(this._values.find((x) => x.alias === 'cultures')?.value),
             } as SiteUpdateModel;
 
         return model;

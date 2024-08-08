@@ -20,7 +20,17 @@ namespace XStatic.Core.Generator.Jobs
 
             foreach (var id in job.PageIds)
             {
-                returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
+                if (job.Cultures?.Any() == true)
+                {
+                    foreach (var culture in job.Cultures)
+                    {
+                        returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers, culture));
+                    }
+                }
+                else
+                {
+                    returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
+                }
             }
 
             foreach (var id in job.MediaIds)

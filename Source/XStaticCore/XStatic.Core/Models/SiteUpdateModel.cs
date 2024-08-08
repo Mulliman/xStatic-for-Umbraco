@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using XStatic.Core.Generator.Db;
 
 namespace XStatic.Core.Models
 {
@@ -27,5 +26,7 @@ namespace XStatic.Core.Models
         public int? DeploymentTarget { get; set; }
 
         public List<int> PostGenerationActionIds { get; set; }
+
+        public List<string> Cultures { get; set; }
     }
 }

@@ -155,7 +155,7 @@ namespace XStatic.Core.Generator
             }
         }
 
-        public abstract Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null);
+        public abstract Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null);
 
         protected string RunTransformers(string fileData, IEnumerable<ITransformer> transformers)
         {

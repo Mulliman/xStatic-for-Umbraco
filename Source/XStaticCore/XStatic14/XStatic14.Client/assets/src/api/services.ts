@@ -275,7 +275,6 @@ export class V1Service {
 			},
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
-				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
