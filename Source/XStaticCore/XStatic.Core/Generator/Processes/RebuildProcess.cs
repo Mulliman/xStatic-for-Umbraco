@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
@@ -21,7 +22,7 @@ namespace XStatic.Core.Generator.Processes
     {
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly IExportTypeService _exportTypeService;
-        private ISitesRepository _sitesRepo;
+        private readonly ISitesRepository _sitesRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IActionFactory _actionFactory;
 
@@ -42,6 +43,8 @@ namespace XStatic.Core.Generator.Processes
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
+
+            Thread.Sleep(5000);
 
             var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
 
@@ -108,12 +111,7 @@ namespace XStatic.Core.Generator.Processes
         {
             var results = new List<GenerateItemResult>();
 
-            var generator = _exportTypeService.GetGenerator(entity.ExportFormat);
-
-            if (generator == null)
-            {
-                throw new Exception("Export format not supported");
-            }
+            var generator = _exportTypeService.GetGenerator(entity.ExportFormat) ?? throw new Exception("Export format not supported");
 
             var job = builder.Build();
             var runner = new JobRunner(generator);

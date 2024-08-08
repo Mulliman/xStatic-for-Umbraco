@@ -1,8 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Umbraco.Cms.Api.Common.Attributes;
+using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Web.Common.Authorization;
 using XStatic.Core;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Processes;
@@ -12,8 +18,12 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Controllers
 {
-    [VersionedApiBackOfficeRoute("xstatic/deploy")]
-    [ApiExplorerSettings(GroupName = "xStatic")]
+    [ApiController]
+    [ApiVersion("1.0")]
+    [MapToApi("xstatic-v1")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
+    [Route("api/v{version:apiVersion}/xstatic/deploy")]
     public class DeployController(IStaticSiteStorer storer, IDeployerService deployerService, IDeploymentTargetRepository deplomentTargetRepository, ISitesRepository sitesRepository, ILogger<DeployController> logger) : ManagementApiControllerBase
     {
         private readonly IStaticSiteStorer _storer = storer;
@@ -22,7 +32,9 @@ namespace XStatic.Controllers
         private readonly ISitesRepository _sitesRepo = sitesRepository;
         private readonly ILogger<DeployController> _logger = logger;
 
-        [HttpGet]
+        [HttpPost("deploy-site")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(IXStaticWebResult), StatusCodes.Status200OK)]
         public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)
         {
             var process = new DeployProcess(_storer, _deplomentTargetRepository, _deployerService, _sitesRepo);

@@ -1,8 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.IO.Compression;
+using Umbraco.Cms.Api.Common.Attributes;
+using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Web.Common.Authorization;
 using XStatic.Core;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
@@ -10,14 +16,20 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Controllers
 {
-    [VersionedApiBackOfficeRoute("xstatic/download")]
-    [ApiExplorerSettings(GroupName = "xStatic")]
+    [ApiController]
+    [ApiVersion("1.0")]
+    [MapToApi("xstatic-v1")]
+    //[Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
+    [Route("api/v{version:apiVersion}/xstatic/download")]
     public class DownloadController(IStaticSiteStorer storer, ISitesRepository sitesRepo) : ManagementApiControllerBase
     {
         private readonly IStaticSiteStorer _storer = storer;
         private readonly ISitesRepository _sitesRepo = sitesRepo;
 
-        [HttpGet]
+        [HttpGet("download-site")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
         public FileStreamResult DownloadStaticSite(int staticSiteId)
         {
             var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);

@@ -163,6 +163,28 @@ export class V1Service {
 	 * @returns unknown OK
 	 * @throws ApiError
 	 */
+	public static postApiV1XstaticDeployDeploySite(data: V1Data['payloads']['PostApiV1XstaticDeployDeploySite'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeployDeploySite']> {
+		const {
+                    
+                    staticSiteId
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/deploy/deploy-site',
+			query: {
+				staticSiteId
+			},
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
 	public static postApiV1XstaticDeploymentTargetsCreateDeploymentTarget(data: V1Data['payloads']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget']> {
 		const {
                     
@@ -232,6 +254,50 @@ export class V1Service {
 			mediaType: 'application/json',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static getApiV1XstaticDownloadDownloadSite(data: V1Data['payloads']['GetApiV1XstaticDownloadDownloadSite'] = {}): CancelablePromise<V1Data['responses']['GetApiV1XstaticDownloadDownloadSite']> {
+		const {
+                    
+                    staticSiteId
+                } = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/xstatic/download/download-site',
+			query: {
+				staticSiteId
+			},
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static postApiV1XstaticGenerateGenerateSite(data: V1Data['payloads']['PostApiV1XstaticGenerateGenerateSite'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticGenerateGenerateSite']> {
+		const {
+                    
+                    staticSiteId
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/generate/generate-site',
+			query: {
+				staticSiteId
+			},
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}

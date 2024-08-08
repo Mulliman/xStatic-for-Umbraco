@@ -4,7 +4,7 @@ import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { SiteApiModel, SiteUpdateModel, V1Service } from "../../api";
-import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
+import { blobDownload } from '@umbraco-cms/backoffice/utils';
 
 export class SiteContext extends UmbControllerBase {
 
@@ -61,15 +61,27 @@ export class SiteContext extends UmbControllerBase {
     }
 
     public async deleteSite(id: number) : Promise<void> {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Delete Site',
-            content: 'Are you sure you want to delete this Site?',
-            confirmLabel: 'Delete',
-        });
-
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticSitesDelete({ staticSiteId : id } ));
         await this.#getSites();
+    }
+
+    public async generateSite(id: number) : Promise<void> {
+        await tryExecuteAndNotify(this, V1Service.postApiV1XstaticGenerateGenerateSite({ staticSiteId : id } ));
+        await this.#getSites();
+    }
+
+    public async deploySite(id: number) : Promise<void> {
+        await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeployDeploySite({ staticSiteId : id } ));
+        await this.#getSites();
+    }
+
+    public async downloadSite(id: number): Promise<void> {
+        const date = new Date();
+        
+        const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticDownloadDownloadSite({ staticSiteId: id }));
+        blobDownload(data, `xStatic Site Download-${id}-${dateString}.zip`, 'application/zip');
     }
 }
 

@@ -1,22 +1,28 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import type {
     xStaticTableItem,
   } from "../../elements/element.siteTable";
 import { SiteApiModel } from '../../api';
-import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { UMB_MODAL_MANAGER_CONTEXT, umbConfirmModal } from '@umbraco-cms/backoffice/modal';
 import { EditSiteModal } from './dialog.editSite';
 
 import "../../elements/element.siteTable";
+import "../../elements/element.loader";
+
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
+import { formatDate, formatTime } from '../../code/datetime';
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {
 
     @property({ type: Object, attribute: false })
     site?: SiteApiModel;
+
+    @state()
+    runningTask: {task: string, startTime: Date, expectedDuration: number, currentSeconds: number} | null = null;
 
     #siteContext?: SiteContext;
 
@@ -31,12 +37,46 @@ class SiteElement extends UmbElementMixin(LitElement) {
         );
     }
 
+    
+    // #region init
+
+
+
+    // #endregion init
+
+    //#region Render
+
     render() {
         if (!this.site) {
             return html``;
         }
 
         const site = this.site;
+
+        if(this.runningTask) { //this.runningTask?.value) {
+            return this.#renderRunningTask(site, this.runningTask);
+        }
+
+        return this.#renderSiteDetails(site);
+    }
+
+    #renderRunningTask(site: SiteApiModel, runningTask: {task: string, startTime: Date, expectedDuration: number, currentSeconds: number}) {
+
+        return html`
+            <uui-box>
+                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${site.name}</div>
+                
+                <div class="task">
+                    <h2>${runningTask.task}...</h2>
+
+                    <xstatic-loader estimatedTime=${runningTask.expectedDuration}></xstatic-loader>
+                </div>
+            </uui-box>
+        `;
+    }
+
+    #renderSiteDetails(site: SiteApiModel) {
+        
 
         return html`
             <uui-box>
@@ -52,9 +92,9 @@ class SiteElement extends UmbElementMixin(LitElement) {
                     </div>
                     <div class="buttons">
                         <uui-button-group>
-                            ${when(this.site.exportTypeName, () => html`<uui-button label="Generate" color="positive" look="primary" icon="icon-brush"></uui-button>`)}
-                            ${when(this.site.deploymentTarget, () => html`<uui-button label="Deploy" color="danger" look="primary" icon="icon-upload">Deploy</uui-button>`)}
-                            ${when(this.site.lastRun && this.site.folderSize != '0B', () => html`<uui-button label="Download" color="default" look="secondary" icon="icon-settings"></uui-button>`)}
+                            ${when(site.exportTypeName, () => html`<uui-button label="Generate" @click=${() => this.#generate()} color="positive" look="primary" icon="icon-brush"></uui-button>`)}
+                            ${when(site.deploymentTarget, () => html`<uui-button label="Deploy" @click=${() => this.#deploy()} color="danger" look="primary" icon="icon-upload">Deploy</uui-button>`)}
+                            ${when(site.lastRun && site.folderSize != '0B', () => html`<uui-button label="Download" @click=${() => this.#download()} color="default" look="secondary" icon="icon-settings"></uui-button>`)}
                         </uui-button-group>
                     </div>
                 </div>
@@ -62,24 +102,14 @@ class SiteElement extends UmbElementMixin(LitElement) {
         `;
     }
 
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditSiteModal, { data: { content: this.site!, headline: `Edit ${this.site?.name} site` } });
-        } )
-    }
-
-    async #delete() {
-        await this.#siteContext!.deleteSite(this.site!.id);
-    }
-
     getSiteTable() : Array<xStaticTableItem> {
 
         let lastGen = this.site?.lastRun 
-            ?  `Last generated on ${this.site?.lastRun} at ${this.site.lastRun}`
+            ?  `Last generated on ${formatDate(this.site?.lastRun)} at ${formatTime(this.site.lastRun)}`
             : "This site has never been built.";
 
         let lastDeployed = this.site?.lastDeployed 
-            ?  `Last deployed on ${this.site?.lastDeployed} at ${this.site.lastDeployed}`
+            ?  `Last deployed on ${formatDate(this.site?.lastDeployed)} at ${formatTime(this.site.lastDeployed)}`
             : "This site has never been deployed.";
 
         let autoDeployBadge = this.site?.autoPublish
@@ -116,6 +146,89 @@ class SiteElement extends UmbElementMixin(LitElement) {
         array.push(item);
     }
 
+    // #endregion Render
+
+    // #region Handlers
+
+    #openCreateDialog() {
+        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
+            manager.open(this, EditSiteModal, { data: { content: this.site!, headline: `Edit ${this.site?.name} site` } });
+        } )
+    }
+
+    async #delete() {
+        await umbConfirmModal(this, {
+            color: 'danger',
+            headline: 'Delete Site',
+            content: 'Are you sure you want to delete this Site?',
+            confirmLabel: 'Delete',
+        });
+
+        await this.#siteContext!.deleteSite(this.site!.id);
+    }
+
+    async #generate() {
+        try {
+            let currentSeconds = 0;
+            this.runningTask = { task: "Generating", startTime: new Date(), expectedDuration: this.site!.lastBuildDurationInSeconds ?? 0, currentSeconds };
+
+            await this.#siteContext!.generateSite(this.site!.id);
+        } finally {
+            this.runningTask = null;
+        }
+    }
+
+    async #deploy() {
+        await umbConfirmModal(this, {
+            color: 'positive',
+            headline: 'Deploy Site',
+            content: 'Are you sure you want to deploy this site?',
+            confirmLabel: 'Deploy',
+        });
+
+        try {
+            let currentSeconds = 0;
+            this.runningTask = { task: "Deploying", startTime: new Date(), expectedDuration: this.site!.lastDeployDurationInSeconds ?? 0, currentSeconds };
+
+            await this.#siteContext!.deploySite(this.site!.id);
+        } finally {
+            this.runningTask = null;
+        }
+    }
+
+    async #download() {
+        try {
+            let currentSeconds = 0;
+            this.runningTask = { task: "Downloading", startTime: new Date(), expectedDuration: 10, currentSeconds };
+
+            await this.#siteContext!.downloadSite(this.site!.id);
+        } finally {
+            this.runningTask = null;
+        }
+    }
+
+    // #endregion Handlers
+
+    // #region Form
+
+    
+
+    // #endregion Form
+
+    // #region Mappers
+
+    
+
+    // #endregion Mappers
+
+    // #region Utils
+
+
+
+    // #endregion Utils
+
+    // #region Styles
+
     static styles = css`
         :host {
             display: block;
@@ -134,7 +247,15 @@ class SiteElement extends UmbElementMixin(LitElement) {
             text-align: center;
             margin-top: 20px;
         }
+
+        .task{
+            position:relative;
+            display: block;
+            text-align: center;
+        }
     `;
+
+    // #endregion Styles
     
 }
 
