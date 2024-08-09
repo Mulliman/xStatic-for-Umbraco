@@ -26,7 +26,8 @@ export class Loader extends LitElement {
 		
 		setInterval(() => {
 			this.time++;
-			this.progress = this.time / this.estimatedTime * 100;
+			var progress = Math.round(this.time / this.estimatedTime * 100);
+			this.progress = Math.min(100, progress);
 		}, 1000);
 	}
 
