@@ -33,9 +33,11 @@ jobs:
         node-version: 20
 
     - name: 'Install dependencies'
+      working-directory: ${{ env.FE_PATH }}
       run: npm install
 
     - name: 'Build FE'
+      working-directory: ${{ env.FE_PATH }}
       run: npm run build
 
     - name: 'Restore packages'
