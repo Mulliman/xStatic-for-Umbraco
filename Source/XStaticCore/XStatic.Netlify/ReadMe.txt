@@ -1,11 +1,18 @@
 ﻿
 ===========================================
-xStatic- Umbraco Content API
+xStatic- Netlify
 ===========================================
 
 Basic setup
 -----------
 
-You must add following extension method in the ConfigureServices method of your startup class:
+You must add following extension method in the ConfigureServices method of your program class:
 
-services.AddUmbracoContentApi();
+using XStatic.Core.App;
+using XStatic.Netlify;
+
+builder.Services.AddXStatic()
+    .Automatic()
+    .Build();
+
+builder.Services.AddNetlifyActions();

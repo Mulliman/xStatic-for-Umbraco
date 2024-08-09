@@ -8,11 +8,14 @@ Basic setup
 
 1. Ensure that Umbraco is installed and working before running the site with xStatic installed. 
 
-2. Add the following to the ConfigureServices method in your Startup.cs file
+2. Add the following to your program.cs file:
+You must add following extension method in the ConfigureServices method of your program class:
 
-services.AddXStatic().Automatic().Build();
+using XStatic.Core.App;
 
-You will need to add using XStatic.Core.App; to the top of the file.
+builder.Services.AddXStatic()
+    .Automatic()
+    .Build();
 
 This will automatically register all the built in services as required for an out of the box solution.
 

@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "14Plus", "14Plus", "{CFBCA9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14", "XStatic14\XStatic14\XStatic14.csproj", "{D7D2EFE3-26E1-4999-87CA-78E4577CC37A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14.Client", "XStatic14\XStatic14.Client\XStatic14.Client.csproj", "{5788ED5B-7177-4676-A570-098213B8E784}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic.Client", "XStatic14\XStatic14.Client\XStatic.Client.csproj", "{5788ED5B-7177-4676-A570-098213B8E784}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XStatic14.Website", "XStatic14\XStatic14.Website\XStatic14.Website.csproj", "{B4FBEAAE-AF84-41CB-BD3C-85D404A26FE9}"
 EndProject

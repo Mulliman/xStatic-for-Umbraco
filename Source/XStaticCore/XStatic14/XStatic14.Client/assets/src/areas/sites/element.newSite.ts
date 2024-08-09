@@ -24,7 +24,7 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
                 
                 <div style="position:relative; display: block">
                     <div>
-                        <p>Before creating a site, make sure you have configured an export type as this is required.</p>
+                        <p>Before creating a site, make sure you have configured an export type as this is required. If you want to deploy the site, you will need to create a deployment target too.</p>
                         <p>You will then need to fill in the content and media that you want to include in your static site along with some other settings.</p>
                         <p>Once created you can build and deploy your static sites from this dashboard.</p>
                     </div>

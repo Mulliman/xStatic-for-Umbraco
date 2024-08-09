@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 using UmbracoContentApi.Core.Resolvers;
@@ -33,7 +34,7 @@ namespace XStatic.UmbracoContentApi
             _contentResolver = contentResolver;
         }
 
-        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+        public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
         {
             SslTruster.TrustSslIfAppSettingConfigured();
 
@@ -46,7 +47,7 @@ namespace XStatic.UmbracoContentApi
 
             try
             {
-                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
+                var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
 
                 var model = _contentResolver.Value.ResolveContent(node);
 

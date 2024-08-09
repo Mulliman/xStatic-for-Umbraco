@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\XStatic14.Client\XStatic14.Client.csproj" />
+    <ProjectReference Include="..\XStatic14.Client\XStatic.Client.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -17,7 +17,11 @@ namespace XStatic.Core.Generator.Storage
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
 
-            _xStaticPublishRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "App_Data", "xStatic", "output" });
+            var xStaticRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "umbraco", "Data", "xStatic" });
+            _xStaticPublishRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "umbraco", "Data", "xStatic", "output" });
+
+            if(!Directory.Exists(xStaticRoot)) Directory.CreateDirectory(xStaticRoot);
+            if(!Directory.Exists(_xStaticPublishRoot)) Directory.CreateDirectory(_xStaticPublishRoot);
         }
 
         public Task<string> StoreSiteItem(string subFolder, string path, string contents, System.Text.Encoding encoding)

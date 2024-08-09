@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+	  
+	<Product>xStatic.Client</Product>
+	<PackageId>xStatic.Client</PackageId>
+	<Title>xStatic.Client</Title>
+	<Version>14.0.0-beta</Version>
+	<Description>Headless backend client for the xStatic Package.</Description>
+	<PackageTags>umbraco umbraco14 xstatic static site generation umbraco-marketplace</PackageTags>
+	<Copyright>Sam Mullins</Copyright>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+	<RepositoryType>Git</RepositoryType>
+	<PackageIcon>Logo.png</PackageIcon>
+	<PackageIconUrl />
+	<Authors>Sam Mullins</Authors>
+	<Company>Sam Mullins</Company>
+  </PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\..\..\Brand\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+</Project>

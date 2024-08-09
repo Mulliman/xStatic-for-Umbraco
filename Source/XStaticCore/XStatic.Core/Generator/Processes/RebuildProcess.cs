@@ -111,7 +111,7 @@ namespace XStatic.Core.Generator.Processes
 
         private void AddCulturesToBuilder(SiteConfig entity, JobBuilder builder)
         {
-            if (entity?.Cultures.Any() != true)
+            if (entity?.Cultures?.Any() != true)
             {
                 return;
             }

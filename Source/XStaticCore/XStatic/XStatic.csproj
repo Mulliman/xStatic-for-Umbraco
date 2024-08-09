@@ -5,7 +5,7 @@
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-		<Version>14.0.0</Version>
+		<Version>14.0.0-beta</Version>
         <Description>Static site generation for Umbraco 14 without changing the method of building Umbraco sites.</Description>
         <PackageTags>umbraco umbraco14 xstatic static site generation umbraco-marketplace</PackageTags>
         <Copyright>Sam Mullins</Copyright>
@@ -47,5 +47,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+      <ProjectReference Include="..\XStatic14\XStatic14.Client\XStatic.Client.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="App_Plugins\xStatic\" />
     </ItemGroup>
 </Project>
