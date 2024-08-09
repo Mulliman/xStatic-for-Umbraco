@@ -21,6 +21,12 @@
 	<Authors>Sam Mullins</Authors>
 	<Company>Sam Mullins</Company>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="assets\**" />
+    <Content Remove="assets\**" />
+    <EmbeddedResource Remove="assets\**" />
+    <None Remove="assets\**" />
+  </ItemGroup>
 	<ItemGroup>
 		<None Include="..\..\..\..\Brand\Logo.png">
 			<Pack>True</Pack>
