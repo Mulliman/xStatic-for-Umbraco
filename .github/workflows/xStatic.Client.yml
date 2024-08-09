@@ -6,7 +6,7 @@ on:
     - 'v*'
 
 env:
-  FE_PATH: 'Source\XStaticCore\XStatic14\XStatic14.Client'
+  FE_PATH: '.\Source\XStaticCore\XStatic14\XStatic14.Client'
   PROJECT_PATH: 'Source\XStaticCore\XStatic14\XStatic14.Client\XStatic.Client.csproj'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
