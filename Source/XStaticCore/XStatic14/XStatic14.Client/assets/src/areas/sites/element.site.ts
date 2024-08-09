@@ -173,6 +173,8 @@ class SiteElement extends UmbElementMixin(LitElement) {
             let currentSeconds = 0;
             this.runningTask = { task: "Generating", startTime: new Date(), expectedDuration: this.site!.lastBuildDurationInSeconds ?? 0, currentSeconds };
 
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             await this.#siteContext!.generateSite(this.site!.id);
         } finally {
             this.runningTask = null;
@@ -191,6 +193,8 @@ class SiteElement extends UmbElementMixin(LitElement) {
             let currentSeconds = 0;
             this.runningTask = { task: "Deploying", startTime: new Date(), expectedDuration: this.site!.lastDeployDurationInSeconds ?? 0, currentSeconds };
 
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             await this.#siteContext!.deploySite(this.site!.id);
         } finally {
             this.runningTask = null;
@@ -201,6 +205,8 @@ class SiteElement extends UmbElementMixin(LitElement) {
         try {
             let currentSeconds = 0;
             this.runningTask = { task: "Downloading", startTime: new Date(), expectedDuration: 10, currentSeconds };
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             await this.#siteContext!.downloadSite(this.site!.id);
         } finally {
