@@ -44,8 +44,6 @@ namespace XStatic.Core.Generator.Processes
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Thread.Sleep(5000);
-
             var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
 
             if (entity?.ExportFormat == null)
