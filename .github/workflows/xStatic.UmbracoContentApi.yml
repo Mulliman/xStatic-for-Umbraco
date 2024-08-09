@@ -3,7 +3,7 @@ name: "Deploy xStatic.UmbracoContentApi to NuGet"
 on:
   push:
     tags:
-    - 'v*'
+    - 'disabled-v*'
 
 env:
   PROJECT_PATH: 'Source\XStaticCore\XStatic.UmbracoContentApi\XStatic.UmbracoContentApi.csproj'

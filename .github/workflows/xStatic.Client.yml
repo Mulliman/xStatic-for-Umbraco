@@ -24,16 +24,16 @@ jobs:
         dotnet-version: '8.0.x'
         
     - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
 
-      - run: npm -v
-      - run: npm install
+    - run: npm -v
+    - run: npm install
       
     - name: Build FE
-        run: npm run build
+      run: npm run build
 
     - name: 'Restore packages'
       run: dotnet restore ${{ env.PROJECT_PATH }}

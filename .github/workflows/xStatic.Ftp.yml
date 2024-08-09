@@ -3,7 +3,7 @@ name: "Deploy xStatic.Ftp to NuGet"
 on:
   push:
     tags:
-    - 'v*'
+    - 'disabled-v*'
 
 env:
   PROJECT_PATH: 'Source\XStaticCore\XStatic.Ftp\XStatic.Ftp.csproj'
