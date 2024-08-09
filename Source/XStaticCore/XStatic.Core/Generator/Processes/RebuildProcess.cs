@@ -179,9 +179,8 @@ namespace XStatic.Core.Generator.Processes
 
                 foreach (var mediaRoot in mediaRoots)
                 {
-                    int mediaId;
 
-                    if (int.TryParse(mediaRoot, out mediaId))
+                    if (Guid.TryParse(mediaRoot, out Guid mediaId))
                     {
                         var rootMedia = umbracoContext.UmbracoContext.Media.GetById(mediaId);
 
