@@ -6,6 +6,7 @@ on:
     - 'v*'
 
 env:
+  FE_PATH: 'Source\XStaticCore\XStatic14\XStatic14.Client'
   PROJECT_PATH: 'Source\XStaticCore\XStatic14\XStatic14.Client\XStatic.Client.csproj'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
@@ -22,17 +23,19 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '8.0.x'
-        
+
+    - name: 'Change working directory'
+      run: cd ${{ env.FE_PATH }}
+
     - name: Use Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: 'npm'
 
-    - run: npm -v
-    - run: npm install
-      
-    - name: Build FE
+    - name: 'Install dependencies'
+      run: npm install
+
+    - name: 'Build FE'
       run: npm run build
 
     - name: 'Restore packages'
