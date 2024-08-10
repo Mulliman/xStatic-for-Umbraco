@@ -6,21 +6,21 @@ using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions.FileActions
 {
-    [XStaticEditableField("FilePath")]
-    public class FileDeleteAction : IPostGenerationAction
+    [XStaticEditableField("FilePath", "File Path")]
+    public class FileDeleteAction : PostGenerationActionBase
     {
         private readonly IStaticSiteStorer _staticSiteStorer;
 
-        public virtual string Name => nameof(FileDeleteAction);
+        public override string Name => nameof(FileDeleteAction);
 
         public FileDeleteAction(IStaticSiteStorer staticSiteStorer)
         {
             _staticSiteStorer = staticSiteStorer;
         }
 
-        public virtual async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
+        public override async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
         {
-            var existingFilePath = parameters["FilePath"];
+            var existingFilePath = GetParameter(parameters, "FilePath");
 
             return await DeleteFile(staticSiteId, existingFilePath);
         }

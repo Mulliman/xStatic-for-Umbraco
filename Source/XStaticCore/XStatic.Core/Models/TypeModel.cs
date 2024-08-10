@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Actions.FileActions;
 
 namespace XStatic.Core.Models
 {
@@ -28,21 +29,43 @@ namespace XStatic.Core.Models
             Id = type?.AssemblyQualifiedName;
             Name = type?.Name;
 
-            var attrs = type?.GetCustomAttributes(typeof(XStaticEditableFieldAttribute), false)?.Cast<XStaticEditableFieldAttribute>()?.Select(a => a.FieldName);
+            var attrs = type?.GetCustomAttributes(typeof(XStaticEditableFieldAttribute), false)
+                ?.Cast<XStaticEditableFieldAttribute>()
+                ?.Select(a => new ConfigurableTypeField { Alias = PostGenerationActionBase.ResolveParamName(Name, a.FieldAlias), Name = a.FieldName, Value = "", EditorUiAlias = a.EditorUiAlias });
 
             if(attrs?.Any() == true)
             {
-                Fields = attrs.ToDictionary(a => a, a => "");
+                Fields = attrs.ToList();
             }
         }
 
-        public ConfigurableTypeModel(Type type, Dictionary<string, string> config)
+        public ConfigurableTypeModel(Type type, Dictionary<string, string> config) : this(type)
         {
-            Id = type?.AssemblyQualifiedName;
-            Name = type?.Name;
-            Fields = config;
+            if(config == null)
+            {
+                return;
+            }
+
+            foreach(var field in Fields)
+            {
+                if(config.ContainsKey(field.Name))
+                {
+                    field.Value = config[field.Name];
+                }
+            }
         }
 
-        public Dictionary<string, string> Fields { get; set; }
+        public List<ConfigurableTypeField> Fields { get; set; }
+    }
+
+    public class ConfigurableTypeField
+    {
+        public string Alias { get; set; }
+
+        public string Name { get; set; }
+
+        public string Value { get; set; }
+
+        public string EditorUiAlias { get; set; } = "Umb.PropertyEditorUi.TextBox";
     }
 }

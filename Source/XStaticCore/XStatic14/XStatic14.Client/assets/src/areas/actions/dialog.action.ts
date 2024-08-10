@@ -2,12 +2,13 @@ import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/e
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { ActionModel, ActionUpdateModel, ConfigurableTypeModel, XStaticConfig } from "../../api";
+import { ActionModel, ActionUpdateModel, ConfigurableTypeField, ConfigurableTypeModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
 import "../../elements/element.validationError";
+import { UmbPropertyValueChangeEvent } from "@umbraco-cms/backoffice/property-editor";
 
 @customElement('xstatic-edit-action-modal')
 export class EditActionModalElement extends
@@ -74,7 +75,7 @@ export class EditActionModalElement extends
         }
 
         return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Create new export type'}>
+            <umb-body-layout .headline=${this.data?.headline ?? 'Create new Action'}>
                 <uui-box>
                 <umb-property-dataset
                   .value=${this.values as Array<UmbPropertyValueData>}
@@ -145,6 +146,8 @@ export class EditActionModalElement extends
         const value = (e.target as UmbPropertyDatasetElement).value;
         this.values = value;
 
+        this.dispatchEvent(new UmbPropertyValueChangeEvent());
+
         var postModel = this.#createPostModel();
 
         if (!this.#validatePostModel(postModel)) {
@@ -174,7 +177,7 @@ export class EditActionModalElement extends
 
         var selectedType = this.getFirst(this.values.find((x) => x.alias === 'type')?.value as Array<string>);
         
-        var existingConfig = this.values.find((x) => x.alias === 'config')?.value as Record<string, string | null>;
+        var existingConfig = this.values.find((x) => x.alias === 'config')?.value as ConfigurableTypeField[] | null | undefined;
         var selectedActionType = this.config?.postGenerationActions?.find((x) => x.id === selectedType);
 
         var selectedConfig = this.#isExistingConfigValid(existingConfig, selectedActionType)
@@ -215,25 +218,25 @@ export class EditActionModalElement extends
                 alias: "config",
                 label: "Configuration",
                 description: "Use this to set what specific configuration you want to use for the selected type. The fields may change depending on the type selected.",
-                propertyEditorUiAlias: "xstatic.propertyEditorUi.dynamicForm",
+                propertyEditorUiAlias: "xstatic.propertyEditorUi.dynamicConfigurableForm",
                 config: [
                     {
                         alias: 'fields',
                         value: selectedConfig
-                    },
+                    }
                 ],
             },
         ];
     } 
 
-    #isExistingConfigValid(existingConfig: Record<string, string | null> | null | undefined, 
+    #isExistingConfigValid(existingConfig: ConfigurableTypeField[]| null | undefined, 
         selectedActionType: ConfigurableTypeModel | null | undefined) {
         if(!existingConfig || !selectedActionType) {
             return false;
         }
 
-        var existingFields = this.recordAsArray(existingConfig);
-        var selectedFields = this.recordAsArray(selectedActionType.fields);
+        var existingFields = existingConfig;
+        var selectedFields = selectedActionType.fields ?? [];
 
         if(existingFields.length !== selectedFields.length) {
             return false;
@@ -241,10 +244,10 @@ export class EditActionModalElement extends
 
         for (let i = 0; i < selectedFields.length; i++) {
             const selectedField = selectedFields[i];
-            const existingField = existingFields.find((x) => x.key === selectedField.key);
+            const existingField = existingFields.find((x) => x.alias === selectedField.alias);
 
             if(!existingField) {
-                console.log('existingField not found', selectedField.key);
+                console.log('existingField not found', selectedField.name);
                 return false;
             }
         }
@@ -257,23 +260,28 @@ export class EditActionModalElement extends
     // #region Mappers
 
     #createPostModel() : ActionUpdateModel {
+        var configFields = this.values.find((x) => x.alias === 'config')?.value as ConfigurableTypeField[] | null | undefined;
+
         var model = 
         {
             name: this.values.find((x) => x.alias === 'name')?.value,
             id: this.data?.content.id,
             type: this.getFirst(this.values.find((x) => x.alias === 'type')?.value as Array<string>),
-            config: this.values.find((x) => x.alias === 'config')?.value as Record<string, string | null>,
+            config: this.arrayAsRecord(configFields),
         } as ActionUpdateModel;
 
         return model;
     }
 
     #mapToPropertyValueData() {
+        const configArray = this.data?.content?.type?.fields;
+        const configRecord = this.arrayAsRecord(configArray);
+
         var updateModel: ActionUpdateModel = {
             id: this.data?.content?.id ?? 0,
             name: this.data?.content?.name,
             type: this.data?.content?.type?.id,
-            config: this.data?.content?.type?.fields,
+            config: configRecord,
         };
 
         this.updateValue({ content: updateModel });
@@ -282,7 +290,7 @@ export class EditActionModalElement extends
             { alias: 'id', value: updateModel.id },
             { alias: 'name', value: updateModel.name },
             { alias: 'type', value: [updateModel.type] },
-            { alias: 'config', value: updateModel.config },
+            { alias: 'config', value: configArray },
         ];
     }
 
@@ -300,6 +308,16 @@ export class EditActionModalElement extends
         }
 
         return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
+    }
+
+    arrayAsRecord(array: ConfigurableTypeField[] | null | undefined): Record<string, string | null> {
+        var record: Record<string, string | null> = {};
+
+        if (array) {
+            array.forEach((x) => { if (x?.name) { record[x.name] = x.value ?? null } });
+        }
+
+        return record;
     }
 
     // #endregion Utils

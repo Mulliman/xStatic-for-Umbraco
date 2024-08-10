@@ -51,10 +51,17 @@ export enum CallingConventions {
     EXPLICIT_THIS = 'ExplicitThis'
 }
 
+export type ConfigurableTypeField = {
+        alias?: string | null
+name?: string | null
+value?: string | null
+editorUiAlias?: string | null
+    };
+
 export type ConfigurableTypeModel = {
         id?: string | null
 name?: string | null
-fields?: Record<string, string | null> | null
+fields?: Array<ConfigurableTypeField> | null
     };
 
 export type ConstructorInfo = {

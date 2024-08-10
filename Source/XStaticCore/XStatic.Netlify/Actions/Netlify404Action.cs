@@ -6,7 +6,7 @@ using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Netlify.Actions
 {
-    [XStaticEditableField("FilePath")]
+    [XStaticEditableField("FilePath", "File Path")]
     public class Netlify404Action : FileCopyAction
     {
         const string Netlify404FilePath = "/404.html";
@@ -19,7 +19,7 @@ namespace XStatic.Netlify.Actions
 
         public override async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
         {
-            var existingFilePath = parameters["FilePath"];
+            var existingFilePath = GetParameter(parameters, "FilePath");
 
             return await CopyFile(staticSiteId, existingFilePath, Netlify404FilePath);
         }
