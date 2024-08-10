@@ -1,4 +1,4 @@
-import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit";
+import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
@@ -6,6 +6,8 @@ import { ExportTypeModel, ExportTypeUpdateModel, XStaticConfig } from "../../api
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "./context.exportType";
+
+import "../../elements/element.validationError";
 
 export interface EditExportTypeModalData {
     headline?: string;
@@ -44,6 +46,12 @@ export class EditExportTypeModalElement extends
     @state()
     isLoaded: boolean = false;
 
+    @state()
+    errors: Map<string, string> = new Map<string, string>();
+
+    @state()
+    showErrors: boolean = false;
+
     constructor() {
         super();
 
@@ -78,13 +86,16 @@ export class EditExportTypeModalElement extends
                 .map(
                     (prop) =>
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
+                        html`
+                        <xstatic-validation-error-wrapper errorMessage=${ifDefined(this.showErrors ? this.errors.get(prop.alias) : undefined)}>
+                            <umb-property
+                            alias=${prop.alias}
+                            label=${prop.label}
+                            .description=${prop.description}
+                            property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                            .config=${prop.config}
+                            ></umb-property>
+                        </xstatic-validation-error-wrapper>`
                 )}
                 </umb-property-dataset>
 
@@ -114,6 +125,11 @@ export class EditExportTypeModalElement extends
 
         var postModel = this.createPostModel();
 
+        if (!this.#validatePostModel(postModel)) {
+            this.showErrors = true;
+            return;
+        }
+
         const data = postModel.id > 0
             ? await this.#exportTypeContext!.updateExportType(postModel)
             : await this.#exportTypeContext!.createExportType(postModel);
@@ -130,18 +146,46 @@ export class EditExportTypeModalElement extends
     #onPropertyDataChange(e: Event) {
         const value = (e.target as UmbPropertyDatasetElement).value;
         this._values = value;
+
+        var postModel = this.createPostModel();
+
+        if (!this.#validatePostModel(postModel)) {
+            return;
+        }
     }
 
     // #endregion Handlers
 
     // #region Form
 
+    #validatePostModel(postModel: ExportTypeUpdateModel): boolean {
+        this.errors = new Map<string, string>();
+
+        if (!postModel.name) {
+            this.errors.set('name', 'Name is required');
+        }
+
+        if (!postModel.fileNameGenerator) {
+            this.errors.set('fileNameGenerator', 'File Name Generator is required');
+        }
+
+        if (!postModel.generator) {
+            this.errors.set('generator', 'Generator is required');
+        }
+
+        if (!postModel.transformerFactory) {
+            this.errors.set('transformerFactory', 'Transformer Factory is required');
+        }
+
+        return this.errors.size === 0;
+    }
+
     getBaseProperties(): PropertyEditorSettingsProperty[] {
 
         return [
             {
                 alias: "name",
-                label: "Export Type Name",
+                label: "Export Type Name *",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
                 config: [
                     {
@@ -158,7 +202,7 @@ export class EditExportTypeModalElement extends
             },
             {
                 alias: "transformerFactory",
-                label: "Transformer Factory",
+                label: "Transformer Factory *",
                 description: "This is the component that decides what transformers are run and in which order.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
@@ -170,7 +214,7 @@ export class EditExportTypeModalElement extends
             },
             {
                 alias: "generator",
-                label: "Generator",
+                label: "Generator *",
                 description: "This is the component that creates the static files for each page.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
@@ -182,7 +226,7 @@ export class EditExportTypeModalElement extends
             },
             {
                 alias: "fileNameGenerator",
-                label: "File Name Generator",
+                label: "File Name Generator *",
                 description: "This is the component that decides the folder and the file name for each page.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [

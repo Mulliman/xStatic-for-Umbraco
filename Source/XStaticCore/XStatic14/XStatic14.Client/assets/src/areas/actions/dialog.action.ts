@@ -1,4 +1,4 @@
-import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit";
+import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
@@ -6,6 +6,8 @@ import { ActionModel, ActionUpdateModel, ConfigurableTypeModel, XStaticConfig } 
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
+
+import "../../elements/element.validationError";
 
 @customElement('xstatic-edit-action-modal')
 export class EditActionModalElement extends
@@ -26,6 +28,12 @@ export class EditActionModalElement extends
     isLoaded: boolean = false;
 
     #inited!: Promise<unknown>;
+
+    @state()
+    errors: Map<string, string> = new Map<string, string>();
+
+    @state()
+    showErrors: boolean = false;
 
     constructor() {
         super();
@@ -76,13 +84,16 @@ export class EditActionModalElement extends
                 .map(
                     (prop) =>
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
+                        html`
+                        <xstatic-validation-error-wrapper errorMessage=${ifDefined(this.showErrors ? this.errors.get(prop.alias) : undefined)}>
+                            <umb-property
+                            alias=${prop.alias}
+                            label=${prop.label}
+                            .description=${prop.description}
+                            property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                            .config=${prop.config}
+                            ></umb-property>
+                        </xstatic-validation-error-wrapper>`
                 )}
                 </umb-property-dataset>
 
@@ -112,6 +123,11 @@ export class EditActionModalElement extends
 
         var postModel = this.#createPostModel();
 
+        if (!this.#validatePostModel(postModel)) {
+            this.showErrors = true;
+            return;
+        }
+
         const data = postModel.id > 0
             ? await this.#actionContext!.updateAction(postModel)
             : await this.#actionContext!.createAction(postModel);
@@ -128,11 +144,31 @@ export class EditActionModalElement extends
     #onPropertyDataChange(e: Event) {
         const value = (e.target as UmbPropertyDatasetElement).value;
         this.values = value;
+
+        var postModel = this.#createPostModel();
+
+        if (!this.#validatePostModel(postModel)) {
+            return;
+        }
     }
 
     // #endregion Handlers
 
     // #region Form
+
+    #validatePostModel(postModel: ActionUpdateModel): boolean {
+        this.errors = new Map<string, string>();
+
+        if (!postModel.name) {
+            this.errors.set('name', 'Name is required');
+        }
+
+        if (!postModel.type) {
+            this.errors.set('type', 'Action Type is required');
+        }
+
+        return this.errors.size === 0;
+    }
 
     #getBaseProperties(): PropertyEditorSettingsProperty[] {
 
@@ -148,7 +184,7 @@ export class EditActionModalElement extends
         return [
             {
                 alias: "name",
-                label: "Action Name",
+                label: "Action Name *",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
                 config: [
                     {
@@ -165,7 +201,7 @@ export class EditActionModalElement extends
             },
             {
                 alias: "type",
-                label: "Action Type",
+                label: "Action Type *",
                 description: "This is the type of action that you want to configure a specific instance of.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [

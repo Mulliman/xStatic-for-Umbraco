@@ -1,4 +1,4 @@
-import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit";
+import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
@@ -6,6 +6,8 @@ import { DeployerField, DeployerModel, DeploymentTargetModel, DeploymentTargetUp
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deploymentTargets";
+
+import "../../elements/element.validationError";
 
 @customElement('xstatic-edit-deployment-target-modal')
 export class EditDeploymentTargetModalElement extends
@@ -24,6 +26,12 @@ export class EditDeploymentTargetModalElement extends
 
     @state()
     isLoaded: boolean = false;
+
+    @state()
+    errors: Map<string, string> = new Map<string, string>();
+
+    @state()
+    showErrors: boolean = false;
 
     constructor() {
         super();
@@ -58,13 +66,16 @@ export class EditDeploymentTargetModalElement extends
                 .map(
                     (prop) =>
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
+                        html`
+                        <xstatic-validation-error-wrapper errorMessage=${ifDefined(this.showErrors ? this.errors.get(prop.alias) : undefined)}>
+                            <umb-property
+                            alias=${prop.alias}
+                            label=${prop.label}
+                            .description=${prop.description}
+                            property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                            .config=${prop.config}
+                            ></umb-property>
+                        </xstatic-validation-error-wrapper>`
                 )}
                 </umb-property-dataset>
 
@@ -94,6 +105,11 @@ export class EditDeploymentTargetModalElement extends
 
         var postModel = this.#createPostModel();
 
+        if (!this.#validatePostModel(postModel)) {
+            this.showErrors = true;
+            return;
+        }
+
         const data = postModel.id > 0
             ? await this.#deploymentTargetContext!.updateDeploymentTarget(postModel)
             : await this.#deploymentTargetContext!.createDeploymentTarget(postModel);
@@ -110,12 +126,32 @@ export class EditDeploymentTargetModalElement extends
     #onPropertyDataChange(e: Event) {
         const value = (e.target as UmbPropertyDatasetElement).value;
         this._values = value;
+
+        var postModel = this.#createPostModel();
+
+        if (!this.#validatePostModel(postModel)) {
+            return;
+        }
     }
 
 
     // #endregion Handlers
 
     // #region Form
+
+    #validatePostModel(postModel: DeploymentTargetUpdateModel): boolean {
+        this.errors = new Map<string, string>();
+
+        if (!postModel.name) {
+            this.errors.set('name', 'Name is required');
+        }
+
+        if (!postModel.deployerDefinition) {
+            this.errors.set('deployerDefinition', 'Deployer Definition is required');
+        }
+
+        return this.errors.size === 0;
+    }
 
     #getBaseProperties(): PropertyEditorSettingsProperty[] {
 
@@ -131,7 +167,7 @@ export class EditDeploymentTargetModalElement extends
         return [
             {
                 alias: "name",
-                label: "Action Name",
+                label: "Name *",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
                 config: [
                     {
@@ -148,7 +184,7 @@ export class EditDeploymentTargetModalElement extends
             },
             {
                 alias: "deployerDefinition",
-                label: "Deployer",
+                label: "Deployer *",
                 description: "This is the type of deployer that you want to configure a specific instance of.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
