@@ -1,4 +1,4 @@
-import { customElement, html, state } from "@umbraco-cms/backoffice/external/lit";
+import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
@@ -11,7 +11,7 @@ import ActionContext, { ACTION_CONTEXT_TOKEN } from "../actions/context.action";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "../deploymentTargets/context.deploymentTargets";
 import { UmbLanguageCollectionRepository, UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
 
-
+import "../../elements/element.validationError";
 
 @customElement('xstatic-edit-site-modal')
 export class EditSiteModalElement extends
@@ -43,6 +43,12 @@ export class EditSiteModalElement extends
 
 	@state()
 	private _cultures: Array<UmbLanguageDetailModel> = [];
+
+    @state()
+    errors: Map<string, string> = new Map<string, string>();
+
+    @state()
+    showErrors: boolean = false;
 
     constructor() {
         super();
@@ -127,13 +133,17 @@ export class EditSiteModalElement extends
                 .map(
                     (prop) =>
 
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.label}
-                          .description=${prop.description}
-                          property-editor-ui-alias=${prop.propertyEditorUiAlias}
-                          .config=${prop.config}
-                        ></umb-property>`
+                        html`
+                        <xstatic-validation-error-wrapper errorMessage=${ifDefined(this.showErrors ? this.errors.get(prop.alias) : undefined)}>
+                            <umb-property
+                            alias=${prop.alias}
+                            label=${prop.label}
+                            .description=${prop.description}
+                            property-editor-ui-alias=${prop.propertyEditorUiAlias}
+                            .config=${prop.config}
+                            ></umb-property>
+                        </xstatic-validation-error-wrapper>
+                        `
                 )}
                 </umb-property-dataset>
 
@@ -163,6 +173,11 @@ export class EditSiteModalElement extends
 
         var postModel = this.createPostModel();
 
+        if (!this.#validatePostModel(postModel)) {
+            this.showErrors = true;
+            return;
+        }
+
         const data = postModel.id > 0
             ? await this.#siteContext!.updateSite(postModel)
             : await this.#siteContext!.createSite(postModel);
@@ -179,22 +194,46 @@ export class EditSiteModalElement extends
     #onPropertyDataChange(e: Event) {
         const value = (e.target as UmbPropertyDatasetElement).value;
         this._values = value;
+
+        var postModel = this.createPostModel();
+
+        if (!this.#validatePostModel(postModel)) {
+            return;
+        }
     }
 
     // #endregion Handlers
 
     // #region Form
 
+    #validatePostModel(postModel: SiteUpdateModel): boolean {
+        this.errors = new Map<string, string>();
+
+        if (!postModel.name) {
+            this.errors.set('name', 'Name is required');
+        }
+
+        if (!postModel.rootNode) {
+            this.errors.set('rootNode', 'Root node is required');
+        }
+
+        if (!postModel.exportFormat) {
+            this.errors.set('exportFormat', 'Export format is required');
+        }
+
+        return this.errors.size === 0;
+    }
+
     getBaseProperties(): PropertyEditorSettingsProperty[] {
         return [
             {
                 alias: "name",
-                label: "Site Name",
+                label: "Site Name *",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox"
             },
             {
                 alias: "rootNode",
-                label: "Root Node",
+                label: "Root Node *",
                 description: "Select the root of the site you want to create a static version of.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.ContentPicker",
                 config: [
@@ -230,7 +269,7 @@ export class EditSiteModalElement extends
             },
             {
                 alias: "exportFormat",
-                label: "Export Format",
+                label: "Export Format *",
                 description: "Do you want to export this site as a JSON API or as a static HTML website.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
@@ -291,6 +330,10 @@ export class EditSiteModalElement extends
                     {
                         alias: "items",
                         value: this.deploymentTargets?.map((x) => ({ name: x.name, value: x.id?.toString() })) ?? []
+                    },
+                    {
+                        alias: "placeholder",
+                        value: "Please select..."
                     },
                 ],
             },
