@@ -21,8 +21,8 @@ namespace XStatic.Netlify
 
         public NetlifyDeployer(Dictionary<string, string> parameters)
         {
-            _pat = parameters["PersonalAccessToken"];
-            _appId = parameters["SiteId"];
+            _pat = parameters[NetlifyDeployerDefinition.FieldNames.PAT];
+            _appId = parameters[NetlifyDeployerDefinition.FieldNames.SiteId];
         }
 
         public virtual Task<XStaticResult> DeployWholeSite(string folderPath)

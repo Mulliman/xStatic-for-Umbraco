@@ -119,25 +119,26 @@ value?: unknown
     };
 
 export type DeployerField = {
-        name?: string | null
+        alias?: string | null
+name?: string | null
 value?: string | null
 help?: string | null
 editorUiAlias?: string | null
     };
 
 export type DeployerModel = {
-        readonly id?: string | null
-readonly name?: string | null
-readonly help?: string | null
-readonly fields?: Array<DeployerField> | null
+        id?: string | null
+name?: string | null
+help?: string | null
+fields?: Array<DeployerField> | null
     };
 
 export type DeploymentTargetModel = {
-        readonly id: number
-readonly name?: string | null
-readonly deployerDefinition?: string | null
-readonly help?: string | null
-readonly fields?: Array<DeployerField> | null
+        id: number
+name?: string | null
+deployerDefinition?: string | null
+help?: string | null
+fields?: Array<DeployerField> | null
     };
 
 export type DeploymentTargetUpdateModel = {

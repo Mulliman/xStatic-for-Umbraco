@@ -5,6 +5,12 @@ namespace XStatic.Netlify
 {
     public class NetlifyDeployerDefinition : IDeployerDefinition
     {
+        public class FieldNames
+        {
+            public const string PAT = "Netlify.PAT";
+            public const string SiteId = "Netlify.SiteId";
+        }
+
         public string Id => NetlifyDeployer.DeployerKey;
 
         public string Name => "Netlify";
@@ -13,8 +19,8 @@ namespace XStatic.Netlify
 
         public IEnumerable<DeployerField> Fields => new[]
         {
-            new DeployerField { Name = "PersonalAccessToken", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
-            new DeployerField { Name = "SiteId", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Alias=FieldNames.PAT, Name = "Personal Access Token", EditorUiAlias = UIEditors.Password },
+            new DeployerField { Alias=FieldNames.SiteId, Name = "Site ID", EditorUiAlias = UIEditors.Text },
         };
     }
 }

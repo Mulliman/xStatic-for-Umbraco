@@ -55,11 +55,11 @@ export const dynamicConfigurableFormSchema : ManifestPropertyEditorSchema = {
   };
 
 export const manifests: Array<ManifestTypes> = [
-	{
+    {
 		type: 'propertyEditorUi',
-		alias: 'xstatic.propertyEditorUi.dynamicForm',
-		name: 'xStatic Dynamic Form Editor UI',
-		element: () => import('./editor.dynamicForm.ts'),
+		alias: 'xstatic.propertyEditorUi.password',
+		name: 'xStatic Password',
+		element: () => import('./editor.password.ts'),
 	},
     {
 		type: 'propertyEditorUi',

@@ -33,6 +33,7 @@ namespace XStatic.Core.Models
 
                 yield return new DeployerField
                 {
+                    Alias = item.Alias,
                     Name = item.Name,
                     EditorUiAlias = item.EditorUiAlias,
                     Value = match ?? item.Value,

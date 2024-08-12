@@ -12,7 +12,7 @@ namespace XStatic.Core.Deploy
 
         public FileSystemDeployer(Dictionary<string, string> parameters)
         {
-            _folderPath = parameters["FolderPath"];
+            _folderPath = parameters[FileSystemDeployerDefinition.FieldNames.FolderPath];
         }
 
         public Task<XStaticResult> DeployWholeSite(string folderPath)

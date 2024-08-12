@@ -19,13 +19,13 @@ namespace XStatic.Ftp
 
         public FtpDeployer(Dictionary<string, string> parameters)
         {
-            _hostname = parameters["Hostname"];
-            _username = parameters["Username"];
-            _password = parameters["Password"];
-            _folder = parameters["Folder"];
+            _hostname = parameters[FtpDeployerDefinition.FieldNames.Hostname];
+            _username = parameters[FtpDeployerDefinition.FieldNames.Username];
+            _password = parameters[FtpDeployerDefinition.FieldNames.Password];
+            _folder = parameters[FtpDeployerDefinition.FieldNames.Folder];
 
             _port = 21;
-            int.TryParse(parameters["Port"], out _port);
+            int.TryParse(parameters[FtpDeployerDefinition.FieldNames.Port], out _port);
         }
 
         public virtual Task<XStaticResult> DeployWholeSite(string folderPath)

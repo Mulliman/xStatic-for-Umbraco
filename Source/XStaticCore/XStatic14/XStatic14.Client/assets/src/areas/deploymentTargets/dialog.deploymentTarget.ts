@@ -209,7 +209,7 @@ export class EditDeploymentTargetModalElement extends
         ];
     }
 
-    #isExistingConfigValid(existingConfig: DeployerModel[] | null | undefined,
+    #isExistingConfigValid(existingConfig: DeployerField[] | null | undefined,
         selectedDeployer: DeployerModel | null | undefined) {
         if (!existingConfig || !selectedDeployer) {
             return false;
@@ -224,7 +224,7 @@ export class EditDeploymentTargetModalElement extends
 
         for (let i = 0; i < selectedFields.length; i++) {
             const selectedField = selectedFields[i];
-            const existingField = existingFields.find((x) => x.name === selectedField.name);
+            const existingField = existingFields.find((x) => x.alias === selectedField.alias);
 
             if (!existingField) {
                 console.log('existingField not found', selectedField.name, existingFields);
@@ -297,7 +297,7 @@ export class EditDeploymentTargetModalElement extends
         var record: Record<string, string | null> = {};
 
         if (array) {
-            array.forEach((x) => { if (x?.name) { record[x.name] = x.value ?? null } });
+            array.forEach((x) => { if (x?.alias) { record[x.alias] = x.value ?? null } });
         }
 
         return record;

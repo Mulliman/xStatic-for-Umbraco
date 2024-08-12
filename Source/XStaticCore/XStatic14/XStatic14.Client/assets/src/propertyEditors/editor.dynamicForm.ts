@@ -5,100 +5,86 @@ import type { UmbPropertyEditorConfigCollection } from '@umbraco-cms/backoffice/
 import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 
-@customElement('xstatic-property-editor-dynamic-form')
-export class XStaticPropertyEditorDynamicFormElement extends UmbLitElement implements UmbPropertyEditorUiElement {
+type DynamicFormField = { 
+    name?: string | null | undefined,
+    alias?: string | null | undefined,
+    editorUiAlias?: string | null | undefined
+};
 
-    // @state()
-	// private _fields: Record<string, string | null> | null | undefined;
+export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends DynamicFormField> 
+    extends UmbLitElement 
+    implements UmbPropertyEditorUiElement {
 
-    @state() 
-    _values: Array<UmbPropertyValueData> = [];
+        @state()
+        fields: Array<TFieldType> | null | undefined;
+    
+        @state() 
+        values: Array<UmbPropertyValueData> = [];
 
-	@property({ type: Array })
-	public set value(value: Record<string, string | null> | null | undefined) {
-        let array = this.recordAsArray(value);
-
-		this._values = array.map((field) => {
-            return {
-                alias: field.key,
-                value: field.value
+        @property({ type: Array })
+        public set value(value: TFieldType[] | null | undefined) {
+            if(!value) {
+                this.values = [];
+                return; 
             }
-        });
-	}
+    
+            this.fields = value;
+            this.values = this.mapToPropertyValueData(value);
+        }
+    
+        public get value(): TFieldType[]| null | undefined {
+            return this.mapFromPropertyValueData(this.values);
+        }
+    
+        public set config(config: UmbPropertyEditorConfigCollection | undefined) {
+            if (!config) return;
+    
+            const fields = config.getValueByAlias('fields') as TFieldType[] | null | undefined;
+    
+            this.value = fields;
+        }
+    
+        onPropertyDataChange(e: Event) {
+            const value = (e.target as UmbPropertyDatasetElement).value;
+    
+            let array = this.mapFromPropertyValueData(value);
+            this.value = array;
 
-    public get value(): Record<string, string | null> | null | undefined {
-        let record: Record<string, string | null> = {};
-
-        this._values.forEach((x) => record[x.alias] = x.value as string | null);
-
-        return record;
-    }
-
-	public set config(config: UmbPropertyEditorConfigCollection | undefined) {
-		if (!config) return;
-
-		const fields = config.getValueByAlias('fields') as Record<string, string | null> | null | undefined;
-
-        this.value = fields;
-	}
-
-    #onPropertyDataChange(e: Event) {
-        const value = (e.target as UmbPropertyDatasetElement).value;
-
-        this._values = value;
-
-        this.dispatchEvent(new UmbPropertyValueChangeEvent());
-    }
-
-    recordAsArray(record: Record<string, string | null> | null | undefined): { key: string, value: string | null }[] {
-        if(!record) {
-            return [];
+            this.dispatchEvent(new UmbPropertyValueChangeEvent());
         }
 
-        return Object.entries(record).map(([key, value]) => ({ key: key, value: value }));
-    }
+        abstract mapToPropertyValueData(value: TFieldType[]): UmbPropertyValueData[];
 
-	override render() {
-		return this.#renderForm();
-	}
+        abstract mapFromPropertyValueData(value: UmbPropertyValueData[]): TFieldType[];
 
-	#renderForm() {
-        if(!this._values) {
-            return html`<h3>No Action Type selected</h3>`;
+        override render() {
+            return this.renderForm();
         }
-        
-		return html`
-            <umb-property-dataset
-                  .value=${this._values as Array<UmbPropertyValueData>}
-                  @change=${this.#onPropertyDataChange}
-                >
-                  ${this._values
-                .map(
-                    (prop) =>
-
-                        html`<umb-property
-                          alias=${prop.alias}
-                          label=${prop.alias}
-                          property-editor-ui-alias="Umb.PropertyEditorUi.TextBox"
-                        ></umb-property>`
-                )}
-                </umb-property-dataset>
-		`;
-	}
-
-	static override styles = [
-		css`
-            umb-property{
-                --uui-size-layout-1: 10px;
+    
+        renderForm() {
+            if(!this.values || !this.fields) {
+                return html`<h3>No Type selected</h3>`;
             }
-		`,
-	];
+
+            return html`
+                <umb-property-dataset
+                      .value=${this.values as Array<UmbPropertyValueData>}
+                      @change=${this.onPropertyDataChange}
+                    >
+
+                      ${this.fields
+                    .map(
+                        (prop) => {
+                            return html`<umb-property
+                              alias=${prop.alias!}
+                              label=${prop.name!}
+                              property-editor-ui-alias=${prop.editorUiAlias ?? "Umb.PropertyEditorUi.TextBox"}
+                            ></umb-property>`}
+                    )}
+
+                    </umb-property-dataset>
+            `;
+        }
 }
 
-export default XStaticPropertyEditorDynamicFormElement;
-
-declare global {
-	interface HTMLElementTagNameMap {
-		'xstatic-property-editor-dynamic-form': XStaticPropertyEditorDynamicFormElement;
-	}
-}
+export default XStaticPropertyEditorDynamicFormBase;

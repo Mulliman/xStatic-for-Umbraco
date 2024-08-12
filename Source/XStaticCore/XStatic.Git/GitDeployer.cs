@@ -21,11 +21,11 @@ namespace XStatic.Git
 
         public GitDeployer(Dictionary<string, string> parameters)
         {
-            _remoteUrl = parameters["RemoteUrl"];
-            _email = parameters["Email"];
-            _username = parameters["Username"];
-            _password = parameters["Password"];
-            _branch = parameters["Branch"];
+            _remoteUrl = parameters[GitDeployerDefinition.FieldNames.RemoteUrl];
+            _email = parameters[GitDeployerDefinition.FieldNames.Email];
+            _username = parameters[GitDeployerDefinition.FieldNames.Username];
+            _password = parameters[GitDeployerDefinition.FieldNames.Password];
+            _branch = parameters[GitDeployerDefinition.FieldNames.Branch];
         }
 
         public Task<XStaticResult> DeployWholeSite(string folderPath)

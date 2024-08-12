@@ -1,14 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using XStatic.Core.Deploy;
 
 namespace XStatic.Git
 {
     public class GitDeployerDefinition : IDeployerDefinition
     {
+        public class FieldNames
+        {
+            public const string RemoteUrl = "Git.RemoteUrl";
+            public const string Email = "Git.Email";
+            public const string Username = "Git.Uname";
+            public const string Password = "Git.Pss";
+            public const string Branch = "Git.Branch";
+        }
+
         public string Id => GitDeployer.DeployerKey;
 
         public string Name => "Git";
@@ -17,11 +22,11 @@ namespace XStatic.Git
 
         public IEnumerable<DeployerField> Fields => new[]
         {
-            new DeployerField { Name = "RemoteUrl", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
-            new DeployerField { Name = "Email", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
-            new DeployerField { Name = "Username", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
-            new DeployerField { Name = "Password", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
-            new DeployerField { Name = "Branch", EditorUiAlias = "Umb.PropertyEditorUi.TextBox" },
+            new DeployerField { Alias=FieldNames.RemoteUrl, Name = "Remote URL", EditorUiAlias = UIEditors.Text },
+            new DeployerField { Alias=FieldNames.Email, Name = "Email", EditorUiAlias = UIEditors.Text },
+            new DeployerField { Alias=FieldNames.Username,  Name = "Username", EditorUiAlias = UIEditors.Text },
+            new DeployerField { Alias=FieldNames.Password, Name = "Password", EditorUiAlias = UIEditors.Password },
+            new DeployerField { Alias=FieldNames.Branch, Name = "Branch", EditorUiAlias = UIEditors.Text },
         };
     }
 }
