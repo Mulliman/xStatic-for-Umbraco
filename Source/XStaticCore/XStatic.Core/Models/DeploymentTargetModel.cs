@@ -4,26 +4,20 @@ using XStatic.Core.Deploy.Targets;
 
 namespace XStatic.Core.Models
 {
-    public class DeploymentTargetModel
+    public class SafeDeploymentTargetModel(IDeploymentTarget deploymentTarget)
     {
-        public DeploymentTargetModel(IDeploymentTarget deploymentTarget, IDeployerDefinition details)
-        {
-            Id = deploymentTarget.Id;
-            Name = deploymentTarget.Name;
-            DeployerDefinition = deploymentTarget.DeployerDefinition;
-            Help = details.Help;
-            Fields = CombineFields(deploymentTarget, details);
-        }
+        public int Id { get; } = deploymentTarget.Id;
 
-        public int Id { get; }
+        public string Name { get; } = deploymentTarget.Name;
 
-        public string Name { get; }
+        public string DeployerDefinition { get; } = deploymentTarget.DeployerDefinition;
+    }
 
-        public string DeployerDefinition { get; }
+    public class DeploymentTargetModel(IDeploymentTarget deploymentTarget, IDeployerDefinition details) : SafeDeploymentTargetModel(deploymentTarget)
+    {
+        public string Help { get; } = details.Help;
 
-        public string Help { get; }
-
-        public IEnumerable<DeployerField> Fields { get; }
+        public IEnumerable<DeployerField> Fields { get; } = CombineFields(deploymentTarget, details);
 
         private static IEnumerable<DeployerField> CombineFields(IDeploymentTarget deploymentTarget, IDeployerDefinition details)
         {

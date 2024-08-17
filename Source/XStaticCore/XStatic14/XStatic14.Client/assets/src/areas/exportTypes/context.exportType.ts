@@ -51,4 +51,4 @@ export class ExportTypeContext extends ConfigContextBase {
 
 export default ExportTypeContext;
 
-export const EXPORT_TYPE_CONTEXT_TOKEN = new UmbContextToken<ExportTypeContext>(ExportTypeContext.name);
+export const EXPORT_TYPE_CONTEXT_TOKEN = new UmbContextToken<ExportTypeContext>("xStatic.ExportTypeContext");

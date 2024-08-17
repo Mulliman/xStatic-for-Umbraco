@@ -88,4 +88,4 @@ export class DocsContext extends UmbControllerBase {
 
 export default DocsContext;
 
-export const DOCS_CONTEXT_TOKEN = new UmbContextToken<DocsContext>(DocsContext.name);
+export const DOCS_CONTEXT_TOKEN = new UmbContextToken<DocsContext>("xStatic.DocsContext");

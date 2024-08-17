@@ -26,7 +26,7 @@ class SiteGrid extends UmbElementMixin(LitElement) {
             (context) => {
               this.#siteContext = context;
 
-              this.observe(this.#siteContext?.sites, (sites) => {
+              this.observe(this.#siteContext.sites, (sites) => {
                 this.sites = sites;
 
                 this.isLoaded = true;
@@ -35,8 +35,8 @@ class SiteGrid extends UmbElementMixin(LitElement) {
     }
 
     render() {
-        if(!this.sites) {
-            return this.isLoaded ? html`` : html`Loading...`;
+        if(!this.isLoaded ) {
+            return html`Loading...`;
         }
 
         return html`

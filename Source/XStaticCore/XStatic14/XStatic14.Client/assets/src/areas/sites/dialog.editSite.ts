@@ -2,13 +2,10 @@ import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/e
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { ActionModel, DeploymentTargetModel, SiteApiModel, SiteUpdateModel, XStaticConfig } from "../../api";
+import { SafeActionModel, SafeDeploymentTargetModel, SiteApiModel, SiteUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "../exportTypes/context.exportType";
-import ActionContext, { ACTION_CONTEXT_TOKEN } from "../actions/context.action";
-import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "../deploymentTargets/context.deploymentTargets";
 import { UmbLanguageCollectionRepository, UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
 
 import "../../elements/element.validationError";
@@ -19,9 +16,6 @@ export class EditSiteModalElement extends
 {
     #languageRepository = new UmbLanguageCollectionRepository(this);
     #siteContext?: SiteContext;
-    #exportTypeContext?: ExportTypeContext;
-    #actionContext?: ActionContext;
-    #deploymentTargetContext?: DeploymentTargetContext;
 
     @state()
     content: SiteApiModel = {} as SiteApiModel;
@@ -33,10 +27,10 @@ export class EditSiteModalElement extends
     config: XStaticConfig | undefined;
 
     @state()
-    actions: ActionModel[] | undefined;
+    actions: SafeActionModel[] | undefined;
 
     @state()
-    deploymentTargets: DeploymentTargetModel[] | undefined;
+    deploymentTargets: SafeDeploymentTargetModel[] | undefined;
 
     @state()
     isReady: boolean = false;
@@ -57,44 +51,20 @@ export class EditSiteModalElement extends
             SITE_CONTEXT_TOKEN,
             (context) => {
                 this.#siteContext = context;
-            }
-        );
 
-        this.consumeContext(
-            EXPORT_TYPE_CONTEXT_TOKEN,
-            (context) => {
-                this.#exportTypeContext = context;
-
-                this.observe(this.#exportTypeContext?.config, (x) => {
-                    this.config = x;
-                });
-            }
-        );
-
-        this.consumeContext(
-            ACTION_CONTEXT_TOKEN,
-            (context) => {
-                this.#actionContext = context;
-
-                this.observe(this.#actionContext?.actions, (x) => {
-                    this.actions = x;
-                });
-            }
-        );
-
-        this.consumeContext(
-            DEPLOYMENT_TARGET_CONTEXT_TOKEN,
-            (context) => {
-                this.#deploymentTargetContext = context;
-
-                this.observe(this.#deploymentTargetContext?.deploymentTargets, (x) => {
-                    this.deploymentTargets = x;
+                this.observe(this.#siteContext?.siteDependencies, (x) => {
+                    this.actions = x.actions ?? [];
+                    this.deploymentTargets = x.deployers ?? [];
 
                     this.updateValue({ content: this.data?.content });
 
                     if (this.data?.content) {
                         this.#mapToPropertyValueData();
                     }
+                });
+
+                this.observe(this.#siteContext?.config, (x) => {
+                    this.config = x;
                 });
             }
         );

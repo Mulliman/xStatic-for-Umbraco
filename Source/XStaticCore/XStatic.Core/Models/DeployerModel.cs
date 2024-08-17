@@ -3,26 +3,14 @@ using XStatic.Core.Deploy;
 
 namespace XStatic.Core.Models
 {
-    public class DeployerModel
+    public class DeployerModel(IDeployerDefinition details)
     {
-        public DeployerModel()
-        {
-        }
+        public string Id { get; } = details.Id;
 
-        public DeployerModel(IDeployerDefinition details)
-        {
-            Id = details.Id;
-            Name = details.Name;
-            Help = details.Help;
-            Fields = details.Fields;
-        }
+        public string Name { get; } = details.Name;
 
-        public string Id { get; }
+        public string Help { get; } = details.Help;
 
-        public string Name { get; }
-
-        public string Help { get; }
-
-        public IEnumerable<DeployerField> Fields { get; }
+        public IEnumerable<DeployerField> Fields { get; } = details.Fields;
     }
 }

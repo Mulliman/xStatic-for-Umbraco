@@ -6,7 +6,7 @@ using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Web.Common.Authorization;
+using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
 using XStatic.Core.Generator;
@@ -15,13 +15,14 @@ using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Models;
+using XStatic.Security;
 
 namespace XStatic.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [MapToApi("xstatic-v1")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [Authorize(XStaticRoles.XStaticNormalUserGroup)]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/config")]
     public class XStaticConfigController(IDeployerService deployerService,

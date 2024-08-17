@@ -1,19 +1,19 @@
-﻿using System;
-using XStatic.Core.Actions.Db;
+﻿using XStatic.Core.Actions.Db;
 
 namespace XStatic.Core.Models
 {
-    public class ActionModel
+
+    public class SafeActionModel(ActionDataModel data)
     {
-        public ActionModel()
-        {
-        }
+        public int Id { get; } = data.Id;
 
-        public ActionModel(ActionDataModel data)
-        {
-            Id = data.Id;
-            Name = data.Name;
+        public string Name { get; } = data.Name;
+    }
 
+    public class ActionModel : SafeActionModel
+    {
+        public ActionModel(ActionDataModel data) : base(data)
+        {
             try
             {
                 if (!string.IsNullOrWhiteSpace(data.Type))
@@ -28,10 +28,6 @@ namespace XStatic.Core.Models
                 // Swallow for now until a good enough solution.
             }
         }
-
-        public int Id { get; set; }
-
-        public string Name { get; set; }
 
         public ConfigurableTypeModel Type { get; set; }
     }

@@ -75,4 +75,4 @@ export class ActionContext extends ConfigContextBase {
 
 export default ActionContext;
 
-export const ACTION_CONTEXT_TOKEN = new UmbContextToken<ActionContext>(ActionContext.name);
+export const ACTION_CONTEXT_TOKEN = new UmbContextToken<ActionContext>("xStatic.ActionContext");

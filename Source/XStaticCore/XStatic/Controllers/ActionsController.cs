@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
-using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Web.Common.Authorization;
+using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.Db;
 using XStatic.Core.Models;
@@ -18,7 +18,7 @@ namespace XStatic.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [MapToApi("xstatic-v1")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [AuthorizeAdmin]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/actions")]
     public class ActionsController(IActionRepository repo) : Controller

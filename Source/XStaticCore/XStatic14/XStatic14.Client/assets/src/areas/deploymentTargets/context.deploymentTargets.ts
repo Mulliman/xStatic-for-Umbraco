@@ -75,4 +75,4 @@ export class DeploymentTargetContext extends ConfigContextBase {
 
 export default DeploymentTargetContext;
 
-export const DEPLOYMENT_TARGET_CONTEXT_TOKEN = new UmbContextToken<DeploymentTargetContext>(DeploymentTargetContext.name);
+export const DEPLOYMENT_TARGET_CONTEXT_TOKEN = new UmbContextToken<DeploymentTargetContext>("xStatic.DeploymentTargetContext");

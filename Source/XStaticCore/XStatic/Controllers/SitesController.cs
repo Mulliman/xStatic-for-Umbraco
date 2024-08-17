@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,13 +8,11 @@ using System.IO;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
-using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.Routing;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Web.Common.Authorization;
-using XStatic.Core.Generator.Db;
+using XStatic.Controllers.Attributes;
+using XStatic.Core.Actions;
+using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Helpers;
@@ -28,19 +25,21 @@ namespace XStatic.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [MapToApi("xstatic-v1")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [AuthorizeNormalUser]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/sites")]
-    public class SitesController(IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
-        IUmbracoContextFactory context,
+    public class SitesController(IUmbracoContextFactory context,
         ISitesRepository sitesRepository,
         IStaticSiteStorer storer,
-        IExportTypeRepository exportTypeRepo) : Controller
+        IExportTypeRepository exportTypeRepo,
+        IActionRepository actionRepository,
+        IDeploymentTargetRepository deploymentTargetRepository) : Controller
     {
-        private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
         private readonly IUmbracoContextFactory _context = context;
         private readonly IStaticSiteStorer _storer = storer;
         private readonly IExportTypeRepository _exportTypeRepo = exportTypeRepo;
+        private readonly IActionRepository _actionRepository = actionRepository;
+        private readonly IDeploymentTargetRepository _deploymentTargetRepository = deploymentTargetRepository;
         private readonly ISitesRepository _sitesRepo = sitesRepository;
 
         [HttpGet("get-all")]
@@ -48,11 +47,6 @@ namespace XStatic.Controllers
         [ProducesResponseType(typeof(IEnumerable<SiteApiModel>), StatusCodes.Status200OK)]
         public IEnumerable<SiteApiModel> GetAll()
         {
-        //    if (_backOfficeSecurityAccessor.BackOfficeSecurity?.CurrentUser == null)
-        //    {
-        //        throw new InvalidOperationException("No backoffice user found");
-        //    }
-
             var sites = _sitesRepo.GetAll();
             var exportTypes = _exportTypeRepo.GetAll();
 
@@ -135,5 +129,31 @@ namespace XStatic.Controllers
 
             return GetAll();
         }
+
+        [HttpGet("get-site-dependencies")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(SiteDependenciesModel), StatusCodes.Status200OK)]
+        public SiteDependenciesModel GetSiteDependencies()
+        {
+            var exportTypes = _exportTypeRepo.GetAll()?.Select(e => new ExportTypeModel(e));
+            var actions = _actionRepository.GetAll()?.Select(a => new SafeActionModel(a));
+            var deployers = _deploymentTargetRepository.GetAll()?.Select(d => new SafeDeploymentTargetModel(d));
+
+            return new SiteDependenciesModel
+            {
+                Actions = actions,
+                ExportTypes = exportTypes,
+                Deployers = deployers
+            };
+        }
+    }
+
+    public class SiteDependenciesModel
+    {
+        public IEnumerable<SafeActionModel> Actions { get; set; }
+
+        public IEnumerable<ExportTypeModel> ExportTypes { get; set; }
+
+        public IEnumerable<SafeDeploymentTargetModel> Deployers { get; set; }
     }
 }

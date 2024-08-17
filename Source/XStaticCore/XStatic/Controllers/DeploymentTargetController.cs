@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Web.Common.Authorization;
+using XStatic.Controllers.Attributes;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Deploy.Targets.Db;
@@ -18,7 +17,7 @@ namespace XStatic.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [MapToApi("xstatic-v1")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [AuthorizeAdmin]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/deployment-targets")]
     public class DeploymentTargetController : Controller

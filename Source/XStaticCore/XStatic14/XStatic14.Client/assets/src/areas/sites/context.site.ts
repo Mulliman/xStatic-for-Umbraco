@@ -1,14 +1,16 @@
 ﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
+import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { SiteApiModel, SiteUpdateModel, V1Service } from "../../api";
+import { SiteApiModel, SiteDependenciesModel, SiteUpdateModel, V1Service } from "../../api";
 import { blobDownload } from '@umbraco-cms/backoffice/utils';
+import ConfigContextBase from "../../ConfigContextBase";
 
-export class SiteContext extends UmbControllerBase {
+export class SiteContext extends ConfigContextBase {
 
     #isSitesLoaded: boolean = false;
+    #isSiteDependenciesLoaded: boolean = false;
 
     constructor(host: UmbControllerHost) {
         super(host);
@@ -18,6 +20,9 @@ export class SiteContext extends UmbControllerBase {
 
     #sites = new UmbArrayState<SiteApiModel>([], (x) => x.id);
     public readonly sites : Observable<SiteApiModel[]> = this.#initSites();
+
+    #siteDependencies = new UmbObjectState<SiteDependenciesModel>({});
+    public readonly siteDependencies : Observable<SiteDependenciesModel> = this.#initSiteDependencies();
 
     #initSites() : Observable<SiteApiModel[]> {
         if(!this.#isSitesLoaded){
@@ -33,6 +38,23 @@ export class SiteContext extends UmbControllerBase {
         if(data){
             this.#sites.setValue(data);
             this.#isSitesLoaded = true;
+        }
+    }
+
+    #initSiteDependencies() : Observable<SiteDependenciesModel> {
+        if(!this.#isSiteDependenciesLoaded){
+            this.#getSiteDependencies();
+        }
+
+        return this.#siteDependencies.asObservable();
+    }
+
+    async #getSiteDependencies() {
+        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticSitesGetSiteDependencies());
+
+        if(data){
+            this.#siteDependencies.setValue(data);
+            this.#isSiteDependenciesLoaded = true;
         }
     }
 
@@ -87,4 +109,4 @@ export class SiteContext extends UmbControllerBase {
 
 export default SiteContext;
 
-export const SITE_CONTEXT_TOKEN = new UmbContextToken<SiteContext>(SiteContext.name);
+export const SITE_CONTEXT_TOKEN = new UmbContextToken<SiteContext>("xStatic.SiteContext");

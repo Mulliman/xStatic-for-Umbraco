@@ -12,4 +12,4 @@ export class ConfigContext extends ConfigContextBase {
 
 export default ConfigContext;
 
-export const CONFIG_CONTEXT_TOKEN = new UmbContextToken<ConfigContext>(ConfigContext.name);
+export const CONFIG_CONTEXT_TOKEN = new UmbContextToken<ConfigContext>("xStatic.ConfigContext");

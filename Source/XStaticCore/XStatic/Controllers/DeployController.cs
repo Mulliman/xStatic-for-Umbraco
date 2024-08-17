@@ -9,6 +9,7 @@ using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Web.Common.Authorization;
+using XStatic.Controllers.Attributes;
 using XStatic.Core;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Processes;
@@ -21,7 +22,7 @@ namespace XStatic.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [MapToApi("xstatic-v1")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [AuthorizeNormalUser]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/deploy")]
     public class DeployController(IStaticSiteStorer storer, IDeployerService deployerService, IDeploymentTargetRepository deplomentTargetRepository, ISitesRepository sitesRepository, ILogger<DeployController> logger) : ManagementApiControllerBase

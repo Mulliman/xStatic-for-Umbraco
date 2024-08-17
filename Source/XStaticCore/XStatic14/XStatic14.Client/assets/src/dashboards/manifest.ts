@@ -7,7 +7,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.mainDashboard',
         elementName: 'xstatic-main-dashboard',
         js: ()=> import('./mainDashboard.element.js'),
-        weight: -10,
+        weight: 100,
         meta: {
             label: 'xStatic Sites',
             pathname: 'xstatic'
@@ -16,6 +16,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticNormalUserCondition'
             }
         ]
     },
@@ -25,7 +28,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.exportTypesDashboard',
         elementName: 'xstatic-export-types-dashboard',
         js: ()=> import('./exportTypesDashboard.element.js'),
-        weight: -10,
+        weight: 50,
         meta: {
             label: 'Export Types',
             pathname: 'xstatic-export-types'
@@ -34,6 +37,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticNormalUserCondition'
             }
         ]
     },
@@ -43,7 +49,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.deploymentTargetDashboard',
         elementName: 'xstatic-deployment-target-dashboard',
         js: ()=> import('./deploymentTargetDashboard.element.js'),
-        weight: -10,
+        weight: 40,
         meta: {
             label: 'Deployment Targets',
             pathname: 'xstatic-deployment-targets'
@@ -52,6 +58,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticAdminUserCondition'
             }
         ]
     },
@@ -61,7 +70,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.actionsDashboard',
         elementName: 'xstatic-actions-dashboard',
         js: ()=> import('./actionsDashboard.element.js'),
-        weight: -10,
+        weight: 30,
         meta: {
             label: 'Actions',
             pathname: 'xstatic-actions'
@@ -70,6 +79,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticAdminUserCondition'
             }
         ]
     },
@@ -79,7 +91,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.configDashboard',
         elementName: 'xstatic-config-dashboard',
         js: ()=> import('./configDashboard.element.js'),
-        weight: -10,
+        weight: 10,
         meta: {
             label: 'Config',
             pathname: 'xstatic-config'
@@ -88,6 +100,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticNormalUserCondition'
             }
         ]
     },
@@ -97,7 +112,7 @@ const dashboards: Array<ManifestDashboard> = [
         alias: 'XStatic.infoDashboard',
         elementName: 'xstatic-info-dashboard',
         js: ()=> import('./infoDashboard.element.js'),
-        weight: -10,
+        weight: 1,
         meta: {
             label: 'Documentation',
             pathname: 'xstatic-info'
@@ -106,6 +121,9 @@ const dashboards: Array<ManifestDashboard> = [
             {
                 alias: 'Umb.Condition.SectionAlias',
                 match: 'xStatic.Section'
+            },
+            {
+                alias: 'xStatic.xStaticNormalUserCondition'
             }
         ]
     }

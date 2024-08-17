@@ -1,8 +1,8 @@
 
 
 export type ActionModel = {
-        id: number
-name?: string | null
+        readonly id: number
+readonly name?: string | null
 type?: ConfigurableTypeModel | null
     };
 
@@ -538,6 +538,17 @@ export type RuntimeTypeHandle = {
         readonly value: IntPtr
     };
 
+export type SafeActionModel = {
+        readonly id: number
+readonly name?: string | null
+    };
+
+export type SafeDeploymentTargetModel = {
+        readonly id: number
+readonly name?: string | null
+readonly deployerDefinition?: string | null
+    };
+
 export enum SecurityRuleSet {
     NONE = 'None',
     LEVEL1 = 'Level1',
@@ -564,6 +575,12 @@ cultures?: Array<string> | null
 rootPath?: string | null
 exportTypeName?: string | null
 folderSize?: string | null
+    };
+
+export type SiteDependenciesModel = {
+        actions?: Array<SafeActionModel> | null
+exportTypes?: Array<ExportTypeModel> | null
+deployers?: Array<SafeDeploymentTargetModel> | null
     };
 
 export type SiteUpdateModel = {
@@ -898,6 +915,7 @@ PostApiV1XstaticSitesUpdate: {
                 ,PostApiV1XstaticSitesCreate: SiteApiModel
                 ,DeleteApiV1XstaticSitesDelete: string
                 ,GetApiV1XstaticSitesGetAll: Array<SiteApiModel>
+                ,GetApiV1XstaticSitesGetSiteDependencies: SiteDependenciesModel
                 ,PostApiV1XstaticSitesUpdate: SiteApiModel
                 
         }

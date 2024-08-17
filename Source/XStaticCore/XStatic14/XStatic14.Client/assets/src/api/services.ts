@@ -275,6 +275,7 @@ export class V1Service {
 			},
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
+				403: `The authenticated user do not have access to this resource`,
 			},
 		});
 	}
@@ -373,6 +374,21 @@ export class V1Service {
 		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/xstatic/sites/get-all',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
+	public static getApiV1XstaticSitesGetSiteDependencies(): CancelablePromise<V1Data['responses']['GetApiV1XstaticSitesGetSiteDependencies']> {
+		
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/xstatic/sites/get-site-dependencies',
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
 			},
