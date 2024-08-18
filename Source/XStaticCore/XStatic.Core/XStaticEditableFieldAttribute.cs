@@ -5,10 +5,9 @@ namespace XStatic.Core
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class XStaticEditableFieldAttribute : Attribute
     {
-        public XStaticEditableFieldAttribute(string fieldAlias, string fieldName = null, string editorUiAlias = null)
+        public XStaticEditableFieldAttribute(string fieldName, string editorUiAlias = null)
         {
-            FieldAlias = fieldAlias;
-            FieldName = fieldName ?? fieldAlias;
+            FieldName = fieldName;
 
             if(editorUiAlias != null)
             {
@@ -16,7 +15,7 @@ namespace XStatic.Core
             }
         }
 
-        public string FieldAlias { get; }
+        public string FieldAlias => FieldName;
 
         public string FieldName { get; }
 

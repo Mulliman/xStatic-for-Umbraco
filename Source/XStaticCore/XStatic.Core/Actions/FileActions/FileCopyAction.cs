@@ -7,8 +7,14 @@ using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions.FileActions
 {
-    [XStaticEditableField("FilePath", "File Path")]
-    [XStaticEditableField("NewFilePath", "New File Path")]
+    public class FileCopyFields
+    {
+        public const string FilePath = "FilePath";
+        public const string NewFilePath = "NewFilePath";
+    }
+
+    [XStaticEditableField(FileCopyFields.FilePath)]
+    [XStaticEditableField(FileCopyFields.NewFilePath)]
     public class FileCopyAction : PostGenerationActionBase
     {
         private readonly IStaticSiteStorer _staticSiteStorer;
@@ -22,8 +28,8 @@ namespace XStatic.Core.Actions.FileActions
 
         public override async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
         {
-            var existingFilePath = GetParameter(parameters, "FilePath");
-            var newFilePath = GetParameter(parameters, "NewFilePath");
+            var existingFilePath = GetParameter(parameters, FileCopyFields.FilePath);
+            var newFilePath = GetParameter(parameters, FileCopyFields.NewFilePath);
 
             return await CopyFile(staticSiteId, existingFilePath, newFilePath);
         }

@@ -6,8 +6,14 @@ using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions.FileActions
 {
-    [XStaticEditableField("FilePath", "File Path")]
-    [XStaticEditableField("NewFilePath", "New File Path")]
+    public class FileRenameFields
+    {
+        public const string FilePath = "FilePath";
+        public const string NewFilePath = "NewFilePath";
+    }
+
+    [XStaticEditableField(FileRenameFields.FilePath)]
+    [XStaticEditableField(FileRenameFields.NewFilePath)]
     public class FileRenameAction : PostGenerationActionBase
     {
         private readonly IStaticSiteStorer _staticSiteStorer;
@@ -21,8 +27,8 @@ namespace XStatic.Core.Actions.FileActions
 
         public override async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
         {
-            var existingFilePath = GetParameter(parameters, "FilePath");
-            var newFilePath = GetParameter(parameters, "NewFilePath");
+            var existingFilePath = GetParameter(parameters, FileRenameFields.FilePath);
+            var newFilePath = GetParameter(parameters, FileRenameFields.NewFilePath);
 
             return await MoveFile(staticSiteId, existingFilePath, newFilePath);
         }

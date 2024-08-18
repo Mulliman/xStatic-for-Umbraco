@@ -31,7 +31,7 @@ namespace XStatic.Core.Models
 
             var attrs = type?.GetCustomAttributes(typeof(XStaticEditableFieldAttribute), false)
                 ?.Cast<XStaticEditableFieldAttribute>()
-                ?.Select(a => new ConfigurableTypeField { Alias = PostGenerationActionBase.ResolveParamName(Name, a.FieldAlias), Name = a.FieldName, Value = "", EditorUiAlias = a.EditorUiAlias });
+                ?.Select(a => new ConfigurableTypeField { Name = a.FieldName, Value = "", EditorUiAlias = a.EditorUiAlias });
 
             if(attrs?.Any() == true)
             {
@@ -60,7 +60,7 @@ namespace XStatic.Core.Models
 
     public class ConfigurableTypeField
     {
-        public string Alias { get; set; }
+        public string Alias => Name;
 
         public string Name { get; set; }
 

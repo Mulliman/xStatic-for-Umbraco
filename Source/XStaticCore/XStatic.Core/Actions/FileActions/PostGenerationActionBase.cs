@@ -21,12 +21,12 @@ namespace XStatic.Core.Actions.FileActions
 
         protected string ResolveParamName(string param)
         {
-            return $"{Name}.{param}";
+            return $"{param}";
         }
 
         public static string ResolveParamName(string actionName, string paramName)
         {
-            return $"{actionName}.{paramName}";
+            return $"{paramName}";
         }
     }
 }
