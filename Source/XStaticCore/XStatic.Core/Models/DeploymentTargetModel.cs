@@ -23,7 +23,7 @@ namespace XStatic.Core.Models
         {
             foreach (var item in details.Fields)
             {
-                var match = deploymentTarget.Config.TryGetValue(item.Name, out string value) ? value : null;
+                var match = deploymentTarget.Config.TryGetValue(item.Alias, out string value) ? value : null;
 
                 yield return new DeployerField
                 {

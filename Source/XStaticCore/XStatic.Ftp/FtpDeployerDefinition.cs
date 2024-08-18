@@ -26,7 +26,7 @@ namespace XStatic.Ftp
             new DeployerField { Alias=FieldNames.Username, Name = "Username", EditorUiAlias = UIEditors.Text },
             new DeployerField { Alias=FieldNames.Password, Name = "Password", EditorUiAlias = UIEditors.Password },
             new DeployerField { Alias=FieldNames.Folder, Name = "Folder", EditorUiAlias = UIEditors.Text },
-            new DeployerField { Alias=FieldNames.Port, Name = "Port", EditorUiAlias = UIEditors.Integer },
+            new DeployerField { Alias=FieldNames.Port, Name = "Port", EditorUiAlias = UIEditors.Text },
         };
     }
 }

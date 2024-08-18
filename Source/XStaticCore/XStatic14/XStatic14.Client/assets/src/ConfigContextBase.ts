@@ -15,6 +15,11 @@ export abstract class ConfigContextBase extends UmbControllerBase {
         super(host);
     }
 
+    refreshData() {
+        this.#isReady.setValue(false);
+        this.#initConfig();
+    }
+
     #initConfig() : Observable<XStaticConfig> {
         if(!this.#isReady.getValue()){
             this.getConfig();

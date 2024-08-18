@@ -4,6 +4,7 @@ import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { ExportTypeModel, ExportTypeUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../ConfigContextBase";
+import { xStaticEvent } from "../../xStaticEvent";
 
 export class ExportTypeContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
@@ -14,6 +15,8 @@ export class ExportTypeContext extends ConfigContextBase {
 
     public async createExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticConfigCreateExportType({ requestBody: exportType }));
+
+        window.dispatchEvent(new xStaticEvent());
 
         if(data){
             await this.getConfig();
@@ -26,6 +29,8 @@ export class ExportTypeContext extends ConfigContextBase {
 
     public async updateExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticConfigUpdateExportType({ requestBody: exportType }));
+
+        window.dispatchEvent(new xStaticEvent());
 
         if(data){
             await this.getConfig();
@@ -46,6 +51,7 @@ export class ExportTypeContext extends ConfigContextBase {
 
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticConfigDeleteExportType({ id : id } ));
         await this.getConfig();
+        window.dispatchEvent(new xStaticEvent());
     }
 }
 

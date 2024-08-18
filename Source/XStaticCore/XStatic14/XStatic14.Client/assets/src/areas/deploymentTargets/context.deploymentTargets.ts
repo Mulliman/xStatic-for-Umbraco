@@ -5,6 +5,7 @@ import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../ConfigContextBase";
+import { xStaticEvent } from "../../xStaticEvent";
 
 export class DeploymentTargetContext extends ConfigContextBase {
 
@@ -22,6 +23,8 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
 
+        window.dispatchEvent(new xStaticEvent());
+
         if(data){
             await this.#getDeploymentTargets();
 
@@ -33,6 +36,8 @@ export class DeploymentTargetContext extends ConfigContextBase {
 
     public async updateDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
+
+        window.dispatchEvent(new xStaticEvent());
 
         if(data){
             await this.#getDeploymentTargets();
@@ -53,6 +58,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
 
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget({ id : id } ));
         await this.#getDeploymentTargets();
+        window.dispatchEvent(new xStaticEvent());
     }
 
     #initDeploymentTargets() : Observable<DeploymentTargetModel[]> {

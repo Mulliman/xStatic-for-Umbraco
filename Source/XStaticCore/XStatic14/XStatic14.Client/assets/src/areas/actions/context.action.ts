@@ -5,6 +5,7 @@ import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { ActionModel, ActionUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../ConfigContextBase";
+import { xStaticEvent } from "../../xStaticEvent";
 
 export class ActionContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
@@ -21,6 +22,8 @@ export class ActionContext extends ConfigContextBase {
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsCreatePostAction({ requestBody: action }));
 
+        window.dispatchEvent(new xStaticEvent());
+
         if(data){
             await this.#getActions();
 
@@ -32,6 +35,8 @@ export class ActionContext extends ConfigContextBase {
 
     public async updateAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsUpdatePostAction({ requestBody: action }));
+
+        window.dispatchEvent(new xStaticEvent());
 
         if(data){
             await this.#getActions();
@@ -52,6 +57,8 @@ export class ActionContext extends ConfigContextBase {
 
         await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticActionsDeletePostAction({ id : id } ));
         await this.#getActions();
+
+        window.dispatchEvent(new xStaticEvent());
     }
 
     #initActions() : Observable<ActionModel[]> {

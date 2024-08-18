@@ -23,6 +23,25 @@ export class SiteContext extends ConfigContextBase {
     #siteDependencies = new UmbObjectState<SiteDependenciesModel>({});
     public get siteDependencies() : Observable<SiteDependenciesModel> { return this.#initSiteDependencies(); }
 
+    public hostConnected(): void {
+        console.log("Listening for xStaticEvent...");
+
+		window.addEventListener("xStaticEvent", () => { 
+            console.log("xStaticEvent received in SiteContext, refreshing sites and dependencies...");
+
+            this.#isSitesLoaded = false; 
+            this.#isSiteDependenciesLoaded = false; 
+
+            this.#initSites();
+            this.#initSiteDependencies();
+            this.refreshData();
+        });
+	}
+
+	public hostDisconnected(): void {
+		window.removeEventListener("xStaticEvent", () => {});
+	}
+
     #initSites() : Observable<SiteApiModel[]> {
         if(!this.#isSitesLoaded){
             this.#getSites();
