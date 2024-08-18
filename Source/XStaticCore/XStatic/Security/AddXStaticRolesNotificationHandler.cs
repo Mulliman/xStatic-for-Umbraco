@@ -1,65 +1,56 @@
-﻿using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models.Membership;
+using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
-using Microsoft.Extensions.Options;
 using XStatic.Core.App;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 
 namespace XStatic.Security
 {
-    public class AddXStaticRolesComposer : IComposer
-    {
-        public void Compose(IUmbracoBuilder builder)
-        {
-            builder.Components().Append<AddXStaticRolesComponent>();
-        }
-    }
-
-    public class AddXStaticRolesComponent(IOptions<XStaticGlobalSettings> xStaticSettings,
+    public class AddXStaticRolesNotificationHandler(IRuntimeState runtimeState,
+        IOptions<XStaticGlobalSettings> xStaticSettings,
         IUserService userService,
         IUserGroupService userGroupService,
         IShortStringHelper shortStringHelper,
-        ILogger<AddXStaticRolesComponent> logger) : IComponent
+        ILogger<AddXStaticRolesNotificationHandler> logger) : INotificationAsyncHandler<UmbracoApplicationStartedNotification>
     {
+        private readonly IRuntimeState _runtimeState = runtimeState;
         private readonly IOptions<XStaticGlobalSettings> _xStaticSettings = xStaticSettings;
         private readonly IUserService _userService = userService;
         private readonly IUserGroupService _userGroupService = userGroupService;
         private readonly IShortStringHelper _shortStringHelper = shortStringHelper;
-        private readonly ILogger<AddXStaticRolesComponent> _logger = logger;
+        private readonly ILogger<AddXStaticRolesNotificationHandler> _logger = logger;
 
-        public void Initialize()
+        public async Task HandleAsync(UmbracoApplicationStartedNotification notification, CancellationToken cancellationToken)
         {
-            var useXStaticUserRoles = _xStaticSettings?.Value?.UseXStaticUserRoles;
-            var roleCreationUser = _xStaticSettings?.Value?.RoleCreationUser;
-
-            if (useXStaticUserRoles != true || string.IsNullOrEmpty(roleCreationUser))
+            if (_runtimeState.Level >= RuntimeLevel.Run)
             {
-                _logger.LogWarning("xStatic - xStatic user roles are not enabled or role creation user is not set. Skipping xStatic role creation.");
-                return;
-            }
+                var useXStaticUserRoles = _xStaticSettings?.Value?.UseXStaticUserRoles;
+                var roleCreationUser = _xStaticSettings?.Value?.RoleCreationUser;
 
-            var adminUser = _userService.GetByUsername(roleCreationUser);
+                if (useXStaticUserRoles != true || string.IsNullOrEmpty(roleCreationUser))
+                {
+                    _logger.LogWarning("xStatic - xStatic user roles are not enabled or role creation user is not set. Skipping xStatic role creation.");
+                    return;
+                }
 
-            if (adminUser == null)
-            {
-                _logger.LogWarning("xStatic - Role creation user not found. Skipping xStatic role creation.");
-                return;
-            }
+                var adminUser = _userService.GetByUsername(roleCreationUser);
 
-            Task.Run(async () =>
-            {
+                if (adminUser == null)
+                {
+                    _logger.LogWarning("xStatic - Role creation user not found. Skipping xStatic role creation.");
+                    return;
+                }
+
                 await CreateUserGroupIfNotExisting(XStaticRoles.XStaticAdminGroup, adminUser);
                 await CreateUserGroupIfNotExisting(XStaticRoles.XStaticNormalUserGroup, adminUser);
-            });
-        }
-
-        public void Terminate()
-        {
-            // Cleanup if needed when the component is terminated
+            }
         }
 
         private async Task CreateUserGroupIfNotExisting(string alias, IUser adminUser)

@@ -3,6 +3,7 @@ using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
 using XStatic.Core.AutoPublish;
 using XStatic.Db;
+using XStatic.Security;
 
 namespace XStatic
 {
@@ -11,6 +12,7 @@ namespace XStatic
         public void Compose(IUmbracoBuilder builder)
         {
             builder.AddNotificationHandler<UmbracoApplicationStartingNotification, XStaticDatabaseNotificationHandler>();
+            builder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, AddXStaticRolesNotificationHandler>();
             builder.AddNotificationAsyncHandler<ContentPublishedNotification, AutoPublishNotificationHandler>();
         }
     }
