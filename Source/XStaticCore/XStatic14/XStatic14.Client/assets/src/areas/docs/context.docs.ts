@@ -11,10 +11,10 @@ export class DocsContext extends UmbControllerBase {
     #isPluginsLoaded: any;
 
     #plugins = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public readonly plugins : Observable<DocModel[]> = this.#initPlugins();
+    public get plugins() : Observable<DocModel[]> { return this.#initPlugins(); }
 
     #docs = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public readonly docs : Observable<DocModel[]> = this.#initDocs();
+    public get docs() : Observable<DocModel[]> { return this.#initDocs(); }
     
     constructor(host: UmbControllerHost) {
         super(host);

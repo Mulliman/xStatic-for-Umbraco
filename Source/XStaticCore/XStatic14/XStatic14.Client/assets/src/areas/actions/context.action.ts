@@ -16,7 +16,7 @@ export class ActionContext extends ConfigContextBase {
     isActionsLoaded: boolean = false;
 
     #actions = new UmbArrayState<ActionModel>([], (x) => x.id);
-    public readonly actions : Observable<ActionModel[]> = this.#initActions();
+    public get actions() : Observable<ActionModel[]> { return this.#initActions(); }
 
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticActionsCreatePostAction({ requestBody: action }));

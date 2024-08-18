@@ -17,7 +17,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     #deploymentTargets = new UmbArrayState<DeploymentTargetModel>([], (x) => x.id);
-    public readonly deploymentTargets : Observable<DeploymentTargetModel[]> = this.#initDeploymentTargets();
+    public get deploymentTargets() : Observable<DeploymentTargetModel[]> { return this.#initDeploymentTargets(); }
 
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));

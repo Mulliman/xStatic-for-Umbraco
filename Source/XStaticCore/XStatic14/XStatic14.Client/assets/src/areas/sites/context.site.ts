@@ -1,5 +1,4 @@
-﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
@@ -19,10 +18,10 @@ export class SiteContext extends ConfigContextBase {
     }
 
     #sites = new UmbArrayState<SiteApiModel>([], (x) => x.id);
-    public readonly sites : Observable<SiteApiModel[]> = this.#initSites();
+    public get sites() : Observable<SiteApiModel[]> { return this.#initSites(); }
 
     #siteDependencies = new UmbObjectState<SiteDependenciesModel>({});
-    public readonly siteDependencies : Observable<SiteDependenciesModel> = this.#initSiteDependencies();
+    public get siteDependencies() : Observable<SiteDependenciesModel> { return this.#initSiteDependencies(); }
 
     #initSites() : Observable<SiteApiModel[]> {
         if(!this.#isSitesLoaded){
