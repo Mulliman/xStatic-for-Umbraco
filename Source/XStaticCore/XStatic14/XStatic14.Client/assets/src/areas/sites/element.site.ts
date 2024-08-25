@@ -14,6 +14,7 @@ import "../../elements/element.loader";
 
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 import { formatDate, formatTime } from '../../code/datetime';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {
@@ -124,6 +125,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
         this.addTableItem(array, "autoDeploy", "icon-settings", "value", autoDeployBadge);
         this.addTableItem(array, "lastGen", "icon-time", "value", lastGen);
         this.addTableItem(array, "lastDeployed", "icon-umb-deploy", "value", lastDeployed);
+        this.addTableItem(array, "targetLocation", "icon-link", "value", this.site?.targetHostname ? unsafeHTML(`<a href="https://${this.site.targetHostname}" target="_blank" />${this.site.targetHostname}</a>`) : null );
         this.addTableItem(array, "folder", "icon-folder", "value", (!this.site?.folderSize || this.site?.folderSize === '0B') ? null : "Size: " + this.site?.folderSize);
 
         return array;

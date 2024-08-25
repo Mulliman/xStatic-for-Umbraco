@@ -310,7 +310,7 @@ export class EditSiteModalElement extends
             {
                 alias: "targetHostname",
                 label: "Target Hostname",
-                description: "The site hostname you've configured for viewing the site locally will be replaced with this value.",
+                description: "The site hostname you've configured for viewing the site locally will be replaced with this value. Do not include the protocol, just the hostname.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.TextBox",
             }];
     }
