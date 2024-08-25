@@ -95,6 +95,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
                         <uui-button-group>
                             ${when(site.exportTypeName, () => html`<uui-button label="Generate" @click=${() => this.#generate()} color="positive" look="primary" icon="icon-brush"></uui-button>`)}
                             ${when(site.deploymentTarget, () => html`<uui-button label="Deploy" @click=${() => this.#deploy()} color="danger" look="primary" icon="icon-upload">Deploy</uui-button>`)}
+                            ${when(site.lastRun && site.folderSize != '0B', () => html`<uui-button label="Clean" @click=${() => this.#clean()} color="warning" look="primary" icon="icon-settings"></uui-button>`)}
                             ${when(site.lastRun && site.folderSize != '0B', () => html`<uui-button label="Download" @click=${() => this.#download()} color="default" look="secondary" icon="icon-settings"></uui-button>`)}
                         </uui-button-group>
                     </div>
@@ -168,6 +169,17 @@ class SiteElement extends UmbElementMixin(LitElement) {
         });
 
         await this.#siteContext!.deleteSite(this.site!.id);
+    }
+
+    async #clean() {
+        await umbConfirmModal(this, {
+            color: 'danger',
+            headline: 'Clean Up Site',
+            content: 'Are you sure you want to clean the generated files for this site? You will need to build again before you can deploy.',
+            confirmLabel: 'Clean up',
+        });
+
+        await this.#siteContext!.cleanSite(this.site!.id);
     }
 
     async #generate() {

@@ -115,6 +115,11 @@ export class SiteContext extends ConfigContextBase {
         await this.#getSites();
     }
 
+    public async cleanSite(id: number) : Promise<void> {
+        await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticSitesClearStoredSite({ staticSiteId : id } ));
+        await this.#getSites();
+    }
+
     public async downloadSite(id: number): Promise<void> {
         const date = new Date();
         
