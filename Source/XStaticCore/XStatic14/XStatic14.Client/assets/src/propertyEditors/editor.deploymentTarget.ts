@@ -30,6 +30,19 @@ export class XStaticPropertyEditorDeploymentTypeElement
             umb-property{
                 --uui-size-layout-1: 10px;
             }
+
+        .help{
+            background: #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .help uui-icon{
+            width:50px;
+            margin-right: 10px;
+        }
 		`,
 	];
 }

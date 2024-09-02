@@ -2,7 +2,7 @@
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
-import { DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
+import { DeploymentTargetCreatorModel, DeploymentTargetCreatorPostModel, DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../ConfigContextBase";
 import { xStaticEvent } from "../../xStaticEvent";
@@ -19,6 +19,20 @@ export class DeploymentTargetContext extends ConfigContextBase {
 
     #deploymentTargets = new UmbArrayState<DeploymentTargetModel>([], (x) => x.id);
     public get deploymentTargets() : Observable<DeploymentTargetModel[]> { return this.#initDeploymentTargets(); }
+
+    public async autoCreateDeploymentTarget(action: DeploymentTargetCreatorPostModel) : Promise<DeploymentTargetModel | null> {
+        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }));
+
+        window.dispatchEvent(new xStaticEvent());
+
+        if(data?.wasSuccessful && data.data){
+            await this.#getDeploymentTargets();
+
+            return data!.data;
+        }
+
+        return null;
+    }
 
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));

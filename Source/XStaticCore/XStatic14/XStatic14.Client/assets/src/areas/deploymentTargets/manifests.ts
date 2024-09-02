@@ -6,6 +6,12 @@ export const deploymentTargetModalManifests: Array<ManifestModal> = [
         alias: 'xstatic.deploymentTargetModal',
         name: 'Create / Edit Deployment Target',
         js: () => import('./dialog.deploymentTarget.ts'),
+    },
+    {
+        type: 'modal',
+        alias: 'xstatic.deploymentTargetCreatorModal',
+        name: 'Automatically Create Deployment Target',
+        js: () => import('./dialog.deploymentTargetCreator.ts'),
     }
 ];
 

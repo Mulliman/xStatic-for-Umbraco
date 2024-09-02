@@ -15,5 +15,6 @@ namespace XStatic.Core.Models
         public List<TypeModel> FileNameGenerators { get; set; }
 
         public List<ConfigurableTypeModel> PostGenerationActions { get; set; }
+        public IEnumerable<DeploymentTargetCreatorModel> DeploymentTargetCreators { get; set; }
     }
 }

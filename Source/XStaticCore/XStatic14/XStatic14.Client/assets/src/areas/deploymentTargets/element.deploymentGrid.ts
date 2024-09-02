@@ -5,6 +5,7 @@ import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './cont
 
 import "./element.deploymentTarget";
 import "./element.newDeployment";
+import "../../elements/element.dashboardGrid";
 
 import { ExportTypeModel } from '../../api';
 
@@ -41,8 +42,10 @@ class ActionGrid extends UmbElementMixin(LitElement) {
         }
 
         return html`
-            <xstatic-new-deployment-target-element></xstatic-new-deployment-target-element>
-            ${this.#renderTypes()}
+            <xstatic-dashboard-grid>
+                <xstatic-new-deployment-target-element slot="info"></xstatic-new-deployment-target-element>
+                <div slot="grid">${this.#renderTypes()}</div>
+            </xstatic-dashboard-grid>
         `;
     }
 
@@ -57,20 +60,6 @@ class ActionGrid extends UmbElementMixin(LitElement) {
             `
         });
     }
-
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
 }
 
 export default ActionGrid;

@@ -51,6 +51,9 @@ export class SiteTable extends LitElement {
 	@property({ type: Array, attribute: false })
 	public columns: Array<xStaticTableColumn> = [];
 
+	@property({ type: Boolean, attribute: true })
+	public isCompact = false;
+
 	@property({ type: Object, attribute: false })
 	public config: xStaticTableConfig = {
 		hideIcon: false,
@@ -67,7 +70,7 @@ export class SiteTable extends LitElement {
 	private _renderRow = (item: xStaticTableItem) => {
 		return html`
 			<uui-table-row>
-				<uui-table-cell>
+				<uui-table-cell style="${this.isCompact ? '--uui-table-cell-padding: var(--uui-size-2) var(--uui-size-5);' : ''}">
 					${when(!this.config.hideIcon, () => html`<umb-icon name="${ifDefined(item.icon ?? undefined)}"></umb-icon>`)}
 				</uui-table-cell>
 				${this.columns.map((column) => this._renderRowCell(column, item))}

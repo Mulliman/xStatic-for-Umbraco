@@ -89,7 +89,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
                 
                 <div style="position:relative; display: block">
                     <div>
-                        <xstatic-site-table .items=${this.getSiteTable()} .config=${{}} .columns=${[ { alias: "value", name: "Details" } ]} ></xstatic-site-table>
+                        <xstatic-site-table iscompact .items=${this.getSiteTable()} .config=${{}} .columns=${[ { alias: "value", name: "Details" } ]} ></xstatic-site-table>
                     </div>
                     <div class="buttons">
                         <uui-button-group>

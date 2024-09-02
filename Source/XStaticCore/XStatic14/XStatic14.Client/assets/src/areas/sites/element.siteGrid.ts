@@ -5,6 +5,7 @@ import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 
 import "./element.site";
 import "./element.newSite";
+import "../../elements/element.dashboardGrid";
 import { SiteApiModel } from '../../api';
 
 @customElement('xstatic-site-grid')
@@ -40,8 +41,10 @@ class SiteGrid extends UmbElementMixin(LitElement) {
         }
 
         return html`
-            <xstatic-new-site-element></xstatic-new-site-element>
-            ${this.#renderSites()}
+            <xstatic-dashboard-grid>
+                <xstatic-new-site-element slot="info"></xstatic-new-site-element>
+                <div slot="grid">${this.#renderSites()}</div>
+            </xstatic-dashboard-grid>
         `;
     }
 
@@ -56,21 +59,6 @@ class SiteGrid extends UmbElementMixin(LitElement) {
             `
         });
     }
-
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
 }
 
 export default SiteGrid;

@@ -9,6 +9,7 @@ namespace XStatic.Netlify
         public static IDeployServiceBuilder AddNetlifyDeployer(this IDeployServiceBuilder builder)
         {
             builder.AddDeployer(new NetlifyDeployerDefinition(), (x) => new NetlifyDeployer(x));
+            builder.AddDeployer(new NetlifyLegacyDeployerDefinition(), (x) => new NetlifyDeployerLegacy(x));
 
             return builder;
         }

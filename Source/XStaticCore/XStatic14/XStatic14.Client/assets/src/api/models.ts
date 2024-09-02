@@ -43,6 +43,13 @@ readonly hostContext: number
 securityRuleSet: SecurityRuleSet
     };
 
+export type AutoCreateDeploymentTargetResult = {
+        wasSuccessful: boolean
+message?: string | null
+exception?: Exception | null
+data?: DeploymentTargetModel | null
+    };
+
 export enum CallingConventions {
     STANDARD = 'Standard',
     VAR_ARGS = 'VarArgs',
@@ -52,7 +59,7 @@ export enum CallingConventions {
 }
 
 export type ConfigurableTypeField = {
-        alias?: string | null
+        readonly alias?: string | null
 name?: string | null
 value?: string | null
 editorUiAlias?: string | null
@@ -127,18 +134,31 @@ editorUiAlias?: string | null
     };
 
 export type DeployerModel = {
-        id?: string | null
-name?: string | null
-help?: string | null
-fields?: Array<DeployerField> | null
+        readonly id?: string | null
+readonly name?: string | null
+readonly help?: string | null
+readonly fields?: Array<DeployerField> | null
+    };
+
+export type DeploymentTargetCreatorModel = {
+        readonly id?: string | null
+readonly name?: string | null
+readonly help?: string | null
+readonly fields?: Array<DeployerField> | null
+    };
+
+export type DeploymentTargetCreatorPostModel = {
+        name?: string | null
+creator?: string | null
+fields?: Record<string, string | null> | null
     };
 
 export type DeploymentTargetModel = {
-        id: number
-name?: string | null
-deployerDefinition?: string | null
-help?: string | null
-fields?: Array<DeployerField> | null
+        readonly id: number
+readonly name?: string | null
+readonly deployerDefinition?: string | null
+readonly help?: string | null
+readonly fields?: Array<DeployerField> | null
     };
 
 export type DeploymentTargetUpdateModel = {
@@ -603,6 +623,8 @@ export type StructLayoutAttribute = {
 value: LayoutKind
     };
 
+export type T = Record<string, unknown>;
+
 export type Type = {
         readonly name: string
 readonly customAttributes: Array<CustomAttributeData>
@@ -817,12 +839,20 @@ generators?: Array<TypeModel> | null
 transformerFactories?: Array<TypeModel> | null
 fileNameGenerators?: Array<TypeModel> | null
 postGenerationActions?: Array<ConfigurableTypeModel> | null
+deploymentTargetCreators?: Array<DeploymentTargetCreatorModel> | null
     };
 
 export type XStaticResult = {
         wasSuccessful: boolean
 message?: string | null
 exception?: Exception | null
+    };
+
+export type XStaticResult_1 = {
+        wasSuccessful: boolean
+message?: string | null
+exception?: Exception | null
+data?: T | null
     };
 
 export type V1Data = {
@@ -854,6 +884,10 @@ PostApiV1XstaticConfigUpdateExportType: {
                     };
 PostApiV1XstaticDeployDeploySite: {
                         staticSiteId?: number
+                        
+                    };
+PostApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget: {
+                        requestBody?: DeploymentTargetCreatorPostModel
                         
                     };
 PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget: {
@@ -904,7 +938,8 @@ PostApiV1XstaticSitesUpdate: {
                 ,DeleteApiV1XstaticConfigDeleteExportType: string
                 ,GetApiV1XstaticConfigGetConfig: XStaticConfig
                 ,PostApiV1XstaticConfigUpdateExportType: ExportTypeModel
-                ,PostApiV1XstaticDeployDeploySite: XStaticResult
+                ,PostApiV1XstaticDeployDeploySite: AutoCreateDeploymentTargetResult | XStaticResult | XStaticResult_1
+                ,PostApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget: AutoCreateDeploymentTargetResult
                 ,PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget: DeploymentTargetModel
                 ,DeleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget: string
                 ,GetApiV1XstaticDeploymentTargetsGetDeploymentTargets: Array<DeploymentTargetModel>

@@ -5,6 +5,7 @@ import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.exportTy
 
 import "./element.exportType";
 import "./element.newExportType";
+import "../../elements/element.dashboardGrid";
 
 import { ExportTypeModel } from '../../api';
 
@@ -43,8 +44,10 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
         }
 
         return html`
-            <xstatic-new-export-type-element></xstatic-new-export-type-element>
-            ${this.#renderTypes()}
+            <xstatic-dashboard-grid>
+                <xstatic-new-export-type-element slot="info"></xstatic-new-export-type-element>
+                <div slot="grid">${this.#renderTypes()}</div>
+            </xstatic-dashboard-grid>
         `;
     }
 
@@ -59,21 +62,6 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
             `
         });
     }
-
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
 }
 
 export default ExportTypeGrid;

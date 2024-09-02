@@ -1,13 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using XStatic.Core.Deploy;
+using XStatic.Core.Deploy.Targets.Creators;
 
 namespace XStatic.Netlify
 {
-    public class NetlifyAutoInstaller : IDeployerAutoInstaller
+    public class NetlifyAutoInstaller : IDeployerAutoInstaller, IDeploymentTargetCreatorAutoInstaller
     {
-        public IDeployerDefinition Definition => new NetlifyDeployerDefinition();
+        IDeployerDefinition IDeployerAutoInstaller.Definition => new NetlifyDeployerDefinition();
 
-        public Func<Dictionary<string, string>, IDeployer> Constructor => (x) => new NetlifyDeployer(x);
+        Func<Dictionary<string, string>, IDeployer> IDeployerAutoInstaller.Constructor => (x) => new NetlifyDeployer(x);
+
+        IDeploymentTargetCreatorDefinition IDeploymentTargetCreatorAutoInstaller.Definition => new NetlifyDeploymentTargetCreatorDefinition();
+
+        Func<Dictionary<string, string>, IDeploymentTargetCreator> IDeploymentTargetCreatorAutoInstaller.Constructor => (x) => new NetlifyDeploymentTargetCreator(x);
+    }
+
+    public class NetlifyLegacyAutoInstaller : IDeployerAutoInstaller
+    {
+        IDeployerDefinition IDeployerAutoInstaller.Definition => new NetlifyLegacyDeployerDefinition();
+
+        Func<Dictionary<string, string>, IDeployer> IDeployerAutoInstaller.Constructor => (x) => new NetlifyDeployerLegacy(x);
     }
 }

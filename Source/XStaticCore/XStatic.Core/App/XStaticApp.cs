@@ -23,6 +23,7 @@ namespace XStatic.Core.App
         {
             GeneratorServiceBuilder.AddDefaults();
             DeployServiceBuilder.AddDeployersAutomatically();
+            DeployServiceBuilder.AddDeploymentTargetCreatorsAutomatically();
 
             return this;
         }

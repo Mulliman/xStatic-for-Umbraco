@@ -9,6 +9,7 @@ using Umbraco.Cms.Core;
 using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
+using XStatic.Core.Deploy.Targets.Creators;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.ExportTypes;
@@ -26,6 +27,7 @@ namespace XStatic.Controllers
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [Route("api/v{version:apiVersion}/xstatic/config")]
     public class XStaticConfigController(IDeployerService deployerService,
+        IDeploymentTargetCreatorService deploymentTargetCreatorService,
         IExportTypeService exportTypeService,
         IExportTypeRepository repo,
         GeneratorList generatorList,
@@ -34,6 +36,7 @@ namespace XStatic.Controllers
         PostGenerationActionsList postGenerationActionsList) : Controller
     {
         private readonly IDeployerService _deployerService = deployerService;
+        private readonly IDeploymentTargetCreatorService _deploymentTargetCreatorService = deploymentTargetCreatorService;
         private readonly IExportTypeService _exportTypeService = exportTypeService;
         private readonly IExportTypeRepository _repo = repo;
         private readonly GeneratorList _generatorList = generatorList;
@@ -47,11 +50,13 @@ namespace XStatic.Controllers
         public ActionResult<XStaticConfig> Get()
         {
             var deployers = _deployerService.GetDefinitions();
+            var creators = _deploymentTargetCreatorService.GetDefinitions();
             var exportTypes = _exportTypeService.GetExportTypes();
 
             return new XStaticConfig
             {
                 Deployers = deployers.Select(d => new DeployerModel(d)),
+                DeploymentTargetCreators = creators.Select(c => new DeploymentTargetCreatorModel(c)),
                 ExportTypes = exportTypes.Select(e => new ExportTypeModel(e)),
                 Generators = _generatorList.Generators.Select(g => new Core.Models.TypeModel(g)).ToList(),
                 TransformerFactories = _transformerList.TransformerListFactories.Select(g => new Core.Models.TypeModel(g)).ToList(),

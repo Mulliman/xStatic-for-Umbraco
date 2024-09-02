@@ -185,6 +185,26 @@ export class V1Service {
 	 * @returns unknown OK
 	 * @throws ApiError
 	 */
+	public static postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget(data: V1Data['payloads']['PostApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget']> {
+		const {
+                    
+                    requestBody
+                } = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/xstatic/deployment-targets/auto-create-deployment-target',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
 	public static postApiV1XstaticDeploymentTargetsCreateDeploymentTarget(data: V1Data['payloads']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticDeploymentTargetsCreateDeploymentTarget']> {
 		const {
                     

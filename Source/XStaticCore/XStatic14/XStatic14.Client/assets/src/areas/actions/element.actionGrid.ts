@@ -5,6 +5,7 @@ import ActionContext, { ACTION_CONTEXT_TOKEN } from './context.action';
 
 import "./element.action";
 import "./element.newAction";
+import "../../elements/element.dashboardGrid";
 
 import { ExportTypeModel } from '../../api';
 
@@ -42,8 +43,10 @@ class ActionGrid extends UmbElementMixin(LitElement) {
         }
 
         return html`
-            <xstatic-new-action-element></xstatic-new-action-element>
-            ${this.#renderTypes()}
+            <xstatic-dashboard-grid>
+                <xstatic-new-action-element slot="info"></xstatic-new-action-element>
+                <div slot="grid">${this.#renderTypes()}</div>
+            </xstatic-dashboard-grid>
         `;
     }
 
@@ -58,22 +61,6 @@ class ActionGrid extends UmbElementMixin(LitElement) {
             `
         });
     }
-
-    
-    static styles = css`
-        :host {
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
-
-        :host > div{
-            display: block;
-            position: relative;
-        }
-    `;
 }
 
 export default ActionGrid;

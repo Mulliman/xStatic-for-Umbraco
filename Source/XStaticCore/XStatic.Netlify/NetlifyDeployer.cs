@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using NetlifySharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,40 +8,30 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Deploy;
-using XStatic.Core.Helpers;
 
 namespace XStatic.Netlify
 {
-    public class NetlifyDeployer : IDeployer
+    public class NetlifyDeployer(Dictionary<string, string> parameters) : IDeployer
     {
         public const string DeployerKey = "netlify";
-        private static readonly string Api = "https://api.netlify.com/api/v1/";
-        private readonly string _pat;
-        private readonly string _appId;
+        private readonly string _pat = parameters[NetlifyDeployerDefinition.FieldNames.PAT];
+        private readonly string _appId = parameters[NetlifyDeployerDefinition.FieldNames.SiteId];
 
-        public NetlifyDeployer(Dictionary<string, string> parameters)
+        public async virtual Task<XStaticResult> DeployWholeSite(string folderPath)
         {
-            _pat = parameters[NetlifyDeployerDefinition.FieldNames.PAT];
-            _appId = parameters[NetlifyDeployerDefinition.FieldNames.SiteId];
+            return await Deploy(_appId, folderPath);
         }
 
-        public virtual Task<XStaticResult> DeployWholeSite(string folderPath)
+        public async virtual Task<XStaticResult> Deploy(string siteId, string folderPath)
         {
-            return TaskHelper.FromResultOf(() =>
-            {
-                return Deploy(_appId, folderPath);
-            });
-        }
-
-        public virtual XStaticResult Deploy(string siteId, string folderPath)
-        {
-            Deployment deployment;
+            Deploy deployment;
+            var netlifyClient = new NetlifyClient(_pat);
 
             var hashes = GetHashes(siteId, folderPath);
 
             try
             {
-                deployment = CheckNetlifyForRequiredChanges(siteId, folderPath, hashes);
+                deployment = await CheckNetlifyForRequiredChanges(netlifyClient, siteId, folderPath, hashes);
             }
             catch (WebException we)
             {
@@ -52,28 +42,22 @@ namespace XStatic.Netlify
                 return XStaticResult.Error("Error parsing Netlify response. The deployment was not completed.", e);
             }
 
-            var client = new WebClient();
-
-            client.Headers.Add("Authorization", "Bearer " + _pat);
-
-            foreach (var hash in deployment.required)
+            foreach (var hash in deployment.Required)
             {
                 var toUpload = hashes.Where(e => e.Value == hash);
                 foreach (var fileHashToUpload in toUpload)
                 {
                     try
                     {
-                        UploadFileToNetlify(fileHashToUpload, folderPath, client, deployment);
+                        await UploadFileToNetlify(fileHashToUpload, folderPath, netlifyClient, deployment);
                     }
-                    catch (WebException ex)
+                    catch (Exception ex)
                     {
-                        client.Dispose();
                         return XStaticResult.Error($"Error uploding file {fileHashToUpload.Key} to Netlify. The deployment was not completed.", ex);
                     }
                 }
             }
 
-            client.Dispose();
             return XStaticResult.Success("Site was successfully deployed to Netlify.");
         }
 
@@ -83,67 +67,47 @@ namespace XStatic.Netlify
             var hashes = new Dictionary<string, string>();
             foreach (var f in files)
             {
-                if (!File.Exists(f))
+                if (!System.IO.File.Exists(f))
                 {
                     continue;
                 }
 
-                using (var s = File.OpenRead(f))
-                {
-                    using (var cryptoProvider = new SHA1CryptoServiceProvider())
-                    {
-                        var hash = BitConverter.ToString(cryptoProvider.ComputeHash(s));
-                        var file = f.Replace(folderPath, String.Empty);
-                        hashes.Add(file.Replace('\\', '/'), hash.Replace("-", String.Empty).ToLowerInvariant());
-                    }
-                }
+                using var s = System.IO.File.OpenRead(f);
+                using var cryptoProvider = SHA1.Create();
+
+                var hash = BitConverter.ToString(cryptoProvider.ComputeHash(s));
+                var file = f.Replace(folderPath, string.Empty);
+                hashes.Add(file.Replace('\\', '/'), hash.Replace("-", String.Empty).ToLowerInvariant());
             }
 
             return hashes;
         }
 
-        protected virtual Deployment CheckNetlifyForRequiredChanges(string siteId, string folderPath, Dictionary<string, string> hashes)
+        protected async virtual Task<Deploy> CheckNetlifyForRequiredChanges(NetlifyClient client, string siteId, string folderPath, Dictionary<string, string> hashes)
         {
-            var json = JsonConvert.SerializeObject(new { files = hashes, draft = false });
-            var client = new WebClient();
-
-            client.Headers.Add("Authorization", "Bearer " + _pat);
-            client.Headers.Add("Content-Type", "application/json");
-            string response;
-
-            try
+            var files = new DeployFiles(client)
             {
-                response = client.UploadString(Api + "sites/" + siteId + "/deploys", "POST", json);
-            }
-            catch
-            {
-                client.Dispose();
-                throw;
-            }
+                Files = hashes,
+                Draft = false
+            };
 
-            var deployment = JsonConvert.DeserializeObject<Deployment>(response);
+            var response = await client.CreateSiteDeployAsync("xStatic deploy " + DateTime.Now.ToString("u"), files, siteId);
 
-            return deployment;
+            return response;
         }
 
-        protected void UploadFileToNetlify(KeyValuePair<string, string> fileHashToUpload, string folderPath, WebClient client, Deployment deployment)
+        protected async virtual Task UploadFileToNetlify(KeyValuePair<string, string> fileHashToUpload, string folderPath, NetlifyClient client, Deploy deployment)
         {
             var filePath = fileHashToUpload.Key;
             var fullPath = Path.Combine(folderPath, filePath.TrimStart('/').Replace('/', '\\'));
-            if (!File.Exists(fullPath))
+            if (!System.IO.File.Exists(fullPath))
             {
                 return;
             }
 
-            client.Headers.Add("Content-Type", "application/octet-stream");
+            using var stream = System.IO.File.OpenRead(fullPath);
 
-            client.UploadFile(Api + "deploys/" + deployment.id + "/files" + filePath, "PUT", fullPath);
+            await client.UploadDeployFileAsync(deployment.Id, filePath, null, stream);
         }
-    }
-
-    public class Deployment
-    {
-        public string id { get; set; }
-        public string[] required { get; set; }
     }
 }

@@ -1,14 +1,19 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
 using XStatic.Controllers.Attributes;
+using XStatic.Core;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Targets;
+using XStatic.Core.Deploy.Targets.Creators;
 using XStatic.Core.Deploy.Targets.Db;
 using XStatic.Core.Models;
 
@@ -24,13 +29,16 @@ namespace XStatic.Controllers
     {
         private readonly IDeploymentTargetRepository _repo;
         private readonly IDeployerService _service;
+        private readonly IDeploymentTargetCreatorService _targetService;
         private readonly IEnumerable<IDeployerDefinition> _definitions;
 
-        public DeploymentTargetController(IDeploymentTargetRepository repo, IDeployerService service)
+        public DeploymentTargetController(IDeploymentTargetRepository repo,
+            IDeployerService service,
+            IDeploymentTargetCreatorService targetCreatorService)
         {
             _repo = repo;
             _service = service;
-
+            _targetService = targetCreatorService;
             _definitions = _service.GetDefinitions();
         }
 
@@ -50,6 +58,40 @@ namespace XStatic.Controllers
                     yield return mapped;
                 }   
             }
+        }
+
+        public class AutoCreateDeploymentTargetResult : XStaticResult<DeploymentTargetModel>
+        {
+            public new static AutoCreateDeploymentTargetResult Success(DeploymentTargetModel data)
+            {
+                return new AutoCreateDeploymentTargetResult() { WasSuccessful = true, Data = data };
+            }
+
+            public new static AutoCreateDeploymentTargetResult Error(string message, Exception ex)
+            {
+                return new AutoCreateDeploymentTargetResult() { WasSuccessful = false, Message = message, Exception = ex };
+            }
+        }
+
+        [HttpPost("auto-create-deployment-target")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(AutoCreateDeploymentTargetResult), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AutoCreateDeploymentTarget([FromBody] DeploymentTargetCreatorPostModel model)
+        {
+            var creator = _targetService.GetDeploymentTargetCreator(model.Creator, model.Fields);
+
+            try
+            {
+                var dataModel = await creator.CreateTarget();
+
+                var createdModel = CreateDeploymentTarget(dataModel);
+
+                return StatusCode((int)HttpStatusCode.Created, AutoCreateDeploymentTargetResult.Success(createdModel));
+            }
+            catch (XStaticException e)
+            {
+                return StatusCode((int)HttpStatusCode.Conflict, AutoCreateDeploymentTargetResult.Error(e.Message, e));
+            }        
         }
 
         [HttpPost("create-deployment-target")]

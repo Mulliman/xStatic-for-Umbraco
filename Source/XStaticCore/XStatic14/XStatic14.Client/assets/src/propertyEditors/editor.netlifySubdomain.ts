@@ -6,12 +6,16 @@ import {
 	UmbPropertyValueChangeEvent,
 } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
+import { debounce } from '@umbraco-cms/backoffice/utils';
 
-@customElement('xstatic-property-editor-password')
-export class XStaticPropertyEditorPasswordElement
+@customElement('xstatic-property-editor-netlify-subdomain')
+export class XStaticPropertyEditorNetlifySubdomainElement
 	extends UmbFormControlMixin<string>(UmbLitElement, undefined)
 	implements UmbPropertyEditorUiElement
 {
+	@state()
+	isAvailable?: boolean;
+
 	protected override firstUpdated(): void {
 		this.addFormControlElement(this.shadowRoot!.querySelector('uui-input')!);
 	}
@@ -23,40 +27,49 @@ export class XStaticPropertyEditorPasswordElement
 		this.dispatchEvent(new UmbPropertyValueChangeEvent());
 	}
 
-	@state()
-	private showPassword = false;
-
 	override render() {
 		return html`
 		<div style="display: flex">
 			<uui-input
 				.value=${this.value ?? ''}
-				.type=${this.showPassword ? 'text' : 'password'}
+				.type=${'text'}
 				@input=${this.#onInput}
 			></uui-input>
-			<uui-button look="secondary" @click=${this.#togglePasswordVisibility}>${this.showPassword ? 'Hide' : "Show"}</uui-button>
+			<span class="suffix">.netlify.app</span>
+			<uui-button href=${"https://" + this.value + ".netlify.app"} target="_blank" look="secondary" title="Test whether this site already exists by visiting the site."><uui-icon name="icon-arrow-right"></uui-icon></uui-button>
 		</div>
 		`;
-	}
-
-	#togglePasswordVisibility() {
-		this.showPassword = !this.showPassword;
 	}
 
 	static styles = [
 		UmbTextStyles,
 		css`
 			uui-input {
-				width: 100%;
+				width: 80%;
+				flex: 5;
+				border-right: none;
+			}
+
+			.suffix {
+				padding: 6px 15px 0;
+				border: 1px solid var(--uui-input-border-color, var(--uui-color-border,#d8d7d9));
+				border-left: none;
+				 /* background: #444;  */
+				 /* color: white; */
+				 font-weight: bold;
+				 flex: 1;
+			}
+
+			uui-button{
 			}
 		`,
 	];
 }
 
-export default XStaticPropertyEditorPasswordElement;
+export default XStaticPropertyEditorNetlifySubdomainElement;
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'xstatic-property-editor-password': XStaticPropertyEditorPasswordElement;
+		'xstatic-property-editor-netlify-subdomain': XStaticPropertyEditorNetlifySubdomainElement;
 	}
 }

@@ -18,6 +18,9 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
     @state()
     _config?: UmbPropertyEditorConfigCollection;
 
+    @state()
+	help?: string; 
+
 	@property({ type: Array })
 	public set value(value: ConfigurableTypeField[] | null | undefined) {
         if(!value) {
@@ -43,6 +46,12 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 		if (!config) return;
 
         this._config = config;
+
+        const help = config.getValueByAlias('help') as string | null | undefined;
+
+        if(help){
+            this.help = help;
+        }
 
 		const fields = config.getValueByAlias('fields') as ConfigurableTypeField[] | null | undefined;
 
@@ -78,7 +87,11 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
         }
 
 		return html`
-            <umb-property-dataset
+        <div>
+            <h1>Dynamic Configurable Form</h1>
+            ${this.help ? html`<p>${this.help}</p>` : ''}
+
+        <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}
                   @change=${this.#onPropertyDataChange}
                 >
@@ -92,6 +105,7 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
                         ></umb-property>`}
                 )}
                 </umb-property-dataset>
+        </div>
 		`;
 	}
 

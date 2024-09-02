@@ -63,6 +63,12 @@ export const manifests: Array<ManifestTypes> = [
 	},
     {
 		type: 'propertyEditorUi',
+		alias: 'xstatic.propertyEditorUi.netlifySubdomain',
+		name: 'xStatic Netlify Subdomain',
+		element: () => import('./editor.netlifySubdomain.ts'),
+	},
+    {
+		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.dynamicConfigurableForm',
 		name: 'xStatic Configurable Dynamic Form Editor UI',
 		element: () => import('./editor.dynamicConfigurableForm.ts'),

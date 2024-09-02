@@ -1,4 +1,4 @@
-import { css, customElement, html, property, state } from '@umbraco-cms/backoffice/external/lit';
+import { css, customElement, html, property, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbPropertyValueChangeEvent } from '@umbraco-cms/backoffice/property-editor';
 import type { UmbPropertyEditorConfigCollection } from '@umbraco-cms/backoffice/property-editor';
@@ -21,6 +21,9 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
         @state() 
         values: Array<UmbPropertyValueData> = [];
 
+        @state()
+        help?: string; 
+
         @property({ type: Array })
         public set value(value: TFieldType[] | null | undefined) {
             if(!value) {
@@ -40,8 +43,13 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
             if (!config) return;
     
             const fields = config.getValueByAlias('fields') as TFieldType[] | null | undefined;
-    
             this.value = fields;
+
+            const help = config.getValueByAlias('help') as string | null | undefined;
+
+            if(help){
+                this.help = help;
+            }
         }
     
         onPropertyDataChange(e: Event) {
@@ -67,7 +75,11 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
             }
 
             return html`
-                <umb-property-dataset
+                <div>
+                    ${this.help ? html`<div class="help"><uui-icon name="icon-help-alt"></uui-icon><div>${unsafeHTML(this.help)}</div></div>` : ''}
+                    
+
+                    <umb-property-dataset
                       .value=${this.values as Array<UmbPropertyValueData>}
                       @change=${this.onPropertyDataChange}
                     >
@@ -83,6 +95,7 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
                     )}
 
                     </umb-property-dataset>
+                </div>
             `;
         }
 }
