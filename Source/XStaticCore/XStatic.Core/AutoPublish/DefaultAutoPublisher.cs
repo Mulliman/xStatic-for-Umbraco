@@ -50,6 +50,11 @@ namespace XStatic.Core.AutoPublish
         {
             var autoPublishSites = _sitesRepository.GetAutoPublishSites();
 
+            if(!autoPublishSites.Any())
+            {
+                return;
+            }
+
             var sitesToDeploy = new List<ExtendedGeneratedSite>();
 
             foreach (var publishedItem in publishedEntities)

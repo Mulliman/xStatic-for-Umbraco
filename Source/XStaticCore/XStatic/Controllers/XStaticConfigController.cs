@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
 using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
+using XStatic.Core.App;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Targets.Creators;
 using XStatic.Core.Generator;
@@ -33,7 +35,8 @@ namespace XStatic.Controllers
         GeneratorList generatorList,
         TransformerList transformerList,
         FileNameGeneratorList fileNameGeneratorList,
-        PostGenerationActionsList postGenerationActionsList) : Controller
+        PostGenerationActionsList postGenerationActionsList,
+        IOptions<XStaticGlobalSettings> globalSettings) : Controller
     {
         private readonly IDeployerService _deployerService = deployerService;
         private readonly IDeploymentTargetCreatorService _deploymentTargetCreatorService = deploymentTargetCreatorService;
@@ -43,6 +46,18 @@ namespace XStatic.Controllers
         private readonly TransformerList _transformerList = transformerList;
         private readonly FileNameGeneratorList _fileNameGeneratorList = fileNameGeneratorList;
         private readonly PostGenerationActionsList _postGenerationActionsList = postGenerationActionsList;
+        private readonly XStaticGlobalSettings _globalSettings = globalSettings?.Value;
+
+        [HttpGet("get-settings")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(typeof(XStaticSettings), StatusCodes.Status200OK)]
+        public ActionResult<XStaticSettings> GetSettings()
+        {
+            return new XStaticSettings
+            {
+                IsUsingXStaticRoles = _globalSettings?.UseXStaticUserRoles ?? false
+            };
+        }
 
         [HttpGet("get-config")]
         [MapToApiVersion("1.0")]
@@ -109,5 +124,10 @@ namespace XStatic.Controllers
         {
             _repo.Delete(id);
         }
+    }
+
+    public class XStaticSettings
+    {
+        public bool IsUsingXStaticRoles { get; set; }
     }
 }

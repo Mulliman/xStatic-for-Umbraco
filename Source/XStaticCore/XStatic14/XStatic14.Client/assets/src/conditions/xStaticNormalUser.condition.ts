@@ -8,7 +8,11 @@ import type {
 import type { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
 import { Roles } from '../roles';
 
+import { CONFIG_CONTEXT_TOKEN } from '../areas/config/context.config';
+
 export default class XStaticNormalUserCondition extends UmbControllerBase implements UmbExtensionCondition {
+	isUsingXStaticRoles = false;
+	isInValidRole = false;
 	permitted = false;
 	config: UmbConditionConfigBase<string> = { alias: 'Umb.Condition.XStaticNormalUser' };
 	#onChange: () => void;
@@ -17,11 +21,25 @@ export default class XStaticNormalUserCondition extends UmbControllerBase implem
 		super(host);
 		this.#onChange = args.onChange;
 
+		this.#init();
+	}
+
+	async #init() {
+
+		this.consumeContext(CONFIG_CONTEXT_TOKEN, (context) => {
+			this.observe(context.settings, (settings) => {
+				this.isUsingXStaticRoles = settings.isUsingXStaticRoles;
+				this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
+				this.#onChange();
+			});
+		});
+
 		this.consumeContext(UMB_CURRENT_USER_CONTEXT, (context) => {
 			this.observe(
 				context.currentUser,
 				(currentUser) => {
-					this.permitted = !!currentUser && (currentUser.fallbackPermissions.some(p => p === Roles.Admin) || currentUser.fallbackPermissions.some(p => p === Roles.NormalUser));
+					this.isInValidRole = !!currentUser && (currentUser.fallbackPermissions.some(p => p === Roles.Admin) || currentUser.fallbackPermissions.some(p => p === Roles.NormalUser));
+					this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
 					this.#onChange();
 				},
 			);

@@ -143,6 +143,21 @@ export class V1Service {
 	 * @returns unknown OK
 	 * @throws ApiError
 	 */
+	public static getApiV1XstaticConfigGetSettings(): CancelablePromise<V1Data['responses']['GetApiV1XstaticConfigGetSettings']> {
+		
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/xstatic/config/get-settings',
+			errors: {
+				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+	/**
+	 * @returns unknown OK
+	 * @throws ApiError
+	 */
 	public static postApiV1XstaticConfigUpdateExportType(data: V1Data['payloads']['PostApiV1XstaticConfigUpdateExportType'] = {}): CancelablePromise<V1Data['responses']['PostApiV1XstaticConfigUpdateExportType']> {
 		const {
                     

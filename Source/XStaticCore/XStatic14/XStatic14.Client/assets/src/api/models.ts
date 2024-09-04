@@ -855,6 +855,10 @@ exception?: Exception | null
 data?: T | null
     };
 
+export type XStaticSettings = {
+        isUsingXStaticRoles: boolean
+    };
+
 export type V1Data = {
         
         payloads: {
@@ -937,6 +941,7 @@ PostApiV1XstaticSitesUpdate: {
                 ,PostApiV1XstaticConfigCreateExportType: ExportTypeModel
                 ,DeleteApiV1XstaticConfigDeleteExportType: string
                 ,GetApiV1XstaticConfigGetConfig: XStaticConfig
+                ,GetApiV1XstaticConfigGetSettings: XStaticSettings
                 ,PostApiV1XstaticConfigUpdateExportType: ExportTypeModel
                 ,PostApiV1XstaticDeployDeploySite: AutoCreateDeploymentTargetResult | XStaticResult | XStaticResult_1
                 ,PostApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget: AutoCreateDeploymentTargetResult

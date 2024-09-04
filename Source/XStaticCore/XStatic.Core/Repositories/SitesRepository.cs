@@ -35,6 +35,13 @@ namespace XStatic.Core.Repositories
         {
             using IScope scope = _scopeProvider.CreateScope();
 
+            var tableExists = scope.SqlContext.SqlSyntax.DoesTableExist(scope.Database, SitesTableName);
+
+            if (!tableExists)
+            {
+                return new List<ExtendedGeneratedSite>();
+            }
+
             var query = new Sql().Select("*").From(SitesTableName);
 
             var sites = scope.Database.Fetch<ExtendedGeneratedSite>(query);

@@ -24,7 +24,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="LibGit2Sharp" Version="0.30.0" />
 		<PackageReference Include="NetlifySharp" Version="1.1.1" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
 	</ItemGroup>
