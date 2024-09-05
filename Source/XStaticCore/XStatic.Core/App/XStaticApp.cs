@@ -44,6 +44,22 @@ namespace XStatic.Core.App
             return this;
         }
 
+        /// <summary>
+        /// This adds two roles and turns on secure user groups so that only specified users can access private data like API keys.
+        /// This will use the root user to create the roles and will assign the xStatic roles to that root user.
+        /// </summary>
+        /// <returns></returns>
+        public XStaticServiceBuilder UseSecureUserGroups()
+        {
+            _services.Configure<XStaticGlobalSettings>(settings =>
+            {
+                settings.UseXStaticUserRoles = true;
+                settings.RoleCreationUseRootUser = true;
+            });
+
+            return this;
+        }
+
         public XStaticServiceBuilder Build()
         {
             GeneratorServiceBuilder.Build();

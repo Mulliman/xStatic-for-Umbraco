@@ -20,6 +20,7 @@ namespace XStatic
             {
                 builder.Services.AddXStatic()
                     .Automatic()
+                    .UseSecureUserGroups()
                     .Build();
             }
 

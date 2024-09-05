@@ -29,18 +29,28 @@ namespace XStatic.Security
 
         public async Task HandleAsync(UmbracoApplicationStartedNotification notification, CancellationToken cancellationToken)
         {
+            
             if (_runtimeState.Level >= RuntimeLevel.Run)
             {
-                var useXStaticUserRoles = _xStaticSettings?.Value?.UseXStaticUserRoles;
-                var roleCreationUser = _xStaticSettings?.Value?.RoleCreationUser;
+                var settings = _xStaticSettings?.Value;
+                if (settings == null)
+                {
+                    _logger.LogInformation("xStatic - xStatic settings not configured, can't use Secure Roles mode.");
+                    return;
+                }
 
-                if (useXStaticUserRoles != true || string.IsNullOrEmpty(roleCreationUser))
+                var useXStaticUserRoles = settings.UseXStaticUserRoles;
+                var hasUserToCreateRoles = settings.RoleCreationUseRootUser || !string.IsNullOrEmpty(settings?.RoleCreationUser);
+
+                if (useXStaticUserRoles != true || !hasUserToCreateRoles)
                 {
                     _logger.LogWarning("xStatic - xStatic user roles are not enabled or role creation user is not set. Skipping xStatic role creation.");
                     return;
                 }
 
-                var adminUser = _userService.GetByUsername(roleCreationUser);
+                var adminUser = settings.RoleCreationUseRootUser 
+                    ? _userService.GetUserById(-1) 
+                    : _userService.GetByUsername(settings.RoleCreationUser);
 
                 if (adminUser == null)
                 {
