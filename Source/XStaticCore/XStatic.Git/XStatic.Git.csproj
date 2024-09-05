@@ -7,10 +7,10 @@
 		<Title>xStatic.Git</Title>
 		<Version>14.0.0</Version>
 		<Description>Git functionality for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco14 xstatic static site generation git</PackageTags>
+		<PackageTags>umbraco umbraco14 xstatic static site generation git umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-using-git/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<PackageIconUrl />

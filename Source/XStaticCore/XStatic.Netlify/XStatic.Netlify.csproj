@@ -7,10 +7,10 @@
 		<Title>xStatic.Netlify</Title>
 		<Version>14.0.0</Version>
 		<Description>Netlify functionality for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco14 xstatic static site generation netlify</PackageTags>
+		<PackageTags>umbraco umbraco14 xstatic static site generation netlify umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-netlify/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<PackageIcon>Logo.png</PackageIcon>
