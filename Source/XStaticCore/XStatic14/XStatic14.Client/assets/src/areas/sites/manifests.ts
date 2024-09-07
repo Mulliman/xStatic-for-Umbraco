@@ -5,7 +5,7 @@ export const modalManifests: Array<ManifestModal> = [
         type: 'modal',
         alias: 'xstatic.editSiteModal',
         name: 'Create / Edit Site',
-        js: () => import('./dialog.editSite.ts'),
+        js: () => import('./dialog.edit-site.ts'),
     }
 ];
 

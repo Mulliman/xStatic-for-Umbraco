@@ -2,21 +2,21 @@ import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/e
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { DeployerField, DeployerModel, DeploymentTargetModel, DeploymentTargetUpdateModel, XStaticConfig } from "../../api";
+import { DeployerField, DeployerModel, DeploymentTargetCreatorModel, DeploymentTargetCreatorPostModel, DeploymentTargetUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
-import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deploymentTargets";
+import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deployment-targets";
 
-import "../../elements/element.validationError";
+import "../../elements/element.validation-error";
 
-@customElement('xstatic-edit-deployment-target-modal')
-export class EditDeploymentTargetModalElement extends
-    UmbModalBaseElement<EditDeploymentTargetModalData, EditDeploymentTargetModalValue>
+@customElement('xstatic-deployment-target-creator-modal')
+export class DeploymentTargetCreatorModalElement extends
+    UmbModalBaseElement<DeploymentTargetCreatorModalData, DeploymentTargetCreatorModalValue>
 {
     #deploymentTargetContext?: DeploymentTargetContext;
 
     @state()
-    content: DeploymentTargetModel = {} as DeploymentTargetModel;
+    content: DeploymentTargetCreatorModel = {} as DeploymentTargetCreatorModel;
 
     @state()
     _values: Array<UmbPropertyValueData> = [];
@@ -41,10 +41,6 @@ export class EditDeploymentTargetModalElement extends
             (context) => {
                 this.#deploymentTargetContext = context;
 
-                if (this.data?.content) {
-                    this.#mapToPropertyValueData();
-                }
-
                 this.observe(this.#deploymentTargetContext?.config, (x) => {
                     this.config = x;
                     this.isLoaded = true;
@@ -56,7 +52,7 @@ export class EditDeploymentTargetModalElement extends
 
     render() {
         return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Create new Deployment Target'}>
+            <umb-body-layout .headline=${this.data?.headline ?? 'Automatically Create New Deployment Target'}>
                 <uui-box>
                 <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}
@@ -87,7 +83,7 @@ export class EditDeploymentTargetModalElement extends
                             id="submit"
                             color='positive'
                             look="primary"
-                            label="Submit"
+                            label="Create"
                             @click=${this.#handleConfirm}></uui-button>
             </div>
             </umb-body-layout>
@@ -110,9 +106,7 @@ export class EditDeploymentTargetModalElement extends
             return;
         }
 
-        const data = postModel.id > 0
-            ? await this.#deploymentTargetContext!.updateDeploymentTarget(postModel)
-            : await this.#deploymentTargetContext!.createDeploymentTarget(postModel);
+        const data = await this.#deploymentTargetContext!.autoCreateDeploymentTarget(postModel);
 
         if (data) {
             this.modalContext?.submit();
@@ -139,15 +133,15 @@ export class EditDeploymentTargetModalElement extends
 
     // #region Form
 
-    #validatePostModel(postModel: DeploymentTargetUpdateModel): boolean {
+    #validatePostModel(postModel: DeploymentTargetCreatorPostModel): boolean {
         this.errors = new Map<string, string>();
 
         if (!postModel.name) {
             this.errors.set('name', 'Name is required');
         }
 
-        if (!postModel.deployerDefinition) {
-            this.errors.set('deployerDefinition', 'Deployer Definition is required');
+        if (!postModel.creator) {
+            this.errors.set('creator', 'Creator is required');
         }
 
         return this.errors.size === 0;
@@ -155,10 +149,10 @@ export class EditDeploymentTargetModalElement extends
 
     #getBaseProperties(): PropertyEditorSettingsProperty[] {
 
-        var selectedType = this.getFirst(this._values.find((x) => x.alias === 'deployerDefinition')?.value as Array<string>);
+        var selectedType = this.getFirst(this._values.find((x) => x.alias === 'creator')?.value as Array<string>);
 
         var existingConfig = this._values.find((x) => x.alias === 'fields')?.value as DeployerField[] | null | undefined;
-        var selectedActionType = this.config?.deployers?.find((x) => x.id === selectedType);
+        var selectedActionType = this.config?.deploymentTargetCreators?.find((x) => x.id === selectedType);
 
         var selectedConfig = this.#isExistingConfigValid(existingConfig, selectedActionType)
             ? existingConfig
@@ -183,27 +177,31 @@ export class EditDeploymentTargetModalElement extends
                 ],
             },
             {
-                alias: "deployerDefinition",
-                label: "Deployer *",
-                description: "This is the type of deployer that you want to configure a specific instance of.",
+                alias: "creator",
+                label: "Creator Template *",
+                description: "This is the creator that will be used to configure the remote service that you intend to deploy to.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
                 config: [
                     {
                         alias: 'items',
-                        value: this.config?.deployers?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.config?.deploymentTargetCreators?.map((x) => ({ name: x.name, value: x.id })) ?? []
                     },
                 ],
             },
             {
                 alias: "fields",
                 label: "Configuration",
-                description: "Use this to set what specific configuration you want to use for the selected deployer. The fields may change depending on the type selected.",
+                description: "Use this to set what specific configuration you want to use for the selected creator. The fields may change depending on the type selected.",
                 propertyEditorUiAlias: "xstatic.propertyEditorUi.deploymentTargetForm",
                 config: [
                     {
                         alias: 'fields',
                         value: selectedConfig
                     },
+                    {
+                        alias: 'help',
+                        value: selectedActionType?.help
+                    }
                 ],
             },
         ];
@@ -239,39 +237,17 @@ export class EditDeploymentTargetModalElement extends
 
     // #region Mappers
 
-    #createPostModel(): DeploymentTargetUpdateModel {
+    #createPostModel(): DeploymentTargetCreatorPostModel {
         var deployerFields = this._values.find((x) => x.alias === 'fields')?.value as DeployerField[];
 
         var model =
             {
                 name: this._values.find((x) => x.alias === 'name')?.value,
-                id: this.data?.content.id,
-                deployerDefinition: this.getFirst(this._values.find((x) => x.alias === 'deployerDefinition')?.value as Array<string>),
+                creator: this.getFirst(this._values.find((x) => x.alias === 'creator')?.value as Array<string>),
                 fields: this.arrayAsRecord(deployerFields),
-            } as DeploymentTargetUpdateModel;
+            } as DeploymentTargetCreatorPostModel;
             
         return model;
-    }
-
-    #mapToPropertyValueData() {
-        const fieldsArray = this.data?.content?.fields;
-        const fieldsRecord = this.arrayAsRecord(fieldsArray);
-
-        var updateModel: DeploymentTargetUpdateModel = {
-            id: this.data?.content?.id ?? 0,
-            name: this.data?.content?.name,
-            deployerDefinition: this.data?.content?.deployerDefinition,
-            fields: fieldsRecord,
-        };
-
-        this.updateValue({ content: updateModel });
-
-        this._values = [
-            { alias: 'id', value: updateModel.id },
-            { alias: 'name', value: updateModel.name },
-            { alias: 'deployerDefinition', value: [updateModel.deployerDefinition] },
-            { alias: 'fields', value: fieldsArray },
-        ];
     }
 
     // #endregion Mappers
@@ -306,17 +282,17 @@ export class EditDeploymentTargetModalElement extends
     // #endregion Utils
 }
 
-export interface EditDeploymentTargetModalData {
+export interface DeploymentTargetCreatorModalData {
     headline?: string;
-    content: DeploymentTargetModel;
+    // content: DeploymentTargetModel;
 }
 
-export interface EditDeploymentTargetModalValue {
-    content: DeploymentTargetUpdateModel;
+export interface DeploymentTargetCreatorModalValue {
+    content: DeploymentTargetCreatorPostModel;
 }
 
-export const EditDeploymentTargetModal = new UmbModalToken<EditDeploymentTargetModalData, EditDeploymentTargetModalValue>(
-    "xstatic.deploymentTargetModal",
+export const DeploymentTargetCreatorModal = new UmbModalToken<DeploymentTargetCreatorModalData, DeploymentTargetCreatorModalValue>(
+    "xstatic.deploymentTargetCreatorModal",
     {
         modal: {
             type: 'sidebar',
@@ -325,4 +301,4 @@ export const EditDeploymentTargetModal = new UmbModalToken<EditDeploymentTargetM
     }
 );
 
-export default EditDeploymentTargetModalElement;
+export default DeploymentTargetCreatorModalElement;

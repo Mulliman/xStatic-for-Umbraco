@@ -1,7 +1,7 @@
 import { css, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { DeployerField } from '../api';
-import XStaticPropertyEditorDynamicFormBase from './editor.dynamicForm';
+import XStaticPropertyEditorDynamicFormBase from './editor.dynamic-form';
 
 @customElement('xstatic-property-editor-deployment-target')
 export class XStaticPropertyEditorDeploymentTypeElement

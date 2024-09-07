@@ -8,7 +8,7 @@ import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extensio
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 import { UmbLanguageCollectionRepository, UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
 
-import "../../elements/element.validationError";
+import "../../elements/element.validation-error";
 
 @customElement('xstatic-edit-site-modal')
 export class EditSiteModalElement extends

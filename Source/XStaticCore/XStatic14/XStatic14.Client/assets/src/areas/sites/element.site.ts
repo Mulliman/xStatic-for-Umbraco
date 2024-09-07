@@ -4,12 +4,12 @@ import { LitElement, css, html } from 'lit';
 import { when } from 'lit/directives/when.js';
 import type {
     xStaticTableItem,
-  } from "../../elements/element.siteTable";
+  } from "../../elements/element.site-table";
 import { SiteApiModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT, umbConfirmModal } from '@umbraco-cms/backoffice/modal';
-import { EditSiteModal } from './dialog.editSite';
+import { EditSiteModal } from './dialog.edit-site';
 
-import "../../elements/element.siteTable";
+import "../../elements/element.site-table";
 import "../../elements/element.loader";
 
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';

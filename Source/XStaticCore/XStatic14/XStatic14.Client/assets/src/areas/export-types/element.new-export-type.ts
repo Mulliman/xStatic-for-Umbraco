@@ -2,7 +2,7 @@ import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditExportTypeModal } from './dialog.editExportType';
+import { EditExportTypeModal } from './dialog.edit-export-type';
 
 @customElement('xstatic-new-export-type-element')
 class NewSiteElement extends UmbElementMixin(LitElement) {

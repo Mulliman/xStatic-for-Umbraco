@@ -5,7 +5,7 @@ import ConfigContext, { CONFIG_CONTEXT_TOKEN } from './context.config';
 
 import { XStaticConfig } from '../../api';
 
-import "./element.configSection";
+import "./element.config-section";
 
 @customElement('xstatic-config-grid')
 class ConfigGrid extends UmbElementMixin(LitElement) {

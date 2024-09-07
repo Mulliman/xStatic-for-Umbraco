@@ -6,7 +6,6 @@ import {
 	UmbPropertyValueChangeEvent,
 } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
-import { debounce } from '@umbraco-cms/backoffice/utils';
 
 @customElement('xstatic-property-editor-netlify-subdomain')
 export class XStaticPropertyEditorNetlifySubdomainElement

@@ -1,26 +1,25 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
 
-import "../areas/docs/element.docsGrid";
+import "../areas/actions/element.action-grid";
 
-@customElement('xstatic-docs-dashboard')
-export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
+@customElement('xstatic-actions-dashboard')
+export class XStaticActionsDashboard extends UmbElementMixin(LitElement) {
 
     constructor() {
         super();
     }
 
     @property()
-    title = 'Documentation'
+    title = 'Actions'
 
     render() {
         return html`
             <umb-body-layout>
-                <xstatic-docs-grid></xstatic-docs-grid>
+                <xstatic-action-grid></xstatic-action-grid>
             </umb-body-layout>
         `
     }
-
 
     static styles = css`
         :host {
@@ -31,10 +30,10 @@ export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
 }
 
 
-export default XStaticInfoDashboard;
+export default XStaticActionsDashboard;
 
 declare global {
     interface HtmlElementTagNameMap {
-        'xstatic-docs-dashboard': XStaticInfoDashboard
+        'xstatic-actions-dashboard': XStaticActionsDashboard
     }
 }

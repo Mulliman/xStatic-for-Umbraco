@@ -4,8 +4,8 @@ import { LitElement, css, html } from 'lit';
 import ActionContext, { ACTION_CONTEXT_TOKEN } from './context.action';
 
 import "./element.action";
-import "./element.newAction";
-import "../../elements/element.dashboardGrid";
+import "./element.new-action";
+import "../../elements/element.dashboard-grid";
 
 import { ExportTypeModel } from '../../api';
 

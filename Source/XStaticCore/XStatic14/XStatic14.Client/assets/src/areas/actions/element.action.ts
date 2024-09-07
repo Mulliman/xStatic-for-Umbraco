@@ -6,12 +6,12 @@ import type {
     xStaticTableColumn,
     xStaticTableConfig,
     xStaticTableItem,
-  } from "../../elements/element.siteTable";
+  } from "../../elements/element.site-table";
 import { ActionModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditActionModal } from './dialog.action';
 
-import "../../elements/element.siteTable";
+import "../../elements/element.site-table";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from './context.action';
 
 @customElement('xstatic-action-element')

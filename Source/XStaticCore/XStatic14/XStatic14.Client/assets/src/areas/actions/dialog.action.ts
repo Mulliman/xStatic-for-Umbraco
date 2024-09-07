@@ -7,7 +7,7 @@ import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/ba
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
-import "../../elements/element.validationError";
+import "../../elements/element.validation-error";
 import { UmbPropertyValueChangeEvent } from "@umbraco-cms/backoffice/property-editor";
 
 @customElement('xstatic-edit-action-modal')

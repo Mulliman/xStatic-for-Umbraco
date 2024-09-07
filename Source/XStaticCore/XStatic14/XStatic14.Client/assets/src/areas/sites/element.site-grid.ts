@@ -4,8 +4,8 @@ import { LitElement, css, html } from 'lit';
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 
 import "./element.site";
-import "./element.newSite";
-import "../../elements/element.dashboardGrid";
+import "./element.new-site";
+import "../../elements/element.dashboard-grid";
 import { SiteApiModel } from '../../api';
 
 @customElement('xstatic-site-grid')

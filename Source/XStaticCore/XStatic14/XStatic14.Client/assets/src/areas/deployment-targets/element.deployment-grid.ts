@@ -1,11 +1,11 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
-import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './context.deploymentTargets';
+import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './context.deployment-targets';
 
-import "./element.deploymentTarget";
-import "./element.newDeployment";
-import "../../elements/element.dashboardGrid";
+import "./element.deployment-target";
+import "./element.new-deployment";
+import "../../elements/element.dashboard-grid";
 
 import { ExportTypeModel } from '../../api';
 

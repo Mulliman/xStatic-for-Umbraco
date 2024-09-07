@@ -1,11 +1,11 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement, state } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.exportType';
+import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
 
-import "./element.exportType";
-import "./element.newExportType";
-import "../../elements/element.dashboardGrid";
+import "./element.export-type";
+import "./element.new-export-type";
+import "../../elements/element.dashboard-grid";
 
 import { ExportTypeModel } from '../../api';
 

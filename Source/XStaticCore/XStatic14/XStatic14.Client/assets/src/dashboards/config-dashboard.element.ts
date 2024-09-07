@@ -1,39 +1,39 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
 
+import "../areas/config/element.config-grid";
 
-import "../areas/exportTypes/element.exportTypeGrid";
-
-@customElement('xstatic-export-types-dashboard')
-export class XStaticExportTypesDashboard extends UmbElementMixin(LitElement) {
-
+@customElement('xstatic-config-dashboard')
+export class XStaticConfigDashboard extends UmbElementMixin(LitElement) {
 
     constructor() {
         super();
     }
 
     @property()
-    title = 'Export Types'
+    title = 'Config'
 
     render() {
         return html`
             <umb-body-layout>
-                <xstatic-export-type-grid></xstatic-export-type-grid>
+                <xstatic-config-grid></xstatic-config-grid>
             </umb-body-layout>
         `
     }
 
     static styles = css`
         :host {
+            display: block;
+            padding: 20px;
         }
     `
 }
 
 
-export default XStaticExportTypesDashboard;
+export default XStaticConfigDashboard;
 
 declare global {
     interface HtmlElementTagNameMap {
-        'xstatic-export-types-dashboard': XStaticExportTypesDashboard
+        'xstatic-config-dashboard': XStaticConfigDashboard
     }
 }

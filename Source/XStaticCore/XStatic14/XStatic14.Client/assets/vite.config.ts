@@ -6,7 +6,7 @@ export default defineConfig({
             entry: "src/index.ts", // your web component source file
             formats: ["es"],
         },
-        outDir: "../wwwroot/App_Plugins/XStatic14", 
+        outDir: "../wwwroot/app_plugins/xstatic14", 
         emptyOutDir: true,
         sourcemap: true,
         rollupOptions: {

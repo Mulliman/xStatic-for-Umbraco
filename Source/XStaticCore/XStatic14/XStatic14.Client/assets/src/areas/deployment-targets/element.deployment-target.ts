@@ -4,14 +4,14 @@ import { LitElement, css, html } from 'lit';
 
 import type {
     xStaticTableItem,
-} from "../../elements/element.siteTable";
+} from "../../elements/element.site-table";
 
 import { DeploymentTargetModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditDeploymentTargetModal } from './dialog.deploymentTarget';
+import { EditDeploymentTargetModal } from './dialog.deployment-target';
 
-import "../../elements/element.siteTable";
-import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './context.deploymentTargets';
+import "../../elements/element.site-table";
+import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './context.deployment-targets';
 
 @customElement('xstatic-deployment-target-element')
 class DeploymentTargetElement extends UmbElementMixin(LitElement) {

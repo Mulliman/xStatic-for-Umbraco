@@ -4,7 +4,7 @@ import { Observable, UmbArrayState, UmbObjectState } from "@umbraco-cms/backoffi
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { SiteApiModel, SiteDependenciesModel, SiteUpdateModel, V1Service } from "../../api";
 import { blobDownload } from '@umbraco-cms/backoffice/utils';
-import ConfigContextBase from "../../ConfigContextBase";
+import ConfigContextBase from "../../config-context-base";
 
 export class SiteContext extends ConfigContextBase {
 

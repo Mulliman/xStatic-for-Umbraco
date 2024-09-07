@@ -1,6 +1,6 @@
 ﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import ConfigContextBase from "../../ConfigContextBase";
+import ConfigContextBase from "../../config-context-base";
 import { Observable, UmbBooleanState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { V1Service, XStaticSettings } from "../../api";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";

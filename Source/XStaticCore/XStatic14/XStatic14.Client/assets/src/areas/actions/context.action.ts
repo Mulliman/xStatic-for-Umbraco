@@ -4,8 +4,8 @@ import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-ap
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { ActionModel, ActionUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
-import ConfigContextBase from "../../ConfigContextBase";
-import { xStaticEvent } from "../../xStaticEvent";
+import ConfigContextBase from "../../config-context-base";
+import { xStaticEvent } from "../../xstatic-event";
 
 export class ActionContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {

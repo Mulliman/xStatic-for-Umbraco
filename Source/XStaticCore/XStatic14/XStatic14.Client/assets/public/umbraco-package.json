@@ -9,13 +9,13 @@
             "name": "xStatic",
             "type": "backofficeEntryPoint",
             "alias": "My.Custom.Section",
-            "js": "/app_plugins/XStatic14/assets.js"
+            "js": "/app_plugins/xstatic14/assets.js"
         },
         {
             "name": "XStatic14.entrypoint",
             "alias": "XStatic14.EntryPoint",
             "type": "entryPoint",
-            "js": "/app_plugins/XStatic14/assets.js"
+            "js": "/app_plugins/xstatic14/assets.js"
         }
     ]
 }

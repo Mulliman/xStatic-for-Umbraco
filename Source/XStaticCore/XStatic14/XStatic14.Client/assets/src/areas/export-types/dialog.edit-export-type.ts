@@ -5,9 +5,9 @@ import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import { ExportTypeModel, ExportTypeUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "./context.exportType";
+import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "./context.export-type";
 
-import "../../elements/element.validationError";
+import "../../elements/element.validation-error";
 
 export interface EditExportTypeModalData {
     headline?: string;

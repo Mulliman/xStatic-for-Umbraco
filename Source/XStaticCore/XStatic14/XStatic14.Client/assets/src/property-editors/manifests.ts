@@ -70,7 +70,7 @@ export const manifests: Array<ManifestTypes> = [
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.netlifySubdomain',
 		name: 'xStatic Netlify Subdomain',
-		element: () => import('./editor.netlifySubdomain.ts'),
+		element: () => import('./editor.netlify-subdomain.ts'),
         meta: {
             label: '',
             icon: 'icon-box-alt',
@@ -81,7 +81,7 @@ export const manifests: Array<ManifestTypes> = [
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.dynamicConfigurableForm',
 		name: 'xStatic Configurable Dynamic Form Editor UI',
-		element: () => import('./editor.dynamicConfigurableForm.ts'),
+		element: () => import('./editor.dynamic-configurable-form.ts'),
         meta: {
             label: '',
             icon: 'icon-box-alt',
@@ -92,7 +92,7 @@ export const manifests: Array<ManifestTypes> = [
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.deploymentTargetForm',
 		name: 'xStatic Deployment Target Form Editor UI',
-		element: () => import('./editor.deploymentTarget.ts'),
+		element: () => import('./editor.deployment-target.ts'),
         meta: {
             label: '',
             icon: 'icon-box-alt',

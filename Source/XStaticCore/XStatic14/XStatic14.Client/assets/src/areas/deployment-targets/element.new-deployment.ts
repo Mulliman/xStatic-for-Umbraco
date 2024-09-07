@@ -2,8 +2,8 @@ import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
 import { customElement } from 'lit/decorators.js';
 import { LitElement, css, html } from 'lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditDeploymentTargetModal } from './dialog.deploymentTarget';
-import { DeploymentTargetCreatorModal } from './dialog.deploymentTargetCreator';
+import { EditDeploymentTargetModal } from './dialog.deployment-target';
+import { DeploymentTargetCreatorModal } from './dialog.deployment-target-creator';
 
 @customElement('xstatic-new-deployment-target-element')
 class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {

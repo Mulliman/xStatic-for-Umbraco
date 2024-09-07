@@ -3,8 +3,8 @@ import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
 import { ExportTypeModel, ExportTypeUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
-import ConfigContextBase from "../../ConfigContextBase";
-import { xStaticEvent } from "../../xStaticEvent";
+import ConfigContextBase from "../../config-context-base";
+import { xStaticEvent } from "../../xstatic-event";
 
 export class ExportTypeContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {

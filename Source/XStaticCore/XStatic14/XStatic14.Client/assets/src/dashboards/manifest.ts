@@ -6,7 +6,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic',
         alias: 'XStatic.mainDashboard',
         elementName: 'xstatic-main-dashboard',
-        js: ()=> import('./mainDashboard.element.js'),
+        js: ()=> import('./main-dashboard.element.js'),
         weight: 100,
         meta: {
             label: 'xStatic Sites',
@@ -27,7 +27,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic Export Types',
         alias: 'XStatic.exportTypesDashboard',
         elementName: 'xstatic-export-types-dashboard',
-        js: ()=> import('./exportTypesDashboard.element.js'),
+        js: ()=> import('./export-types-dashboard.element.js'),
         weight: 50,
         meta: {
             label: 'Export Types',
@@ -48,7 +48,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic Deployment Targets',
         alias: 'XStatic.deploymentTargetDashboard',
         elementName: 'xstatic-deployment-target-dashboard',
-        js: ()=> import('./deploymentTargetDashboard.element.js'),
+        js: ()=> import('./deployment-target-dashboard.element.js'),
         weight: 40,
         meta: {
             label: 'Deployment Targets',
@@ -69,7 +69,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic Actions',
         alias: 'XStatic.actionsDashboard',
         elementName: 'xstatic-actions-dashboard',
-        js: ()=> import('./actionsDashboard.element.js'),
+        js: ()=> import('./actions-dashboard.element.js'),
         weight: 30,
         meta: {
             label: 'Actions',
@@ -90,7 +90,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic Config',
         alias: 'XStatic.configDashboard',
         elementName: 'xstatic-config-dashboard',
-        js: ()=> import('./configDashboard.element.js'),
+        js: ()=> import('./config-dashboard.element.js'),
         weight: 10,
         meta: {
             label: 'Config',
@@ -111,7 +111,7 @@ const dashboards: Array<ManifestDashboard> = [
         name: 'XStatic Documentation',
         alias: 'XStatic.infoDashboard',
         elementName: 'xstatic-info-dashboard',
-        js: ()=> import('./infoDashboard.element.js'),
+        js: ()=> import('./info-dashboard.element.js'),
         weight: 1,
         meta: {
             label: 'Documentation',

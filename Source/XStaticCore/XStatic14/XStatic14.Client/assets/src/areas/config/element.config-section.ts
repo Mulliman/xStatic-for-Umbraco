@@ -6,9 +6,9 @@ import type {
     xStaticTableColumn,
     xStaticTableConfig,
     xStaticTableItem,
-  } from "../../elements/element.siteTable";
+  } from "../../elements/element.site-table";
 
-import "../../elements/element.siteTable";
+import "../../elements/element.site-table";
 
 @customElement('xstatic-config-section-element')
 class ConfigSectionElement extends UmbElementMixin(LitElement) {

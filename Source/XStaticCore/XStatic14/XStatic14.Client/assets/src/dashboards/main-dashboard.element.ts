@@ -1,7 +1,7 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, html, css, customElement, property } from "@umbraco-cms/backoffice/external/lit";
 
-import "../areas/sites/element.siteGrid";
+import "../areas/sites/element.site-grid";
 
 @customElement('xstatic-main-dashboard')
 export class XStaticMainDashboard extends UmbElementMixin(LitElement) {

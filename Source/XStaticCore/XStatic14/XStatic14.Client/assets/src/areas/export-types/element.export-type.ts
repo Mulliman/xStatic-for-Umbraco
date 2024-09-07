@@ -6,13 +6,13 @@ import type {
     xStaticTableColumn,
     xStaticTableConfig,
     xStaticTableItem,
-  } from "../../elements/element.siteTable";
+  } from "../../elements/element.site-table";
 import { ExportTypeModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
-import { EditExportTypeModal } from './dialog.editExportType';
+import { EditExportTypeModal } from './dialog.edit-export-type';
 
-import "../../elements/element.siteTable";
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.exportType';
+import "../../elements/element.site-table";
+import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
 
 @customElement('xstatic-export-type-element')
 class ExportTypeElement extends UmbElementMixin(LitElement) {
