@@ -60,27 +60,46 @@ export const manifests: Array<ManifestTypes> = [
 		alias: 'xstatic.propertyEditorUi.password',
 		name: 'xStatic Password',
 		element: () => import('./editor.password.ts'),
+        meta: {
+            label: '',
+            icon: 'icon-box-alt',
+            group: 'xStatic',
+        },
 	},
     {
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.netlifySubdomain',
 		name: 'xStatic Netlify Subdomain',
 		element: () => import('./editor.netlifySubdomain.ts'),
+        meta: {
+            label: '',
+            icon: 'icon-box-alt',
+            group: 'xStatic',
+        },
 	},
     {
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.dynamicConfigurableForm',
 		name: 'xStatic Configurable Dynamic Form Editor UI',
 		element: () => import('./editor.dynamicConfigurableForm.ts'),
+        meta: {
+            label: '',
+            icon: 'icon-box-alt',
+            group: 'xStatic',
+        },
 	},
   {
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.deploymentTargetForm',
 		name: 'xStatic Deployment Target Form Editor UI',
 		element: () => import('./editor.deploymentTarget.ts'),
+        meta: {
+            label: '',
+            icon: 'icon-box-alt',
+            group: 'xStatic',
+        },
 	},
   dynamicFormSchema,
   deploymentTargetSchema,
   dynamicConfigurableFormSchema
 ];
-
