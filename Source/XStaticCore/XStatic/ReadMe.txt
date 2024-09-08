@@ -39,6 +39,17 @@ builder.Services.AddXStatic()
 This will automatically register all the built in services as required for an out of the box solution.
 Your specified user should have two new user groups assigned.
 
+SSL Issues
+----------
+
+If you are using Mac or Linux, you may need to add the following to your program.cs file:
+
+builder.Services.AddXStatic()
+    .Automatic()
+    .TrustUnsafeSslConnectionWhenGenerating()
+    .Build();
+
+This will allow the app to trust the default SSL connection when generating the site.
 
 Custom setup
 -----------

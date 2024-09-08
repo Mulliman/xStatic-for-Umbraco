@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
+using XStatic.Core.App;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
@@ -21,8 +24,10 @@ namespace XStatic.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IWebHostEnvironment hostingEnvironment)
-            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IOptions<XStaticGlobalSettings> settings,
+            ILogger<GeneratorBase> logger)
+            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment, settings, logger)
         {
         }
 

@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
-using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 using UmbracoContentApi.Core.Resolvers;
+using XStatic.Core.App;
 using XStatic.Core.Generator;
-using XStatic.Core.Generator.Ssl;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 
@@ -28,16 +28,16 @@ namespace XStatic.UmbracoContentApi
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
             IWebHostEnvironment hostingEnvironment,
-            Lazy<IContentResolver> contentResolver)
-            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
+            Lazy<IContentResolver> contentResolver,
+            IOptions<XStaticGlobalSettings> settings,
+            ILogger<GeneratorBase> logger)
+            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment, settings, logger)
         {
             _contentResolver = contentResolver;
         }
 
         public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
         {
-            SslTruster.TrustSslIfAppSettingConfigured();
-
             var node = GetNode(id);
 
             if (node == null)
@@ -63,6 +63,7 @@ namespace XStatic.UmbracoContentApi
             }
             catch (Exception e)
             {
+                Logger.LogError(e, "Error generating json {UrlSegment}", node.UrlSegment);
                 return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
             }
         }

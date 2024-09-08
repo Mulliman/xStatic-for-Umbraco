@@ -60,6 +60,21 @@ namespace XStatic.Core.App
             return this;
         }
 
+        /// <summary>
+        /// When set to true, this will trust SSL certificates when generating static files even if the certificate chain isn't perfectly set up.
+        /// This is needed on Linux when using dotnet CLI to create the site.
+        /// </summary>
+        /// <returns></returns>
+        public XStaticServiceBuilder TrustUnsafeSslConnectionWhenGenerating()
+        {
+            _services.Configure<XStaticGlobalSettings>(settings =>
+            {
+                settings.TrustSslWhenGenerating = true;
+            });
+
+            return this;
+        }
+
         public XStaticServiceBuilder Build()
         {
             GeneratorServiceBuilder.Build();

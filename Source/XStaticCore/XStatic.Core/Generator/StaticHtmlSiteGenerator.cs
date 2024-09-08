@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
-using XStatic.Core.Generator.Ssl;
+using XStatic.Core.App;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 
@@ -21,15 +22,16 @@ namespace XStatic.Core.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IWebHostEnvironment hostingEnvironment)
-            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            ILogger<StaticHtmlSiteGenerator> logger,
+            IOptions<XStaticGlobalSettings> globalSettings
+            )
+            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment, globalSettings, logger)
         {
         }
 
         public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
         {
-            SslTruster.TrustSslIfAppSettingConfigured();
-
             var node = GetNode(id);
 
             if (node == null)
@@ -46,8 +48,10 @@ namespace XStatic.Core.Generator
                 string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute, culture: culture);
 
                 var fileData = await GetFileDataFromWebClient(absoluteUrl);
+                Logger.LogInformation($"Downloaded page {url} from {absoluteUrl} with {fileData?.Length} chars of data");
 
                 var transformedData = RunTransformers(fileData, transformers);
+                Logger.LogInformation($"Transformed page {url} with {transformedData?.Length} chars of data");
 
                 var filePath = fileNamer.GetFilePartialPath(url);
 
@@ -57,6 +61,7 @@ namespace XStatic.Core.Generator
             }
             catch (Exception e)
             {
+                Logger.LogError(e, $"Error generating page {node.UrlSegment}");
                 return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
             }
         }

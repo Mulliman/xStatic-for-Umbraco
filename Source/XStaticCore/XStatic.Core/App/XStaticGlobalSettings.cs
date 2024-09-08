@@ -7,5 +7,7 @@
         public string RoleCreationUser { get; set; }
 
         public bool RoleCreationUseRootUser { get; set; }
+
+        public bool TrustSslWhenGenerating { get; set; }
     }
 }
