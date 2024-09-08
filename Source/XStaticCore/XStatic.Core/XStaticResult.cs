@@ -36,8 +36,14 @@ namespace XStatic.Core
         }
     }
 
-    public class XStaticResult<T> : XStaticResult
+    public class XStaticResult<T>
     {
+        public bool WasSuccessful { get; set; }
+
+        public string Message { get; set; }
+
+        public Exception Exception { get; set; }
+
         public T Data { get; set; }
 
         public static XStaticResult<T> Success(T data)
@@ -50,17 +56,17 @@ namespace XStatic.Core
             return new XStaticResult<T>() { WasSuccessful = true, Data = data, Message = message };
         }
 
-        public new static XStaticResult<T> Error()
+        public static XStaticResult<T> Error()
         {
             return new XStaticResult<T>() { WasSuccessful = false };
         }
 
-        public new static XStaticResult<T> Error(string message)
+        public static XStaticResult<T> Error(string message)
         {
             return new XStaticResult<T>() { WasSuccessful = false, Message = message };
         }
 
-        public new static XStaticResult<T> Error(string message, Exception ex)
+        public static XStaticResult<T> Error(string message, Exception ex)
         {
             return new XStaticResult<T>() { WasSuccessful = false, Message = message, Exception = ex };
         }   

@@ -58,7 +58,7 @@ namespace XStatic.Netlify
                 }
             }
 
-            return XStaticResult.Success("Site was successfully deployed to Netlify.");
+            return XStaticResult.Success("Site was successfully deployed to Netlify, congrats.");
         }
 
         protected virtual Dictionary<string, string> GetHashes(string siteId, string folderPath)
@@ -77,7 +77,7 @@ namespace XStatic.Netlify
 
                 var hash = BitConverter.ToString(cryptoProvider.ComputeHash(s));
                 var file = f.Replace(folderPath, string.Empty);
-                hashes.Add(file.Replace('\\', '/'), hash.Replace("-", String.Empty).ToLowerInvariant());
+                hashes.Add(file.Replace(Path.DirectorySeparatorChar, '/'), hash.Replace("-", String.Empty).ToLowerInvariant());
             }
 
             return hashes;
@@ -99,10 +99,10 @@ namespace XStatic.Netlify
         protected async virtual Task UploadFileToNetlify(KeyValuePair<string, string> fileHashToUpload, string folderPath, NetlifyClient client, Deploy deployment)
         {
             var filePath = fileHashToUpload.Key;
-            var fullPath = Path.Combine(folderPath, filePath.TrimStart('/').Replace('/', '\\'));
+            var fullPath = Path.Combine(folderPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
             if (!System.IO.File.Exists(fullPath))
             {
-                return;
+                throw new Exception("Couldn't find file at " + fullPath);
             }
 
             using var stream = System.IO.File.OpenRead(fullPath);
