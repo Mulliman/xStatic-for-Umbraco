@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<Product>xStatic.RemoteOperations</Product>
+		<PackageId>xStatic.RemoteOperations</PackageId>
+		<Title>xStatic.RemoteOperations</Title>
+		<Version>15.0.0-beta</Version>
+		<Description>Remotely call xStatic APIs using Umbraco API accounts.</Description>
+		<PackageTags>umbraco umbraco15 xstatic static site generation</PackageTags>
+		<Copyright>Sam Mullins</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<PackageIcon>Logo.png</PackageIcon>
+		<PackageIconUrl />
+		<Authors>Sam Mullins</Authors>
+		<Company>Sam Mullins</Company>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\Brand\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+</Project>
