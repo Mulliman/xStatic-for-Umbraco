@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ContentTargetFolders>.</ContentTargetFolders>
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-		<Version>14.0.0-beta</Version>
+		<Version>15.0.0-beta</Version>
         <Description>Static site generation for Umbraco 14 without changing the method of building Umbraco sites.</Description>
-        <PackageTags>umbraco umbraco14 xstatic static site generation umbraco-marketplace</PackageTags>
+        <PackageTags>umbraco umbraco15 xstatic static site generation umbraco-marketplace</PackageTags>
         <Copyright>Sam Mullins</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>
@@ -25,8 +25,8 @@
 
     <ItemGroup>
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.0.0" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="15.0.0" />
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="15.0.0" />
 		
     </ItemGroup>
 
