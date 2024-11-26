@@ -1,4 +1,4 @@
-name: "Deploy xStatic.Ftp to NuGet"
+name: "Deploy xStatic.RemoteOperations to NuGet"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     - 'v*'
 
 env:
-  PROJECT_PATH: 'Source\XStaticCore\XStatic.Ftp\XStatic.Ftp.csproj'
+  PROJECT_PATH: 'Source\XStaticCore\XStatic.RemoteOperations\XStatic.RemoteOperations.csproj'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 

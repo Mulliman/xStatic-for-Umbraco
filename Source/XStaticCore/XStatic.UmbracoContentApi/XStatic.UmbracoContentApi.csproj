@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <TargetFramework>net8.0</TargetFramework>
+      <TargetFramework>net9.0</TargetFramework>
       <ContentTargetFolders>.</ContentTargetFolders>
       <Product>xStatic.UmbracoContentApi</Product>
       <PackageId>xStatic.UmbracoContentApi</PackageId>
       <Title>xStatic.UmbracoContentApi</Title>
-      <Version>14.0.0</Version>
+      <Version>15.0.0</Version>
       <Description>Integration of UmbracoContentApi open source package into xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco14 xstatic static site generation UmbracoContentApi json headless</PackageTags>
+      <PackageTags>umbraco umbraco15 xstatic static site generation UmbracoContentApi json headless</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
@@ -25,7 +25,7 @@
 
     <ItemGroup>
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="15.0.0" />
         <PackageReference Include="UmbracoContentApi.Core" Version="9.2.1" />
     </ItemGroup>
 
