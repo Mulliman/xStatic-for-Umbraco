@@ -252,7 +252,7 @@ export class EditSiteModalElement extends
             {
                 alias: "assetPaths",
                 label: "Asset Paths",
-                description: "Add folder names of files on disk that should also be packaged up. e.g. /assets/js,/assets/css",
+                description: "Add folder names of files on disk that should also be packaged up. e.g. /assets/file.js will include the specific file, /assets will include the entire folder, /assets/* will recursively include all folders and files.",
                 propertyEditorUiAlias: "Umb.PropertyEditorUi.Tags",
                 config: [
                     {
