@@ -7,20 +7,8 @@ xStatic can be extended to meet specific needs and documentation for this can be
 
 ## Getting started
 
-1. Ensure that Umbraco is installed and working before running the site with xStatic installed. 
+In v15 onwards you simply need to install the package xstatic from NuGet and that is it.
 
-2. Add the following to the ConfigureServices method in your Startup.cs file
+When installed, and Umbraco is run you should see a new section in your backoffice.
 
-```
-services.AddXStatic().Automatic().Build();
-```
-
-You will need to add `using XStatic.Core.App;` to the top of the file.
-
-This will automatically register all the built in services as required for an out of the box solution.
-
-3. Ensure that the `\App_Plugins\xStatic` folder and files are included in your csproj. These need to be present in your website for the xStatic section to appear.
-
-4. In the users section, add 'xStatic Generated Sites' to the roles you want to have access.
-
-5. Create your site configs and build / deploy your static sites.
+There are extension methods on the xstatic builder that can be used to change how security works, but it is unlikely that this is required. 
