@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy;
@@ -50,12 +51,14 @@ namespace XStatic.Core.AutoPublish
         {
             var autoPublishSites = _sitesRepository.GetAutoPublishSites();
 
-            if(!autoPublishSites.Any())
+            if (!autoPublishSites.Any())
             {
                 return;
             }
 
             var sitesToDeploy = new List<ExtendedGeneratedSite>();
+
+            var autoPublishSiteItems = GetAutoPublishSiteItems(autoPublishSites);
 
             foreach (var publishedItem in publishedEntities)
             {
@@ -66,9 +69,15 @@ namespace XStatic.Core.AutoPublish
                         continue;
                     }
 
-                    if (publishedItem.Path.Contains($",{site.RootNode},") || publishedItem.Path.EndsWith($",{site.RootNode}"))
+                    if(autoPublishSiteItems.TryGetValue(site.Id, out IPublishedContent siteitem))
                     {
-                        sitesToDeploy.Add(site);
+                        var rootNodeId = siteitem?.Id;
+
+                        if (IsSiteRootNodeInItemPath(publishedItem, rootNodeId))
+                        {
+                            sitesToDeploy.Add(site);
+                            continue;
+                        }
                     }
                 }
             }
@@ -81,6 +90,37 @@ namespace XStatic.Core.AutoPublish
                 await process.RebuildSite(site.Id);
                 await deployProcess.DeployStaticSite(site.Id);
             }
+        }
+
+        private static bool IsSiteRootNodeInItemPath(IContent publishedItem, int? rootNodeId)
+        {
+            if(!rootNodeId.HasValue)
+            {
+                return false;
+            }
+
+            return publishedItem.Path.Contains($",{rootNodeId},") || publishedItem.Path.EndsWith($",{rootNodeId}");
+        }
+
+        private Dictionary<int, IPublishedContent> GetAutoPublishSiteItems(IEnumerable<ExtendedGeneratedSite> autoPublishSites)
+        {
+            using var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext();
+            var items = new Dictionary<int, IPublishedContent>();
+
+            foreach (var site in autoPublishSites)
+            {
+                try
+                {
+                    var rootNode = umbracoContext.UmbracoContext.Content.GetById(site.RootNode);
+                    items.Add(site.Id, rootNode);
+                }
+                catch
+                {
+                    // Swallow for now, should probably warn the user or log this if it works.
+                }
+            }
+
+            return items;
         }
     }
 }
