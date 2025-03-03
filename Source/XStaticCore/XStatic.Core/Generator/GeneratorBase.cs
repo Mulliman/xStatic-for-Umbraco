@@ -24,7 +24,7 @@ namespace XStatic.Core.Generator
 {
     public abstract class GeneratorBase : IGenerator
     {
-        protected readonly string[] ResizeExtensions = new[] { "jpg", "jpeg", "png", "gif" };
+        protected readonly string[] ResizeExtensions = new[] { "jpg", "jpeg", "png", "gif", "webp" };
 
         protected static readonly Encoding DefaultEncoder = Encoding.UTF8;
 
@@ -149,7 +149,7 @@ namespace XStatic.Core.Generator
                     var fileExtension = Path.GetExtension(partialPath)?.ToLower();
                     var pathSegment = partialPath.Replace(fileName, string.Empty);
 
-                    if (ResizeExtensions.Contains(fileExtension.Trim('.')))
+                    if (CanFileTypeBeCropped(fileExtension))
                     {
                         foreach (var crop in crops)
                         {
@@ -257,6 +257,11 @@ namespace XStatic.Core.Generator
             var relativeFilePath = umbracoFileSource;
 
             return relativeFilePath;
+        }
+
+        protected virtual bool CanFileTypeBeCropped(string fileExtension)
+        {
+            return ResizeExtensions.Contains(fileExtension.Trim('.'));
         }
 
         protected virtual async Task<string> GetFileDataFromWebClient(string absoluteUrl)
