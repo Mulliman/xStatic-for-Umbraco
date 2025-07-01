@@ -25,7 +25,7 @@ namespace XStatic.Git
             new DeployerField { Alias=FieldNames.RemoteUrl, Name = "Remote URL", EditorUiAlias = UIEditors.Text },
             new DeployerField { Alias=FieldNames.Email, Name = "Email", EditorUiAlias = UIEditors.Text },
             new DeployerField { Alias=FieldNames.Username,  Name = "Username", EditorUiAlias = UIEditors.Text },
-            new DeployerField { Alias=FieldNames.Password, Name = "Password", EditorUiAlias = UIEditors.Password },
+            new DeployerField { Alias=FieldNames.Password, Name = "Password / Personal Access Token", EditorUiAlias = UIEditors.Password, Help = "You need to use PAT for a GitHub repository, assign `Contents` permission when creating it." },
             new DeployerField { Alias=FieldNames.Branch, Name = "Branch", EditorUiAlias = UIEditors.Text },
         };
     }

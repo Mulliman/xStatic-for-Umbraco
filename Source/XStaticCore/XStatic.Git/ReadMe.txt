@@ -40,7 +40,7 @@ If you are using Github pages you'll need to add a single file to the master/mai
 
 Configure your custom hostname immediately after creating the repo. xStatic does not pull and merge any changes as part of the deployment process, so any changes made once xStatic has started deployments will need to be pulled and merged manually.
 
-Create a personal access token in GitHub to use for authentication.
+Create a personal access token in GitHub to use for authentication, you need to give it the "Contents" permission when creating it.
 
 If you want any additional files, for example a gitignore file or a readme document in the repo, you will need to add this to the web.config of your project so that the clean up task doesn't delete them. Comma separate folder/file names in the app setting xStatic.DoNotDeletePaths. E.g. <add key="xStatic.DoNotDeletePaths" value=".git,CNAME,Readme.md" />
 
