@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.FileActions;
@@ -78,9 +80,14 @@ namespace XStatic.Core.App
             return this;
         }
 
-        public GeneratorServiceBuilder AddDefaultSiteStorageServices()
+        public GeneratorServiceBuilder AddDefaultSiteStorageServices(string outputFolderName = null)
         {
-            _services.AddSingleton<IStaticSiteStorer, AppDataSiteStorer>();
+            _services.AddSingleton<IStaticSiteStorer>(serviceProvider =>
+            {
+                var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                var logger = serviceProvider.GetRequiredService<ILogger<IStaticSiteStorer>>();
+                return new AppDataSiteStorer(webHostEnvironment, logger, outputFolderName);
+            });
 
             return this;
         }
@@ -102,7 +109,7 @@ namespace XStatic.Core.App
             return this;
         }
 
-        public GeneratorServiceBuilder AddDefaults()
+        public GeneratorServiceBuilder AddDefaults(string outputFolderName = null)
         {
             return AddDefaultSiteRepository()
                 .AddDefaultComponentLists()
@@ -113,7 +120,7 @@ namespace XStatic.Core.App
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
                 .AddDefaultAutoDeployServices()
-                .AddDefaultSiteStorageServices();
+                .AddDefaultSiteStorageServices(outputFolderName);
         }
 
         public void Build()
