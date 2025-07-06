@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.FileActions;
@@ -81,6 +83,18 @@ namespace XStatic.Core.App
         public GeneratorServiceBuilder AddDefaultSiteStorageServices()
         {
             _services.AddSingleton<IStaticSiteStorer, AppDataSiteStorer>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddCustomDefinedSingleSiteStorer(string outputFolderName)
+        {
+            _services.AddSingleton<IStaticSiteStorer>(serviceProvider =>
+            {
+                var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                var logger = serviceProvider.GetRequiredService<ILogger<IStaticSiteStorer>>();
+                return new CustomDefinedSingleSiteStorer(webHostEnvironment, logger, outputFolderName);
+            });
 
             return this;
         }
