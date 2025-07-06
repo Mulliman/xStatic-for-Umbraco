@@ -1,7 +1,5 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Umbraco.Cms.Core.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Core.App
@@ -84,14 +82,7 @@ namespace XStatic.Core.App
         /// <returns></returns>
         public XStaticServiceBuilder UseSingleSiteOutput(string outpuFolderName = "DefaultOutputFolder")
         {
-            var descriptor = _services.FirstOrDefault(services =>
-                services.ServiceType == typeof(IStaticSiteStorer) &&
-                services.ImplementationType == typeof(AppDataSiteStorer));
-
-            if (descriptor != null)
-            {
-                _services.Remove(descriptor);
-            }
+            _services.RemoveAll<IStaticSiteStorer>();
 
             GeneratorServiceBuilder.AddCustomDefinedSingleSiteStorer(outpuFolderName);
 
