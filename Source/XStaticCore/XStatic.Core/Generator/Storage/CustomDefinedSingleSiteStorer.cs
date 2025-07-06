@@ -12,7 +12,6 @@ namespace XStatic.Core.Generator.Storage
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger<IStaticSiteStorer> _logger;
         private readonly string _xStaticPublishRoot;
-        private readonly string _outputFolderName;
 
         public CustomDefinedSingleSiteStorer(IWebHostEnvironment hostingEnvironment, ILogger<IStaticSiteStorer> logger, string outputFolderName)
         {
@@ -20,9 +19,7 @@ namespace XStatic.Core.Generator.Storage
             _logger = logger;
 
             var xStaticRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "umbraco", "Data", "xStatic" });
-            _xStaticPublishRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "umbraco", "Data", "xStatic", "output" });
-
-            _outputFolderName = outputFolderName;
+            _xStaticPublishRoot = Path.Combine(new string[] { _hostingEnvironment.ContentRootPath, "umbraco", "Data", "xStatic", "output", outputFolderName });
 
             if(!Directory.Exists(xStaticRoot)) Directory.CreateDirectory(xStaticRoot);
             if(!Directory.Exists(_xStaticPublishRoot)) Directory.CreateDirectory(_xStaticPublishRoot);
@@ -32,7 +29,7 @@ namespace XStatic.Core.Generator.Storage
         {
             return TaskHelper.FromResultOf(() =>
             {
-                string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, _outputFolderName + "/" + path);
+                string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, path);
                 var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
 
                 _logger.LogInformation("[StoreSiteItem] storagePath = {storagePath} | filePath = {filePath}", storagePath, filePath);
@@ -103,7 +100,9 @@ namespace XStatic.Core.Generator.Storage
 
         public string GetFileDestinationPath(string subFolder, string partialDestinationPath)
         {
-            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, subFolder + "/" + partialDestinationPath);
+            // FYI this ignores the subfolder in single site mode as this will always be the ID of the site.
+
+            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, partialDestinationPath);
             var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
 
             var fi = new FileInfo(filePath);
@@ -115,12 +114,7 @@ namespace XStatic.Core.Generator.Storage
 
         public string GetStorageLocationOfSite(int staticSiteId)
         {
-            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, _outputFolderName);
-            var folderPath = Path.Combine(_xStaticPublishRoot, storagePath);
-
-            _logger.LogInformation("[GetStorageLocationOfSite] storagePath = {storagePath} | folderPath = {folderPath}", storagePath, folderPath);
-
-            return folderPath;
+            return _xStaticPublishRoot;
         }
     }
 }

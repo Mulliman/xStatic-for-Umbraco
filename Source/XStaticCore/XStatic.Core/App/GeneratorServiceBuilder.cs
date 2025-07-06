@@ -87,7 +87,7 @@ namespace XStatic.Core.App
             return this;
         }
 
-        public GeneratorServiceBuilder AddCustomDefinedSingleSiteStorer(string outputFolderName)
+        public GeneratorServiceBuilder AddSingleSiteStorageServices(string outputFolderName)
         {
             _services.AddSingleton<IStaticSiteStorer>(serviceProvider =>
             {
@@ -128,6 +128,20 @@ namespace XStatic.Core.App
                 .AddDefaultImageCropServices()
                 .AddDefaultAutoDeployServices()
                 .AddDefaultSiteStorageServices();
+        }
+
+        public GeneratorServiceBuilder AddSingleSiteDefaults(string folderName)
+        {
+            return AddDefaultSiteRepository()
+                .AddDefaultComponentLists()
+                .AddDefaultExportTypeServices()
+                .AddDefaultActionServices()
+                .AddDefaultActions()
+                .AddDefaultHtmlGeneratorServices()
+                .AddDefaultJsonGeneratorServices()
+                .AddDefaultImageCropServices()
+                .AddDefaultAutoDeployServices()
+                .AddSingleSiteStorageServices(folderName);
         }
 
         public void Build()
