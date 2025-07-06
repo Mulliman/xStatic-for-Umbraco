@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Services;
 
@@ -19,9 +19,9 @@ namespace XStatic.Core.App
             DeployServiceBuilder = new DeployServiceBuilder(_services);
         }
 
-        public XStaticServiceBuilder Automatic(string outputFolderName = null)
+        public XStaticServiceBuilder Automatic()
         {
-            GeneratorServiceBuilder.AddDefaults(outputFolderName);
+            GeneratorServiceBuilder.AddDefaults();
             DeployServiceBuilder.AddDeployersAutomatically();
             DeployServiceBuilder.AddDeploymentTargetCreatorsAutomatically();
 
