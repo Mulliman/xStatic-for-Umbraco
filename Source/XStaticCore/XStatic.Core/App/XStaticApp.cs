@@ -1,6 +1,8 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using Umbraco.Cms.Core.Services;
+using XStatic.Core.Generator.Storage;
 
 namespace XStatic.Core.App
 {
@@ -22,6 +24,20 @@ namespace XStatic.Core.App
         public XStaticServiceBuilder Automatic()
         {
             GeneratorServiceBuilder.AddDefaults();
+            DeployServiceBuilder.AddDeployersAutomatically();
+            DeployServiceBuilder.AddDeploymentTargetCreatorsAutomatically();
+
+            return this;
+        }
+
+        /// <summary>
+        /// When used, it will add the <see cref="CustomDefinedSingleSiteStorer"/>, which provides custom output folder
+        /// naming. It also removes the default <see cref="AppDataSiteStorer"/>.
+        /// </summary>
+        /// <returns></returns>
+        public XStaticServiceBuilder AutomaticWithSingleSiteOutput(string outputFolderName = "DefaultOutputFolder")
+        {
+            GeneratorServiceBuilder.AddSingleSiteDefaults(outputFolderName);
             DeployServiceBuilder.AddDeployersAutomatically();
             DeployServiceBuilder.AddDeploymentTargetCreatorsAutomatically();
 

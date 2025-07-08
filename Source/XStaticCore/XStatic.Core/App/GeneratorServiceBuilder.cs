@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.FileActions;
@@ -85,6 +87,18 @@ namespace XStatic.Core.App
             return this;
         }
 
+        public GeneratorServiceBuilder AddSingleSiteStorageServices(string outputFolderName)
+        {
+            _services.AddSingleton<IStaticSiteStorer>(serviceProvider =>
+            {
+                var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                var logger = serviceProvider.GetRequiredService<ILogger<IStaticSiteStorer>>();
+                return new CustomDefinedSingleSiteStorer(webHostEnvironment, logger, outputFolderName);
+            });
+
+            return this;
+        }
+
         public GeneratorServiceBuilder AddDefaultAutoDeployServices()
         {
             _services.AddSingleton<IAutoPublisher, DefaultAutoPublisher>();
@@ -114,6 +128,20 @@ namespace XStatic.Core.App
                 .AddDefaultImageCropServices()
                 .AddDefaultAutoDeployServices()
                 .AddDefaultSiteStorageServices();
+        }
+
+        public GeneratorServiceBuilder AddSingleSiteDefaults(string folderName)
+        {
+            return AddDefaultSiteRepository()
+                .AddDefaultComponentLists()
+                .AddDefaultExportTypeServices()
+                .AddDefaultActionServices()
+                .AddDefaultActions()
+                .AddDefaultHtmlGeneratorServices()
+                .AddDefaultJsonGeneratorServices()
+                .AddDefaultImageCropServices()
+                .AddDefaultAutoDeployServices()
+                .AddSingleSiteStorageServices(folderName);
         }
 
         public void Build()
