@@ -25,7 +25,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="NetlifySharp" Version="1.1.1" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="15.0.0" />
+		<PackageReference Include="Umbraco.Cms.Core" Version="16.0.0" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="16.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

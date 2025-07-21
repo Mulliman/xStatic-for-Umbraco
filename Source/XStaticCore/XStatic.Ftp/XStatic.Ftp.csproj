@@ -25,7 +25,8 @@
 	
     <ItemGroup>
         <PackageReference Include="FluentFTP" Version="35.0.5" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="15.0.0" />
+        <PackageReference Include="Umbraco.Cms.Core" Version="16.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="16.0.0" />
     </ItemGroup>
 
     <ItemGroup>
