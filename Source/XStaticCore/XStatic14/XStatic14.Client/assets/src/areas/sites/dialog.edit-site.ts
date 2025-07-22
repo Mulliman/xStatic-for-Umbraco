@@ -281,7 +281,7 @@ export class EditSiteModalElement extends
                 config: [
                     {
                         alias: "items",
-                        value: this.actions?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.actions?.map((x) => ({ name: x.name, value: x.id?.toString() })) ?? []
                     },
                 ],
             },
@@ -330,7 +330,7 @@ export class EditSiteModalElement extends
             { alias: 'exportFormat', value: [model.exportFormat?.toString()] },
             { alias: 'assetPaths', value: model.assetPaths?.split(',') },
             { alias: 'imageCrops', value: model.imageCrops?.split(',') },
-            { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
+            { alias: 'postGenerationActionIds', value: model.postGenerationActionIds?.map(x => x.toString()) },
             { alias: 'autoPublish', value: model.autoPublish },
             { alias: 'deploymentTarget', value: [model.deploymentTarget?.toString()] },
             { alias: 'targetHostname', value: model.targetHostname },

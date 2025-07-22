@@ -88,7 +88,6 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 
 		return html`
         <div>
-            <h1>Dynamic Configurable Form</h1>
             ${this.help ? html`<p>${this.help}</p>` : ''}
 
         <umb-property-dataset
