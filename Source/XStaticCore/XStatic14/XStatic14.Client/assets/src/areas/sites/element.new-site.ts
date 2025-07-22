@@ -9,7 +9,7 @@ class NewSiteElement extends UmbElementMixin(LitElement) {
 
     #openCreateDialog() {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditSiteModal, {});
+            manager?.open(this, EditSiteModal, {});
         } )
     }
 

@@ -64,7 +64,7 @@ class DeploymentTargetElement extends UmbElementMixin(LitElement) {
 
     #openCreateDialog() {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) => {
-            manager.open(this, EditDeploymentTargetModal, { data: { content: this.deploymentTarget!, headline: `Edit ${this.deploymentTarget?.name} target` } });
+            manager?.open(this, EditDeploymentTargetModal, { data: { content: this.deploymentTarget!, headline: `Edit ${this.deploymentTarget?.name} target` } });
         })
     }
 

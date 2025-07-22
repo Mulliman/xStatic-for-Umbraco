@@ -72,7 +72,7 @@ class ActionElement extends UmbElementMixin(LitElement) {
 
     #openCreateDialog() {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditActionModal, { data: { content: this.action!, headline: `Edit ${this.action?.name} action` } });
+            manager?.open(this, EditActionModal, { data: { content: this.action!, headline: `Edit ${this.action?.name} action` } });
         } )
     }
 

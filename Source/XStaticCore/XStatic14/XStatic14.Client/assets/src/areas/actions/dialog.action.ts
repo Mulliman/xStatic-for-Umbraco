@@ -1,10 +1,10 @@
 import { customElement, html, ifDefined, state } from "@umbraco-cms/backoffice/external/lit";
-import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
+import { ManifestModal, UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import { ActionModel, ActionUpdateModel, ConfigurableTypeField, ConfigurableTypeModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
+import { UmbExtensionElementAndApiSlotElementBase } from "@umbraco-cms/backoffice/extension-registry";
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
 import "../../elements/element.validation-error";
@@ -173,7 +173,7 @@ export class EditActionModalElement extends
         return this.errors.size === 0;
     }
 
-    #getBaseProperties(): PropertyEditorSettingsProperty[] {
+    #getBaseProperties(): any[] {
 
         var selectedType = this.getFirst(this.values.find((x) => x.alias === 'type')?.value as Array<string>);
         

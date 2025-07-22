@@ -22,15 +22,28 @@ class SiteGrid extends UmbElementMixin(LitElement) {
     constructor() {
         super();
 
+        console.log("Initializing SiteGrid...");
+
         this.consumeContext(
             SITE_CONTEXT_TOKEN,
             (context) => {
-              this.#siteContext = context;
+                
+                console.log("Site context received:", context);
 
-              this.observe(this.#siteContext.sites, (sites) => {
+                this.#siteContext = context;
+
+              
+              this.observe(this.#siteContext?.sites, (sites) => {
+                if (!sites) {   
+                    console.warn("No sites available in SiteGrid.");
+                    return;
+                }
+
                 this.sites = sites;
 
                 this.isLoaded = true;
+
+                console.log("Sites updated:", this.sites);
             });
         });
     }

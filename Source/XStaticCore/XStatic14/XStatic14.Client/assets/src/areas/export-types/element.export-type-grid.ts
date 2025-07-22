@@ -29,7 +29,7 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
                 this.#exportTypeContext = context;
 
                 this.observe(this.#exportTypeContext?.config, (x) => {
-                    if(x.exportTypes){
+                    if(x?.exportTypes){
                         this.exportTypes = x.exportTypes;
                         this.isLoaded = true;
                     }

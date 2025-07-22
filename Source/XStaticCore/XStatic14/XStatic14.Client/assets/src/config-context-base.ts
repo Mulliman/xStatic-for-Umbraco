@@ -1,7 +1,7 @@
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { Observable, UmbBooleanState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
-import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
+import { tryExecute } from '@umbraco-cms/backoffice/resources'
 import { V1Service, XStaticConfig } from "./api";
 
 export abstract class ConfigContextBase extends UmbControllerBase {
@@ -29,7 +29,7 @@ export abstract class ConfigContextBase extends UmbControllerBase {
     }
     
     async getConfig() {
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetConfig());
+        const data = await tryExecute(this, V1Service.getApiV1XstaticConfigGetConfig());
 
         if(data){
             this.#config.setValue(data);
