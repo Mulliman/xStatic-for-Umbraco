@@ -16,15 +16,9 @@ export class SiteContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
         super(host);
 
-        console.log("Constructing sites context...");
-
         this.provideContext(SITE_CONTEXT_TOKEN, this);
 
-        console.log("Listening for xStaticEvent...");
-
-		window.addEventListener("xStaticEvent", () => { 
-            console.log("xStaticEvent received in SiteContext, refreshing sites and dependencies...");
-
+		window.addEventListener("xStaticEvent", () => {
             this.#isSitesLoaded.setValue(false); 
             this.#isSiteDependenciesLoaded = false; 
 
@@ -46,30 +40,9 @@ export class SiteContext extends ConfigContextBase {
     #siteDependencies = new UmbObjectState<SiteDependenciesModel>({});
     public get siteDependencies() : Observable<SiteDependenciesModel> { return this.#initSiteDependencies(); }
 
-    // public hostConnected(): void {
-    //     console.log("Listening for xStaticEvent...");
-
-	// 	window.addEventListener("xStaticEvent", () => { 
-    //         console.log("xStaticEvent received in SiteContext, refreshing sites and dependencies...");
-
-    //         this.#isSitesLoaded.setValue(false); 
-    //         this.#isSiteDependenciesLoaded = false; 
-
-    //         this.#initSites();
-    //         this.#initSiteDependencies();
-    //         this.refreshData();
-    //     });
-	// }
-
-	// public hostDisconnected(): void {
-	// 	window.removeEventListener("xStaticEvent", () => {});
-	// }
-
     #initSites() : Observable<SiteApiModel[]> {
-        console.log("Initializing sites...");
 
         if(!this.#isSitesLoaded.getValue()){
-            console.log("Fetching sites from API...");
             this.#getSites();
         }
 
@@ -78,8 +51,6 @@ export class SiteContext extends ConfigContextBase {
 
     async #getSites() {
         const data = await tryExecute(this, V1Service.getApiV1XstaticSitesGetAll());
-
-        console.log("Sites data received:", data);
 
         if(data){
             this.#sites.setValue(data);
