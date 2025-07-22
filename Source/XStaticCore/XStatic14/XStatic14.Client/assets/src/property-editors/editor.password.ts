@@ -3,10 +3,10 @@ import { css, html, customElement, state } from '@umbraco-cms/backoffice/externa
 // import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import {
-	UmbPropertyEditorUiElement,
-	UmbPropertyValueChangeEvent,
+	UmbPropertyEditorUiElement
 } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 @customElement('xstatic-property-editor-password')
 export class XStaticPropertyEditorPasswordElement
@@ -21,7 +21,7 @@ export class XStaticPropertyEditorPasswordElement
 		const newValue = (e.target as HTMLInputElement).value;
 		if (newValue === this.value) return;
 		this.value = newValue;
-		this.dispatchEvent(new UmbPropertyValueChangeEvent());
+		this.dispatchEvent(new UmbChangeEvent());
 	}
 
 	@state()

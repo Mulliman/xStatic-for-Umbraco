@@ -8,7 +8,7 @@ import { UmbExtensionElementAndApiSlotElementBase } from "@umbraco-cms/backoffic
 import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
 import "../../elements/element.validation-error";
-import { UmbPropertyValueChangeEvent } from "@umbraco-cms/backoffice/property-editor";
+import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
 
 @customElement('xstatic-edit-action-modal')
 export class EditActionModalElement extends
@@ -146,7 +146,7 @@ export class EditActionModalElement extends
         const value = (e.target as UmbPropertyDatasetElement).value;
         this.values = value;
 
-        this.dispatchEvent(new UmbPropertyValueChangeEvent());
+        this.dispatchEvent(new UmbChangeEvent());
 
         var postModel = this.#createPostModel();
 
