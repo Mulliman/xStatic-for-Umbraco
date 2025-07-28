@@ -43,7 +43,7 @@
                 {
                     key: "AssetPaths",
                     name: "Asset Paths",
-                    description: "Add folder names of files on disk that should also be packaged up. Comma separate e.g. /assets/js,/assets/css",
+                    description: "Add folder names of files on disk that should also be packaged up. e.g. /assets/file.js will include the specific file, /assets will include the entire folder, /assets/* will recursively include all folders and files.",
                     config: null,
                     value: form.site.AssetPaths,
                     view: this.editorTypes.csv
