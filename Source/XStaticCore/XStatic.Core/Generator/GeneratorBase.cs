@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,19 +15,19 @@ using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
-using XStatic.Core.Generator.Ssl;
+using XStatic.Core.App;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Helpers;
-using static Umbraco.Cms.Core.Constants;
 
 namespace XStatic.Core.Generator
 {
-    public abstract class GeneratorBase : IGenerator
+	public abstract class GeneratorBase : IGenerator
     {
         protected readonly string[] ResizeExtensions = new[] { "jpg", "jpeg", "png", "gif" };
 
         protected static readonly Encoding DefaultEncoder = Encoding.UTF8;
+
 
         protected IUmbracoContextFactory _umbracoContextFactory;
         protected readonly IPublishedUrlProvider _publishedUrlProvider;
@@ -33,7 +35,9 @@ namespace XStatic.Core.Generator
         protected readonly IImageCropNameGenerator _imageCropNameGenerator;
         protected readonly MediaFileManager _mediaFileSystem;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IOptions<XStaticGlobalSettings> _globalSettings;
         protected readonly HttpClient HttpClient;
+        protected ILogger<GeneratorBase> Logger { get; }
 
         protected NoopPublishedValueFallback _fallback = new NoopPublishedValueFallback();
 
@@ -42,7 +46,9 @@ namespace XStatic.Core.Generator
             IStaticSiteStorer storer,
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IOptions<XStaticGlobalSettings> globalSettings,
+            ILogger<GeneratorBase> logger)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _publishedUrlProvider = publishedUrlProvider;
@@ -50,8 +56,21 @@ namespace XStatic.Core.Generator
             _imageCropNameGenerator = imageCropNameGenerator;
             _mediaFileSystem = mediaFileSystem;
             _hostingEnvironment = hostingEnvironment;
+            _globalSettings = globalSettings;
+            Logger = logger;
+            if (_globalSettings?.Value?.TrustSslWhenGenerating == true)
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
 
-            HttpClient = new HttpClient();
+                HttpClient = new HttpClient(handler);
+            }
+            else
+            {
+                HttpClient = new HttpClient();
+            }            
         }
 
         public virtual async Task<IEnumerable<GenerateItemResult>> GenerateFolder(string folderPath, int staticSiteId)
@@ -74,6 +93,7 @@ namespace XStatic.Core.Generator
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError(e, "Error generating file {file}", file);
                     created.Add(GenerateItemResult.Error("Folder", outputPath, e.Message));
                 }
             }
@@ -94,6 +114,7 @@ namespace XStatic.Core.Generator
             }
             catch (Exception e)
             {
+                Logger.LogError(e, "Error generating file {partialPath}", partialPath);
                 return GenerateItemResult.Error("File", partialPath, e.Message);
             }
         }
@@ -151,7 +172,8 @@ namespace XStatic.Core.Generator
             }
             catch (Exception e)
             {
-                return GenerateItemResult.Error("Media", partialPath, e.Message);
+	            Logger.LogError(e, "Error generating media item {MediaId} at {PartialPath}", id, partialPath);
+				return GenerateItemResult.Error("Media", partialPath, e.Message);
             }
         }
 
@@ -240,20 +262,21 @@ namespace XStatic.Core.Generator
 
         protected virtual async Task<string> GetFileDataFromWebClient(string absoluteUrl)
         {
-            SslTruster.TrustSslIfAppSettingConfigured();
-
             try
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
+                Logger.LogDebug("Generating static HTML for page at {UrlPath}",absoluteUrl);
+
 
                 string downloadedSource = await HttpClient.GetStringAsync(absoluteUrl);
-                
+                Logger.LogDebug("Length of Static HTML for page at {UrlPath}: {Length} chars",absoluteUrl,downloadedSource.Length );
+
                 return downloadedSource;
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Error while downloading file from {absoluteUrl}", absoluteUrl);
                 System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
-                //throw;
             }
 
             return null;
@@ -261,8 +284,6 @@ namespace XStatic.Core.Generator
 
         protected async Task<string> SaveFileDataFromWebClient(string absoluteUrl, string filePath)
         {
-            SslTruster.TrustSslIfAppSettingConfigured();
-
             try
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
@@ -274,6 +295,7 @@ namespace XStatic.Core.Generator
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Error while downloading file from {absoluteUrl}", absoluteUrl);
                 System.Diagnostics.Debug.WriteLine("error while publishing to file " + ex.Message);
                 //throw;
             }

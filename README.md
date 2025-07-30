@@ -12,7 +12,18 @@ xStatic can be extended to meet specific needs and documentation for this can be
 2. Add the following to the ConfigureServices method in your Startup.cs file
 
 ```
-services.AddXStatic().Automatic().Build();
+services.AddXStatic()
+.Automatic()
+.Build();
+```
+
+or, if you need to allow generating without a proper SSL certificate, use this:
+
+```
+services.AddXStatic()
+.Automatic()
+.TrustUnsafeSslConnectionWhenGenerating()
+.Build();
 ```
 
 You will need to add `using XStatic.Core.App;` to the top of the file.

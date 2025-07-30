@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
+using XStatic.Core.App;
 using UmbracoContentApi.Core.Resolvers;
 using XStatic.Core.Generator;
-using XStatic.Core.Generator.Ssl;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 
@@ -27,15 +28,17 @@ namespace XStatic.UmbracoContentApi
             IImageCropNameGenerator imageCropNameGenerator,
             MediaFileManager mediaFileSystem,
             IWebHostEnvironment hostingEnvironment,
+            IOptions<XStaticGlobalSettings> settings,
+			ILogger<GeneratorBase> logger,
             Lazy<IContentResolver> contentResolver)
-            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
+            : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment, settings, logger)
         {
             _contentResolver = contentResolver;
         }
 
         public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
         {
-            SslTruster.TrustSslIfAppSettingConfigured();
+            //SslTruster.TrustSslIfAppSettingConfigured();
 
             var node = GetNode(id);
 
