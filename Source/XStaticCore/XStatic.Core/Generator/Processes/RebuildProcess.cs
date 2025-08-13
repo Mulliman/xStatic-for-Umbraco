@@ -17,204 +17,226 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Core.Generator.Processes
 {
-    public class RebuildProcess
-    {
-        private readonly IUmbracoContextFactory _umbracoContextFactory;
-        private readonly IExportTypeService _exportTypeService;
-        private ISitesRepository _sitesRepo;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IActionFactory _actionFactory;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using XStatic.Core.App;
+	using XStatic.Core.AutoPublish;
 
-        public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
-            IExportTypeService exportTypeService,
-            ISitesRepository repo,
-            IWebHostEnvironment webHostEnvironment,
-            IActionFactory actionFactory)
-        {
-            _umbracoContextFactory = umbracoContextFactory;
-            _exportTypeService = exportTypeService;
-            _sitesRepo = repo;
-            _webHostEnvironment = webHostEnvironment;
-            _actionFactory = actionFactory;
-        }
+	public class RebuildProcess
+	{
+		private readonly IUmbracoContextFactory _umbracoContextFactory;
+		private readonly IExportTypeService _exportTypeService;
+		private ISitesRepository _sitesRepo;
+		private readonly IWebHostEnvironment _webHostEnvironment;
+		private readonly IActionFactory _actionFactory;
+		private readonly IOptions<XStaticGlobalSettings> _globalSettings;
+		private readonly ILogger _logger;
 
-        public async Task<RebuildProcessResult> RebuildSite(int staticSiteId)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+		public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
+			IExportTypeService exportTypeService,
+			ISitesRepository repo,
+			IWebHostEnvironment webHostEnvironment,
+			IActionFactory actionFactory,
+			IOptions<XStaticGlobalSettings> globalSettings, ILogger logger)
+		{
+			_umbracoContextFactory = umbracoContextFactory;
+			_exportTypeService = exportTypeService;
+			_sitesRepo = repo;
+			_webHostEnvironment = webHostEnvironment;
+			_actionFactory = actionFactory;
+			_globalSettings = globalSettings;
+			_logger = logger;
+		}
 
-            var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
+		public async Task<RebuildProcessResult> RebuildSite(int staticSiteId)
+		{
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
 
-            if (entity?.ExportFormat == null)
-            {
-                throw new XStaticException("Site not found with id " + staticSiteId);
-            }
+			var entity = _sitesRepo.Get<SiteConfig>(staticSiteId);
 
-            using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
-            {
-                try
-                {
-                    IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
+			if (entity?.ExportFormat == null)
+			{
+				throw new XStaticException("Site not found with id " + staticSiteId);
+			}
 
-                    int rootNodeId = entity.RootNode;
-                    var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);
+			using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
+			{
+				try
+				{
+					IFileNameGenerator fileNamer = _exportTypeService.GetFileNameGenerator(entity.ExportFormat);
 
-                    var builder = new JobBuilder(entity.Id, fileNamer)
-                        .AddPageWithDescendants(rootNode);
+					int rootNodeId = entity.RootNode;
+					var rootNode = umbracoContext.UmbracoContext.Content.GetById(rootNodeId);
+					
+					var builder = new JobBuilder(entity.Id, fileNamer);
 
-                    AddMediaToBuilder(entity, umbracoContext, builder);
-                    AddMediaCropsToBuilder(entity, builder);
+					//Exclude certain types?
+					if (_globalSettings?.Value?.ExcludeGeneratingDocTypes != null && _globalSettings.Value.ExcludeGeneratingDocTypes.Any())
+					{
+						var excludedTypeAliases = _globalSettings?.Value?.ExcludeGeneratingDocTypes.ToList();
 
-                    AddAssetsToBuilder(entity, builder);
+						_logger.LogInformation("xStatic excluding document types: {ExcludedTypes}", string.Join(", ", excludedTypeAliases));
+						builder.AddPageWithDescendantsWithoutTypes(rootNode, excludedTypeAliases);
+					}
+					else //All descendants will be included
+					{
+						builder.AddPageWithDescendants(rootNode);
+					}
+					
+					AddMediaToBuilder(entity, umbracoContext, builder);
+					AddMediaCropsToBuilder(entity, builder);
 
-                    var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
-                    var transformers = listFactory.BuildTransformers(entity);
+					AddAssetsToBuilder(entity, builder);
 
-                    if (transformers.Any())
-                    {
-                        builder.AddTransformers(transformers);
-                    }
+					var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
+					var transformers = listFactory.BuildTransformers(entity);
 
-                    var results = await GetResults(entity, builder);
+					if (transformers.Any())
+					{
+						builder.AddTransformers(transformers);
+					}
 
-                    var postActionResults = await RunPostActions(entity);
-                    results.AddRange(postActionResults);
+					var results = await GetResults(entity, builder);
 
-                    stopwatch.Stop();
+					var postActionResults = await RunPostActions(entity);
+					results.AddRange(postActionResults);
 
-                    _sitesRepo.UpdateLastRun(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
+					stopwatch.Stop();
 
-                    return new RebuildProcessResult
-                    {
-                        SiteId = staticSiteId,
-                        BuildTime = stopwatch.ElapsedMilliseconds,
-                        WasSuccessful = results.All(r => r.WasSuccessful),
-                        Results = results
-                    };
-                }
-                catch (Exception e)
-                {
-                    return new RebuildProcessResult
-                    {
-                        SiteId = staticSiteId,
-                        Exception = e.Message,
-                        ExceptionTrace = e.StackTrace,
-                        WasSuccessful = false
-                    };
-                }
-            }
-        }
+					_sitesRepo.UpdateLastRun(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
 
-        private async Task<List<GenerateItemResult>> GetResults(SiteConfig entity, JobBuilder builder)
-        {
-            var results = new List<GenerateItemResult>();
+					return new RebuildProcessResult
+					{
+						SiteId = staticSiteId,
+						BuildTime = stopwatch.ElapsedMilliseconds,
+						WasSuccessful = results.All(r => r.WasSuccessful),
+						Results = results
+					};
+				}
+				catch (Exception e)
+				{
+					return new RebuildProcessResult
+					{
+						SiteId = staticSiteId,
+						Exception = e.Message,
+						ExceptionTrace = e.StackTrace,
+						WasSuccessful = false
+					};
+				}
+			}
+		}
 
-            var generator = _exportTypeService.GetGenerator(entity.ExportFormat);
+		private async Task<List<GenerateItemResult>> GetResults(SiteConfig entity, JobBuilder builder)
+		{
+			var results = new List<GenerateItemResult>();
 
-            if (generator == null)
-            {
-                throw new Exception("Export format not supported");
-            }
+			var generator = _exportTypeService.GetGenerator(entity.ExportFormat);
 
-            var job = builder.Build();
-            var runner = new JobRunner(generator);
-            results.AddRange(await runner.RunJob(job));
+			if (generator == null)
+			{
+				throw new Exception("Export format not supported");
+			}
 
-            return results;
-        }
+			var job = builder.Build();
+			var runner = new JobRunner(generator);
+			results.AddRange(await runner.RunJob(job));
 
-        private void AddAssetsToBuilder(SiteConfig entity, JobBuilder builder)
-        {
-            if (!string.IsNullOrEmpty(entity.AssetPaths))
-            {
-                var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim());
-                var rootPath = _webHostEnvironment.WebRootPath;
+			return results;
+		}
 
-                foreach (var path in splitPaths)
-                {
-                    var absolutePath = FileHelpers.PathCombine(rootPath, path);
+		private void AddAssetsToBuilder(SiteConfig entity, JobBuilder builder)
+		{
+			if (!string.IsNullOrEmpty(entity.AssetPaths))
+			{
+				var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim());
+				var rootPath = _webHostEnvironment.WebRootPath;
 
-                    if (path.Contains("?") || path.Contains("*"))
-                    {
-                        var trimmedPath = path.TrimStart(new[] { '\\', '/' });
+				foreach (var path in splitPaths)
+				{
+					var absolutePath = FileHelpers.PathCombine(rootPath, path);
 
-                        var directory = new DirectoryInfo(rootPath);
-                        var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
+					if (path.Contains("?") || path.Contains("*"))
+					{
+						var trimmedPath = path.TrimStart(new[] { '\\', '/' });
 
-                        builder.AddAssetFiles(files.Select(f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
-                    }
-                    else if (Directory.Exists(absolutePath))
-                    {
-                        builder.AddAssetFolder(path);
-                    }
-                    else if (System.IO.File.Exists(absolutePath))
-                    {
-                        builder.AddAssetFile(path);
-                    }
-                    else
-                    {
-                        // Invalid file.
-                    }
-                }
-            }
-        }
+						var directory = new DirectoryInfo(rootPath);
+						var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
 
-        private static void AddMediaToBuilder(SiteConfig entity, UmbracoContextReference umbracoContext, JobBuilder builder)
-        {
-            if (!string.IsNullOrEmpty(entity.MediaRootNodes))
-            {
-                var mediaRoots = entity.MediaRootNodes.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+						builder.AddAssetFiles(files.Select(f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
+					}
+					else if (Directory.Exists(absolutePath))
+					{
+						builder.AddAssetFolder(path);
+					}
+					else if (System.IO.File.Exists(absolutePath))
+					{
+						builder.AddAssetFile(path);
+					}
+					else
+					{
+						// Invalid file.
+					}
+				}
+			}
+		}
 
-                foreach (var mediaRoot in mediaRoots)
-                {
-                    int mediaId;
+		private static void AddMediaToBuilder(SiteConfig entity, UmbracoContextReference umbracoContext, JobBuilder builder)
+		{
+			if (!string.IsNullOrEmpty(entity.MediaRootNodes))
+			{
+				var mediaRoots = entity.MediaRootNodes.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (int.TryParse(mediaRoot, out mediaId))
-                    {
-                        var rootMedia = umbracoContext.UmbracoContext.Media.GetById(mediaId);
+				foreach (var mediaRoot in mediaRoots)
+				{
+					int mediaId;
 
-                        if (rootMedia != null)
-                        {
-                            builder.AddMediaWithDescendants(rootMedia);
-                        }
-                    }
-                }
-            }
-        }
+					if (int.TryParse(mediaRoot, out mediaId))
+					{
+						var rootMedia = umbracoContext.UmbracoContext.Media.GetById(mediaId);
 
-        private void AddMediaCropsToBuilder(SiteConfig entity, JobBuilder builder)
-        {
-            if (string.IsNullOrEmpty(entity.ImageCrops))
-            {
-                return;
-            }
+						if (rootMedia != null)
+						{
+							builder.AddMediaWithDescendants(rootMedia);
+						}
+					}
+				}
+			}
+		}
 
-            var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
-            builder.AddMediaCrops(crops);
-        }
+		private void AddMediaCropsToBuilder(SiteConfig entity, JobBuilder builder)
+		{
+			if (string.IsNullOrEmpty(entity.ImageCrops))
+			{
+				return;
+			}
 
-        private async Task<IEnumerable<GenerateItemResult>> RunPostActions(SiteConfig entity)
-        {
-            var actions = _actionFactory.CreateConfiguredPostGenerationActions(entity.PostGenerationActionIds.ToArray());
-            var results = new List<GenerateItemResult>();
+			var crops = Crop.GetCropsFromCommaDelimitedString(entity.ImageCrops);
+			builder.AddMediaCrops(crops);
+		}
 
-            foreach(var action in actions)
-            {
-                try
-                {
-                    var result = await action.Action.RunAction(entity.Id, action.Config);
+		private async Task<IEnumerable<GenerateItemResult>> RunPostActions(SiteConfig entity)
+		{
+			var actions = _actionFactory.CreateConfiguredPostGenerationActions(entity.PostGenerationActionIds.ToArray());
+			var results = new List<GenerateItemResult>();
 
-                    var convertedResult = GenerateItemResult.Success("PostAction", action.Name, "Completed");
-                    results.Add(convertedResult);
-                }
-                catch (Exception e)
-                {
-                    var convertedResult = GenerateItemResult.Error("PostAction", action.Name, e.Message);
-                    results.Add(convertedResult);
-                }
-            }
+			foreach (var action in actions)
+			{
+				try
+				{
+					var result = await action.Action.RunAction(entity.Id, action.Config);
 
-            return results;
-        }
-    }
+					var convertedResult = GenerateItemResult.Success("PostAction", action.Name, "Completed");
+					results.Add(convertedResult);
+				}
+				catch (Exception e)
+				{
+					var convertedResult = GenerateItemResult.Error("PostAction", action.Name, e.Message);
+					results.Add(convertedResult);
+				}
+			}
+
+			return results;
+		}
+	}
 }
