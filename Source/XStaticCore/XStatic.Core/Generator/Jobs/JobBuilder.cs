@@ -56,6 +56,19 @@ namespace XStatic.Core.Generator.Jobs
             return this;
         }
 
+        public JobBuilder AddPageWithDescendantsWithoutTypes(IPublishedContent node, IEnumerable<string> excludedTypeAliases)
+        {
+	        if (node == null) return this;
+
+	        job.PageIds.Add(node.Id);
+
+            var childIds = node.Descendants().Where(c => !excludedTypeAliases.Contains(c.ContentType.Alias)).Select(c => c.Id);
+
+	        job.PageIds.AddRange(childIds);
+
+	        return this;
+        }
+
         public JobBuilder AddMedia(IPublishedContent media)
         {
             if (media == null) return this;

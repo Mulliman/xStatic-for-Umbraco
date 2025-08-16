@@ -11,7 +11,12 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Controllers
 {
-    [PluginController("xstatic")]
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using XStatic.Core.App;
+	using XStatic.Core.Generator.Storage;
+
+	[PluginController("xstatic")]
     public class GenerateController : UmbracoAuthorizedJsonController
     {
         private readonly IUmbracoContextFactory _umbracoContextFactory;
@@ -19,25 +24,31 @@ namespace XStatic.Controllers
         private ISitesRepository _sitesRepo;
         private IWebHostEnvironment _webHostEnvironment;
         private readonly IActionFactory _actionFactory;
+        private readonly IOptions<XStaticGlobalSettings> _globalSettings;   
+        private readonly ILogger<GenerateController> _logger;
 
         public GenerateController(
             IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository sitesRepository,
             IWebHostEnvironment webHostEnvironment,
-            IActionFactory actionFactory)
+            IActionFactory actionFactory,
+            IOptions<XStaticGlobalSettings> globalSettings,
+            ILogger<GenerateController> logger)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _exportTypeService = exportTypeService;
             _sitesRepo = sitesRepository;
             _webHostEnvironment = webHostEnvironment;
             _actionFactory = actionFactory;
+            _globalSettings = globalSettings;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<RebuildProcessResult> RebuildStaticSite(int staticSiteId)
         {
-            var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory);
+            var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory, _globalSettings, _logger);
 
             return await process.RebuildSite(staticSiteId);
         }
