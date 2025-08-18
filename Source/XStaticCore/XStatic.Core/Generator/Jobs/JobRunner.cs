@@ -29,12 +29,12 @@ namespace XStatic.Core.Generator.Jobs
 
             foreach (var folder in job.Folders)
             {
-                returnList.AddRange(await _generator.GenerateFolder(folder, job.StaticSiteId));
+                returnList.AddRange(await _generator.GenerateFolder(folder.Key,folder.Value, job.StaticSiteId));
             }
 
             foreach (var file in job.Files)
             {
-                returnList.Add(await _generator.GenerateFile(file, job.StaticSiteId));
+                returnList.Add(await _generator.GenerateFile(file.Key, file.Value, job.StaticSiteId));
             }
 
             return returnList.Where(x => x != null);

@@ -11,8 +11,8 @@ namespace XStatic.Core.Generator
 
         Task<GenerateItemResult> GenerateMedia(int id, int staticSiteId, IEnumerable<Crop> crops = null);
 
-        Task<IEnumerable<GenerateItemResult>> GenerateFolder(string folderPath, int staticSiteId);
+        Task<IEnumerable<GenerateItemResult>> GenerateFolder(string absolutePath, string relativePath, int staticSiteId);
 
-        Task<GenerateItemResult> GenerateFile(string filePath, int staticSiteId);
+        Task<GenerateItemResult> GenerateFile(string absolutePath, string relativePath, int staticSiteId);
     }
 }
