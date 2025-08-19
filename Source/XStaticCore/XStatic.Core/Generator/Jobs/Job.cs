@@ -18,8 +18,8 @@ namespace XStatic.Core.Generator.Jobs
 
         public List<Crop> MediaCropSizes { get; set; } = new List<Crop>();
 
-        public List<string> Folders { get; set; } = new List<string>();
+        public Dictionary<string,string> Folders { get; set; } = new Dictionary<string,string>();
 
-        public List<string> Files { get; set; } = new List<string>();
+        public Dictionary<string,string> Files { get; set; } = new Dictionary<string,string>();
     }
 }
