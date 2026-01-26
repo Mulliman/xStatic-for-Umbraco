@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <TargetFramework>net9.0</TargetFramework>
+      <TargetFramework>net10.0</TargetFramework>
       <ContentTargetFolders>.</ContentTargetFolders>
       <Product>xStatic.Ftp</Product>
       <PackageId>xStatic.Ftp</PackageId>
       <Title>xStatic.Ftp</Title>
-      <Version>15.0.0</Version>
+      <Version>17.0.0-beta</Version>
       <Description>FTP functionality for xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco15 xstatic static site generation ftp umbraco-marketplace</PackageTags>
+      <PackageTags>umbraco umbraco17 xstatic static site generation ftp umbraco-marketplace</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-ftp-server/</PackageProjectUrl>
@@ -25,8 +25,8 @@
 	
     <ItemGroup>
         <PackageReference Include="FluentFTP" Version="35.0.5" />
-        <PackageReference Include="Umbraco.Cms.Core" Version="16.0.0" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="16.0.0" />
+        <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
     </ItemGroup>
 
     <ItemGroup>

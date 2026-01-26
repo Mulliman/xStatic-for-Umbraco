@@ -28,9 +28,17 @@ namespace XStatic.Core.Generator.Transformers
         {
             var uri = new Uri(matchResult.Value);
 
-            var item = _context.Content.GetById(Udi.Create(uri));
+            if(UdiParser.TryParse(matchResult.Value, out var udi) && udi is GuidUdi guidUdi)
+            {
+                var item = _context.Content.GetById(guidUdi.Guid);
 
-            return item.Url().Trim("/") + ".json";
+                if (item != null)
+                {
+                    return item.Url().Trim("/") + ".json";
+                }
+            }
+
+            return matchResult.Value;
         }
     }
 }
