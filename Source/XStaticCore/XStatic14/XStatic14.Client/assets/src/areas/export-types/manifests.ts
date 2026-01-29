@@ -1,4 +1,5 @@
-import { ManifestGlobalContext, ManifestModal } from '@umbraco-cms/backoffice/extension-registry';
+import { ManifestGlobalContext } from '@umbraco-cms/backoffice/extension-registry';
+import type { ManifestModal } from '@umbraco-cms/backoffice/modal';
 
 export const exportTypesModalManifests: Array<ManifestModal> = [
     {

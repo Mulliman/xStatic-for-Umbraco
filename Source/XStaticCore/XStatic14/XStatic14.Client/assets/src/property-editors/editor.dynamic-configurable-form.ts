@@ -1,10 +1,10 @@
 import { css, customElement, html, property, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
-import { UmbPropertyValueChangeEvent } from '@umbraco-cms/backoffice/property-editor';
-import type { UmbPropertyEditorConfigCollection } from '@umbraco-cms/backoffice/property-editor';
-import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
+import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
+// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { ConfigurableTypeField } from '../api';
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 @customElement('xstatic-property-editor-configurable-dynamic-form')
 export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitElement implements UmbPropertyEditorUiElement {
@@ -65,7 +65,7 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 
         this.value = array;
 
-        this.dispatchEvent(new UmbPropertyValueChangeEvent());
+        this.dispatchEvent(new UmbChangeEvent());
     }
 
     #getArrayFromDataset(value: UmbPropertyValueData[]): ConfigurableTypeField[] {
@@ -88,7 +88,6 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 
 		return html`
         <div>
-            <h1>Dynamic Configurable Form</h1>
             ${this.help ? html`<p>${this.help}</p>` : ''}
 
         <umb-property-dataset

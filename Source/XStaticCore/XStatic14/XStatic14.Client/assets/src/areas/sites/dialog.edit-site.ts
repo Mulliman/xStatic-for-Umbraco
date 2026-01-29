@@ -4,7 +4,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import { SafeActionModel, SafeDeploymentTargetModel, SiteApiModel, SiteUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
+// import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 import { UmbLanguageCollectionRepository, UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
 
@@ -53,8 +53,8 @@ export class EditSiteModalElement extends
                 this.#siteContext = context;
 
                 this.observe(this.#siteContext?.siteDependencies, (x) => {
-                    this.actions = x.actions ?? [];
-                    this.deploymentTargets = x.deployers ?? [];
+                    this.actions = x?.actions ?? [];
+                    this.deploymentTargets = x?.deployers ?? [];
 
                     this.updateValue({ content: this.data?.content });
 
@@ -194,7 +194,7 @@ export class EditSiteModalElement extends
         return this.errors.size === 0;
     }
 
-    getBaseProperties(): PropertyEditorSettingsProperty[] {
+    getBaseProperties(): any[] {
         return [
             {
                 alias: "name",
@@ -281,7 +281,7 @@ export class EditSiteModalElement extends
                 config: [
                     {
                         alias: "items",
-                        value: this.actions?.map((x) => ({ name: x.name, value: x.id })) ?? []
+                        value: this.actions?.map((x) => ({ name: x.name, value: x.id?.toString() })) ?? []
                     },
                 ],
             },
@@ -330,7 +330,7 @@ export class EditSiteModalElement extends
             { alias: 'exportFormat', value: [model.exportFormat?.toString()] },
             { alias: 'assetPaths', value: model.assetPaths?.split(',') },
             { alias: 'imageCrops', value: model.imageCrops?.split(',') },
-            { alias: 'postGenerationActionIds', value: model.postGenerationActionIds },
+            { alias: 'postGenerationActionIds', value: model.postGenerationActionIds?.map(x => x.toString()) },
             { alias: 'autoPublish', value: model.autoPublish },
             { alias: 'deploymentTarget', value: [model.deploymentTarget?.toString()] },
             { alias: 'targetHostname', value: model.targetHostname },

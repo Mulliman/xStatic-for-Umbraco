@@ -4,7 +4,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import { DeployerField, DeployerModel, DeploymentTargetCreatorModel, DeploymentTargetCreatorPostModel, DeploymentTargetUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
+// import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deployment-targets";
 
 import "../../elements/element.validation-error";
@@ -147,7 +147,7 @@ export class DeploymentTargetCreatorModalElement extends
         return this.errors.size === 0;
     }
 
-    #getBaseProperties(): PropertyEditorSettingsProperty[] {
+    #getBaseProperties(): any[] {
 
         var selectedType = this.getFirst(this._values.find((x) => x.alias === 'creator')?.value as Array<string>);
 
