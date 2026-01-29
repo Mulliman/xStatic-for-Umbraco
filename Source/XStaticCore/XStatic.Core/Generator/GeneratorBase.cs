@@ -72,17 +72,14 @@ namespace XStatic.Core.Generator
             }            
         }
 
-        public virtual async Task<IEnumerable<GenerateItemResult>> GenerateFolder(string folderPath, int staticSiteId)
+        public virtual async Task<IEnumerable<GenerateItemResult>> GenerateFolder(string absolutePath, string relativePath, int staticSiteId)
         {
-            var partialPath = folderPath;
-            var absolutePath = _hostingEnvironment.MapPathWebRoot(partialPath);
-
             var files = Directory.GetFiles(absolutePath);
             var created = new List<GenerateItemResult>();
 
             foreach (var file in files)
             {
-                var outputPath = Path.Combine(partialPath, Path.GetFileName(file));
+                var outputPath = Path.Combine(relativePath, Path.GetFileName(file));
 
                 try
                 {
@@ -100,21 +97,18 @@ namespace XStatic.Core.Generator
             return created;
         }
 
-        public virtual async Task<GenerateItemResult> GenerateFile(string partialPath, int staticSiteId)
+        public virtual async Task<GenerateItemResult> GenerateFile(string absolutePath, string relativePath, int staticSiteId)
         {
-            var rootPath = _hostingEnvironment.MapPathWebRoot("~/");
-            var absolutePath = FileHelpers.PathCombine(rootPath, partialPath);
-
             try
             {
-                var generatedFileLocation = await Copy(staticSiteId, absolutePath, partialPath);
+                var generatedFileLocation = await Copy(staticSiteId, absolutePath, relativePath);
 
-                return GenerateItemResult.Success("File", partialPath, generatedFileLocation);
+                return GenerateItemResult.Success("File", relativePath, generatedFileLocation);
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Error generating file {partialPath}", partialPath);
-                return GenerateItemResult.Error("File", partialPath, e.Message);
+                Logger.LogError(e, "Error generating file {relativePath}", relativePath);
+                return GenerateItemResult.Error("File", relativePath, e.Message);
             }
         }
 
@@ -269,9 +263,12 @@ namespace XStatic.Core.Generator
             try
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
+                Logger.LogDebug("Generating static HTML for page at {UrlPath}", absoluteUrl);
+
 
                 string downloadedSource = await HttpClient.GetStringAsync(absoluteUrl);
-                
+                Logger.LogDebug("Length of Static HTML for page at {UrlPath}: {Length} chars", absoluteUrl, downloadedSource.Length);
+
                 return downloadedSource;
             }
             catch (Exception ex)

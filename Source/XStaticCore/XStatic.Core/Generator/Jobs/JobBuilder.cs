@@ -96,31 +96,31 @@ namespace XStatic.Core.Generator.Jobs
             return this;
         }
 
-        public JobBuilder AddAssetFolder(string relativePath)
+        public JobBuilder AddAssetFolder(string absolutePath, string relativePath)
         {
-            if (string.IsNullOrWhiteSpace(relativePath)) return this;
+            if (string.IsNullOrWhiteSpace(absolutePath)) return this;
 
-            job.Folders.Add(relativePath);
+            job.Folders.Add(absolutePath, relativePath);
 
             return this;
         }
 
-        public JobBuilder AddAssetFile(string relativePath)
+        public JobBuilder AddAssetFile(string absolutePath, string relativePath)
         {
-            if (string.IsNullOrWhiteSpace(relativePath)) return this;
+            if (string.IsNullOrWhiteSpace(absolutePath)) return this;
 
-            job.Files.Add(relativePath);
+            job.Files.Add(absolutePath, relativePath);
 
             return this;
         }
 
-        public JobBuilder AddAssetFiles(IEnumerable<string> relativePaths)
+        public JobBuilder AddAssetFiles(Dictionary<string, string> Paths)
         {
-            if (relativePaths?.Any() != true) return this;
+            if (Paths?.Any() != true) return this;
 
-            foreach (var path in relativePaths)
+            foreach (var path in Paths)
             {
-                job.Files.Add(path);
+                job.Files.Add(path.Key, path.Value);
             }
 
             return this;
