@@ -31,7 +31,7 @@ export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
 
         OpenAPI.BASE = umbOpenApi.base!;
         OpenAPI.TOKEN = token;
-        // OpenAPI.WITH_CREDENTIALS = umbOpenApi.withCredentials;
+        OpenAPI.WITH_CREDENTIALS = !!umbOpenApi.credentials;
         OpenAPI.CREDENTIALS = umbOpenApi.credentials!;
     });
 };
