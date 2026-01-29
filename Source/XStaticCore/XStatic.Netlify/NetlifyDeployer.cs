@@ -42,9 +42,11 @@ namespace XStatic.Netlify
                 return XStaticResult.Error("Error parsing Netlify response. The deployment was not completed.", e);
             }
 
+            var hashesLookup = hashes.ToLookup(h => h.Value);
+
             foreach (var hash in deployment.Required)
             {
-                var toUpload = hashes.Where(e => e.Value == hash);
+                var toUpload = hashesLookup[hash];
                 foreach (var fileHashToUpload in toUpload)
                 {
                     try
