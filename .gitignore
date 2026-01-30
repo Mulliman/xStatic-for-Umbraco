@@ -365,3 +365,12 @@ Umbraco
 
 XStatic14.Website
 /Source/XStaticCore/XStatic14.WebsiteTemp
+
+# Testing
+Testing/Instances/
+Testing/Playwright/test-results/
+Testing/Playwright/playwright-report/
+Testing/Playwright/node_modules/
+Testing/Playwright/playwright/.auth/
+
+
