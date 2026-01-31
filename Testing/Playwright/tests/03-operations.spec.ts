@@ -1,38 +1,45 @@
 import { test, expect } from '@playwright/test';
+import { SitePage } from '../pages/SitePage';
+import { TestData } from './test-data';
 
 test.describe('Site Operations', () => {
-  test('Run a generate', async ({ page }) => {
-    // Arrange
-    await page.goto('/umbraco/section/xstatic');
+    test.beforeEach(async ({ page }) => {
+        const sitePage = new SitePage(page);
+        await sitePage.goto();
+    });
 
-    // Act
-    await page.getByRole('button', { name: 'Generate' }).click();
-    
-    // Assert
-    await expect(page.getByRole('table')).toContainText('Last generated on');
-    await expect(page.getByRole('button', { name: 'Clean' })).toBeVisible({ timeout: 60000 });
-    await expect(page.getByRole('button', { name: 'Download' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Deploy' })).toBeVisible();
-  });
+    test('Run a generate', async ({ page }) => {
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        
+        // Check if the site is visible, otherwise try the unedited name just in case of prev failure
+        // But for this test we assume happy path from 02
+        await expect(siteElement).toBeVisible();
 
-  test('Run a deploy', async ({ page }) => {
-    await page.goto('/umbraco/section/xstatic');
+        await siteElement.getByRole('button', { name: 'Generate' }).click();
 
-    await page.getByRole('button', { name: 'Deploy' }).click();
-    await page.locator('#confirm').getByRole('button', { name: 'Deploy' }).click();
-    await expect(page.getByRole('table')).toContainText('Last deployed on');
-  });
+        await expect(page.getByRole('table')).toContainText('Last generated on');
+        // Wait for buttons to appear/update
+        await expect(siteElement.getByRole('button', { name: 'Clean' })).toBeVisible({ timeout: 60000 });
+        await expect(siteElement.getByRole('button', { name: 'Download' })).toBeVisible();
+        await expect(siteElement.getByRole('button', { name: 'Deploy' })).toBeVisible();
+    });
 
-  test('Run a download', async ({ page }) => {
-    // Arrange
-    await page.goto('/umbraco/section/xstatic');
-    const downloadPromise = page.waitForEvent('download');
+    test('Run a deploy', async ({ page }) => {
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        
+        await siteElement.getByRole('button', { name: 'Deploy' }).click();
+        await page.locator('#confirm').getByRole('button', { name: 'Deploy' }).click();
+        
+        await expect(page.getByRole('table')).toContainText('Last deployed on');
+    });
 
-    // Act
-    await page.getByRole('button', { name: 'Download' }).click();
-    const download = await downloadPromise;
+    test('Run a download', async ({ page }) => {
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        
+        const downloadPromise = page.waitForEvent('download');
+        await siteElement.getByRole('button', { name: 'Download' }).click();
+        const download = await downloadPromise;
 
-    // Assert
-    expect(download.suggestedFilename()).toContain('.zip');
-  });
+        expect(download.suggestedFilename()).toContain('.zip');
+    });
 });

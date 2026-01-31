@@ -66,6 +66,9 @@ export class EditSiteModalElement extends
                 this.observe(this.#siteContext?.config, (x) => {
                     this.config = x;
                 });
+                
+                // Refresh data to ensure we have the latest config/export types
+                context?.refreshData();
             }
         );
     }
@@ -107,6 +110,7 @@ export class EditSiteModalElement extends
                         <xstatic-validation-error-wrapper errorMessage=${ifDefined(this.showErrors ? this.errors.get(prop.alias) : undefined)}>
                             <umb-property
                             alias=${prop.alias}
+                            data-test-alias=${prop.alias}
                             label=${prop.label}
                             .description=${prop.description}
                             property-editor-ui-alias=${prop.propertyEditorUiAlias}

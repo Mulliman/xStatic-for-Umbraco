@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Read environment variables from file.
@@ -10,6 +11,10 @@ import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
+
+// Generate a unique ID for this test run
+process.env.TEST_RUN_ID = uuidv4().substring(0, 8);
+console.log(`TEST_RUN_ID: ${process.env.TEST_RUN_ID}`);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -41,6 +46,14 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /auth\.setup\.ts/,
+      teardown: 'cleanup',
+    },
+    {
+      name: 'cleanup',
+      testMatch: /04-cleanup\.spec\.ts/,
+      use: {
+        storageState: STORAGE_STATE,
+      },
     },
     {
       name: 'chromium-config',
@@ -69,14 +82,6 @@ export default defineConfig({
       },
       dependencies: ['chromium-site'],
     },
-    {
-      name: 'chromium-cleanup',
-      testMatch: /04-cleanup\.spec\.ts/,
-      use: { 
-        ...devices['Desktop Chrome'],
-        storageState: STORAGE_STATE,
-      },
-      dependencies: ['chromium-ops'],
-    },
+    
   ],
 });

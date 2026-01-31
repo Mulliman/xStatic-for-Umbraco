@@ -8,8 +8,8 @@ export abstract class ConfigContextBase extends UmbControllerBase {
     #isReady = new UmbBooleanState(false);
     public readonly isReady : Observable<boolean> = this.#isReady.asObservable();
 
-    #config = new UmbObjectState<XStaticConfig>({} as XStaticConfig);
-    public get config() : Observable<XStaticConfig> { return this.#initConfig(); }
+    #config = new UmbObjectState<XStaticConfig | undefined>(undefined);
+    public get config() : Observable<XStaticConfig | undefined> { return this.#initConfig(); }
 
     constructor(host: UmbControllerHost) {
         super(host);
@@ -20,7 +20,7 @@ export abstract class ConfigContextBase extends UmbControllerBase {
         this.#initConfig();
     }
 
-    #initConfig() : Observable<XStaticConfig> {
+    #initConfig() : Observable<XStaticConfig | undefined> {
         if(!this.#isReady.getValue()){
             this.getConfig();
         }

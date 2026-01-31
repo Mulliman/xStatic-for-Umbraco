@@ -1,56 +1,56 @@
 import { test, expect } from '@playwright/test';
+import { ExportTypePage } from '../pages/ExportTypePage';
+import { ActionPage } from '../pages/ActionPage';
+import { DeploymentTargetPage } from '../pages/DeploymentTargetPage';
+import { SitePage } from '../pages/SitePage';
+import { TestData } from './test-data';
 
 test.describe.configure({ mode: 'serial' });
 
 test('Clean generated site folder and delete site', async ({ page }) => {
-  await page.goto('/umbraco/section/xstatic');
-  
-  // Clean generated files
-  await page.getByRole('button', { name: 'Clean' }).click();
-  await page.getByRole('button', { name: 'Clean up' }).click();
-  
-  // Delete Site
-  await page.getByRole('button', { name: 'Delete' }).click();
-  await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
-  await expect(page.getByText('Test Site')).not.toBeVisible();
+    const sitePage = new SitePage(page);
+    await sitePage.goto();
+
+    // Check if site exists
+    const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+    if (await siteElement.isVisible()) {
+        await siteElement.getByRole('button', { name: 'Clean' }).click();
+        await page.getByRole('button', { name: 'Clean up' }).click();
+        
+        await siteElement.getByRole('button', { name: 'Delete' }).click();
+        await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
+        await expect(siteElement).not.toBeVisible();
+    } else {
+        // Check for non-edited version
+        const siteElementOld = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteName });
+        if (await siteElementOld.isVisible()) {
+             await siteElementOld.getByRole('button', { name: 'Delete' }).click();
+             await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
+             await expect(siteElementOld).not.toBeVisible();
+        }
+    }
 });
 
 test('Delete Export Type', async ({ page }) => {
-  // Arrange
-  await page.goto('/umbraco/section/xstatic/dashboard/xstatic-export-types');
+    const exportTypePage = new ExportTypePage(page);
+    await exportTypePage.goto();
 
-  // Act
-  await page.locator('uui-box').filter({ hasText: 'Test Export Type Edited' }).locator('#header').click();
-  await page.locator('uui-box').filter({ hasText: 'Test Export Type Edited' }).getByLabel('Delete').click();
-  await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
-
-  // Assert
-  await expect(page.getByText('Test Export Type Edited')).not.toBeVisible();
+    await exportTypePage.delete(TestData.ExportTypeNameEdited);
+    await exportTypePage.delete(TestData.ExportTypeName); // Also check for original name
 });
 
 test('Delete Action', async ({ page }) => {
-  // Arrange
-  await page.goto('/umbraco/section/xstatic/dashboard/xstatic-actions');
+    const actionPage = new ActionPage(page);
+    await actionPage.goto();
 
-  // Act
-  const actionElement = page.locator('xstatic-action-element').filter({ hasText: 'Test Action Edited' });
-  await actionElement.getByRole('button', { name: 'Delete' }).click();
-  await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
-
-  // Assert
-  await expect(page.getByText('Test Action Edited')).not.toBeVisible();
+    await actionPage.delete(TestData.ActionNameEdited);
+    await actionPage.delete(TestData.ActionName);
 });
 
 test('Delete Deployment Target', async ({ page }) => {
-  // Arrange
-  await page.goto('/umbraco/section/xstatic/dashboard/xstatic-deployment-targets');
+    const deploymentTargetPage = new DeploymentTargetPage(page);
+    await deploymentTargetPage.goto();
 
-  // Act
-  await page.locator('uui-box').filter({ hasText: 'Test Deployment Target Edited' }).locator('#header').click();
-  await page.locator('uui-box').filter({ hasText: 'Test Deployment Target Edited' }).getByLabel('Delete').click();
-  await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
-
-  // Assert
-  await expect(page.getByText('Test Deployment Target Edited')).not.toBeVisible();
+    await deploymentTargetPage.delete(TestData.DeploymentTargetNameEdited);
+    await deploymentTargetPage.delete(TestData.DeploymentTargetName);
 });
-
