@@ -1,6 +1,5 @@
 param (
     [string]$UmbracoVersion = "17.1.0",
-    [string]$XStaticVersion = "17.0.0-beta5",
     [string]$InstanceName,
     [int]$Port = 5000,
     [string]$BaseDir = "..\Instances",
@@ -13,15 +12,9 @@ if (-not $PSBoundParameters.ContainsKey('UmbracoVersion')) {
     if (-not [string]::IsNullOrWhiteSpace($userInput)) { $UmbracoVersion = $userInput }
 }
 
-if (-not $PSBoundParameters.ContainsKey('XStaticVersion')) {
-    $userInput = Read-Host "xStatic Version (Leave empty to skip)"
-    if (-not [string]::IsNullOrWhiteSpace($userInput)) { $XStaticVersion = $userInput }
-}
-
 if (-not $PSBoundParameters.ContainsKey('InstanceName')) {
     $umbracoClean = $UmbracoVersion -replace '[^a-zA-Z0-9]', ''
-    $xstaticClean = $XStaticVersion -replace '[^a-zA-Z0-9]', ''
-    $defaultInstanceName = "Test-$umbracoClean-$xstaticClean"
+    $defaultInstanceName = "Test-$umbracoClean-Local"
 
     $userInput = Read-Host "Instance Name [$defaultInstanceName]"
     if (-not [string]::IsNullOrWhiteSpace($userInput)) {
@@ -47,6 +40,9 @@ else {
     $BaseDir = Join-Path $parent "Instances"
 }
 
+$ScriptRoot = $PSScriptRoot
+$SourceRoot = Resolve-Path (Join-Path $ScriptRoot "..\..\Source\XStaticCore")
+
 # Run common setup
 $commonScript = Join-Path $PSScriptRoot "setup-common.ps1"
 & $commonScript -UmbracoVersion $UmbracoVersion -InstanceName $InstanceName -Port $Port -BaseDir $BaseDir
@@ -55,37 +51,51 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Ensure we are in the instance directory (Common script changes location but we need to be sure if called via &)
+# Ensure we are in the instance directory
 $InstanceDir = Join-Path $BaseDir $InstanceName
 Set-Location $InstanceDir
 
-if (-not [string]::IsNullOrEmpty($XStaticVersion)) {
-    Write-Host "Adding xStatic version $XStaticVersion..."
-    dotnet add $InstanceName package xStatic --version $XStaticVersion
 
-    if ($IncludeAllExtensions) {
-        Write-Host "Adding xStatic.Netlify version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.Netlify --version $XStaticVersion
+# Define project paths
+$xStaticProject = Join-Path $SourceRoot "XStatic\XStatic.csproj"
+$xStaticNetlify = Join-Path $SourceRoot "XStatic.Netlify\XStatic.Netlify.csproj"
+$xStaticGit = Join-Path $SourceRoot "XStatic.Git\XStatic.Git.csproj"
+$xStaticFtp = Join-Path $SourceRoot "XStatic.Ftp\XStatic.Ftp.csproj"
+$xStaticRemote = Join-Path $SourceRoot "XStatic.RemoteOperations\XStatic.RemoteOperations.csproj"
+$xStaticContentApi = Join-Path $SourceRoot "XStatic.UmbracoContentApi\XStatic.UmbracoContentApi.csproj"
 
-        Write-Host "Adding xStatic.Git version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.Git --version $XStaticVersion
+Write-Host "Adding Local xStatic Reference..."
+dotnet add $InstanceName reference $xStaticProject
 
-        Write-Host "Adding xStatic.Ftp version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.Ftp --version $XStaticVersion
+if ($IncludeAllExtensions) {
+    Write-Host "Adding Local xStatic.Netlify Reference..."
+    dotnet add $InstanceName reference $xStaticNetlify
 
-        Write-Host "Adding xStatic.RemoteOperations version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.RemoteOperations --version $XStaticVersion
+    Write-Host "Adding Local xStatic.Git Reference..."
+    dotnet add $InstanceName reference $xStaticGit
 
-        Write-Host "Adding xStatic.UmbracoContentApi version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.UmbracoContentApi --version $XStaticVersion
-    }
-}
-else {
-    Write-Host "No XStaticVersion provided, skipping package addition."
+    Write-Host "Adding Local xStatic.Ftp Reference..."
+    dotnet add $InstanceName reference $xStaticFtp
+
+    Write-Host "Adding Local xStatic.RemoteOperations Reference..."
+    dotnet add $InstanceName reference $xStaticRemote
+
+    Write-Host "Adding Local xStatic.UmbracoContentApi Reference..."
+    dotnet add $InstanceName reference $xStaticContentApi
 }
 
 Write-Host "Instance setup complete in $InstanceDir"
 Write-Host "To run: dotnet run --project $InstanceName --urls 'https://localhost:$Port'"
+
+# Create Start-Watcher.bat
+$assetsDir = Join-Path $SourceRoot "XStatic14\XStatic14.Client\assets"
+$watcherBatContent = @"
+@echo off
+cd /d "$assetsDir"
+npm run watch
+"@
+Set-Content -Path "Start-Watcher.bat" -Value $watcherBatContent
+Write-Host "Created Start-Watcher.bat in $InstanceDir"
 
 # Run Start.bat
 Write-Host "Starting site via Start.bat..."
