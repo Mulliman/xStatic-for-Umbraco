@@ -12,7 +12,7 @@ test('Clean generated site folder and delete site', async ({ page }) => {
     await sitePage.goto();
 
     // Check if site exists
-    const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+    const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
     if (await siteElement.isVisible()) {
         await siteElement.getByRole('button', { name: 'Clean' }).click();
         await page.getByRole('button', { name: 'Clean up' }).click();
@@ -22,7 +22,7 @@ test('Clean generated site folder and delete site', async ({ page }) => {
         await expect(siteElement).not.toBeVisible();
     } else {
         // Check for non-edited version
-        const siteElementOld = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteName });
+        const siteElementOld = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteName }).first();
         if (await siteElementOld.isVisible()) {
              await siteElementOld.getByRole('button', { name: 'Delete' }).click();
              await page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();

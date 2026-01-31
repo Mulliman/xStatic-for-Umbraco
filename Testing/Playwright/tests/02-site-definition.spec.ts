@@ -12,7 +12,8 @@ test('Create and edit a site definition', async ({ page }) => {
     await sitePage.create(
         TestData.SiteName,
         'Home', // Assuming 'Home' node exists in the test content
-        TestData.ExportTypeNameEdited
+        TestData.ExportTypeNameEdited,
+        TestData.DeploymentTargetNameEdited
     );
 
     // Assert

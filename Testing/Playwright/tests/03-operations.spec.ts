@@ -9,7 +9,7 @@ test.describe('Site Operations', () => {
     });
 
     test('Run a generate', async ({ page }) => {
-        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
         
         // Check if the site is visible, otherwise try the unedited name just in case of prev failure
         // But for this test we assume happy path from 02
@@ -17,7 +17,7 @@ test.describe('Site Operations', () => {
 
         await siteElement.getByRole('button', { name: 'Generate' }).click();
 
-        await expect(page.getByRole('table')).toContainText('Last generated on');
+        await expect(siteElement.getByRole('table')).toContainText('Last generated on');
         // Wait for buttons to appear/update
         await expect(siteElement.getByRole('button', { name: 'Clean' })).toBeVisible({ timeout: 60000 });
         await expect(siteElement.getByRole('button', { name: 'Download' })).toBeVisible();
@@ -25,16 +25,16 @@ test.describe('Site Operations', () => {
     });
 
     test('Run a deploy', async ({ page }) => {
-        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
         
         await siteElement.getByRole('button', { name: 'Deploy' }).click();
         await page.locator('#confirm').getByRole('button', { name: 'Deploy' }).click();
         
-        await expect(page.getByRole('table')).toContainText('Last deployed on');
+        await expect(siteElement.getByRole('table')).toContainText('Last deployed on');
     });
 
     test('Run a download', async ({ page }) => {
-        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited });
+        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
         
         const downloadPromise = page.waitForEvent('download');
         await siteElement.getByRole('button', { name: 'Download' }).click();

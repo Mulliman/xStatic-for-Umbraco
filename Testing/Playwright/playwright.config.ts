@@ -13,7 +13,9 @@ import { v4 as uuidv4 } from 'uuid';
 const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 // Generate a unique ID for this test run
-process.env.TEST_RUN_ID = uuidv4().substring(0, 8);
+if (!process.env.TEST_RUN_ID) {
+  process.env.TEST_RUN_ID = uuidv4().substring(0, 8);
+}
 console.log(`TEST_RUN_ID: ${process.env.TEST_RUN_ID}`);
 
 /**
