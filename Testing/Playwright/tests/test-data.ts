@@ -6,7 +6,7 @@ export class TestData {
     }
 
     static get ExportTypeNameEdited() {
-        return `Test Export Type Edited ${this.RUN_ID}`;
+        return `Edited Export Type ${this.RUN_ID}`;
     }
 
     static get ActionName() {
@@ -14,7 +14,7 @@ export class TestData {
     }
 
     static get ActionNameEdited() {
-        return `Test Action Edited ${this.RUN_ID}`;
+        return `Edited Action ${this.RUN_ID}`;
     }
 
     static get DeploymentTargetName() {
@@ -22,7 +22,7 @@ export class TestData {
     }
 
     static get DeploymentTargetNameEdited() {
-        return `Test Deployment Target Edited ${this.RUN_ID}`;
+        return `Edited Deployment Target ${this.RUN_ID}`;
     }
 
     static get SiteName() {
@@ -30,6 +30,6 @@ export class TestData {
     }
 
     static get SiteNameEdited() {
-        return `Test Site Edited ${this.RUN_ID}`;
+        return `Edited Test Site ${this.RUN_ID}`;
     }
 }

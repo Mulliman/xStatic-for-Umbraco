@@ -11,14 +11,22 @@ test.describe('Cleanup Operations', () => {
         const sitePage = new SitePage(page);
         await sitePage.goto();
 
+        await sitePage.verifyExists(TestData.SiteNameEdited);
+
         // Check if site exists (Edited Name)
         const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
         if (await siteElement.isVisible()) {
             await siteElement.getByRole('button', { name: 'Clean' }).click();
             await page.getByRole('button', { name: 'Clean up' }).click();
             // Wait for modal to close if needed, but delete() is next
+            await page.waitForTimeout(1000); 
         }
+
         await sitePage.delete(TestData.SiteNameEdited);
+        
+        await page.waitForTimeout(1000); 
+
+        await sitePage.verifyNotExists(TestData.SiteNameEdited);
 
         // Check for non-edited version just in case
         const siteElementOld = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteName }).first();

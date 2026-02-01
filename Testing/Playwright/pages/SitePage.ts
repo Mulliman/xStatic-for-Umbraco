@@ -123,6 +123,11 @@ export class SitePage extends BasePage {
         }
     }
 
+    async verifyNotExists(name: string) {
+        const siteElement = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        await expect(siteElement).not.toBeVisible();
+    }
+
     async delete(name?: string) {
          if (name) {
              const row = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
