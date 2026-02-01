@@ -43,7 +43,7 @@ Detailed documentation for xStatic can be found in the `/Docs` folder of this re
 
 ## 🤝 Contributing
 
-Contributions are welcome and multiple people have had their improvements and fixes merged in. Create issues in github for what you want to do and I will respond.
+Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for instructions on setting up test instances and running automated tests.
 
 For AI contributions and development context, see our [Agents.md](Agents.md) file.
 
