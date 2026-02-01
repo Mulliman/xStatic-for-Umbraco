@@ -124,12 +124,31 @@ export class SitePage extends BasePage {
     }
 
     async delete(name?: string) {
-         const parent = name 
-            ? this.page.locator('xstatic-site-element').filter({ hasText: name }).first() 
-            : this.page;
+         if (name) {
+             const row = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+             
+             if (await row.isVisible()) {
+                 const responsePromise = this.page.waitForResponse(response => 
+                    response.url().includes('xstatic') && response.status() === 200
+                 );
 
-         await parent.getByRole('button', { name: 'Delete' }).click();
-         await this.page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
+                 await row.getByRole('button', { name: 'Delete' }).click();
+                 await this.page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
+                 
+                 await responsePromise;
+                 
+                 // Initial check
+                 await expect(row).not.toBeVisible();
+
+                 // Robust check: Reload to ensure it wasn't just a UI optimistic update
+                 await this.page.reload();
+                 await expect(row).not.toBeVisible();
+             }
+         } else {
+             // Fallback for global delete button if no name specified
+             await this.page.getByRole('button', { name: 'Delete' }).click();
+             await this.page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
+         }
     }
 
     async generate(name: string) {

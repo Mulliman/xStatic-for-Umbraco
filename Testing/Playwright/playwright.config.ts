@@ -47,21 +47,24 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: /auth\.setup\.ts/,
-      teardown: 'cleanup',
+      testMatch: /00-auth\.setup\.ts/,
     },
     {
       name: 'cleanup',
       testMatch: /04-cleanup\.spec\.ts/,
       use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
         storageState: STORAGE_STATE,
       },
+      dependencies: ['chromium-ops'],
     },
     {
       name: 'chromium-config',
       testMatch: /01-configuration\.spec\.ts/,
       use: { 
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
         storageState: STORAGE_STATE,
       },
       dependencies: ['setup'],
@@ -71,6 +74,7 @@ export default defineConfig({
       testMatch: /02-site-definition\.spec\.ts/,
       use: { 
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
         storageState: STORAGE_STATE,
       },
       dependencies: ['chromium-config'],
@@ -80,6 +84,7 @@ export default defineConfig({
       testMatch: /03-operations\.spec\.ts/,
       use: { 
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
         storageState: STORAGE_STATE,
       },
       dependencies: ['chromium-site'],
