@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,6 +12,7 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using XStatic.Core.App;
+using XStatic.Utilities;
 
 namespace XStatic.Security
 {
@@ -65,40 +68,52 @@ namespace XStatic.Security
 
         private async Task CreateUserGroupIfNotExisting(string alias, IUser adminUser)
         {
-            var userGroup = await _userGroupService.GetAsync(alias);
-
-            if (userGroup != null)
+            await DatabaseRetryHelper.ExecuteWithRetryAsync(async () =>
             {
-                _logger.LogInformation("xStatic - User group {alias} already exists, skipping creation. If you are having issues, try deleting the group and restarting the web app.", alias);
-                return;
-            }
+                var userGroup = await _userGroupService.GetAsync(alias);
 
-            UserGroup newUserGroup = CreateUserGroupModel(alias);
-
-            var attempt = await _userGroupService.CreateAsync(newUserGroup, adminUser.Key);
-
-            if (attempt.Success)
-            {
-                _logger.LogInformation("xStatic - Created user group {alias}.", alias);
-
-                var group = attempt.Result;
-                group.AddAllowedSection("xStatic.Section");
-
-                var updateAttempt = await _userGroupService.UpdateAsync(group, adminUser.Key);
-
-                if (updateAttempt.Success)
+                if (userGroup == null)
                 {
-                    await AddUserToCreatedGroup(alias, adminUser, group);
+                    UserGroup newUserGroup = CreateUserGroupModel(alias);
+                    var attempt = await _userGroupService.CreateAsync(newUserGroup, adminUser.Key);
+
+                    if (attempt.Success)
+                    {
+                        _logger.LogInformation("xStatic - Created user group {alias}.", alias);
+                        userGroup = attempt.Result;
+                    }
+                    else
+                    {
+                        _logger.LogError(attempt.Exception, "xStatic - Failed to create user group {alias}.", alias);
+                        // If creation failed, we can't proceed. Throwing might trigger retry, or we just fail.
+                        // Assuming transient failure would be caught by global try/catch if exception thrown,
+                        // but CreateAsync uses OperationResult.
+                        // If we want to retry on failure, we probably need to throw only if it's a lock.
+                        return;
+                    }
                 }
                 else
                 {
-                    _logger.LogError(updateAttempt.Exception, "xStatic - Failed to update user group {alias}.", alias);
+                    _logger.LogInformation("xStatic - User group {alias} exists.", alias);
                 }
-            }
-            else
-            {
-                _logger.LogError(attempt.Exception, "xStatic - Failed to create user group {alias}.", alias);
-            }
+
+                // Ensure xStatic section permission
+                if (!userGroup.AllowedSections.Contains("xStatic.Section"))
+                {
+                    userGroup.AddAllowedSection("xStatic.Section");
+                    var updateAttempt = await _userGroupService.UpdateAsync(userGroup, adminUser.Key);
+                    
+                    if (!updateAttempt.Success)
+                    {
+                        _logger.LogError(updateAttempt.Exception, "xStatic - Failed to update user group {alias} with section.", alias);
+                        return;
+                    }
+                }
+
+                // Ensure User is in group
+                await AddUserToCreatedGroup(alias, adminUser, userGroup);
+
+            }, _logger, $"Create/Update User Group {alias}");
         }
 
         private UserGroup CreateUserGroupModel(string alias)

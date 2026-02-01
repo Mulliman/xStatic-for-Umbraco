@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+      <TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
 		<Product>xStatic.RemoteOperations</Product>
 		<PackageId>xStatic.RemoteOperations</PackageId>
 		<Title>xStatic.RemoteOperations</Title>
-		<Version>15.0.0-beta</Version>
+      <Version>17.0.0-beta</Version>
 		<Description>Remotely call xStatic APIs using Umbraco API accounts.</Description>
-		<PackageTags>umbraco umbraco15 xstatic static site generation</PackageTags>
+      <PackageTags>umbraco umbraco17 xstatic static site generation</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>

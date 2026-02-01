@@ -4,7 +4,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import { ExportTypeModel, ExportTypeUpdateModel, XStaticConfig } from "../../api";
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
+// import { PropertyEditorSettingsProperty } from "@umbraco-cms/backoffice/extension-registry";
 import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from "./context.export-type";
 
 import "../../elements/element.validation-error";
@@ -180,7 +180,7 @@ export class EditExportTypeModalElement extends
         return this.errors.size === 0;
     }
 
-    getBaseProperties(): PropertyEditorSettingsProperty[] {
+    getBaseProperties(): any[] {
 
         return [
             {

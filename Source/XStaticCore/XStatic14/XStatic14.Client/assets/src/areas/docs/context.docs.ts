@@ -2,7 +2,7 @@
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
-import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
+import { tryExecute } from '@umbraco-cms/backoffice/resources'
 
 import { DocModel } from './element.doc';
 
@@ -31,7 +31,7 @@ export class DocsContext extends UmbControllerBase {
     }
 
     async #getDocs() {
-        const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/help.json')).json());
+        const data = await tryExecute(this, (await fetch('https://xstaticplugins.netlify.app/help.json')).json());
 
         if(data){
             const arr = data as Array<any>;
@@ -55,7 +55,7 @@ export class DocsContext extends UmbControllerBase {
     }
 
     async #getPlugins() {
-        const { data } = await tryExecuteAndNotify(this, (await fetch('https://xstaticplugins.netlify.app/plugins.json')).json());
+        const data = await tryExecute(this, (await fetch('https://xstaticplugins.netlify.app/plugins.json')).json());
 
         if(data){
             const arr = data as Array<any>;

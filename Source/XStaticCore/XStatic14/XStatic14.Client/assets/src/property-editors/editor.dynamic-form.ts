@@ -1,9 +1,9 @@
 import { css, customElement, html, property, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
-import { UmbPropertyValueChangeEvent } from '@umbraco-cms/backoffice/property-editor';
-import type { UmbPropertyEditorConfigCollection } from '@umbraco-cms/backoffice/property-editor';
-import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
+import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
+// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 type DynamicFormField = { 
     name?: string | null | undefined,
@@ -58,7 +58,7 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
             let array = this.mapFromPropertyValueData(value);
             this.value = array;
 
-            this.dispatchEvent(new UmbPropertyValueChangeEvent());
+            this.dispatchEvent(new UmbChangeEvent());
         }
 
         abstract mapToPropertyValueData(value: TFieldType[]): UmbPropertyValueData[];

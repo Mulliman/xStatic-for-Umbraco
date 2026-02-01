@@ -1,11 +1,12 @@
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
+// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import {
-	UmbPropertyValueChangeEvent,
+	UmbPropertyEditorUiElement
 } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 @customElement('xstatic-property-editor-netlify-subdomain')
 export class XStaticPropertyEditorNetlifySubdomainElement
@@ -23,7 +24,7 @@ export class XStaticPropertyEditorNetlifySubdomainElement
 		const newValue = (e.target as HTMLInputElement).value;
 		if (newValue === this.value) return;
 		this.value = newValue;
-		this.dispatchEvent(new UmbPropertyValueChangeEvent());
+		this.dispatchEvent(new UmbChangeEvent());
 	}
 
 	override render() {

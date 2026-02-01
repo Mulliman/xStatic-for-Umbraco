@@ -19,7 +19,10 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "@umbraco-cms/backoffice/extension-types"
+    ]
   },
   "include": ["src"]
 }

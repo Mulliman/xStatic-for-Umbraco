@@ -1,4 +1,6 @@
-import type { ManifestPropertyEditorSchema, ManifestTypes } from '@umbraco-cms/backoffice/extension-registry';
+// import type { ManifestPropertyEditorSchema, ManifestTypes } from '@umbraco-cms/backoffice/extension-registry';
+
+import { ManifestPropertyEditorSchema } from '@umbraco-cms/backoffice/property-editor';
 
 export const dynamicFormSchema : ManifestPropertyEditorSchema = {
   type: 'propertyEditorSchema',
@@ -54,7 +56,7 @@ export const dynamicConfigurableFormSchema : ManifestPropertyEditorSchema = {
     }
   };
 
-export const manifests: Array<ManifestTypes> = [
+export const manifests: Array<UmbExtensionManifest> = [
     {
 		type: 'propertyEditorUi',
 		alias: 'xstatic.propertyEditorUi.password',

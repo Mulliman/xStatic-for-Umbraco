@@ -41,13 +41,13 @@ class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
 
     #openCreateDialog() {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, EditDeploymentTargetModal, {});
+            manager?.open(this, EditDeploymentTargetModal, {});
         } )
     }
 
     #openAutoCreateDialog() {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager.open(this, DeploymentTargetCreatorModal, {});
+            manager?.open(this, DeploymentTargetCreatorModal, {});
         } )
     }
 

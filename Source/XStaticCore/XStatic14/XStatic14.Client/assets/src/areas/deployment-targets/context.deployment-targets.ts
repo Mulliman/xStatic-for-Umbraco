@@ -1,7 +1,7 @@
 ﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
-import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources'
+import { tryExecute } from '@umbraco-cms/backoffice/resources'
 import { DeploymentTargetCreatorModel, DeploymentTargetCreatorPostModel, DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../config-context-base";
@@ -21,7 +21,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public get deploymentTargets() : Observable<DeploymentTargetModel[]> { return this.#initDeploymentTargets(); }
 
     public async autoCreateDeploymentTarget(action: DeploymentTargetCreatorPostModel) : Promise<DeploymentTargetModel | null> {
-        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }));
+        const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }));
 
         window.dispatchEvent(new xStaticEvent());
 
@@ -35,7 +35,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
-        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
+        const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
 
         window.dispatchEvent(new xStaticEvent());
 
@@ -49,7 +49,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     public async updateDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
-        const { data } = await tryExecuteAndNotify(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
+        const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
 
         window.dispatchEvent(new xStaticEvent());
 
@@ -70,7 +70,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
             confirmLabel: 'Delete',
         });
 
-        await tryExecuteAndNotify(this, V1Service.deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget({ id : id } ));
+        await tryExecute(this, V1Service.deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget({ id : id } ));
         await this.#getDeploymentTargets();
         window.dispatchEvent(new xStaticEvent());
     }
@@ -84,7 +84,7 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     async #getDeploymentTargets() {
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticDeploymentTargetsGetDeploymentTargets());
+        const data = await tryExecute(this, V1Service.getApiV1XstaticDeploymentTargetsGetDeploymentTargets());
 
         if(data){
             this.#deploymentTargets.setValue(data);

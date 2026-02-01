@@ -3,7 +3,7 @@ import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import ConfigContextBase from "../../config-context-base";
 import { Observable, UmbBooleanState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { V1Service, XStaticSettings } from "../../api";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 
 export class ConfigContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
@@ -29,7 +29,7 @@ export class ConfigContext extends ConfigContextBase {
     }
     
     async getSettings() {
-        const { data } = await tryExecuteAndNotify(this, V1Service.getApiV1XstaticConfigGetSettings());
+        const data = await tryExecute(this, V1Service.getApiV1XstaticConfigGetSettings());
 
         if(data){
             this.#settings.setValue(data);

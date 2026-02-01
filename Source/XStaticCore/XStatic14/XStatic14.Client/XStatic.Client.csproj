@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
@@ -8,9 +8,9 @@
 	<Product>xStatic.Client</Product>
 	<PackageId>xStatic.Client</PackageId>
 	<Title>xStatic.Client</Title>
-	<Version>15.0.0-beta</Version>
+	<Version>17.0.0-beta</Version>
 	<Description>Headless backend client for the xStatic Package.</Description>
-	<PackageTags>umbraco umbraco15 xstatic static site generation umbraco-marketplace</PackageTags>
+	<PackageTags>umbraco umbraco17 xstatic static site generation umbraco-marketplace</PackageTags>
 	<Copyright>Sam Mullins</Copyright>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>

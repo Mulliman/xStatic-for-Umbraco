@@ -15,7 +15,7 @@ export default class XStaticAdminUserCondition extends UmbControllerBase impleme
 	isInValidRole = false;
 	permitted = false;
 	config: UmbConditionConfigBase<string> = { alias: 'Umb.Condition.XStaticAdminUser' };
-	#onChange: () => void;
+	#onChange: (permitted: boolean) => void;
 
 	constructor(host: UmbControllerHost, args: UmbConditionControllerArguments<UmbSectionUserPermissionConditionConfig>) {
 		super(host);
@@ -27,20 +27,20 @@ export default class XStaticAdminUserCondition extends UmbControllerBase impleme
 	async #init() {
 
 		this.consumeContext(CONFIG_CONTEXT_TOKEN, (context) => {
-			this.observe(context.settings, (settings) => {
-				this.isUsingXStaticRoles = settings.isUsingXStaticRoles;
+			this.observe(context?.settings, (settings) => {
+				this.isUsingXStaticRoles = settings?.isUsingXStaticRoles ?? false;
 				this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
-				this.#onChange();
+				this.#onChange(this.permitted);
 			});
 		});
 
 		this.consumeContext(UMB_CURRENT_USER_CONTEXT, (context) => {
 			this.observe(
-				context.currentUser,
+				context?.currentUser,
 				(currentUser) => {
 					this.isInValidRole = !!currentUser && (currentUser.fallbackPermissions.some(p => p === Roles.Admin));
 					this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
-					this.#onChange();
+					this.#onChange(this.permitted);
 				},
 			);
 		});

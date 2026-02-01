@@ -139,27 +139,52 @@ namespace XStatic.Core.Generator.Processes
             {
                 var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim());
                 var rootPath = _webHostEnvironment.WebRootPath;
+                var contentPath = _webHostEnvironment.ContentRootPath;
 
                 foreach (var path in splitPaths)
                 {
-                    var absolutePath = FileHelpers.PathCombine(rootPath, path);
+                    var absolutePathWww = FileHelpers.PathCombine(rootPath, path);
+                    var absolutePathContent = FileHelpers.PathCombine(contentPath, path);
 
                     if (path.Contains("?") || path.Contains("*"))
                     {
                         var trimmedPath = path.TrimStart(new[] { '\\', '/' });
 
-                        var directory = new DirectoryInfo(rootPath);
-                        var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
+                        //Test for Path existence
+                        var directoryPart = Path.GetDirectoryName(trimmedPath);
+                        var testPath = FileHelpers.PathCombine(rootPath, directoryPart ?? string.Empty);
 
-                        builder.AddAssetFiles(files.Select(f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
+                        if (Directory.Exists(testPath))
+                        {
+                            var directory = new DirectoryInfo(rootPath);
+                            var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
+
+                            builder.AddAssetFiles(files.ToDictionary(f => f.FullName, f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
+                        }
+                        else
+                        {
+                            //Try using ContentRootPath
+                            var directory = new DirectoryInfo(contentPath);
+                            var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
+
+                            builder.AddAssetFiles(files.ToDictionary(f => f.FullName, f => "/" + FileHelpers.GetRelativePath(contentPath, f.FullName)));
+                        }
                     }
-                    else if (Directory.Exists(absolutePath))
+                    else if (Directory.Exists(absolutePathWww))
                     {
-                        builder.AddAssetFolder(path);
+                        builder.AddAssetFolder(absolutePathWww, path);
                     }
-                    else if (System.IO.File.Exists(absolutePath))
+                    else if (Directory.Exists(absolutePathContent))
                     {
-                        builder.AddAssetFile(path);
+                        builder.AddAssetFolder(absolutePathContent, path);
+                    }
+                    else if (System.IO.File.Exists(absolutePathWww))
+                    {
+                        builder.AddAssetFile(absolutePathWww, path);
+                    }
+                    else if (System.IO.File.Exists(absolutePathContent))
+                    {
+                        builder.AddAssetFile(absolutePathContent, path);
                     }
                     else
                     {
