@@ -7,6 +7,16 @@ import { TestData } from './test-data';
 
 test.describe.configure({ mode: 'serial' });
 
+test.beforeEach(async ({ page }) => {
+    // Fail fast if we've lost authentication
+    // We navigate to the root backoffice to check if we get redirected to login
+    await page.goto('/umbraco');
+    
+    if (page.url().toLowerCase().includes('/login')) {
+        throw new Error('Authentication lost: Test runner was logged out. Likely due to "AllowConcurrentLogins" being false in appsettings.json and another session being opened.');
+    }
+});
+
 test('Clean generated site folder and delete site', async ({ page }) => {
     const sitePage = new SitePage(page);
     await sitePage.goto();

@@ -36,6 +36,17 @@ dotnet sln add $InstanceName
 Write-Host "Adding clean starter kit..."
 dotnet add $InstanceName package clean
 
+Write-Host "Enabling AllowConcurrentLogins..."
+$appSettingsPath = Join-Path $InstanceDir "appsettings.Development.json"
+if (Test-Path $appSettingsPath) {
+    $json = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
+    if (-not $json.Umbraco) { $json | Add-Member -NotePropertyName "Umbraco" -NotePropertyValue @{} }
+    if (-not $json.Umbraco.CMS) { $json.Umbraco | Add-Member -NotePropertyName "CMS" -NotePropertyValue @{} }
+    if (-not $json.Umbraco.CMS.Security) { $json.Umbraco.CMS | Add-Member -NotePropertyName "Security" -NotePropertyValue @{} }
+    $json.Umbraco.CMS.Security | Add-Member -NotePropertyName "AllowConcurrentLogins" -NotePropertyValue $true -Force
+    $json | ConvertTo-Json -Depth 10 | Set-Content $appSettingsPath
+}
+
 # Create Start.bat
 $startBatContent = "dotnet run --project ""$InstanceName"" --urls ""https://localhost:$Port"""
 Set-Content -Path "Start.bat" -Value $startBatContent

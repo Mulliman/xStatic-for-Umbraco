@@ -1,6 +1,6 @@
 param (
     [string]$UmbracoVersion = "17.1.0",
-    [string]$XStaticVersion = "17.0.0-beta5",
+    [string]$XStaticVersion = "17.0.0-beta6",
     [string]$InstanceName,
     [int]$Port = 5000,
     [string]$BaseDir = "..\Instances",
@@ -62,22 +62,28 @@ Set-Location $InstanceDir
 if (-not [string]::IsNullOrEmpty($XStaticVersion)) {
     Write-Host "Adding xStatic version $XStaticVersion..."
     dotnet add $InstanceName package xStatic --version $XStaticVersion
+    if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic package"; exit $LASTEXITCODE }
 
     if ($IncludeAllExtensions) {
         Write-Host "Adding xStatic.Netlify version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.Netlify --version $XStaticVersion
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.Netlify"; exit $LASTEXITCODE }
 
         Write-Host "Adding xStatic.Git version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.Git --version $XStaticVersion
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.Git"; exit $LASTEXITCODE }
 
         Write-Host "Adding xStatic.Ftp version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.Ftp --version $XStaticVersion
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.Ftp"; exit $LASTEXITCODE }
 
         Write-Host "Adding xStatic.RemoteOperations version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.RemoteOperations --version $XStaticVersion
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.RemoteOperations"; exit $LASTEXITCODE }
 
         Write-Host "Adding xStatic.UmbracoContentApi version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.UmbracoContentApi --version $XStaticVersion
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.UmbracoContentApi"; exit $LASTEXITCODE }
     }
 }
 else {

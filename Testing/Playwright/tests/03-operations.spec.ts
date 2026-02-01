@@ -17,7 +17,20 @@ test.describe('Site Operations', () => {
 
         await siteElement.getByRole('button', { name: 'Generate' }).click();
 
+        // Check for loading state
+        await expect(siteElement.locator('xstatic-loader')).toBeVisible();
+        await expect(siteElement).toContainText('Generating...');
+
+        // Wait for loading to finish and table to be visible again
+        await expect(siteElement.getByRole('table')).toBeVisible({ timeout: 30000 });
+
         await expect(siteElement.getByRole('table')).toContainText('Last generated on');
+        
+        // Verify date is recent (today). Using regex to avoid locale format mismatches (e.g. 01/02 vs 2/1)
+        const currentYear = new Date().getFullYear().toString();
+        const dateRegex = new RegExp(`Last generated on \\d{1,2}/\\d{1,2}/${currentYear}`);
+        await expect(siteElement.getByRole('table')).toContainText(dateRegex);
+
         // Wait for buttons to appear/update
         await expect(siteElement.getByRole('button', { name: 'Clean' })).toBeVisible({ timeout: 60000 });
         await expect(siteElement.getByRole('button', { name: 'Download' })).toBeVisible();
