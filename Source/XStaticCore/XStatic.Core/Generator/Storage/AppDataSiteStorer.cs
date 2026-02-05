@@ -24,25 +24,22 @@ namespace XStatic.Core.Generator.Storage
             if(!Directory.Exists(_xStaticPublishRoot)) Directory.CreateDirectory(_xStaticPublishRoot);
         }
 
-        public Task<string> StoreSiteItem(string subFolder, string path, string contents, System.Text.Encoding encoding)
+        public async Task<string> StoreSiteItem(string subFolder, string path, string contents, System.Text.Encoding encoding)
         {
-            return TaskHelper.FromResultOf(() =>
-            {
-                string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, subFolder + "/" + path);
-                var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
+            string storagePath = FileHelpers.PathCombine(_xStaticPublishRoot, subFolder + "/" + path);
+            var filePath = Path.Combine(_xStaticPublishRoot, storagePath);
 
-                _logger.LogInformation("[StoreSiteItem] storagePath = {storagePath} | filePath = {filePath}", storagePath, filePath);
+            _logger.LogInformation("[StoreSiteItem] storagePath = {storagePath} | filePath = {filePath}", storagePath, filePath);
 
-                var fi = new FileInfo(filePath);
-                if (fi.Exists) fi.Delete();
-                if (!fi.Directory.Exists) fi.Directory.Create();
+            var fi = new FileInfo(filePath);
+            if (fi.Exists) fi.Delete();
+            if (!fi.Directory.Exists) fi.Directory.Create();
 
-                File.WriteAllText(storagePath, contents, encoding);
+            await File.WriteAllTextAsync(storagePath, contents, encoding);
 
-                _logger.LogInformation("[StoreSiteItem] File.WriteAllText is successful!");
+            _logger.LogInformation("[StoreSiteItem] File.WriteAllText is successful!");
 
-                return filePath;
-            });
+            return filePath;
         }
 
         public Task<string> CopyFile(string subFolder, string sourcePath, string partialDestinationPath)
@@ -81,20 +78,20 @@ namespace XStatic.Core.Generator.Storage
             });
         }
 
-        public Task<string> SaveFile(string subFolder, Stream stream, string partialDestinationPath)
+        public async Task<string> SaveFile(string subFolder, Stream stream, string partialDestinationPath)
         {
-            return TaskHelper.FromResultOf(() =>
-            {
-                var filePath = GetFileDestinationPath(subFolder, partialDestinationPath);
+            var filePath = GetFileDestinationPath(subFolder, partialDestinationPath);
 
-                using (var fileStream = File.Create(filePath))
+            using (var fileStream = File.Create(filePath))
+            {
+                if (stream.CanSeek)
                 {
                     stream.Seek(0, SeekOrigin.Begin);
-                    stream.CopyTo(fileStream);
                 }
+                await stream.CopyToAsync(fileStream);
+            }
 
-                return filePath;
-            });
+            return filePath;
         }
 
         public string GetFileDestinationPath(string subFolder, string partialDestinationPath)
