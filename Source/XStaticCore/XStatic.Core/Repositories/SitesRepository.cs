@@ -55,7 +55,7 @@ namespace XStatic.Core.Repositories
         {
             using IScope scope = _scopeProvider.CreateScope();
 
-            var query = new Sql().Select("*").From(SitesTableName).Where("Id = " + staticSiteId);
+            var query = new Sql().Select("*").From(SitesTableName).Where("Id = @0", staticSiteId);
 
             var sites = scope.Database.Fetch<T>(query);
 
@@ -154,7 +154,7 @@ namespace XStatic.Core.Repositories
 
             try
             {
-                var query = new Sql().Select("*").From(SitesTableName).Where("Id = " + staticSiteId);
+                var query = new Sql().Select("*").From(SitesTableName).Where("Id = @0", staticSiteId);
 
                 var entity = scope.Database.Fetch<SiteConfig>(query).FirstOrDefault();
 
@@ -184,7 +184,7 @@ namespace XStatic.Core.Repositories
 
             try
             {
-                var query = new Sql().Select("*").From(SitesTableName).Where("Id = " + staticSiteId);
+                var query = new Sql().Select("*").From(SitesTableName).Where("Id = @0", staticSiteId);
 
                 var entity = scope.Database.Fetch<SiteConfig>(query).FirstOrDefault();
 
