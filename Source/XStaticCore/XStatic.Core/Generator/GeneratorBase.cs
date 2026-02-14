@@ -286,8 +286,11 @@ namespace XStatic.Core.Generator
             {
                 if (absoluteUrl == null || absoluteUrl == "#") return null;
 
-                byte[] fileBytes = await HttpClient.GetByteArrayAsync(absoluteUrl);
-                File.WriteAllBytes(filePath, fileBytes);
+                using (var stream = await HttpClient.GetStreamAsync(absoluteUrl))
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
 
                 return filePath;
             }
