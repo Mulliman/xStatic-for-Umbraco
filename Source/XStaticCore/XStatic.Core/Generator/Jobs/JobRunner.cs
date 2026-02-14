@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Concurrent;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,21 +19,26 @@ namespace XStatic.Core.Generator.Jobs
         public async Task<IEnumerable<GenerateItemResult>> RunJob(Job job)
         {
             var returnList = new List<GenerateItemResult>();
+            var pageResults = new ConcurrentBag<GenerateItemResult>();
 
-            foreach (var id in job.PageIds)
+            var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount * 2 };
+
+            await Parallel.ForEachAsync(job.PageIds, options, async (id, token) =>
             {
                 if (job.Cultures?.Any() == true)
                 {
                     foreach (var culture in job.Cultures)
                     {
-                        returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers, culture));
+                        pageResults.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers, culture));
                     }
                 }
                 else
                 {
-                    returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
+                    pageResults.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
                 }
-            }
+            });
+
+            returnList.AddRange(pageResults);
 
             foreach (var id in job.MediaIds)
             {
