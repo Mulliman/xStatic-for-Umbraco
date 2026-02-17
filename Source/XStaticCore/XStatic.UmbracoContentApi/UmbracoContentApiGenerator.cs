@@ -53,7 +53,7 @@ namespace XStatic.UmbracoContentApi
 
                 var fileData = JsonConvert.SerializeObject(model);
 
-                var transformedData = RunTransformers(fileData, transformers);
+                var transformedData = await RunTransformersAsync(fileData, transformers);
 
                 var filePath = fileNamer.GetFilePartialPath(url);
 
