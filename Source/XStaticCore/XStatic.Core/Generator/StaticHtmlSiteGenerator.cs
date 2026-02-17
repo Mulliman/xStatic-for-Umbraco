@@ -50,7 +50,7 @@ namespace XStatic.Core.Generator
                 var fileData = await GetFileDataFromWebClient(absoluteUrl);
                 Logger.LogInformation($"Downloaded page {url} from {absoluteUrl} with {fileData?.Length} chars of data");
 
-                var transformedData = RunTransformers(fileData, transformers);
+                var transformedData = await RunTransformersAsync(fileData, transformers);
                 Logger.LogInformation($"Transformed page {url} with {transformedData?.Length} chars of data");
 
                 var filePath = fileNamer.GetFilePartialPath(url);

@@ -1,17 +1,18 @@
-﻿using Umbraco.Cms.Core.Web;
+using System.Threading.Tasks;
+using Umbraco.Cms.Core.Web;
 
 namespace XStatic.Core.Generator.Transformers
 {
     public class CachedTimeTransformer : ITransformer
     {
-        public string Transform(string input, IUmbracoContext context)
+        public Task<string> Transform(string input, IUmbracoContext context)
         {
             if (string.IsNullOrEmpty(input))
             {
-                return input;
+                return Task.FromResult(input);
             }
 
-            return input.Replace("</body>", string.Format("<!-- Cached by xStatic at {0} --></body>", System.DateTime.Now));
+            return Task.FromResult(input.Replace("</body>", string.Format("<!-- Cached by xStatic at {0} --></body>", System.DateTime.Now)));
         }
     }
 }

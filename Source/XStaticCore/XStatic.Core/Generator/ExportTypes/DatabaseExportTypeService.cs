@@ -28,7 +28,8 @@ namespace XStatic.Core.Generator.ExportTypes
 
             if (exportType?.TransformerFactory == null)
             {
-                return new DefaultHtmlTransformerListFactory();
+                return _currentServiceProvider.GetService<DefaultHtmlTransformerListFactory>()
+                       ?? new DefaultHtmlTransformerListFactory();
             }
 
             var typeName = exportType.TransformerFactory;
