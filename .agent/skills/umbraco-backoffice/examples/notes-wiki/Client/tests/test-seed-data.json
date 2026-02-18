@@ -1,0 +1,51 @@
+{
+  "Notes": [
+    {
+      "Unique": "11111111-1111-1111-1111-111111111111",
+      "ParentUnique": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "Title": "Welcome to Notes Wiki",
+      "Content": "This is your internal wiki for documentation and notes.\n\nUse folders to organize your content and tags to categorize notes.",
+      "Tags": ["welcome", "getting-started"],
+      "CreatedDate": "2024-01-15T10:00:00Z",
+      "ModifiedDate": "2024-01-15T10:00:00Z",
+      "CreatedBy": "System",
+      "ModifiedBy": "System"
+    },
+    {
+      "Unique": "22222222-2222-2222-2222-222222222222",
+      "ParentUnique": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "Title": "How to Create Notes",
+      "Content": "1. Click the + button in the tree\n2. Select 'Create Note'\n3. Enter a title and content\n4. Add tags for organization\n5. Click Save",
+      "Tags": ["tutorial", "getting-started"],
+      "CreatedDate": "2024-01-15T11:00:00Z",
+      "ModifiedDate": "2024-01-15T11:00:00Z",
+      "CreatedBy": "System",
+      "ModifiedBy": "System"
+    },
+    {
+      "Unique": "33333333-3333-3333-3333-333333333333",
+      "ParentUnique": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "Title": "Sample Project Note",
+      "Content": "This is a sample note in the Project Notes folder.\n\nReplace this with your actual project documentation.",
+      "Tags": ["sample", "project"],
+      "CreatedDate": "2024-01-15T12:00:00Z",
+      "ModifiedDate": "2024-01-15T12:00:00Z",
+      "CreatedBy": "System",
+      "ModifiedBy": "System"
+    }
+  ],
+  "Folders": [
+    {
+      "Unique": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "ParentUnique": null,
+      "Name": "Getting Started",
+      "CreatedDate": "2024-01-15T09:00:00Z"
+    },
+    {
+      "Unique": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "ParentUnique": null,
+      "Name": "Project Notes",
+      "CreatedDate": "2024-01-15T09:30:00Z"
+    }
+  ]
+}

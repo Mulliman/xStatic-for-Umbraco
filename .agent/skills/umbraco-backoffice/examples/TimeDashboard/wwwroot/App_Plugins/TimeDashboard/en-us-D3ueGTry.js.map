@@ -1,0 +1,1 @@
+{"version":3,"file":"en-us-D3ueGTry.js","sources":["../../../Client/src/localization/files/en-us.ts"],"sourcesContent":["export default {\r\n    time: {\r\n        name: 'Time Dashboard',\r\n        description: 'what time the server thinks it is'\r\n    }\r\n};\r\n"],"names":["enUs"],"mappings":"AAAA,MAAAA,IAAe;AAAA,EACX,MAAM;AAAA,IACF,MAAM;AAAA,IACN,aAAa;AAAA,EAAA;AAErB;"}
