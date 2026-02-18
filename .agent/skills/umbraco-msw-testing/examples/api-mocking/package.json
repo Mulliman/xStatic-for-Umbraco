@@ -1,0 +1,33 @@
+{
+  "name": "@example/msw-api-mocking",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Example demonstrating MSW API mocking for Umbraco backoffice testing",
+  "scripts": {
+    "postinstall": "npx msw init . --save",
+    "test": "web-test-runner",
+    "test:watch": "web-test-runner --watch"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/dev-server-esbuild": "^1.0.2",
+    "@web/dev-server-import-maps": "^0.2.1",
+    "@web/test-runner": "^0.18.3",
+    "@web/test-runner-playwright": "^0.11.0",
+    "lit": "^3.2.0",
+    "msw": "^2.7.0",
+    "typescript": "^5.7.2"
+  },
+  "keywords": [
+    "umbraco",
+    "msw",
+    "testing",
+    "mock-service-worker"
+  ],
+  "msw": {
+    "workerDirectory": [
+      ""
+    ]
+  }
+}
