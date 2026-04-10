@@ -231,11 +231,11 @@ export class EditActionModalElement extends
 
     #isExistingConfigValid(existingConfig: ConfigurableTypeField[]| null | undefined, 
         selectedActionType: ConfigurableTypeModel | null | undefined) {
-        if(!existingConfig || !selectedActionType) {
+        if(!selectedActionType) {
             return false;
         }
 
-        var existingFields = existingConfig;
+        var existingFields = existingConfig ?? [];
         var selectedFields = selectedActionType.fields ?? [];
 
         if(existingFields.length !== selectedFields.length) {
