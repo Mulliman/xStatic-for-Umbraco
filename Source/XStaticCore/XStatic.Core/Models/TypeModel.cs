@@ -41,7 +41,7 @@ namespace XStatic.Core.Models
 
         public ConfigurableTypeModel(Type type, Dictionary<string, string> config) : this(type)
         {
-            if(config == null)
+            if(config == null || Fields == null)
             {
                 return;
             }
