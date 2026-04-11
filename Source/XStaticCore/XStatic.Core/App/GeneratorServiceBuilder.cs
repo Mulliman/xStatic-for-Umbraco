@@ -50,6 +50,7 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultActions()
         {
+            _services.AddTransient<AddGenerationMetadataFileAction>();
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
             _services.AddTransient<FileRenameAction>();
