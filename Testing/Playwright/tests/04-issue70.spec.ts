@@ -1,39 +1,45 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { ActionPage } from '../pages/ActionPage';
 
 test.describe('Issue 70 - Action UI parameters', () => {
-    test('Create and Edit Action with no parameters', async ({ page }) => {
+    test('Action type switching updates configuration message', async ({ page }) => {
         const actionPage = new ActionPage(page);
 
         // Arrange
         await actionPage.goto();
 
-        const actionName = 'Empty Test Action ' + Date.now();
+        // 1. Check that "No type selected" is the default
+        await page.locator('.lucide.lucide-plus').click();
+        
+        const typeSelect = page.getByLabel('Field for Action Type *');
+        // Check that the configuration message says "No type selected"
+        await expect(page.getByText('No type selected', { exact: true })).toBeVisible();
 
-        // Act
-        // Create an action using a type that has no parameters
-        await actionPage.page.locator('.lucide.lucide-plus').click();
-        await actionPage.page.getByRole('textbox', { name: 'Field for Action Name *' }).fill(actionName);
-        await actionPage.page.getByLabel('Field for Action Type *').selectOption({ label: 'EmptyTestAction' });
 
-        await actionPage.page.getByRole('button', { name: 'Submit' }).click();
+        // 2. Choose the "AddGenerationMetadataFileAction" option
+        await typeSelect.selectOption({ label: 'AddGenerationMetadataFileAction' });
 
-        // Assert
-        await actionPage.verifyExists(actionName, 'EmptyTestAction');
+        // 3. Check that it says "This action type can't be configured"
+        await expect(page.getByText("This action type can't be configured")).toBeVisible();
 
-        // Edit
-        const actionNameEdited = actionName + ' Edited';
-        const itemBox = actionPage.getItemBox(actionName);
-        await itemBox.getByRole('button', { name: 'Edit' }).click();
+        // 4. Change to "FileCopyAction".
+        await typeSelect.selectOption({ label: 'FileCopyAction' });
 
-        // Ensure that the UI recognizes the selected type correctly, meaning the modal shows 'EmptyTestAction'
-        const typeValue = await actionPage.page.getByLabel('Field for Action Type *').inputValue();
+        // 5. Check that fields now appear instead of the message.
+        await expect(page.getByText("This action type can't be configured", { exact: true })).not.toBeVisible();
+        // The subagent found 'FilePath' and 'NewFilePath' as labels.
+        // We check for one of them to confirm fields are visible.
+        // We use exact: true because FilePath is a substring of NewFilePath.
+        await expect(page.getByText('FilePath', { exact: true })).toBeVisible();
 
-        // Not using explicit ID in test, we just check if we can save it again without validation error on type
-        await actionPage.page.getByRole('textbox', { name: 'Field for Action Name *' }).fill(actionNameEdited);
-        await actionPage.page.getByRole('button', { name: 'Submit' }).click();
+        // 6. Change back to the "AddGenerationMetadataFileAction" option
+        await typeSelect.selectOption({ label: 'AddGenerationMetadataFileAction' });
 
-        // Assert
-        await actionPage.verifyExists(actionNameEdited, 'EmptyTestAction');
+        // 7. Check that it says "This action type can't be configured"
+        await expect(page.getByText("This action type can't be configured", { exact: true })).toBeVisible();
+        await expect(page.getByText('FilePath', { exact: true })).not.toBeVisible();
+
     });
 });
+
+
