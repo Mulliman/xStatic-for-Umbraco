@@ -1,6 +1,6 @@
 param (
     [string]$UmbracoVersion = "17.1.0",
-    [string]$XStaticVersion = "17.0.0-beta6",
+    [string]$XStaticVersion = "17.0.0",
     [string]$InstanceName,
     [int]$Port = 5000,
     [string]$BaseDir = "..\Instances",
@@ -14,7 +14,7 @@ if (-not $PSBoundParameters.ContainsKey('UmbracoVersion')) {
 }
 
 if (-not $PSBoundParameters.ContainsKey('XStaticVersion')) {
-    $userInput = Read-Host "xStatic Version (Leave empty to skip)"
+    $userInput = Read-Host "xStatic Version [$XStaticVersion]"
     if (-not [string]::IsNullOrWhiteSpace($userInput)) { $XStaticVersion = $userInput }
 }
 

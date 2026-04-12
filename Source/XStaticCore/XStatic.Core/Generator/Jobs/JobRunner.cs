@@ -1,8 +1,6 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Umbraco.Extensions;
 
 namespace XStatic.Core.Generator.Jobs
 {
@@ -19,33 +17,18 @@ namespace XStatic.Core.Generator.Jobs
         {
             var returnList = new List<GenerateItemResult>();
 
-            // Prepare indexed source for parallelism to preserve order
-            var indexedPages = job.PageIds.Select((id, index) => (Id: id, Index: index)).ToList();
-            var pageResults = new ConcurrentDictionary<int, List<GenerateItemResult>>();
-
-            await Parallel.ForEachAsync(indexedPages, new ParallelOptions { MaxDegreeOfParallelism = System.Environment.ProcessorCount * 2 }, async (item, token) =>
+            foreach (var id in job.PageIds)
             {
-                var localResults = new List<GenerateItemResult>();
                 if (job.Cultures?.Any() == true)
                 {
                     foreach (var culture in job.Cultures)
                     {
-                        localResults.Add(await _generator.GeneratePage(item.Id, job.StaticSiteId, job.NameGenerator, job.Transformers, culture));
+                        returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers, culture));
                     }
                 }
                 else
                 {
-                    localResults.Add(await _generator.GeneratePage(item.Id, job.StaticSiteId, job.NameGenerator, job.Transformers));
-                }
-                pageResults[item.Index] = localResults;
-            });
-
-            // Add results in original order
-            for (int i = 0; i < indexedPages.Count; i++)
-            {
-                if (pageResults.TryGetValue(i, out var results))
-                {
-                    returnList.AddRange(results);
+                    returnList.Add(await _generator.GeneratePage(id, job.StaticSiteId, job.NameGenerator, job.Transformers));
                 }
             }
 
@@ -56,11 +39,7 @@ namespace XStatic.Core.Generator.Jobs
 
             foreach (var folder in job.Folders)
             {
-                var folderItems = await _generator.GenerateFolder(folder.Key, folder.Value, job.StaticSiteId);
-                foreach (var item in folderItems)
-                {
-                    returnList.Add(item);
-                }
+                returnList.AddRange(await _generator.GenerateFolder(folder.Key, folder.Value, job.StaticSiteId));
             }
 
             foreach (var file in job.Files)

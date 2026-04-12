@@ -182,7 +182,7 @@ export class EditActionModalElement extends
 
         var selectedConfig = this.#isExistingConfigValid(existingConfig, selectedActionType)
             ? existingConfig
-            : selectedActionType?.fields;
+            : (selectedActionType ? (selectedActionType.fields ?? []) : undefined);
 
         return [
             {
@@ -231,11 +231,11 @@ export class EditActionModalElement extends
 
     #isExistingConfigValid(existingConfig: ConfigurableTypeField[]| null | undefined, 
         selectedActionType: ConfigurableTypeModel | null | undefined) {
-        if(!existingConfig || !selectedActionType) {
+        if(!selectedActionType || existingConfig === null || existingConfig === undefined) {
             return false;
         }
 
-        var existingFields = existingConfig;
+        var existingFields = existingConfig ?? [];
         var selectedFields = selectedActionType.fields ?? [];
 
         if(existingFields.length !== selectedFields.length) {

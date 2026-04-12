@@ -23,6 +23,38 @@ We provide a batch file to automate the creation of Umbraco test instances:
 
 Once the script finishes, it will automatically start the new Umbraco instance. You can also manually start it later by running `Start.bat` within the created instance folder.
 
+> [!TIP]
+> **Developing the UI?** Use a "Local" instance (**Y**). It created a `Start-Watcher.bat` file in the instance folder that runs the Vite watcher for you.
+
+---
+
+## 🎨 Front-end Development (Umbraco 14+)
+
+The Umbraco 14+ backoffice UI is built with TypeScript, Lit, and Vite.
+
+### Source Location
+The source code and build configuration are located in:
+`Source/XStaticCore/XStatic14/XStatic14.Client/assets`
+
+### Optimized Workflow (No C# Rebuilds)
+To develop the UI with instant feedback:
+
+1.  **Setup**: Create a local test instance via `AddNew.bat` and select **Y** for local project references.
+2.  **Start Umbraco**: Run `Start.bat` in your instance folder.
+3.  **Start Watcher**: Run `npm run watch` in the `assets` directory (or run `Start-Watcher.bat` from your instance folder).
+4.  **Refresh Browser**: When you save a `.ts` file, Vite rebuilds the assets in the library's `wwwroot`. Because you are using a "Local" project reference, Umbraco serves these files directly. Just press **Ctrl + F5** in the browser to see the changes.
+
+### Key Scripts
+Run these from the `assets` folder:
+*   `npm run watch`: Builds and watches for changes (uses stable filenames for reliable browser refreshing).
+*   `npm run build`: Production build.
+*   `npm run generate`: Syncs the TypeScript API client with the backend Swagger schema (requires Umbraco to be running).
+
+### Troubleshooting
+*   **Changes not appearing?** Umbraco caches plugin assets heavily. Open DevTools and check "Disable cache" or use a hard refresh (Ctrl+F5).
+*   **404 Errors?** Ensure that `assets.js` exists in the `wwwroot/App_Plugins/xstatic14` folder. If it's missing, run `npm run build` once to restore it.
+
+
 ---
 
 ## 🧪 Testing with Playwright

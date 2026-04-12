@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { SitePage } from '../pages/SitePage';
 import { TestData } from './test-data';
+import AdmZip from 'adm-zip';
+import * as path from 'path';
+import * as fs from 'fs';
 
 test.describe('Site Operations', () => {
     test.beforeEach(async ({ page }) => {
@@ -54,5 +57,36 @@ test.describe('Site Operations', () => {
         const download = await downloadPromise;
 
         expect(download.suggestedFilename()).toContain('.zip');
+
+        // Save the download to a temporary path for inspection
+        const downloadPath = path.join(__dirname, '..', 'test-results', download.suggestedFilename());
+        await download.saveAs(downloadPath);
+
+        // Verify zip contents
+        const zip = new AdmZip(downloadPath);
+        const zipEntries = zip.getEntries();
+        
+        expect(zipEntries.length).toBeGreaterThan(0);
+
+        const htmlFiles = zipEntries.filter(entry => entry.entryName.endsWith('.html'));
+        expect(htmlFiles.length).toBeGreaterThan(0);
+
+        for (const entry of htmlFiles) {
+            const content = zip.readAsText(entry);
+            console.log(`Checking file: ${entry.entryName} (${content.length} bytes)`);
+            
+            expect(content.length, `HTML file ${entry.entryName} should not be empty`).toBeGreaterThan(100);
+            
+            // Basic HTML check - some generated files might be fragments or sitemaps mislabeled
+            // But if it's .html it should probably have an html tag or at least some content
+            if (!content.toLowerCase().includes('<html')) {
+                console.warn(`Warning: File ${entry.entryName} does not contain an <html> tag.`);
+            }
+        }
+
+        // Clean up
+        if (fs.existsSync(downloadPath)) {
+            fs.unlinkSync(downloadPath);
+        }
     });
 });

@@ -23,12 +23,12 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 
 	@property({ type: Array })
 	public set value(value: ConfigurableTypeField[] | null | undefined) {
+        this._fields = value;
+
         if(!value) {
             this._values = [];
             return; 
         }
-
-        this._fields = value;
         
        	this._values = value.filter((f) => f.name).map((field) => {
             return {
@@ -82,8 +82,17 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 	}
 
 	#renderForm() {
-        if(!this._values || !this._fields) {
-            return html`<h3>No Type selected</h3>`;
+        if (this._fields === undefined) {
+            return html`<h3>No type selected</h3>`;
+        }
+
+        if (!this._fields || this._fields.length === 0) {
+            return html`
+            <div>
+                ${this.help ? html`<p>${this.help}</p>` : ''}
+                <h3>This action type can't be configured</h3>
+            </div>
+            `;
         }
 
 		return html`
