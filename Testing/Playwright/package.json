@@ -10,7 +10,9 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.58.0",
-    "@types/node": "^25.1.0"
+    "@types/adm-zip": "^0.5.8",
+    "@types/node": "^25.1.0",
+    "adm-zip": "^0.5.17"
   },
   "dependencies": {
     "uuid": "^13.0.0"
