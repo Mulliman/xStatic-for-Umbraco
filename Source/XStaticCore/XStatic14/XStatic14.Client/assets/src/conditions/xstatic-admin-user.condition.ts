@@ -1,5 +1,5 @@
 import { UMB_CURRENT_USER_CONTEXT } from '@umbraco-cms/backoffice/current-user';
-import { UmbControllerBase } from '@umbraco-cms/backoffice/class-api';
+import { UmbConditionBase } from '@umbraco-cms/backoffice/extension-registry';
 import type {
 	UmbConditionConfigBase,
 	UmbConditionControllerArguments,
@@ -10,16 +10,12 @@ import { Roles } from '../roles';
 
 import { CONFIG_CONTEXT_TOKEN } from '../areas/config/context.config';
 
-export default class XStaticAdminUserCondition extends UmbControllerBase implements UmbExtensionCondition {
+export default class XStaticAdminUserCondition extends UmbConditionBase<UmbSectionUserPermissionConditionConfig> implements UmbExtensionCondition {
 	isUsingXStaticRoles = false;
 	isInValidRole = false;
-	permitted = false;
-	config: UmbConditionConfigBase<string> = { alias: 'Umb.Condition.XStaticAdminUser' };
-	#onChange: (permitted: boolean) => void;
 
 	constructor(host: UmbControllerHost, args: UmbConditionControllerArguments<UmbSectionUserPermissionConditionConfig>) {
-		super(host);
-		this.#onChange = args.onChange;
+		super(host, args);
 
 		this.#init();
 	}
@@ -29,8 +25,7 @@ export default class XStaticAdminUserCondition extends UmbControllerBase impleme
 		this.consumeContext(CONFIG_CONTEXT_TOKEN, (context) => {
 			this.observe(context?.settings, (settings) => {
 				this.isUsingXStaticRoles = settings?.isUsingXStaticRoles ?? false;
-				this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
-				this.#onChange(this.permitted);
+				this.permitted = !this.isUsingXStaticRoles || this.isInValidRole;
 			});
 		});
 
@@ -39,8 +34,7 @@ export default class XStaticAdminUserCondition extends UmbControllerBase impleme
 				context?.currentUser,
 				(currentUser) => {
 					this.isInValidRole = !!currentUser && (currentUser.fallbackPermissions?.some(p => p === Roles.Admin));
-					this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
-					this.#onChange(this.permitted);
+					this.permitted = !this.isUsingXStaticRoles || this.isInValidRole;
 				},
 			);
 		});
