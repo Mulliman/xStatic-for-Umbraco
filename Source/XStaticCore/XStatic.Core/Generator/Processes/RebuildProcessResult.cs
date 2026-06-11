@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace XStatic.Core.Generator.Processes
@@ -7,9 +7,9 @@ namespace XStatic.Core.Generator.Processes
     {
         public bool WasSuccessful { get; set; }
 
-        public List<GenerateItemResult> Results { get; set; }
+        public List<GenerateItemResult> Results { get; set; } = new List<GenerateItemResult>();
 
-        public List<GenerateItemResult> Warnings => Results.Where(r => !r.WasSuccessful).ToList();
+        public List<GenerateItemResult> Warnings => Results?.Where(r => !r.WasSuccessful).ToList() ?? new List<GenerateItemResult>();
 
         public int SiteId { get; set; }
 

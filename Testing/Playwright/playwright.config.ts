@@ -51,13 +51,13 @@ export default defineConfig({
     },
     {
       name: 'cleanup',
-      testMatch: /04-cleanup\.spec\.ts/,
+      testMatch: /05-cleanup\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
         storageState: STORAGE_STATE,
       },
-      dependencies: ['chromium-ops'],
+      dependencies: ['chromium-ops', 'chromium-issue70'],
     },
     {
       name: 'chromium-config',
@@ -89,6 +89,15 @@ export default defineConfig({
       },
       dependencies: ['chromium-site'],
     },
-    
+    {
+      name: 'chromium-issue70',
+      testMatch: /04-issue70\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: STORAGE_STATE,
+      },
+      dependencies: ['setup'],
+    },
   ],
 });
