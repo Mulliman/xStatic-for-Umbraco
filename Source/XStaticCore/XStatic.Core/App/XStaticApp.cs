@@ -103,6 +103,7 @@ namespace XStatic.Core.App
     {
         public static XStaticServiceBuilder AddXStatic(this IServiceCollection services)
         {
+            services.AddOptions<XStaticGlobalSettings>().BindConfiguration("XStatic");
             return new XStaticServiceBuilder(services);
         }        
     }

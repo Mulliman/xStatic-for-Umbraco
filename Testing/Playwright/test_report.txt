@@ -1,0 +1,42 @@
+TEST_RUN_ID: 3b8b7d74
+
+Running 2 tests using 1 worker
+
+[1A[2KTEST_RUN_ID: 3b8b7d74
+
+[1A[2K[1/2] [setup] ÔÇ║ tests\00-auth.setup.ts:5:6 ÔÇ║ authenticate
+[1A[2KTEST_RUN_ID: 3b8b7d74
+
+[1A[2K[2/2] [chromium-issue70] ÔÇ║ tests\04-issue70.spec.ts:5:9 ÔÇ║ Issue 70 - Action UI parameters ÔÇ║ Action type switching updates configuration message
+[1A[2K  1) [chromium-issue70] ÔÇ║ tests\04-issue70.spec.ts:5:9 ÔÇ║ Issue 70 - Action UI parameters ÔÇ║ Action type switching updates configuration message 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('FilePath')
+    Expected: visible
+    Error: strict mode violation: getByText('FilePath') resolved to 2 elements:
+        1) <uui-label id="label" title="FilePath">ÔÇª</uui-label> aka getByText('FilePath', { exact: true })
+        2) <uui-label id="label" title="NewFilePath">ÔÇª</uui-label> aka getByText('NewFilePath')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('FilePath')[22m
+
+
+      29 |         // The subagent found 'FilePath' and 'NewFilePath' as labels.
+      30 |         // We check for one of them to confirm fields are visible.
+    > 31 |         await expect(page.getByText('FilePath')).toBeVisible();
+         |                                                  ^
+      32 |
+      33 |         // 6. Change back to the "AddGenerationMetadataFileAction" option
+      34 |         await typeSelect.selectOption({ label: 'AddGenerationMetadataFileAction' });
+        at C:\Development\OpenSource\xStatic\GitRepo\Testing\Playwright\tests\04-issue70.spec.ts:31:50
+
+    Error Context: test-results\04-issue70-Issue-70---Acti-d3313-dates-configuration-message-chromium-issue70\error-context.md
+
+
+[1A[2K  1 failed
+    [chromium-issue70] ÔÇ║ tests\04-issue70.spec.ts:5:9 ÔÇ║ Issue 70 - Action UI parameters ÔÇ║ Action type switching updates configuration message 
+  1 passed (13.7s)
+
+[36m  Serving HTML report at http://localhost:52407. Press Ctrl+C to quit.[39m
