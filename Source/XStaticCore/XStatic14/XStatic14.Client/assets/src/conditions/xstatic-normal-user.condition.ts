@@ -38,7 +38,7 @@ export default class XStaticNormalUserCondition extends UmbControllerBase implem
 			this.observe(
 				context?.currentUser,
 				(currentUser) => {
-					this.isInValidRole = !!currentUser && (currentUser.fallbackPermissions.some(p => p === Roles.Admin) || currentUser.fallbackPermissions.some(p => p === Roles.NormalUser));
+					this.isInValidRole = !!currentUser && (currentUser.fallbackPermissions?.some(p => p === Roles.Admin) || currentUser.fallbackPermissions?.some(p => p === Roles.NormalUser));
 					this.permitted = !this.isUsingXStaticRoles  || this.isInValidRole;
 					this.#onChange(this.permitted);
 				},
