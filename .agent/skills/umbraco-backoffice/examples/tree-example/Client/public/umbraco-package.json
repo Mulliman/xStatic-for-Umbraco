@@ -1,0 +1,14 @@
+{
+  "id": "UmbTreeClient",
+  "name": "UmbTreeClient",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Umb Tree Client Bundle",
+      "alias": "UmbTreeClient.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/UmbTreeClient/umb-tree-client.js"
+    }
+  ]
+}

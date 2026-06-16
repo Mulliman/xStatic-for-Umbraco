@@ -1,0 +1,14 @@
+{
+  "id": "NotesWiki",
+  "name": "Notes Wiki",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Notes Wiki Bundle",
+      "alias": "NotesWiki.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/NotesWiki/notes-wiki.js"
+    }
+  ]
+}

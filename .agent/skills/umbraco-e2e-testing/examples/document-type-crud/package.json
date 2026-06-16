@@ -1,0 +1,28 @@
+{
+	"name": "@example/e2e-document-type-crud",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Example demonstrating E2E testing for Umbraco with Playwright",
+	"scripts": {
+		"test": "playwright test",
+		"test:ui": "playwright test --ui",
+		"test:debug": "playwright test --debug",
+		"test:report": "playwright show-report"
+	},
+	"dependencies": {
+		"@umbraco/json-models-builders": "^2.0.42",
+		"@umbraco/playwright-testhelpers": "17.1.0-beta.4",
+		"tslib": "^2.4.0"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.49.0",
+		"typescript": "^5.7.2"
+	},
+	"keywords": [
+		"umbraco",
+		"playwright",
+		"e2e",
+		"testing"
+	]
+}

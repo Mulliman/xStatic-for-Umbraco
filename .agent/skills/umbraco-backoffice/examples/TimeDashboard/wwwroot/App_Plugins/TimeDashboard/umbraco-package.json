@@ -1,0 +1,14 @@
+{
+  "id": "TimeDashboard",
+  "name": "Time Dashboard",
+  "version": "0.1.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Time Dashboard Bundle",
+      "alias": "TimeDashboard.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/TimeDashboard/time-dashboard.js"
+    }
+  ]
+}

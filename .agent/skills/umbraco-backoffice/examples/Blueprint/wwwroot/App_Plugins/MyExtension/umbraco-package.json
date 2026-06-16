@@ -1,0 +1,14 @@
+{
+  "id": "MyExtension",
+  "name": "MyExtension",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "My Extension Bundle",
+      "alias": "MyExtension.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/MyExtension/my-extension.js"
+    }
+  ]
+}

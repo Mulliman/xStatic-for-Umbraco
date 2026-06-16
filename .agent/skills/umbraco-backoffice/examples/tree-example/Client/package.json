@@ -1,0 +1,39 @@
+{
+  "name": "umb-tree-client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "watch": "tsc && vite build --watch",
+    "build": "tsc && vite build",
+    "generate-client": "node scripts/generate-openapi.js https://localhost:44348/umbraco/swagger/umbtreeclient/swagger.json",
+    "test": "web-test-runner",
+    "test:watch": "web-test-runner --watch",
+    "test:mock-repo": "playwright test --config=tests/mock-repo/playwright.config.ts",
+    "test:mock-repo:headed": "playwright test --config=tests/mock-repo/playwright.config.ts --headed",
+    "test:mock-repo:ui": "playwright test --config=tests/mock-repo/playwright.config.ts --ui",
+    "test:msw": "playwright test --config=tests/msw/playwright.config.ts",
+    "test:msw:headed": "playwright test --config=tests/msw/playwright.config.ts --headed",
+    "test:msw:ui": "playwright test --config=tests/msw/playwright.config.ts --ui",
+    "test:e2e": "playwright test --config=tests/e2e/playwright.config.ts",
+    "test:e2e:headed": "playwright test --config=tests/e2e/playwright.config.ts --headed",
+    "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui"
+  },
+  "devDependencies": {
+    "@hey-api/client-fetch": "^0.10.0",
+    "@hey-api/openapi-ts": "^0.85.0",
+    "@open-wc/testing": "^4.0.0",
+    "@playwright/test": "^1.56.0",
+    "@umbraco/playwright-testhelpers": "^17.0.11",
+    "@umbraco-cms/backoffice": "^*",
+    "@web/dev-server-esbuild": "^1.0.0",
+    "@web/dev-server-import-maps": "^0.2.0",
+    "@web/test-runner": "^0.18.0",
+    "@web/test-runner-playwright": "^0.11.0",
+    "chalk": "^5.4.1",
+    "cross-env": "^7.0.3",
+    "node-fetch": "^3.3.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.4"
+  }
+}
