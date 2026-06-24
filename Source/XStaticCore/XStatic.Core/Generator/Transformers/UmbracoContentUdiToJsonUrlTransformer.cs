@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
@@ -8,37 +9,33 @@ namespace XStatic.Core.Generator.Transformers
 {
     public class UmbracoContentUdiToJsonUrlTransformer : ITransformer
     {
-        private IUmbracoContext _context;
-
-        public string Transform(string input, IUmbracoContext context)
+        public Task<string> Transform(string input, IUmbracoContext context)
         {
             if (string.IsNullOrEmpty(input))
             {
-                return input;
+                return Task.FromResult(input);
             }
-
-            _context = context;
 
             var regex = new Regex("umb://document/[a-f0-9]{32}");
-            var output = regex.Replace(input, new MatchEvaluator(ComputeReplacement));
-            return output;
-        }
-
-        public string ComputeReplacement(Match matchResult)
-        {
-            var uri = new Uri(matchResult.Value);
-
-            if(UdiParser.TryParse(matchResult.Value, out var udi) && udi is GuidUdi guidUdi)
+            var output = regex.Replace(input, (match) =>
             {
-                var item = _context.Content.GetById(guidUdi.Guid);
+                // Unused in original, but kept for parity if needed, though likely can be removed.
+                // var uri = new Uri(match.Value);
 
-                if (item != null)
+                if (UdiParser.TryParse(match.Value, out var udi) && udi is GuidUdi guidUdi)
                 {
-                    return item.Url().Trim("/") + ".json";
-                }
-            }
+                    var item = context.Content.GetById(guidUdi.Guid);
 
-            return matchResult.Value;
+                    if (item != null)
+                    {
+                        return item.Url().Trim("/") + ".json";
+                    }
+                }
+
+                return match.Value;
+            });
+
+            return Task.FromResult(output);
         }
     }
 }

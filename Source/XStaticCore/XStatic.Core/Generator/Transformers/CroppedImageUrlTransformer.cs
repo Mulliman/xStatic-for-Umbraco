@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Generator.Storage;
 
@@ -18,14 +19,14 @@ namespace XStatic.Core.Generator.Transformers
             _crops = crops;
         }
 
-        public string Transform(string input, IUmbracoContext context)
+        public Task<string> Transform(string input, IUmbracoContext context)
         {
             if (string.IsNullOrEmpty(input))
             {
-                return input;
+                return Task.FromResult(input);
             }
 
-            if (_crops?.Any() != true) return input;
+            if (_crops?.Any() != true) return Task.FromResult(input);
 
             var updatedMarkup = input;
 
@@ -48,7 +49,7 @@ namespace XStatic.Core.Generator.Transformers
                 });
             }
 
-            return updatedMarkup;
+            return Task.FromResult(updatedMarkup);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace XStatic.Generator
                 var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
                 var fileData = GetJsonData(node);
 
-                var transformedData = RunTransformers(fileData, transformers);
+                var transformedData = await RunTransformersAsync(fileData, transformers);
 
                 var filePath = fileNamer.GetFilePartialPath(url);
 

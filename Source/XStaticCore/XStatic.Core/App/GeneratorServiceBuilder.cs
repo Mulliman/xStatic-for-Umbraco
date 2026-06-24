@@ -10,6 +10,7 @@ using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Repositories;
+using XStatic.Core.Services;
 using XStatic.Generator;
 
 namespace XStatic.Core.App
@@ -60,6 +61,7 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultHtmlGeneratorServices()
         {
+            _services.AddSingleton<IAiService, UmbracoAiService>();
             _services.AddSingleton<StaticHtmlSiteGenerator>();
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
 

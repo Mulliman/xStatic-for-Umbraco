@@ -172,7 +172,7 @@ namespace XStatic.Core.Generator
 
         public abstract Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null);
 
-        protected string RunTransformers(string fileData, IEnumerable<ITransformer> transformers)
+        protected async Task<string> RunTransformersAsync(string fileData, IEnumerable<ITransformer> transformers)
         {
             if (transformers == null) return fileData;
 
@@ -180,7 +180,7 @@ namespace XStatic.Core.Generator
             var context = GetContext();
             foreach (var transformer in transformers)
             {
-                fileData = transformer.Transform(fileData, context);
+                fileData = await transformer.Transform(fileData, context);
             }
 
             return fileData;
