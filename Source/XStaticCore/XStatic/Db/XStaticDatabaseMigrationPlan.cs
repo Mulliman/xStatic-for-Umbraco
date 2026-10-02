@@ -1,4 +1,5 @@
-﻿using Umbraco.Cms.Infrastructure.Migrations;
+﻿using System.Threading.Tasks;
+using Umbraco.Cms.Infrastructure.Migrations;
 using XStatic.Core.Actions.Db;
 using XStatic.Core.Deploy.Targets.Db;
 using XStatic.Core.Generator.Db;
@@ -16,14 +17,14 @@ namespace XStatic.Db
         }
     }
 
-    public class MigrationAllTheThings : MigrationBase
+    public class MigrationAllTheThings : AsyncMigrationBase
     {
         public MigrationAllTheThings(IMigrationContext context)
             : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             if (!TableExists(SiteConfig.TableName))
             {
@@ -79,17 +80,19 @@ namespace XStatic.Db
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
+
+            return Task.CompletedTask;
         }
     }
 
-    public class MigrationDeployerTargets : MigrationBase
+    public class MigrationDeployerTargets : AsyncMigrationBase
     {
         public MigrationDeployerTargets(IMigrationContext context)
             : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             if (!TableExists(DeploymentTargetDataModel.TableName))
             {
@@ -101,6 +104,8 @@ namespace XStatic.Db
 
                 builder.Do();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

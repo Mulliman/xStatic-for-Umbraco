@@ -8,14 +8,14 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "watch": "vite build --watch",
-    "generate": "openapi-ts --input http://localhost:23994/umbraco/swagger/xstatic-v1/swagger.json --output src/api --debug true --enums typescript --lint true --schemas false"
+    "generate": "openapi-ts --input http://localhost:23994/umbraco/openapi/xstatic-v1.json --output src/api --debug"
   },
   "dependencies": {
     "lit": "^3.1.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "^0.85.0",
-    "@umbraco-cms/backoffice": "^17.0.0",
+    "@hey-api/openapi-ts": "^0.99.0",
+    "@umbraco-cms/backoffice": "^18.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.8"
   }

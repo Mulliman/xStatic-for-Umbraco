@@ -1,4 +1,6 @@
-﻿using Umbraco.Cms.Core;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Migrations;
 using Umbraco.Cms.Core.Notifications;
@@ -8,7 +10,7 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 
 namespace XStatic.Db
 {
-    public class XStaticDatabaseNotificationHandler : INotificationHandler<UmbracoApplicationStartingNotification>
+    public class XStaticDatabaseNotificationHandler : INotificationAsyncHandler<UmbracoApplicationStartingNotification>
     {
         private readonly IMigrationPlanExecutor _migrationPlanExecutor;
         private readonly ICoreScopeProvider _scopeProvider;
@@ -27,7 +29,7 @@ namespace XStatic.Db
             _runtimeState = runtimeState;
         }
 
-        public void Handle(UmbracoApplicationStartingNotification notification)
+        public async Task HandleAsync(UmbracoApplicationStartingNotification notification, CancellationToken cancellationToken)
         {
             if (_runtimeState.Level < RuntimeLevel.Run)
             {
@@ -38,7 +40,7 @@ namespace XStatic.Db
 
             var upgrader = new Upgrader(migrationPlan);
 
-            upgrader.Execute(
+            await upgrader.ExecuteAsync(
                 _migrationPlanExecutor,
                 _scopeProvider,
                 _keyValueService);

@@ -10,6 +10,7 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
 using XStatic.Core.Deploy.Targets;
@@ -64,7 +65,8 @@ namespace XStatic.Controllers
                 }
                 else
                 {
-                    site.RootPath = node.Parent == null ? node.Name : node.Parent.Name + "/" + node.Name;
+                    var parent = node.Parent();
+                    site.RootPath = parent == null ? node.Name : parent.Name + "/" + node.Name;
 
                     var folder = _storer.GetStorageLocationOfSite(site.Id);
                     var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
