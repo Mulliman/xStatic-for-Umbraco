@@ -48,7 +48,10 @@ To develop the UI with instant feedback:
 Run these from the `assets` folder:
 *   `npm run watch`: Builds and watches for changes (uses stable filenames for reliable browser refreshing).
 *   `npm run build`: Production build.
-*   `npm run generate`: Syncs the TypeScript API client with the backend Swagger schema (requires Umbraco to be running).
+*   `npm run generate`: Syncs the TypeScript API client with the backend OpenAPI document at `/umbraco/openapi/xstatic-v1.json` (requires Umbraco to be running).
+
+> [!WARNING]
+> **Known limitation: do not run `npm run generate` at the moment.** The checked-in client in `src/api` uses the old hey-api "legacy" layout (a `V1Service` class plus `core/OpenAPI.ts`, configured in `src/index.ts`). `@umbraco-cms/backoffice` 18 requires `@hey-api/openapi-ts` `>=0.99.0`, which can no longer generate that layout: it cleans `src/api` and writes the new `sdk.gen.ts` / `types.gen.ts` structure instead, breaking every import of `V1Service`. The existing client has no runtime dependency on hey-api and works as-is, so edit it by hand for now. Regenerating requires migrating the `context.*.ts` files to the new SDK functions first.
 
 ### Troubleshooting
 *   **Changes not appearing?** Umbraco caches plugin assets heavily. Open DevTools and check "Disable cache" or use a hard refresh (Ctrl+F5).

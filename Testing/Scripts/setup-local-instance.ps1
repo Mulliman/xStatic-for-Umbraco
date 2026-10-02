@@ -1,5 +1,5 @@
 param (
-    [string]$UmbracoVersion = "17.1.0",
+    [string]$UmbracoVersion = "18.2.0",
     [string]$InstanceName,
     [int]$Port = 5000,
     [string]$BaseDir = "..\Instances",

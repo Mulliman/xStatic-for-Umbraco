@@ -72,7 +72,7 @@ namespace XStatic.Generator
             obj.Add("__createDate", content.CreateDate);
             obj.Add("__updateDate", content.UpdateDate);
             obj.Add("__level", content.Level);
-            obj.Add("__parent", content.Parent != null ? content.Parent.Id : (int?)null);
+            obj.Add("__parent", content.Parent()?.Id);
             obj.Add("__path", content.Path);
             obj.Add("__templateId", content.TemplateId);
             obj.Add("__writerId", content.WriterId);
