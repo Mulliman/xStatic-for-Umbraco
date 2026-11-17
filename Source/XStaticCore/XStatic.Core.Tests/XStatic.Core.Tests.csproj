@@ -18,6 +18,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+    <ProjectReference Include="..\XStatic\XStatic.csproj" />
+    <ProjectReference Include="..\XStatic.Netlify\XStatic.Netlify.csproj" />
+    <ProjectReference Include="..\XStatic.Git\XStatic.Git.csproj" />
+    <ProjectReference Include="..\XStatic.Ftp\XStatic.Ftp.csproj" />
   </ItemGroup>
 
 </Project>
