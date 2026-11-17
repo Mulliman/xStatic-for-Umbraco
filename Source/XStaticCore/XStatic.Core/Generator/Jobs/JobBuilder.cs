@@ -7,128 +7,141 @@ using XStatic.Core.Generator.Transformers;
 
 namespace XStatic.Core.Generator.Jobs
 {
-    public class JobBuilder
-    {
-        private Job job;
+	public class JobBuilder
+	{
+		private Job job;
 
-        public JobBuilder(int staticSiteId, IFileNameGenerator nameGenerator)
-        {
-            job = new Job
-            {
-                StaticSiteId = staticSiteId,
-                NameGenerator = nameGenerator
-            };
-        }
+		public JobBuilder(int staticSiteId, IFileNameGenerator nameGenerator)
+		{
+			job = new Job
+			{
+				StaticSiteId = staticSiteId,
+				NameGenerator = nameGenerator
+			};
+		}
 
-        public JobBuilder AddTransformer(ITransformer transformer)
-        {
-            job.Transformers.Add(transformer);
+		public JobBuilder AddTransformer(ITransformer transformer)
+		{
+			job.Transformers.Add(transformer);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddTransformers(IEnumerable<ITransformer> transformers)
-        {
-            job.Transformers.AddRange(transformers);
+		public JobBuilder AddTransformers(IEnumerable<ITransformer> transformers)
+		{
+			job.Transformers.AddRange(transformers);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddCulture(string culture)
-        {
-            if (string.IsNullOrEmpty(culture)) return this;
+		public JobBuilder AddCulture(string culture)
+		{
+			if (string.IsNullOrEmpty(culture)) return this;
 
-            job.Cultures.Add(culture);
+			job.Cultures.Add(culture);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddPage(IPublishedContent node)
-        {
-            if (node == null) return this;
+		public JobBuilder AddPage(IPublishedContent node)
+		{
+			if (node == null) return this;
 
-            job.PageIds.Add(node.Id);
+			job.PageIds.Add(node.Id);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddPageWithDescendants(IPublishedContent node)
-        {
-            if (node == null) return this;
+		public JobBuilder AddPageWithDescendants(IPublishedContent node)
+		{
+			if (node == null) return this;
 
-            job.PageIds.Add(node.Id);
+			job.PageIds.Add(node.Id);
 
-            var childIds = node.Descendants().Select(c => c.Id);
+			var childIds = node.Descendants().Select(c => c.Id);
 
-            job.PageIds.AddRange(childIds);
+			job.PageIds.AddRange(childIds);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddMedia(IPublishedContent media)
-        {
-            if (media == null) return this;
+		public JobBuilder AddPageWithDescendantsWithoutTypes(IPublishedContent node, IEnumerable<string> excludedTypeAliases)
+		{
+			if (node == null) return this;
 
-            job.MediaIds.Add(media.Id);
+			job.PageIds.Add(node.Id);
 
-            return this;
-        }
+			var childIds = node.Descendants().Where(c => !excludedTypeAliases.Contains(c.ContentType.Alias)).Select(c => c.Id);
 
-        public JobBuilder AddMediaWithDescendants(IPublishedContent media)
-        {
-            if (media == null) return this;
+			job.PageIds.AddRange(childIds);
 
-            job.MediaIds.Add(media.Id);
+			return this;
+		}
 
-            var childIds = media.Descendants().Select(c => c.Id);
+		public JobBuilder AddMedia(IPublishedContent media)
+		{
+			if (media == null) return this;
 
-            job.MediaIds.AddRange(childIds);
+			job.MediaIds.Add(media.Id);
 
-            return this;
-        }
+			return this;
+		}
 
-        public JobBuilder AddMediaCrops(IEnumerable<Crop> crops)
-        {
-            if (crops == null) return this;
+		public JobBuilder AddMediaWithDescendants(IPublishedContent media)
+		{
+			if (media == null) return this;
 
-            job.MediaCropSizes.AddRange(crops);
+			job.MediaIds.Add(media.Id);
 
-            return this;
-        }
+			var childIds = media.Descendants().Select(c => c.Id);
 
-        public JobBuilder AddAssetFolder(string absolutePath, string relativePath)
-        {
-            if (string.IsNullOrWhiteSpace(absolutePath)) return this;
+			job.MediaIds.AddRange(childIds);
 
-            job.Folders.Add(absolutePath, relativePath);
+			return this;
+		}
 
-            return this;
-        }
+		public JobBuilder AddMediaCrops(IEnumerable<Crop> crops)
+		{
+			if (crops == null) return this;
 
-        public JobBuilder AddAssetFile(string absolutePath, string relativePath)
-        {
-            if (string.IsNullOrWhiteSpace(absolutePath)) return this;
+			job.MediaCropSizes.AddRange(crops);
 
-            job.Files.Add(absolutePath, relativePath);
+			return this;
+		}
 
-            return this;
-        }
+		public JobBuilder AddAssetFolder(string absolutePath, string relativePath)
+		{
+			if (string.IsNullOrWhiteSpace(absolutePath)) return this;
 
-        public JobBuilder AddAssetFiles(Dictionary<string, string> Paths)
-        {
-            if (Paths?.Any() != true) return this;
+			job.Folders.Add(absolutePath, relativePath);
 
-            foreach (var path in Paths)
-            {
-                job.Files.Add(path.Key, path.Value);
-            }
+			return this;
+		}
 
-            return this;
-        }
+		public JobBuilder AddAssetFile(string absolutePath, string relativePath)
+		{
+			if (string.IsNullOrWhiteSpace(absolutePath)) return this;
 
-        public Job Build()
-        {
-            return job;
-        }
-    }
+			job.Files.Add(absolutePath, relativePath);
+
+			return this;
+		}
+
+		public JobBuilder AddAssetFiles(Dictionary<string, string> Paths)
+		{
+			if (Paths?.Any() != true) return this;
+
+			foreach (var path in Paths)
+			{
+				job.Files.Add(path.Key, path.Value);
+			}
+
+			return this;
+		}
+
+		public Job Build()
+		{
+			return job;
+		}
+	}
 }
