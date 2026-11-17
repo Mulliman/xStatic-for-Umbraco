@@ -34,9 +34,10 @@ export class SitePage extends BasePage {
         const chooseButton = rootNodeProperty.getByRole('button', { name: 'Choose' });
         await chooseButton.click({ force: true });
         
-        // Handle Tree Picker Modal
-        await this.page.locator('umb-tree-picker-modal').getByText(rootNodeName).click();
-        await this.page.locator('umb-tree-picker-modal').getByRole('button', { name: 'Choose' }).click();
+        // Handle Tree Picker Modal (Umbraco 18.3+ renders umb-document-picker-modal)
+        const pickerModal = this.page.locator('umb-tree-picker-modal, umb-document-picker-modal');
+        await pickerModal.getByText(rootNodeName).click();
+        await pickerModal.getByRole('button', { name: 'Choose' }).click();
 
         // Use User-Suggested Locator via ARIA Label
         // This targets the specific element (likely in shadow root) with this label
