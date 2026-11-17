@@ -10,7 +10,7 @@ export class SitePage extends BasePage {
         await super.goto();
     }
 
-    async create(name: string, rootNodeName: string, exportFormatPartial: string, deploymentTarget?: string) {
+    async create(name: string, rootNodeName: string, exportFormatPartial: string, deploymentTarget?: string, assetPaths: string[] = []) {
         // Wait for config to be loaded upon opening the modal
         const configResponsePromise = this.page.waitForResponse(response => 
             response.url().includes('xstatic/config/get-config') && response.status() === 200
@@ -34,9 +34,16 @@ export class SitePage extends BasePage {
         const chooseButton = rootNodeProperty.getByRole('button', { name: 'Choose' });
         await chooseButton.click({ force: true });
         
-        // Handle Tree Picker Modal
-        await this.page.locator('umb-tree-picker-modal').getByText(rootNodeName).click();
-        await this.page.locator('umb-tree-picker-modal').getByRole('button', { name: 'Choose' }).click();
+        // Handle the document picker modal. Later Umbraco 17 minors replaced umb-tree-picker-modal
+        // with umb-document-picker-modal (which adds Browse/Search tabs), so match either.
+        const pickerModal = this.page.locator('umb-document-picker-modal, umb-tree-picker-modal').first();
+        await expect(pickerModal).toBeVisible();
+        await pickerModal.getByRole('button', { name: rootNodeName, exact: true }).click();
+
+        const chooseInPicker = pickerModal.getByRole('button', { name: 'Choose', exact: true });
+        await expect(chooseInPicker).toBeEnabled();
+        await chooseInPicker.click();
+        await expect(pickerModal).not.toBeVisible();
 
         // Use User-Suggested Locator via ARIA Label
         // This targets the specific element (likely in shadow root) with this label
@@ -89,8 +96,12 @@ export class SitePage extends BasePage {
              }
         }
 
+        for (const assetPath of assetPaths) {
+            await this.addAssetPath(assetPath);
+        }
+
         await this.page.getByRole('button', { name: 'Submit' }).click();
-        
+
         // Debug: Check for validation errors
         const validationError = this.page.locator('xstatic-validation-error-wrapper[errorMessage]');
         if (await validationError.count() > 0) {
@@ -101,6 +112,21 @@ export class SitePage extends BasePage {
         
         // Ensure modal closes
         await expect(this.page.locator('xstatic-edit-site-modal')).not.toBeVisible();
+    }
+
+    /** Adds a value to the "Asset Paths" tags editor in the open site modal. */
+    async addAssetPath(assetPath: string) {
+        const assetPathsProperty = this.page.locator('umb-property[alias="assetPaths"]');
+        await expect(assetPathsProperty).toBeVisible();
+
+        // Umb.PropertyEditorUi.Tags renders <umb-tags-input> with <input aria-label="tag input">.
+        // No click(): the input is 16px wide until focused and its "+" icon intercepts pointer
+        // events. fill() focuses it directly.
+        const input = assetPathsProperty.getByRole('textbox', { name: 'tag input' });
+        await input.fill(assetPath);
+        await input.press('Enter');
+
+        await expect(assetPathsProperty.locator('uui-tag').filter({ hasText: assetPath })).toBeVisible();
     }
 
     async edit(oldName: string, newName: string) {

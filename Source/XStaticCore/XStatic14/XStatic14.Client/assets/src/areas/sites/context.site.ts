@@ -2,7 +2,8 @@
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState, UmbBooleanState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecute } from '@umbraco-cms/backoffice/resources'
-import { SiteApiModel, SiteDependenciesModel, SiteUpdateModel, V1Service } from "../../api";
+import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
+import { RebuildProcessResult, SiteApiModel, SiteDependenciesModel, SiteUpdateModel, V1Service } from "../../api";
 import { blobDownload } from '@umbraco-cms/backoffice/utils';
 import ConfigContextBase from "../../config-context-base";
 
@@ -105,8 +106,50 @@ export class SiteContext extends ConfigContextBase {
     }
 
     public async generateSite(id: number) : Promise<void> {
-        await tryExecute(this, V1Service.postApiV1XstaticGenerateGenerateSite({ staticSiteId : id } ));
+        const result = await tryExecute(this, V1Service.postApiV1XstaticGenerateGenerateSite({ staticSiteId : id } ));
+        await this.#notifyGenerateResult(result);
         await this.#getSites();
+    }
+
+    async #notifyGenerateResult(result: RebuildProcessResult | undefined) {
+        // HTTP errors are already surfaced by tryExecute; here we handle a 200 with wasSuccessful: false.
+        if (!result || result.wasSuccessful) {
+            return;
+        }
+
+        const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+
+        if (!notificationContext) {
+            return;
+        }
+
+        if (result.exception) {
+            notificationContext.peek('danger', {
+                data: { headline: 'Generation failed', message: result.exception }
+            });
+
+            return;
+        }
+
+        const failures = (result.results ?? []).filter(r => !r.wasSuccessful);
+
+        if (!failures.length) {
+            return;
+        }
+
+        const maxShown = 5;
+        const summary = failures
+            .slice(0, maxShown)
+            .map(f => f.message ? `${f.item}: ${f.message}` : `${f.item}`)
+            .join('\n');
+        const more = failures.length > maxShown ? `\n…and ${failures.length - maxShown} more` : '';
+
+        notificationContext.peek('warning', {
+            data: {
+                headline: `Site generated with ${failures.length} problem${failures.length === 1 ? '' : 's'}`,
+                message: summary + more
+            }
+        });
     }
 
     public async deploySite(id: number) : Promise<void> {

@@ -57,7 +57,7 @@ export default defineConfig({
         channel: 'chrome',
         storageState: STORAGE_STATE,
       },
-      dependencies: ['chromium-ops', 'chromium-issue70'],
+      dependencies: ['chromium-ops', 'chromium-issue70', 'chromium-issue77'],
     },
     {
       name: 'chromium-config',
@@ -98,6 +98,18 @@ export default defineConfig({
         storageState: STORAGE_STATE,
       },
       dependencies: ['setup'],
+    },
+    {
+      // Needs the export type and deployment target created by 01; runs after 03 so it
+      // doesn't interleave with the shared site's operations.
+      name: 'chromium-issue77',
+      testMatch: /06-issue77\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: STORAGE_STATE,
+      },
+      dependencies: ['chromium-ops'],
     },
   ],
 });

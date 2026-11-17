@@ -39,7 +39,7 @@ namespace XStatic.Core.Deploy.Processes
 
             if (!Directory.Exists(path))
             {
-                throw new FileNotFoundException();
+                throw new XStaticException($"Failed to deploy. No generated output found at '{path}'. Generate the site before deploying.");
             }
 
             if(entity.DeploymentTarget == null)
