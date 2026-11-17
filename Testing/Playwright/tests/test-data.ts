@@ -32,4 +32,13 @@ export class TestData {
     static get SiteNameEdited() {
         return `Edited Test Site ${this.RUN_ID}`;
     }
+
+    static get Issue77SiteName() {
+        return `Issue77 Missing Asset Site ${this.RUN_ID}`;
+    }
+
+    /** An asset path whose folder exists in neither wwwroot nor the content root. */
+    static get MissingAssetPath() {
+        return `/App_Plugins/XStaticMissing${this.RUN_ID}/Assets/*`;
+    }
 }

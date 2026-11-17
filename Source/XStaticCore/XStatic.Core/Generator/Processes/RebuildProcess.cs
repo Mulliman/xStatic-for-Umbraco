@@ -90,7 +90,7 @@ namespace XStatic.Core.Generator.Processes
                     AddMediaToBuilder(entity, umbracoContext, builder);
                     AddMediaCropsToBuilder(entity, builder);
 
-                    AddAssetsToBuilder(entity, builder);
+                    var assetResults = AddAssetsToBuilder(entity, builder);
 
                     var listFactory = _exportTypeService.GetTransformerListFactory(entity.ExportFormat);
                     var transformers = listFactory.BuildTransformers(entity);
@@ -101,6 +101,7 @@ namespace XStatic.Core.Generator.Processes
                     }
 
                     var results = await GetResults(entity, builder);
+                    results.AddRange(assetResults);
 
                     var postActionResults = await RunPostActions(entity);
                     results.AddRange(postActionResults);
@@ -119,6 +120,8 @@ namespace XStatic.Core.Generator.Processes
                 }
                 catch (Exception e)
                 {
+                    _logger?.LogError(e, "xStatic failed to generate site {SiteName} ({SiteId})", entity.Name, staticSiteId);
+
                     return new RebuildProcessResult
                     {
                         SiteId = staticSiteId,
@@ -156,65 +159,11 @@ namespace XStatic.Core.Generator.Processes
             return results;
         }
 
-        private void AddAssetsToBuilder(SiteConfig entity, JobBuilder builder)
+        private List<GenerateItemResult> AddAssetsToBuilder(SiteConfig entity, JobBuilder builder)
         {
-            if (!string.IsNullOrEmpty(entity.AssetPaths))
-            {
-                var splitPaths = entity.AssetPaths.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim());
-                var rootPath = _webHostEnvironment.WebRootPath;
-                var contentPath = _webHostEnvironment.ContentRootPath;
+            var resolver = new AssetPathResolver(_webHostEnvironment.WebRootPath, _webHostEnvironment.ContentRootPath, _logger);
 
-                foreach (var path in splitPaths)
-                {
-                    var absolutePathWww = FileHelpers.PathCombine(rootPath, path);
-                    var absolutePathContent = FileHelpers.PathCombine(contentPath, path);
-
-                    if (path.Contains("?") || path.Contains("*"))
-                    {
-                        var trimmedPath = path.TrimStart(new[] { '\\', '/' });
-
-                        //Test for Path existence
-                        var directoryPart = Path.GetDirectoryName(trimmedPath);
-                        var testPath = FileHelpers.PathCombine(rootPath, directoryPart ?? string.Empty);
-
-                        if (Directory.Exists(testPath))
-                        {
-                            var directory = new DirectoryInfo(rootPath);
-                            var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
-
-                            builder.AddAssetFiles(files.ToDictionary(f => f.FullName, f => "/" + FileHelpers.GetRelativePath(rootPath, f.FullName)));
-                        }
-                        else
-                        {
-                            //Try using ContentRootPath
-                            var directory = new DirectoryInfo(contentPath);
-                            var files = directory.GetFiles(trimmedPath, SearchOption.AllDirectories);
-
-                            builder.AddAssetFiles(files.ToDictionary(f => f.FullName, f => "/" + FileHelpers.GetRelativePath(contentPath, f.FullName)));
-                        }
-                    }
-                    else if (Directory.Exists(absolutePathWww))
-                    {
-                        builder.AddAssetFolder(absolutePathWww, path);
-                    }
-                    else if (Directory.Exists(absolutePathContent))
-                    {
-                        builder.AddAssetFolder(absolutePathContent, path);
-                    }
-                    else if (System.IO.File.Exists(absolutePathWww))
-                    {
-                        builder.AddAssetFile(absolutePathWww, path);
-                    }
-                    else if (System.IO.File.Exists(absolutePathContent))
-                    {
-                        builder.AddAssetFile(absolutePathContent, path);
-                    }
-                    else
-                    {
-                        // Invalid file.
-                    }
-                }
-            }
+            return resolver.AddAssetsToBuilder(entity.AssetPaths, builder);
         }
 
         private static void AddMediaToBuilder(SiteConfig entity, UmbracoContextReference umbracoContext, JobBuilder builder)
