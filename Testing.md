@@ -52,6 +52,11 @@ Tests are numbered to run in a specific order to maintain state:
 integration tests (SQLite), and type-checks and builds the backoffice client. Playwright is not run in CI because it
 needs a live Umbraco instance.
 
+`.github/workflows/release.yml` publishes every package together. Push a tag such as `v18.0.0`; the workflow re-runs CI,
+packs all 7 packages at the tag's version, and pushes them to NuGet via Trusted Publishing. Run it manually from the
+Actions tab, giving it a version, to pack without publishing. The packages then appear as the run's `nuget-packages`
+artifact.
+
 ### ⚙️ Configuration
 Settings are managed in `Testing/Playwright/playwright.config.ts`:
 - **Base URL**: `https://localhost:5000`

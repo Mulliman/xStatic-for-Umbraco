@@ -7,6 +7,7 @@ on:
       - master
       - 'feature/**'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -27,10 +28,10 @@ jobs:
     runs-on: 'windows-latest'
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 'Install dotnet'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -50,7 +51,7 @@ jobs:
 
       - name: 'Upload test results'
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: TestResults
@@ -63,10 +64,10 @@ jobs:
         working-directory: ${{ env.FE_PATH }}
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 'Use Node.js 24'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: 'npm'
