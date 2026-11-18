@@ -39,7 +39,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Docs/` | Extension docs for package consumers (Generators, Transformers, Deployers, Actions, File Name Generation). |
-| `.github/workflows/` | `ci.yml` builds and tests every PR and push. `release.yml` runs on a `v*` tag: it re-runs CI, then packs all 7 packages at the tag's version and publishes them to NuGet. A manual run packs without publishing. |
+| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`. |
 
 ## Commands
 
@@ -136,7 +136,7 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
 - Don't add NuGet or npm dependencies without saying why in the PR. Prefer what Umbraco already ships.
 - Keep the docs in `Docs/` correct when you change an extension interface; their code samples should compile.
 - Don't commit secrets, test-instance folders or logs.
-- New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/release.yml`.
+- New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/pack.yml`.
   The `<Version>` in each csproj is only the local default; releases take their version from the tag.
 - Don't tag releases or push to NuGet yourself. Releasing is the maintainer's decision.
 

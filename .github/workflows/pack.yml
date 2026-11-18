@@ -1,0 +1,80 @@
+name: "Pack"
+
+# Reusable: build the backoffice client and pack every xStatic NuGet package at one version.
+# The packages are uploaded as the "nuget-packages" artifact. Called by ci.yml and release.yml.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Package version, e.g. 18.0.0 or 18.0.1-preview.42'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  FE_PATH: 'Source/XStaticCore/XStatic14/XStatic14.Client/assets'
+  OUTPUT_DIR: ${{ github.workspace }}/output
+
+jobs:
+  pack:
+    name: 'Pack ${{ inputs.version }}'
+    runs-on: 'windows-latest'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+
+      - name: 'Use Node.js 24'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FE_PATH }}/package-lock.json
+
+      - name: 'Build backoffice client'
+        working-directory: ${{ env.FE_PATH }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: 'Install dotnet'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      # Every packable project, in one place. Add new packages here.
+      - name: 'Pack'
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ inputs.version }}
+        run: |
+          if ($env:PACKAGE_VERSION -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "'$env:PACKAGE_VERSION' is not a valid package version." }
+          $projects = @(
+            'Source/XStaticCore/XStatic.Core/XStatic.Core.csproj',
+            'Source/XStaticCore/XStatic14/XStatic14.Client/XStatic.Client.csproj',
+            'Source/XStaticCore/XStatic/XStatic.csproj',
+            'Source/XStaticCore/XStatic.Netlify/XStatic.Netlify.csproj',
+            'Source/XStaticCore/XStatic.Git/XStatic.Git.csproj',
+            'Source/XStaticCore/XStatic.Ftp/XStatic.Ftp.csproj',
+            'Source/XStaticCore/XStatic.RemoteOperations/XStatic.RemoteOperations.csproj'
+          )
+          foreach ($project in $projects) {
+            dotnet pack $project --configuration Release --output "$env:OUTPUT_DIR" `
+              "-p:Version=$env:PACKAGE_VERSION" `
+              -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+            if ($LASTEXITCODE -ne 0) { throw "Packing $project failed." }
+          }
+          Get-ChildItem "$env:OUTPUT_DIR" | Format-Table Name, Length
+
+      - name: 'Upload packages'
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: |
+            ${{ env.OUTPUT_DIR }}/*.nupkg
+            ${{ env.OUTPUT_DIR }}/*.snupkg
+          if-no-files-found: error

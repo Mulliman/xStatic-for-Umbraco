@@ -48,14 +48,25 @@ Tests are numbered to run in a specific order to maintain state:
 7.  `06-issue77.spec.ts`: Regression test for issue #77.
 
 ## 🤖 Continuous Integration
-`.github/workflows/ci.yml` runs on every push and pull request: it builds the solution, runs the unit and
-integration tests (SQLite), and type-checks and builds the backoffice client. Playwright is not run in CI because it
-needs a live Umbraco instance.
+| Workflow | When | What |
+|----------|------|------|
+| `ci.yml` | Every PR, and every push to `master` / `feature/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
+| `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. |
+| `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
+| `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
 
-`.github/workflows/release.yml` publishes every package together. Push a tag such as `v18.0.0`; the workflow re-runs CI,
-packs all 7 packages at the tag's version, and pushes them to NuGet via Trusted Publishing. Run it manually from the
-Actions tab, giving it a version, to pack without publishing. The packages then appear as the run's `nuget-packages`
-artifact.
+**Preview versions** come from the nearest `v*` tag (`.github/scripts/Get-PreviewVersion.ps1`): PRs get
+`18.0.0-pr.<PR>.<run>`, and branch pushes get `18.0.0-preview.<run>`. If the nearest tag is a full release such as
+`v17.2.1`, previews target the next patch (`17.2.2-preview.<run>`). PRs from forks and Dependabot run the tests and pack,
+but can't publish to the feed; their packages are in the run's artifact.
+
+**Installing a preview:** GitHub Packages needs a personal access token (classic) with `read:packages`, even for public
+packages:
+
+```powershell
+dotnet nuget add source "https://nuget.pkg.github.com/Mulliman/index.json" --name xstatic-preview --username <github-username> --password <token>
+dotnet add package xStatic --version 18.0.0-preview.42 --source xstatic-preview
+```
 
 ### ⚙️ Configuration
 Settings are managed in `Testing/Playwright/playwright.config.ts`:

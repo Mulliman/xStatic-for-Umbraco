@@ -1,5 +1,16 @@
 name: "CI"
 
+# Every PR and every push to master / feature branches:
+#   1. builds and tests (test.yml)
+#   2. packs all packages at a preview version (pack.yml), uploaded as the "nuget-packages" artifact
+#   3. publishes them to this repo's GitHub Packages NuGet feed. Skipped for PRs from forks and Dependabot,
+#      which get a read-only token. Their packages are still downloadable from the run's artifact.
+#
+# Versions come from the nearest v* tag (see .github/scripts/Get-PreviewVersion.ps1):
+#   PR builds:   18.0.0-pr.<PR number>.<run number>
+#   Branch pushes: 18.0.0-preview.<run number>
+# nuget.org only ever gets packages from release.yml.
+
 on:
   pull_request:
   push:
@@ -7,7 +18,6 @@ on:
       - master
       - 'feature/**'
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
@@ -16,65 +26,105 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  SOLUTION_PATH: 'Source/XStaticCore/XStaticCore.sln'
-  FE_PATH: 'Source/XStaticCore/XStatic14/XStatic14.Client/assets'
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-
 jobs:
-  dotnet:
-    name: 'Build and test (.NET)'
-    runs-on: 'windows-latest'
+  test:
+    name: 'Test'
+    uses: ./.github/workflows/test.yml
+
+  version:
+    name: 'Work out preview version'
+    runs-on: 'ubuntu-latest'
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # tags are needed to work out the version
+
+      - name: 'Work out version'
+        id: version
+        shell: pwsh
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          $suffix = if ($env:PR_NUMBER) { "pr.$env:PR_NUMBER.$env:RUN_NUMBER" } else { "preview.$env:RUN_NUMBER" }
+          $version = ./.github/scripts/Get-PreviewVersion.ps1 -Suffix $suffix
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Preview version: $version"
+
+  pack:
+    name: 'Pack'
+    needs: [test, version]
+    uses: ./.github/workflows/pack.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+
+  publish-preview:
+    name: 'Publish to GitHub Packages'
+    needs: [pack, version]
+    # Fork and Dependabot PRs get a read-only token, so they can't publish (by design).
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      FEED_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+    steps:
+      - name: 'Download packages'
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: packages
 
       - name: 'Install dotnet'
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
-      - name: 'Restore'
-        run: dotnet restore ${{ env.SOLUTION_PATH }}
+      # GitHub Packages doesn't host .snupkg symbol packages; they stay in the run's artifact.
+      - name: 'Push to GitHub Packages'
+        run: dotnet nuget push "packages/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$FEED_URL" --skip-duplicate --no-symbols
 
-      - name: 'Build'
-        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+      - name: 'Write install instructions'
+        run: |
+          cat > install.md <<EOF
+          <!-- xstatic-preview-packages -->
+          ### 📦 Preview packages: \`$VERSION\`
 
-      - name: 'Unit tests'
-        run: dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+          This build is on the [GitHub Packages feed](https://github.com/${{ github.repository }}/packages). To try it in an Umbraco site:
 
-      - name: 'Integration tests (SQLite)'
-        env:
-          Tests__Database__DatabaseType: 'SQLite'
-        run: dotnet test Source/XStaticCore/XStatic.IntegrationTests/XStatic.IntegrationTests.csproj --no-build --configuration Release --logger "trx;LogFileName=integration.trx" --results-directory TestResults
+          \`\`\`powershell
+          # One-off: add the feed. GitHub Packages needs a personal access token (classic) with read:packages, even for public packages.
+          dotnet nuget add source "$FEED_URL" --name xstatic-preview --username <github-username> --password <token>
 
-      - name: 'Upload test results'
-        if: always()
-        uses: actions/upload-artifact@v7
+          dotnet add package xStatic --version $VERSION --source xstatic-preview
+          \`\`\`
+
+          The packages (including symbols) are also attached to [this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) as the \`nuget-packages\` artifact.
+          EOF
+          cat install.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 'Comment on the PR'
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
         with:
-          name: test-results
-          path: TestResults
-
-  client:
-    name: 'Type-check and build (backoffice client)'
-    runs-on: 'ubuntu-latest'
-    defaults:
-      run:
-        working-directory: ${{ env.FE_PATH }}
-    steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v7
-
-      - name: 'Use Node.js 24'
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: 'npm'
-          cache-dependency-path: ${{ env.FE_PATH }}/package-lock.json
-
-      - name: 'Install dependencies'
-        run: npm ci
-
-      - name: 'Build (tsc + vite)'
-        run: npm run build
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('install.md', 'utf8');
+            const marker = '<!-- xstatic-preview-packages -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find(c => c.user.type === 'Bot' && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
