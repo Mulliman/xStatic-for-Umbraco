@@ -45,6 +45,12 @@ Tests are numbered to run in a specific order to maintain state:
 4.  `03-operations.spec.ts`: Triggers generation/deploy and verifies output.
 5.  `04-issue70.spec.ts`: Regression tests for specific fixes.
 6.  `05-cleanup.spec.ts`: Removes test data (sites, actions) from the instance.
+7.  `06-issue77.spec.ts`: Regression test for issue #77.
+
+## 🤖 Continuous Integration
+`.github/workflows/ci.yml` runs on every push and pull request: it builds the solution, runs the unit and
+integration tests (SQLite), and type-checks and builds the backoffice client. Playwright is not run in CI because it
+needs a live Umbraco instance.
 
 ### ⚙️ Configuration
 Settings are managed in `Testing/Playwright/playwright.config.ts`:

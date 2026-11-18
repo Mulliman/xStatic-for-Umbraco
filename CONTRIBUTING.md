@@ -90,7 +90,8 @@ The tests are organized into sequential stages:
 *   **01-configuration.spec.ts**: Tests global configuration settings.
 *   **02-site-definition.spec.ts**: Tests creating and managing site definitions.
 *   **03-operations.spec.ts**: Tests xStatic operations like Generate and Deploy.
-*   **04-cleanup.spec.ts**: Cleans up test data created during the run.
+*   **04-issue70.spec.ts**, **06-issue77.spec.ts**: Regression tests for specific GitHub issues.
+*   **05-cleanup.spec.ts**: Cleans up test data created during the run.
 
 ### Configuration
 
