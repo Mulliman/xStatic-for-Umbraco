@@ -14,7 +14,7 @@
 - **🖼️ Image Optimization**: Built-in support for optimizing images as part of the generation process.
 - **🔄 Flexible Transformers**: Automatically handle URL rewriting and content adjustments for static environments.
 - **🛠️ Extensible Architecture**: Easily build your own custom Generators, Deployers, and Post-generation Actions.
-- **📦 Headless Support**: Generate static sites from Umbraco Content API / Headless sources.
+- **📦 Headless Support**: Export your content as static JSON with the built-in JSON generator.
 
 ---
 

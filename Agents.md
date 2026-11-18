@@ -25,7 +25,6 @@ This file provides critical context for AI agents working on the xStatic project
 ### Core Logic (`Source/XStaticCore/`)
 - `XStatic.Core`: The engine of the project. Contains `IStaticSiteGenerator`, site configuration models, and base classes for deployers.
 - `XStatic.Netlify`, `XStatic.Git`, `XStatic.Ftp`: Plugin-based deployment providers.
-- `XStatic.UmbracoContentApi`: Specialized generator for headless-to-static workflows.
 
 ### Umbraco Integration
 - `XStatic14`: The main entry point for Umbraco 14+ support.
