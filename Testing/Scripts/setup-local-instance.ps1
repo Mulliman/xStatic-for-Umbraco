@@ -62,7 +62,6 @@ $xStaticNetlify = Join-Path $SourceRoot "XStatic.Netlify\XStatic.Netlify.csproj"
 $xStaticGit = Join-Path $SourceRoot "XStatic.Git\XStatic.Git.csproj"
 $xStaticFtp = Join-Path $SourceRoot "XStatic.Ftp\XStatic.Ftp.csproj"
 $xStaticRemote = Join-Path $SourceRoot "XStatic.RemoteOperations\XStatic.RemoteOperations.csproj"
-$xStaticContentApi = Join-Path $SourceRoot "XStatic.UmbracoContentApi\XStatic.UmbracoContentApi.csproj"
 
 Write-Host "Adding Local xStatic Reference..."
 dotnet add $InstanceName reference $xStaticProject
@@ -84,10 +83,6 @@ if ($IncludeAllExtensions) {
     Write-Host "Adding Local xStatic.RemoteOperations Reference..."
     dotnet add $InstanceName reference $xStaticRemote
     if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.RemoteOperations reference"; exit $LASTEXITCODE }
-
-    Write-Host "Adding Local xStatic.UmbracoContentApi Reference..."
-    dotnet add $InstanceName reference $xStaticContentApi
-    if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.UmbracoContentApi reference"; exit $LASTEXITCODE }
 }
 
 Write-Host "Instance setup complete in $InstanceDir"

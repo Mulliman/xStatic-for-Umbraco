@@ -80,10 +80,6 @@ if (-not [string]::IsNullOrEmpty($XStaticVersion)) {
         Write-Host "Adding xStatic.RemoteOperations version $XStaticVersion..."
         dotnet add $InstanceName package xStatic.RemoteOperations --version $XStaticVersion
         if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.RemoteOperations"; exit $LASTEXITCODE }
-
-        Write-Host "Adding xStatic.UmbracoContentApi version $XStaticVersion..."
-        dotnet add $InstanceName package xStatic.UmbracoContentApi --version $XStaticVersion
-        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.UmbracoContentApi"; exit $LASTEXITCODE }
     }
 }
 else {
