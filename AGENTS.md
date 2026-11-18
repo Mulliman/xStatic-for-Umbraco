@@ -16,8 +16,11 @@ path or convention below, update this file in the same change.
 | `feature/NN` | NN      |        |                 | Older majors, historical  |
 
 - One branch per Umbraco major. Put fixes on the branch for the version they target and say which in the PR.
-- All Umbraco package references in a branch use the same version (currently `18.0.0` on `feature/18`).
-  Bump them together.
+- All Umbraco package references in a branch use the same version (currently `18.3.2` on `feature/18`, also
+  the minimum Umbraco version consumers need). Bump them together, along with `@umbraco-cms/backoffice` in the
+  client's `package.json`.
+- Check dependencies with `dotnet list Source/XStaticCore/XStaticCore.sln package --vulnerable --include-transitive`
+  (it should report none) and `npm audit` in the client folder.
 
 ## Repository map
 
@@ -44,7 +47,7 @@ Run from the repository root unless stated. They're Windows/PowerShell-first, bu
 also work in bash.
 
 ```powershell
-# Build everything (expect ~160 pre-existing warnings, 0 errors)
+# Build everything (expect 0 errors and about 10 existing warnings — see Known issues)
 dotnet build Source/XStaticCore/XStaticCore.sln
 
 # Unit tests — fast, run these on every change
@@ -136,7 +139,16 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
 
 ## Known issues (don't treat these as regressions)
 
-- About 160 build warnings already exist: nullable warnings, and NU190x vulnerability advisories on transitive
-  packages. Don't fix them as a side effect of an unrelated change.
+- About 10 build warnings already exist. Don't fix them as a side effect of an unrelated change:
+  - `CS0618 IPublishedContent.UrlSegment` is obsolete (in `StaticHtmlSiteGenerator` and `BasicJsonApiGenerator`).
+    It must move to `GetUrlSegment()` before the Umbraco 19 upgrade.
+  - `SYSLIB0014` / `SYSLIB0021` in `NetlifyDeployerLegacy.cs`.
+  - `CS0108` in `DeploymentTargetEditorModel`.
+- `npm audit` in the client reports a dev-only `picomatch` ReDoS advisory (pulled in by Vite) that has no
+  patched release yet. It isn't shipped in the package. `package.json` `overrides` pin patched `dompurify`
+  and `js-yaml` for the same reason; remove them once upstream catches up.
+- `ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"]` in `SitesController` reads the .NET Framework
+  `app.config`, which is normally absent in Umbraco sites on .NET 10. Treat that setting as non-functional until it moves to
+  `IOptions`.
 - Unit test coverage is low. Improving it is welcome, but keep it in separate commits from behaviour changes.
 - `Testing.md` and `CONTRIBUTING.md` examples mention older Umbraco versions; the steps still apply.

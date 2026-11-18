@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Helpers;
@@ -40,16 +41,24 @@ namespace XStatic.Ftp
         {
             try
             {
-                FtpClient client = new FtpClient(_hostname, _port, _username, _password);
-                client.EncryptionMode = FtpEncryptionMode.Auto;
-                client.ValidateAnyCertificate = true;
+                var config = new FtpConfig
+                {
+                    EncryptionMode = FtpEncryptionMode.Auto,
+                    ValidateAnyCertificate = true
+                };
+
+                using var client = new FtpClient(_hostname, _username, _password, _port, config);
                 client.Connect();
 
                 var remoteFolder = string.IsNullOrEmpty(_folder) ? "/" : _folder;
 
-                client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror);
+                var results = client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror);
 
-                client.Dispose();
+                var failed = results.Where(r => r.IsFailed).ToList();
+                if (failed.Count > 0)
+                {
+                    return XStaticResult.Error($"FTP deploy failed for {failed.Count} item(s), first: {failed[0].RemotePath}.", failed[0].Exception);
+                }
             }
             catch (Exception e)
             {

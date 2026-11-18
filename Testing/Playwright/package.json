@@ -9,12 +9,12 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.58.0",
+    "@playwright/test": "^1.65.1",
     "@types/adm-zip": "^0.5.8",
-    "@types/node": "^25.1.0",
-    "adm-zip": "^0.5.17"
+    "@types/node": "^25.9.9",
+    "adm-zip": "^0.6.1"
   },
   "dependencies": {
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.2"
   }
 }
