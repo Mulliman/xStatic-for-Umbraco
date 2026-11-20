@@ -42,7 +42,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Docs/` | Docs for package consumers: configuration (`Configuration.md`, the `XStatic` appsettings section) and extension points (Generators, Transformers, Deployers, Actions, File Name Generation). |
-| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`. |
+| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`; release steps: `RELEASING.md`. |
 
 ## Commands
 
@@ -50,7 +50,7 @@ Run from the repository root unless stated. They're Windows/PowerShell-first, bu
 also work in bash.
 
 ```powershell
-# Build everything (expect 0 errors and about 10 existing warnings — see Known issues)
+# Build everything (expect 0 errors and about 8 existing warnings — see Known issues)
 dotnet build Source/XStaticCore/XStaticCore.sln
 
 # Unit tests — fast, run these on every change
@@ -144,11 +144,11 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
 - Don't commit secrets, test-instance folders or logs.
 - New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/pack.yml`.
   The `<Version>` in each csproj is only the local default; releases take their version from the tag.
-- Don't tag releases or push to NuGet yourself. Releasing is the maintainer's decision.
+- Don't tag releases or push to NuGet yourself. Releasing is the maintainer's decision; `RELEASING.md` has the checklist you can prepare for.
 
 ## Known issues (don't treat these as regressions)
 
-- About 10 build warnings already exist. Don't fix them as a side effect of an unrelated change:
+- About 8 build warnings already exist. Don't fix them as a side effect of an unrelated change:
   - `CS0618 IPublishedContent.UrlSegment` is obsolete (in `StaticHtmlSiteGenerator` and `BasicJsonApiGenerator`).
     It must move to `GetUrlSegment()` on `IDocumentUrlService` before Umbraco 20, which removes it.
   - `SYSLIB0014` / `SYSLIB0021` in `NetlifyDeployerLegacy.cs`.
