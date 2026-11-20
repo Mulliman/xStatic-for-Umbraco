@@ -30,7 +30,8 @@ namespace XStatic.Core.Generator
     {
         protected readonly string[] ResizeExtensions = new[] { "jpg", "jpeg", "png", "gif", "webp" };
 
-        protected static readonly Encoding DefaultEncoder = Encoding.UTF8;
+        /// <summary>UTF-8 without a byte order mark: JSON must not start with one (RFC 8259), and HTML doesn't need one.</summary>
+        protected static readonly Encoding DefaultEncoder = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         protected IUmbracoContextFactory _umbracoContextFactory;
         protected readonly IPublishedUrlProvider _publishedUrlProvider;
