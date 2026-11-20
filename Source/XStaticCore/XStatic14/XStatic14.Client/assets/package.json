@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.99.0",
-    "@umbraco-cms/backoffice": "^18.3.2",
+    "@umbraco-cms/backoffice": "^19.0.0-rc1",
     "typescript": "^5.9.3",
     "vite": "^8.3.8"
   },

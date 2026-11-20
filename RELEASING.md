@@ -12,7 +12,7 @@ All 7 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
 |-----------|--------------|-----|
 | The latest major (currently 18) | `master` (for 18.0.0: merge the "Upgrade to Umbraco 18" PR first) | `v18.x.y` |
 | An LTS patch or minor (17) | `lts/17` | `v17.x.y` |
-| A preview of a new major | `feature/NN` | `vNN.0.0-beta`, `-rc1`, … |
+| A preview of a new major (19) | `feature/19` | `v19.0.0-beta`, `-rc1`, … |
 
 ## Checklist
 

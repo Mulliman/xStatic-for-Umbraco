@@ -26,7 +26,7 @@ jobs:
       - name: 'Install dotnet'
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       - name: 'Restore'
         run: dotnet restore ${{ env.SOLUTION_PATH }}

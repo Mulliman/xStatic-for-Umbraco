@@ -12,14 +12,15 @@ path or convention below, update this file in the same change.
 | Branch       | Umbraco | .NET   | Package version | Status                                |
 |--------------|---------|--------|-----------------|---------------------------------------|
 | `master`     | 17 → 18 | net10.0| 17.x → 18.x     | Latest major; becomes 18 at release   |
-| `feature/18` | 18      | net10.0| 18.0.0-beta     | In progress                           |
+| `feature/19` | 19 (RC) | net11.0| 19.0.0-alpha    | In progress (this branch), Umbraco 19 is short-term support |
+| `feature/18` | 18      | net10.0| 18.0.0-beta     | Ready for release                     |
 | `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
 | `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
 | `feature/NN` | NN      |        |                 | Older majors, historical              |
 
 - One branch per Umbraco major. Put fixes on the branch for the version they target and say which in the PR.
   A fix that applies to 17 and 18 goes on `lts/17` and is cherry-picked forward (or the other way round).
-- All Umbraco package references in a branch use the same version (currently `18.3.2` on `feature/18`, also
+- All Umbraco package references in a branch use the same version (currently `19.0.0-rc1` on `feature/19`, also
   the minimum Umbraco version consumers need). Bump them together, along with `@umbraco-cms/backoffice` in the
   client's `package.json`.
 - Check dependencies with `dotnet list Source/XStaticCore/XStaticCore.sln package --vulnerable --include-transitive`
@@ -50,7 +51,7 @@ Run from the repository root unless stated. They're Windows/PowerShell-first, bu
 also work in bash.
 
 ```powershell
-# Build everything (expect 0 errors and about 8 existing warnings — see Known issues)
+# Build everything (expect 0 errors and about 8 existing warnings — see Known issues). Needs the .NET 11 SDK.
 dotnet build Source/XStaticCore/XStaticCore.sln
 
 # Unit tests — fast, run these on every change

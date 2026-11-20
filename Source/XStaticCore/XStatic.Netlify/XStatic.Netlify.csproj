@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<ContentTargetFolders>.</ContentTargetFolders>
 		<Product>xStatic.Netlify</Product>
 		<PackageId>xStatic.Netlify</PackageId>
 		<Title>xStatic.Netlify</Title>
-		<Version>18.0.0-beta</Version>
+		<Version>19.0.0-alpha</Version>
 		<Description>Netlify functionality for xStatic for Umbraco.</Description>
 		<PackageTags>umbraco umbraco18 xstatic static site generation netlify umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
@@ -25,8 +25,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="NetlifySharp" Version="1.1.1" />
-		<PackageReference Include="Umbraco.Cms.Core" Version="18.3.2" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="18.3.2" />
+		<PackageReference Include="Umbraco.Cms.Core" Version="19.0.0-rc1" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="19.0.0-rc1" />
 	</ItemGroup>
 
 	<ItemGroup>

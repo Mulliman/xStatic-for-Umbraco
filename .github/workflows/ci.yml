@@ -7,8 +7,8 @@ name: "CI"
 #      which get a read-only token. Their packages are still downloadable from the run's artifact.
 #
 # Versions come from the nearest v* tag (see .github/scripts/Get-PreviewVersion.ps1):
-#   PR builds:   18.0.0-pr.<PR number>.<run number>
-#   Branch pushes: 18.0.0-preview.<run number>
+#   PR builds:   19.0.0-pr.<PR number>.<run number>
+#   Branch pushes: 19.0.0-preview.<run number>
 # nuget.org only ever gets packages from release.yml.
 
 on:
@@ -87,7 +87,7 @@ jobs:
       - name: 'Install dotnet'
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       # GitHub Packages doesn't host .snupkg symbol packages; they stay in the run's artifact.
       - name: 'Push to GitHub Packages'

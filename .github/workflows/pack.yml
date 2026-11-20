@@ -7,7 +7,7 @@ on:
   workflow_call:
     inputs:
       version:
-        description: 'Package version, e.g. 18.0.0 or 18.0.1-preview.42'
+        description: 'Package version, e.g. 19.0.0 or 19.0.1-preview.42'
         required: true
         type: string
 
@@ -44,7 +44,7 @@ jobs:
       - name: 'Install dotnet'
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       # Every packable project, in one place. Add new packages here.
       - name: 'Pack'

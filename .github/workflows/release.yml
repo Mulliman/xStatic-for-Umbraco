@@ -1,7 +1,7 @@
 name: "Release"
 
 # Publishes every xStatic NuGet package to nuget.org from one tag.
-# Easiest: GitHub → Releases → Draft a new release → new tag such as v18.0.0 or v18.1.0-beta → Publish.
+# Easiest: GitHub → Releases → Draft a new release → new tag such as v19.0.0 or v19.0.0-beta → Publish.
 # (Pushing the tag from git works too.) The tag, without its "v", is the version of all packages.
 # Run it manually (workflow_dispatch) to test and pack without publishing; the packages are the
 # run's "nuget-packages" artifact.
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Package version to pack (dry run, nothing is published), e.g. 18.0.0-test.1'
+        description: 'Package version to pack (dry run, nothing is published), e.g. 19.0.0-test.1'
         required: true
 
 permissions:
@@ -70,7 +70,7 @@ jobs:
       - name: 'Install dotnet'
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       - name: 'NuGet login (Trusted Publishing)'
         uses: NuGet/login@v1

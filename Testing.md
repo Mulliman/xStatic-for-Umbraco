@@ -57,7 +57,7 @@ Tests are numbered to run in a specific order to maintain state:
 | `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
 
 **Preview versions** come from the nearest `v*` tag (`.github/scripts/Get-PreviewVersion.ps1`): PRs get
-`18.0.0-pr.<PR>.<run>`, and branch pushes get `18.0.0-preview.<run>`. If the nearest tag is a full release such as
+`19.0.0-pr.<PR>.<run>`, and branch pushes get `19.0.0-preview.<run>`. If the nearest tag is a full release such as
 `v17.2.1`, previews target the next patch (`17.2.2-preview.<run>`). PRs from forks and Dependabot run the tests and pack,
 but can't publish to the feed; their packages are in the run's artifact.
 
@@ -66,7 +66,7 @@ packages:
 
 ```powershell
 dotnet nuget add source "https://nuget.pkg.github.com/Mulliman/index.json" --name xstatic-preview --username <github-username> --password <token>
-dotnet add package xStatic --version 18.0.0-preview.42 --source xstatic-preview
+dotnet add package xStatic --version 19.0.0-preview.42 --source xstatic-preview
 ```
 
 ### ⚙️ Configuration

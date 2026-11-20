@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <ContentTargetFolders>.</ContentTargetFolders>
         <Product>xStatic</Product>
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
-		<Version>18.0.0-beta</Version>
+		<Version>19.0.0-alpha</Version>
         <Description>Static site generation for Umbraco 18 without changing the method of building Umbraco sites.</Description>
         <PackageTags>umbraco umbraco18 xstatic static site generation umbraco-marketplace</PackageTags>
         <Copyright>Sam Mullins</Copyright>
@@ -24,9 +24,9 @@
 	</ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Core" Version="18.3.2" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="18.3.2" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="18.3.2" />
+        <PackageReference Include="Umbraco.Cms.Core" Version="19.0.0-rc1" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="19.0.0-rc1" />
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="19.0.0-rc1" />
     </ItemGroup>
 
     <ItemGroup>
