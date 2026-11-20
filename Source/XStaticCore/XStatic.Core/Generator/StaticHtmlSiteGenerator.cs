@@ -42,13 +42,22 @@ namespace XStatic.Core.Generator
             {
                 return null;
             }
+            var urlSegment = node.UrlSegment;
+
             try
             {
                 var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
                 string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute, culture: culture);
 
                 var fileData = await GetFileDataFromWebClient(absoluteUrl);
-                Logger.LogInformation($"Downloaded page {url} from {absoluteUrl} with {fileData?.Length} chars of data");
+
+                if (fileData == null)
+                {
+                    // The download failed (already logged). Don't store an empty page and report success.
+                    return GenerateItemResult.Error("Page", urlSegment, $"Could not download the page from {absoluteUrl}. Check the site is running and the URL is reachable from the server.");
+                }
+
+                Logger.LogInformation($"Downloaded page {url} from {absoluteUrl} with {fileData.Length} chars of data");
 
                 var transformedData = RunTransformers(fileData, transformers);
                 Logger.LogInformation($"Transformed page {url} with {transformedData?.Length} chars of data");
@@ -57,12 +66,12 @@ namespace XStatic.Core.Generator
 
                 var generatedFileLocation = await Store(staticSiteId, filePath, transformedData);
 
-                return GenerateItemResult.Success("Page", node.UrlSegment, generatedFileLocation);
+                return GenerateItemResult.Success("Page", urlSegment, generatedFileLocation);
             }
             catch (Exception e)
             {
-                Logger.LogError(e, $"Error generating page {node.UrlSegment}");
-                return GenerateItemResult.Error("Page", node.UrlSegment, e.Message);
+                Logger.LogError(e, $"Error generating page {urlSegment}");
+                return GenerateItemResult.Error("Page", urlSegment, e.Message);
             }
         }
     }
