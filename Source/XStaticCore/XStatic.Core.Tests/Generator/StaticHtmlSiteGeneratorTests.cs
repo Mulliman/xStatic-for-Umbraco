@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Media;
+using ImageCropMode = Umbraco.Cms.Core.Models.ImageCropMode;
+using ImageUrlGenerationOptions = Umbraco.Cms.Core.Models.ImageUrlGenerationOptions;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Routing;
@@ -38,6 +41,10 @@ namespace XStatic.Core.Tests.Generator
             public Dictionary<string, string?> Responses { get; } = new();
 
             public List<string> RequestedUrls { get; } = new();
+
+            public IImageUrlGenerator? Images { set => ImageUrlGenerator = value!; }
+
+            public string CropUrl(string mediaUrl, string absoluteUrl, Crop crop) => GetCropUrl(mediaUrl, absoluteUrl, crop);
 
             protected override Task<string> GetFileDataFromWebClient(string absoluteUrl)
             {
@@ -195,6 +202,52 @@ namespace XStatic.Core.Tests.Generator
             {
                 Directory.Delete(folder, recursive: true);
             }
+        }
+
+        [Fact]
+        public void GetCropUrl_UsesUmbracosImageUrlGeneratorSoTheUrlIsSigned()
+        {
+            ImageUrlGenerationOptions? sent = null;
+            var images = new Mock<IImageUrlGenerator>();
+            images.Setup(i => i.GetImageUrl(It.IsAny<ImageUrlGenerationOptions>()))
+                .Callback<ImageUrlGenerationOptions>(o => sent = o)
+                .Returns("/media/abc/photo.jpg?width=300&height=200&rmode=max&hmac=signed");
+            var generator = NewGenerator();
+            generator.Images = images.Object;
+
+            var url = generator.CropUrl("/media/abc/photo.jpg", "https://cms.example.com/media/abc/photo.jpg", new Crop(300, 200, 80));
+
+            Assert.Equal("https://cms.example.com/media/abc/photo.jpg?width=300&height=200&rmode=max&hmac=signed", url);
+            Assert.NotNull(sent);
+            Assert.Equal("/media/abc/photo.jpg", sent!.ImageUrl);
+            Assert.Equal(300, sent.Width);
+            Assert.Equal(200, sent.Height);
+            Assert.Equal(80, sent.Quality);
+            Assert.Equal(ImageCropMode.Max, sent.ImageCropMode);
+        }
+
+        [Fact]
+        public void GetCropUrl_ZeroQualityIsLeftOut()
+        {
+            ImageUrlGenerationOptions? sent = null;
+            var images = new Mock<IImageUrlGenerator>();
+            images.Setup(i => i.GetImageUrl(It.IsAny<ImageUrlGenerationOptions>()))
+                .Callback<ImageUrlGenerationOptions>(o => sent = o)
+                .Returns("/x.jpg");
+            var generator = NewGenerator();
+            generator.Images = images.Object;
+
+            generator.CropUrl("/x.jpg", "https://cms.example.com/x.jpg", new Crop(300, 200, 0));
+
+            Assert.Null(sent!.Quality);
+        }
+
+        [Fact]
+        public void GetCropUrl_NoGenerator_FallsBackToTheUnsignedQueryString()
+        {
+            var url = NewGenerator().CropUrl("/x.jpg", "https://cms.example.com/x.jpg", new Crop(300, 200, 75));
+
+            Assert.Equal("https://cms.example.com/x.jpg?mode=max&width=300&height=200&quality=75", url);
         }
     }
 }
