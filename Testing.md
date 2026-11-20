@@ -48,6 +48,46 @@ Tests are numbered to run in a specific order to maintain state:
 6.  `05-cleanup.spec.ts`: Removes test data (sites, actions) from the instance.
 7.  `06-issue77.spec.ts`: Regression test for issue #77.
 
+These create and remove their own data, so they only depend on the login:
+
+- `07-output.spec.ts`: checks what's generated (pages, assets, media, image crops, post-generation action output),
+  what Deploy copies to a folder, and that Clean keeps the do-not-delete paths.
+- `08-json-export.spec.ts`: a JSON export type produces valid JSON.
+- `09-security.spec.ts`: every xStatic API endpoint rejects anonymous requests.
+- `10-validation.spec.ts`: empty create forms aren't submitted.
+- `11-dashboards.spec.ts`: the Config and Documentation dashboards load.
+- `12-parameterless-action.spec.ts`: an action type with no parameters can be created, edited and deleted.
+- `13-ftp-deploy.spec.ts`: deploys through the backoffice to the Docker FTP server. Skipped unless that server is
+  running; see [FTP deployer](#-ftp-deployer).
+
+## 📡 FTP deployer
+The FTP deployer is tested in two ways.
+
+**In the unit tests (runs in CI).** `XStatic.Core.Tests/Deploy/FtpDeployerServerTests.cs` runs the real deployer against
+an FTP server inside the test process (FubarDev.FtpServer), so it needs nothing installed. It covers uploads, updating
+and removing files, and a blocked passive data connection.
+
+**Against a real FTP server in Docker (by hand).** `Testing/Ftp/docker-compose.yml` runs vsftpd:
+
+```powershell
+docker compose -f Testing/Ftp/docker-compose.yml up -d
+```
+
+Then either create an FTP deployment target in the backoffice (Hostname `127.0.0.1`, Port `2121`, Username `xstest`,
+Password `xstestpw`, Folder `/home/xstest/site`) and deploy, or run the Playwright spec:
+
+```powershell
+npx playwright test --project=chromium-ftp
+```
+
+Uploaded files appear in `Testing/Ftp/data/site` (gitignored). The test site needs the FTP deployer installed: create it
+with `setup-local-instance.ps1 -IncludeAllExtensions`, or add a reference to `XStatic.Ftp.csproj`. Stop the server with
+`docker compose -f Testing/Ftp/docker-compose.yml down`.
+
+FTP opens a separate connection for each file transfer, on a "passive" port the server picks. The compose file
+publishes that port range (21100–21110) and sets the address the server announces. Without the ports, logging in and
+creating folders work but no file can be transferred, which the deployer reports as a failed deploy.
+
 ## 🤖 Continuous Integration
 | Workflow | When | What |
 |----------|------|------|
