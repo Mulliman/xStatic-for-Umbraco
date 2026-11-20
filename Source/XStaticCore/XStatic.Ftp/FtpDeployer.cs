@@ -52,7 +52,9 @@ namespace XStatic.Ftp
 
                 var remoteFolder = string.IsNullOrEmpty(_folder) ? "/" : _folder;
 
-                var results = client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror);
+                // Overwrite: UploadDirectory's default skips any file that already exists on the server, so pages
+                // edited since the last deploy were never updated.
+                var results = client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror, FtpRemoteExists.Overwrite);
 
                 var failed = GetFailedItems(results);
                 if (failed.Count > 0)
