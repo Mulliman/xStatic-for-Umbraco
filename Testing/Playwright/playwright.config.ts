@@ -121,6 +121,8 @@ export default defineConfig({
       ['chromium-validation', /10-validation\.spec\.ts/],
       ['chromium-dashboards', /11-dashboards\.spec\.ts/],
       ['chromium-parameterless-action', /12-parameterless-action\.spec\.ts/],
+      // Skips itself unless the Docker FTP server in Testing/Ftp is running.
+      ['chromium-ftp', /13-ftp-deploy\.spec\.ts/],
     ].map(([name, testMatch]) => ({
       name: name as string,
       testMatch: testMatch as RegExp,
