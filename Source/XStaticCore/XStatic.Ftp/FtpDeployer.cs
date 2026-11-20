@@ -54,10 +54,14 @@ namespace XStatic.Ftp
 
                 var results = client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror);
 
-                var failed = results.Where(r => r.IsFailed).ToList();
+                var failed = GetFailedItems(results);
                 if (failed.Count > 0)
                 {
-                    return XStaticResult.Error($"FTP deploy failed for {failed.Count} item(s), first: {failed[0].RemotePath}.", failed[0].Exception);
+                    var first = failed[0];
+                    var reason = first.Exception?.Message
+                        ?? "the server did not confirm the upload. If folders were created but files were not, the data "
+                         + "connection is probably blocked: check the server's passive mode settings and firewall.";
+                    return XStaticResult.Error($"FTP deploy failed for {failed.Count} of {results.Count} item(s). First: {first.RemotePath}: {reason}", first.Exception);
                 }
             }
             catch (Exception e)
@@ -66,6 +70,18 @@ namespace XStatic.Ftp
             }
 
             return XStaticResult.Success("Site deployed using FTP.");
+        }
+
+        /// <summary>
+        /// Gets the items that didn't upload. FluentFTP doesn't always mark a failed transfer as failed: when the data
+        /// connection can't be opened, files come back as neither successful nor failed, with no exception. So anything
+        /// not confirmed as uploaded or deliberately skipped counts as a failure.
+        /// </summary>
+        public static IReadOnlyList<FtpResult> GetFailedItems(IEnumerable<FtpResult> results)
+        {
+            return (results ?? Enumerable.Empty<FtpResult>())
+                .Where(r => r.IsFailed || (!r.IsSuccess && !r.IsSkipped && !r.IsSkippedByRule))
+                .ToList();
         }
     }
 }
