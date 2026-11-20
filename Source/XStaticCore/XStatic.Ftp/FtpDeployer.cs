@@ -41,9 +41,13 @@ namespace XStatic.Ftp
         {
             try
             {
-                using var client = new FtpClient(_hostname, _port, _username, _password);
-                client.EncryptionMode = FtpEncryptionMode.Auto;
-                client.ValidateAnyCertificate = true;
+                var config = new FtpConfig
+                {
+                    EncryptionMode = FtpEncryptionMode.Auto,
+                    ValidateAnyCertificate = true
+                };
+
+                using var client = new FtpClient(_hostname, _username, _password, _port, config);
                 client.Connect();
 
                 var remoteFolder = string.IsNullOrEmpty(_folder) ? "/" : _folder;

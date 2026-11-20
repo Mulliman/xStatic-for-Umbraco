@@ -12,7 +12,7 @@ namespace XStatic.Core.Tests.Deploy
         private static FtpResult Result(string path, bool success = false, bool failed = false, bool skipped = false, bool skippedByRule = false, Exception? ex = null)
             => new()
             {
-                Type = FtpFileSystemObjectType.File,
+                Type = FtpObjectType.File,
                 RemotePath = path,
                 IsSuccess = success,
                 IsFailed = failed,
@@ -49,7 +49,7 @@ namespace XStatic.Core.Tests.Deploy
             // come back with every flag false and no exception.
             var results = new List<FtpResult>
             {
-                new() { Type = FtpFileSystemObjectType.Directory, RemotePath = "/css/", IsSuccess = true },
+                new() { Type = FtpObjectType.Directory, RemotePath = "/css/", IsSuccess = true },
                 Result("/index.html"),
                 Result("/css/site.css"),
             };
