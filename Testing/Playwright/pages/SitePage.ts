@@ -1,6 +1,26 @@
 import { Page, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
+export interface SiteOptions {
+    imageCrops?: string[];
+    postActions?: string[];
+    /** Name of a media folder to pick as the media root. */
+    mediaRoot?: string;
+}
+
+export interface GenerateItemResult {
+    wasSuccessful: boolean;
+    type: string;
+    item: string;
+    message?: string;
+}
+
+export interface GenerateResponse {
+    wasSuccessful: boolean;
+    exception?: string;
+    results: GenerateItemResult[];
+}
+
 export class SitePage extends BasePage {
     constructor(page: Page) {
         super(page);
@@ -10,7 +30,7 @@ export class SitePage extends BasePage {
         await super.goto();
     }
 
-    async create(name: string, rootNodeName: string, exportFormatPartial: string, deploymentTarget?: string, assetPaths: string[] = []) {
+    async create(name: string, rootNodeName: string, exportFormatPartial: string, deploymentTarget?: string, assetPaths: string[] = [], options: SiteOptions = {}) {
         // Wait for config to be loaded upon opening the modal
         const configResponsePromise = this.page.waitForResponse(response => 
             response.url().includes('xstatic/config/get-config') && response.status() === 200
@@ -100,6 +120,18 @@ export class SitePage extends BasePage {
             await this.addAssetPath(assetPath);
         }
 
+        for (const crop of options.imageCrops ?? []) {
+            await this.addTag('imageCrops', crop);
+        }
+
+        for (const actionName of options.postActions ?? []) {
+            await this.checkPostAction(actionName);
+        }
+
+        if (options.mediaRoot) {
+            await this.chooseMediaRoot(options.mediaRoot);
+        }
+
         await this.page.getByRole('button', { name: 'Submit' }).click();
 
         // Debug: Check for validation errors
@@ -116,17 +148,101 @@ export class SitePage extends BasePage {
 
     /** Adds a value to the "Asset Paths" tags editor in the open site modal. */
     async addAssetPath(assetPath: string) {
-        const assetPathsProperty = this.page.locator('umb-property[alias="assetPaths"]');
-        await expect(assetPathsProperty).toBeVisible();
+        await this.addTag('assetPaths', assetPath);
+    }
+
+    /** Adds a value to a tags editor (asset paths, image crops) in the open site modal. */
+    async addTag(alias: string, value: string) {
+        const property = this.page.locator(`umb-property[alias="${alias}"]`);
+        await expect(property).toBeVisible();
 
         // Umb.PropertyEditorUi.Tags renders <umb-tags-input> with <input aria-label="tag input">.
         // No click(): the input is 16px wide until focused and its "+" icon intercepts pointer
         // events. fill() focuses it directly.
-        const input = assetPathsProperty.getByRole('textbox', { name: 'tag input' });
-        await input.fill(assetPath);
+        const input = property.getByRole('textbox', { name: 'tag input' });
+        await input.fill(value);
         await input.press('Enter');
 
-        await expect(assetPathsProperty.locator('uui-tag').filter({ hasText: assetPath })).toBeVisible();
+        await expect(property.locator('uui-tag').filter({ hasText: value })).toBeVisible();
+    }
+
+    /** Ticks a post-generation action in the open site modal. */
+    async checkPostAction(actionName: string) {
+        const property = this.page.locator('umb-property[alias="postGenerationActionIds"]');
+        await expect(property).toBeVisible();
+        // uui-checkbox hides its native input, so click the component itself.
+        const checkbox = property.locator('uui-checkbox').filter({ hasText: actionName }).first();
+        await checkbox.click();
+        await expect(checkbox).toHaveAttribute('checked', '');
+    }
+
+    /** Picks a media folder as a media root. */
+    async chooseMediaRoot(folderName: string) {
+        const property = this.page.locator('umb-property[alias="mediaRootNodes"]');
+        await expect(property).toBeVisible();
+        await property.getByRole('button', { name: 'Choose' }).click({ force: true });
+
+        const pickerModal = this.page.locator('umb-media-picker-modal').first();
+        await expect(pickerModal).toBeVisible();
+        // Clicking a folder card opens the folder. Selecting it uses the round checkbox that appears in the
+        // card's top-left corner on hover.
+        const card = pickerModal.locator('uui-card-media').filter({ hasText: folderName }).first();
+        await card.hover();
+        await card.click({ position: { x: 12, y: 10 } });
+        await expect(card).toHaveAttribute('selected', '');
+
+        const chooseInPicker = pickerModal.getByRole('button', { name: 'Choose', exact: true });
+        await expect(chooseInPicker).toBeEnabled();
+        await chooseInPicker.click();
+        await expect(pickerModal).not.toBeVisible();
+    }
+
+    row(name: string) {
+        return this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+    }
+
+    /** Clicks Generate and returns the parsed generate-site response. */
+    async generateAndWait(name: string): Promise<GenerateResponse> {
+        const responsePromise = this.page.waitForResponse(r => r.url().includes('xstatic/generate/generate-site'), { timeout: 120000 });
+        await this.generate(name);
+        const response = await responsePromise;
+        expect(response.status()).toBe(200);
+        return await response.json();
+    }
+
+    /** Clicks Deploy, confirms, and returns the deploy-site response. */
+    async deployAndWait(name: string) {
+        const responsePromise = this.page.waitForResponse(r => r.url().includes('xstatic/deploy/deploy-site'), { timeout: 120000 });
+        await this.deploy(name);
+        return await responsePromise;
+    }
+
+    /** Clicks Clean and confirms. Resolves when the clear-stored-site call returns. */
+    async clean(name: string) {
+        const responsePromise = this.page.waitForResponse(r => r.url().includes('xstatic/sites/clear-stored-site'));
+        await this.row(name).getByRole('button', { name: 'Clean' }).click();
+        await this.page.getByRole('button', { name: 'Clean up' }).click();
+        const response = await responsePromise;
+        expect(response.status()).toBe(200);
+    }
+
+    /** Downloads the site's zip and returns its entries as forward-slash paths mapped to their text. */
+    async downloadEntries(name: string, saveDir: string): Promise<Map<string, Buffer>> {
+        const downloadPromise = this.page.waitForEvent('download');
+        await this.row(name).getByRole('button', { name: 'Download' }).click();
+        const download = await downloadPromise;
+        const zipPath = `${saveDir}/${Date.now()}-${download.suggestedFilename()}`;
+        await download.saveAs(zipPath);
+
+        const AdmZip = (await import('adm-zip')).default;
+        const zip = new AdmZip(zipPath);
+        const entries = new Map<string, Buffer>();
+        for (const entry of zip.getEntries()) {
+            if (!entry.isDirectory) {
+                entries.set(entry.entryName.replace(/\\/g, '/').replace(/^\/+/, ''), entry.getData());
+            }
+        }
+        return entries;
     }
 
     async edit(oldName: string, newName: string) {
