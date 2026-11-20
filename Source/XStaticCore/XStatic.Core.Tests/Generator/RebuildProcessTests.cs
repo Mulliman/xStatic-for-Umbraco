@@ -229,6 +229,49 @@ namespace XStatic.Core.Tests.Generator
         }
 
         [Fact]
+        public async Task RebuildSite_PostActionReturningError_IsReportedAndLaterActionsStillRun()
+        {
+            var failing = new Mock<IPostGenerationAction>();
+            failing.Setup(a => a.Name).Returns("Copy404");
+            failing.Setup(a => a.RunAction(SiteId, It.IsAny<Dictionary<string, string>>()))
+                .ReturnsAsync(XStaticResult.Error("Error running file copy action", new IOException("file missing")));
+            var later = new Mock<IPostGenerationAction>();
+            later.Setup(a => a.Name).Returns("Metadata");
+            later.Setup(a => a.RunAction(SiteId, It.IsAny<Dictionary<string, string>>())).ReturnsAsync(XStaticResult.Success());
+            GivenSite(s => s.PostGenerationActionIds = new List<int> { 10, 11 });
+            _actions.Setup(a => a.CreateConfiguredPostGenerationActions(10, 11)).Returns(new[]
+            {
+                new ConfiguredPostGenerationAction(failing.Object, new()),
+                new ConfiguredPostGenerationAction(later.Object, new()),
+            });
+
+            var result = await NewProcess().RebuildSite(SiteId);
+
+            Assert.False(result.WasSuccessful);
+            var warning = Assert.Single(result.Warnings);
+            Assert.Equal("Copy404", warning.Item);
+            Assert.Equal("Error running file copy action file missing", warning.Message);
+            later.Verify(a => a.RunAction(SiteId, It.IsAny<Dictionary<string, string>>()), Times.Once);
+            Assert.Contains(result.Results, r => r.Item == "Metadata" && r.WasSuccessful);
+        }
+
+        [Fact]
+        public async Task RebuildSite_PostActionReturningNull_IsReportedAsError()
+        {
+            var action = new Mock<IPostGenerationAction>();
+            action.Setup(a => a.Name).Returns("Custom");
+            action.Setup(a => a.RunAction(It.IsAny<int>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync((XStaticResult)null!);
+            GivenSite(s => s.PostGenerationActionIds = new List<int> { 10 });
+            _actions.Setup(a => a.CreateConfiguredPostGenerationActions(10))
+                .Returns(new[] { new ConfiguredPostGenerationAction(action.Object, new()) });
+
+            var result = await NewProcess().RebuildSite(SiteId);
+
+            Assert.False(result.WasSuccessful);
+            Assert.Equal("Action returned no result.", Assert.Single(result.Warnings).Message);
+        }
+
+        [Fact]
         public async Task RebuildSite_NoPostActions_DoesNotCallFactory()
         {
             GivenSite(s => s.PostGenerationActionIds = new List<int>());
