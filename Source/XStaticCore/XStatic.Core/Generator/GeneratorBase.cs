@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,10 +11,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Extensions;
 using XStatic.Core.App;
 using XStatic.Core.Generator.Storage;
@@ -39,6 +43,34 @@ namespace XStatic.Core.Generator
         protected ILogger<GeneratorBase> Logger { get; }
 
         protected NoopPublishedValueFallback _fallback = new NoopPublishedValueFallback();
+
+        private IImageUrlGenerator _imageUrlGenerator;
+
+        /// <summary>
+        /// Builds the resize URLs for image crops. Umbraco's generator adds the HMAC signature the image middleware
+        /// requires when <c>Umbraco:CMS:Imaging:HMACSecretKey</c> is set, which new installs do. Resolved from the
+        /// application's services when not set, so the constructors don't change.
+        /// </summary>
+        protected IImageUrlGenerator ImageUrlGenerator
+        {
+            get
+            {
+                if (_imageUrlGenerator == null)
+                {
+                    try
+                    {
+                        _imageUrlGenerator = StaticServiceProvider.Instance?.GetService<IImageUrlGenerator>();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger?.LogDebug(e, "Could not resolve IImageUrlGenerator; crop URLs will not be signed.");
+                    }
+                }
+
+                return _imageUrlGenerator;
+            }
+            set => _imageUrlGenerator = value;
+        }
 
         protected GeneratorBase(IUmbracoContextFactory umbracoContextFactory,
             IPublishedUrlProvider publishedUrlProvider,
@@ -145,18 +177,26 @@ namespace XStatic.Core.Generator
 
                     if (CanFileTypeBeCropped(fileExtension))
                     {
+                        var failedCrops = new List<string>();
+
                         foreach (var crop in crops)
                         {
-                            var query = crop.QualityPercentage.HasValue && crop.QualityPercentage.Value > 0
-                                ? $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}&quality={crop.QualityPercentage}"
-                                : $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
-                            var cropUrl = absoluteUrl + query;
+                            var cropUrl = GetCropUrl(url, absoluteUrl, crop);
 
                             var newName = _imageCropNameGenerator.GetCropFileName(Path.GetFileNameWithoutExtension(partialPath), crop);
                             var newPath = Path.Combine(pathSegment, newName + fileExtension);
 
                             var destinationPath = _storer.GetFileDestinationPath(staticSiteId.ToString(), newPath);
-                            await SaveFileDataFromWebClient(cropUrl, destinationPath);
+                            if (await SaveFileDataFromWebClient(cropUrl, destinationPath) == null)
+                            {
+                                failedCrops.Add(newName + fileExtension);
+                            }
+                        }
+
+                        if (failedCrops.Count > 0)
+                        {
+                            return GenerateItemResult.Error("Media", partialPath,
+                                $"Saved the original, but could not download these crops: {string.Join(", ", failedCrops)}. Check the log for details.");
                         }
                     }
                 }
@@ -251,6 +291,42 @@ namespace XStatic.Core.Generator
             var relativeFilePath = umbracoFileSource;
 
             return relativeFilePath;
+        }
+
+        /// <summary>
+        /// Gets the URL to download a crop of a media item from.
+        /// </summary>
+        /// <param name="mediaUrl">The media item's relative URL.</param>
+        /// <param name="absoluteUrl">The media item's absolute URL.</param>
+        /// <param name="crop">The crop to make.</param>
+        protected virtual string GetCropUrl(string mediaUrl, string absoluteUrl, Crop crop)
+        {
+            var quality = crop.QualityPercentage > 0 ? crop.QualityPercentage : null;
+            var generator = ImageUrlGenerator;
+
+            if (generator != null && !string.IsNullOrEmpty(mediaUrl))
+            {
+                var generated = generator.GetImageUrl(new ImageUrlGenerationOptions(mediaUrl)
+                {
+                    ImageCropMode = ImageCropMode.Max,
+                    Width = crop.Width,
+                    Height = crop.Height,
+                    Quality = quality,
+                });
+
+                if (!string.IsNullOrEmpty(generated))
+                {
+                    return Uri.TryCreate(absoluteUrl, UriKind.Absolute, out var baseUri)
+                        ? new Uri(baseUri, generated).ToString()
+                        : generated;
+                }
+            }
+
+            // No generator: an unsigned query string, which only works when no HMAC key is configured.
+            var query = quality.HasValue
+                ? $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}&quality={quality}"
+                : $"?mode=max&width={crop.Width ?? 0}&height={crop.Height ?? 0}";
+            return absoluteUrl + query;
         }
 
         protected virtual bool CanFileTypeBeCropped(string fileExtension)
