@@ -16,26 +16,26 @@ public class StaticHtmlSiteGenerator : GeneratorBase
         IStaticSiteStorer storer,
         IImageCropNameGenerator imageCropNameGenerator,
         MediaFileManager mediaFileSystem,
-        IWebHostEnvironment hostingEnvironment)
-        : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment)
+        IWebHostEnvironment hostingEnvironment,
+        ILogger<StaticHtmlSiteGenerator> logger,
+        IOptions<XStaticGlobalSettings> globalSettings)
+        : base(umbracoContextFactory, publishedUrlProvider, storer, imageCropNameGenerator, mediaFileSystem, hostingEnvironment, globalSettings, logger)
     {
     }
 
-    public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null)
+    public override async Task<GenerateItemResult> GeneratePage(int id, int staticSiteId, IFileNameGenerator fileNamer, IEnumerable<ITransformer> transformers = null, string culture = null)
     {
-        SslTruster.TrustSslIfAppSettingConfigured();
-
         var node = GetNode(id);
 
-        if (node == null)
+        if (node == null || node.TemplateId == null)
         {
             return null;
         }
 
         try
         {
-            var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative);
-            string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute);
+            var url = node.Url(_publishedUrlProvider, mode: UrlMode.Relative, culture: culture);
+            string absoluteUrl = node.Url(_publishedUrlProvider, mode: UrlMode.Absolute, culture: culture);
 
             var fileData = await GetFileDataFromWebClient(absoluteUrl);
 
