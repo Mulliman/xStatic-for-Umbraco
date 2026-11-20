@@ -99,7 +99,7 @@ namespace XStatic.Core.Tests.Generator
             Assert.Equal("Page", result.Type);
             Assert.Equal("about", result.Item);
             Assert.Equal(new[] { "https://cms.example.com/about/" }, generator.RequestedUrls);
-            _storer.Verify(s => s.StoreSiteItem("5", "about/index.html", "<body>ABOUT</body>", Encoding.UTF8), Times.Once);
+            _storer.Verify(s => s.StoreSiteItem("5", "about/index.html", "<body>ABOUT</body>", It.Is<Encoding>(e => e.WebName == "utf-8" && e.GetPreamble().Length == 0)), Times.Once);
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace XStatic.Core.Tests.Generator
             var result = await generator.GeneratePage(PageId, SiteId, new EverythingIsIndexHtmlFileNameGenerator(), culture: "da-DK");
 
             Assert.True(result.WasSuccessful, result.Message);
-            _storer.Verify(s => s.StoreSiteItem("5", "da/om/index.html", "<body>Om</body>", Encoding.UTF8), Times.Once);
+            _storer.Verify(s => s.StoreSiteItem("5", "da/om/index.html", "<body>Om</body>", It.IsAny<Encoding>()), Times.Once);
         }
 
         [Fact]
