@@ -153,9 +153,8 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
     It must move to `GetUrlSegment()` on `IDocumentUrlService` before Umbraco 20, which removes it.
   - `SYSLIB0014` / `SYSLIB0021` in `NetlifyDeployerLegacy.cs`.
   - `CS0108` in `DeploymentTargetEditorModel`.
-- `npm audit` in the client reports a dev-only `picomatch` ReDoS advisory (pulled in by Vite) that has no
-  patched release yet. It isn't shipped in the package. `package.json` `overrides` pin patched `dompurify`
-  and `js-yaml` for the same reason; remove them once upstream catches up.
+- `package.json` `overrides` pin patched `dompurify` and `js-yaml` (pulled in by dev tooling); remove them once
+  upstream catches up.
 
 - Unit test coverage is low. Improving it is welcome, but keep it in separate commits from behaviour changes.
 - `Testing.md` and `CONTRIBUTING.md` examples mention older Umbraco versions; the steps still apply.
