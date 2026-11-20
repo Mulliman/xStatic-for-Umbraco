@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using Microsoft.Extensions.Options;
 using System.IO;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
@@ -13,6 +13,7 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
+using XStatic.Core.App;
 using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
@@ -34,7 +35,8 @@ namespace XStatic.Controllers
         IStaticSiteStorer storer,
         IExportTypeRepository exportTypeRepo,
         IActionRepository actionRepository,
-        IDeploymentTargetRepository deploymentTargetRepository) : Controller
+        IDeploymentTargetRepository deploymentTargetRepository,
+        IOptions<XStaticGlobalSettings> globalSettings) : Controller
     {
         private readonly IUmbracoContextFactory _context = context;
         private readonly IStaticSiteStorer _storer = storer;
@@ -113,19 +115,7 @@ namespace XStatic.Controllers
         {
             var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-            var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
-
-            var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
-
-            if (doNotDeletePathsRaw != null)
-            {
-                var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (split.Any())
-                {
-                    doNotDeletePaths = split;
-                }
-            }
+            var doNotDeletePaths = FileHelpers.GetDoNotDeletePaths(globalSettings?.Value?.DoNotDeletePaths);
 
             FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
 

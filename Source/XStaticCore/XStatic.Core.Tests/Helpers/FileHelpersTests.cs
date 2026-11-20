@@ -115,6 +115,34 @@ namespace XStatic.Core.Tests.Helpers
         }
 
         [Fact]
+        public void GetDoNotDeletePaths_NoneConfigured_ReturnsDefaults()
+        {
+            Assert.Equal(FileHelpers.DefaultNonDeletePaths, FileHelpers.GetDoNotDeletePaths(null!));
+            Assert.Equal(FileHelpers.DefaultNonDeletePaths, FileHelpers.GetDoNotDeletePaths(new string[0]));
+            Assert.Equal(FileHelpers.DefaultNonDeletePaths, FileHelpers.GetDoNotDeletePaths(new[] { "", "  " }));
+        }
+
+        [Fact]
+        public void GetDoNotDeletePaths_Configured_ReplacesDefaultsAndTrims()
+        {
+            Assert.Equal(new[] { ".well-known", "CNAME" }, FileHelpers.GetDoNotDeletePaths(new[] { " .well-known ", "", "CNAME" }));
+        }
+
+        [Fact]
+        public void DeleteFolderContents_WithConfiguredPaths_KeepsOnlyThose()
+        {
+            CreateFile("CNAME");
+            CreateFile(".well-known/security.txt");
+            CreateFile("index.html");
+
+            FileHelpers.DeleteFolderContents(_root, FileHelpers.GetDoNotDeletePaths(new[] { ".well-known" }));
+
+            Assert.True(File.Exists(Path.Combine(_root, ".well-known", "security.txt")));
+            Assert.False(File.Exists(Path.Combine(_root, "CNAME")));
+            Assert.False(File.Exists(Path.Combine(_root, "index.html")));
+        }
+
+        [Fact]
         public void DeleteFolderContents_NullIgnoreList_DeletesEverything()
         {
             CreateFile("CNAME");

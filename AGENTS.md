@@ -41,7 +41,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `XStatic.IntegrationTests/` | NUnit tests on `Umbraco.Cms.Tests.Integration` against a real DB (SQLite by default). |
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
-| `Docs/` | Extension docs for package consumers (Generators, Transformers, Deployers, Actions, File Name Generation). |
+| `Docs/` | Docs for package consumers: configuration (`Configuration.md`, the `XStatic` appsettings section) and extension points (Generators, Transformers, Deployers, Actions, File Name Generation). |
 | `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`. |
 
 ## Commands
@@ -117,8 +117,8 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   `api/v{version:apiVersion}/xstatic/<area>`, and either `[AuthorizeAdmin]` (deployment targets, actions) or
   `[AuthorizeNormalUser]` (sites, generate, deploy, download). `XStaticConfigController` uses the equivalent
   `[Authorize(XStaticRoles.XStaticNormalUserGroup)]`, which means its export-type create, update and delete
-  endpoints are open to normal users. That's existing behaviour; don't change it unasked. Every new endpoint
-  needs one of the two attributes.
+  endpoints are open to normal users. That's intended (confirmed by the maintainer); don't tighten it. Every new
+  endpoint needs one of the two attributes.
 - OpenAPI document: `/umbraco/openapi/xstatic-v1.json`.
 
 ### Database
@@ -138,6 +138,9 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   add other UI frameworks.
 - Don't add NuGet or npm dependencies without saying why in the PR. Prefer what Umbraco already ships.
 - Keep the docs in `Docs/` correct when you change an extension interface; their code samples should compile.
+- Global settings live in `XStaticGlobalSettings`, bound from the `XStatic` section of appsettings and read through
+  `IOptions<XStaticGlobalSettings>`. A new setting gets a property there, a builder method in `XStaticApp.cs`, and a
+  row in `Docs/Configuration.md`. Don't read `ConfigurationManager.AppSettings`; Umbraco sites have no `app.config`.
 - Don't commit secrets, test-instance folders or logs.
 - New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/pack.yml`.
   The `<Version>` in each csproj is only the local default; releases take their version from the tag.
@@ -153,8 +156,6 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
 - `npm audit` in the client reports a dev-only `picomatch` ReDoS advisory (pulled in by Vite) that has no
   patched release yet. It isn't shipped in the package. `package.json` `overrides` pin patched `dompurify`
   and `js-yaml` for the same reason; remove them once upstream catches up.
-- `ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"]` in `SitesController` reads the .NET Framework
-  `app.config`, which is normally absent in Umbraco sites on .NET 10. Treat that setting as non-functional until it moves to
-  `IOptions`.
+
 - Unit test coverage is low. Improving it is welcome, but keep it in separate commits from behaviour changes.
 - `Testing.md` and `CONTRIBUTING.md` examples mention older Umbraco versions; the steps still apply.
