@@ -180,7 +180,7 @@ export class DeploymentTargetCreatorModalElement extends
                 alias: "creator",
                 label: "Creator Template *",
                 description: "This is the creator that will be used to configure the remote service that you intend to deploy to.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',

@@ -245,7 +245,7 @@ export class EditSiteModalElement extends
                 alias: "exportFormat",
                 label: "Export Format *",
                 description: "Do you want to export this site as a JSON API or as a static HTML website.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: "items",
@@ -299,7 +299,7 @@ export class EditSiteModalElement extends
                 alias: "deploymentTarget",
                 label: "Deployment Target",
                 description: "Create and configure your Deployment Targets in the corresponding dashboard, before choosing here.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: "items",

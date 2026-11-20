@@ -186,7 +186,7 @@ export class EditDeploymentTargetModalElement extends
                 alias: "deployerDefinition",
                 label: "Deployer *",
                 description: "This is the type of deployer that you want to configure a specific instance of.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',

@@ -204,7 +204,7 @@ export class EditExportTypeModalElement extends
                 alias: "transformerFactory",
                 label: "Transformer Factory *",
                 description: "This is the component that decides what transformers are run and in which order.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',
@@ -216,7 +216,7 @@ export class EditExportTypeModalElement extends
                 alias: "generator",
                 label: "Generator *",
                 description: "This is the component that creates the static files for each page.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',
@@ -228,7 +228,7 @@ export class EditExportTypeModalElement extends
                 alias: "fileNameGenerator",
                 label: "File Name Generator *",
                 description: "This is the component that decides the folder and the file name for each page.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',

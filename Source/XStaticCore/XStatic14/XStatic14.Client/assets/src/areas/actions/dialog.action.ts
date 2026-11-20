@@ -206,7 +206,7 @@ export class EditActionModalElement extends
                 alias: "type",
                 label: "Action Type *",
                 description: "This is the type of action that you want to configure a specific instance of.",
-                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown",
+                propertyEditorUiAlias: "Umb.PropertyEditorUi.Dropdown.Single",
                 config: [
                     {
                         alias: 'items',

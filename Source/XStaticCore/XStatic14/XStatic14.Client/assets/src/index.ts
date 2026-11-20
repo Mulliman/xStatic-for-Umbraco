@@ -27,11 +27,9 @@ export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
             return;
         }
 
-        var token = await umbOpenApi.token();
-
+        // Umbraco 19 signs the backoffice in with an auth cookie (no bearer token), so send credentials.
         OpenAPI.BASE = umbOpenApi.base!;
-        OpenAPI.TOKEN = token;
-        OpenAPI.WITH_CREDENTIALS = !!umbOpenApi.credentials;
-        OpenAPI.CREDENTIALS = umbOpenApi.credentials!;
+        OpenAPI.WITH_CREDENTIALS = true;
+        OpenAPI.CREDENTIALS = umbOpenApi.credentials ?? 'include';
     });
 };

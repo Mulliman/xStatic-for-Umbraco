@@ -121,6 +121,12 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   endpoints are open to normal users. That's intended (confirmed by the maintainer); don't tighten it. Every new
   endpoint needs one of the two attributes.
 - OpenAPI document: `/umbraco/openapi/xstatic-v1.json`.
+- Authentication (Umbraco 19): the backoffice signs users in with a cookie (`Constants.Security.BackOfficeAuthenticationType`)
+  and no longer gives the UI a bearer token; API users (client credentials, used by `XStatic.RemoteOperations`)
+  still use OpenIddict bearer tokens. The xStatic policies in `Controllers/Attributes` accept both schemes, and the
+  client (`src/index.ts`) sends credentials instead of a token. Keep both when changing auth.
+- Backoffice dropdowns use `Umb.PropertyEditorUi.Dropdown.Single`. In Umbraco 19 `Umb.PropertyEditorUi.Dropdown` is
+  a multi-select list.
 
 ### Database
 - Settings are stored in Umbraco's database. Migrations are defined in `XStatic/Db/XStaticDatabaseMigrationPlan.cs`.
