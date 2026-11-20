@@ -161,7 +161,7 @@ namespace XStatic.Core.Tests.Deploy
         }
 
         [Fact]
-        public async Task UnreachableRemote_ReturnsError()
+        public async Task UnreachableRemote_ReturnsErrorAndKeepsGeneratedFiles()
         {
             WriteSiteFile("index.html", "home");
             var deployer = new GitDeployer(new Dictionary<string, string>
@@ -177,6 +177,7 @@ namespace XStatic.Core.Tests.Deploy
 
             Assert.False(result.WasSuccessful);
             Assert.NotNull(result.Exception);
+            Assert.Equal("home", File.ReadAllText(Path.Combine(_site, "index.html")));
         }
     }
 }
