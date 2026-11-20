@@ -122,6 +122,19 @@ namespace XStatic.Core.Tests.Generator
         }
 
         [Fact]
+        public async Task GeneratePage_DownloadFails_ReportsErrorAndStoresNothing()
+        {
+            var generator = NewGenerator();
+
+            var result = await generator.GeneratePage(PageId, SiteId, new EverythingIsIndexHtmlFileNameGenerator());
+
+            Assert.False(result.WasSuccessful);
+            Assert.Equal("about", result.Item);
+            Assert.Contains("https://cms.example.com/about/", result.Message);
+            _storer.Verify(s => s.StoreSiteItem(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Encoding>()), Times.Never);
+        }
+
+        [Fact]
         public async Task GeneratePage_StorerFails_ReportsError()
         {
             var generator = NewGenerator();
