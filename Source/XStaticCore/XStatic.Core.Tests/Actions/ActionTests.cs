@@ -234,6 +234,17 @@ namespace XStatic.Core.Tests.Actions
         }
 
         [Fact]
+        public void CreateConfiguredPostGenerationAction_UsesTheConfiguredName()
+        {
+            _repo.Setup(r => r.Get(1)).Returns(new ActionDataModel { Name = "Copy 404 page", Type = TypeName<ParameterlessAction>(), Config = new() });
+            _repo.Setup(r => r.Get(2)).Returns(new ActionDataModel { Name = "Copy robots", Type = TypeName<ParameterlessAction>(), Config = new() });
+
+            var names = NewFactory().CreateConfiguredPostGenerationActions(1, 2).Select(a => a.Name);
+
+            Assert.Equal(new[] { "Copy 404 page", "Copy robots" }, names);
+        }
+
+        [Fact]
         public void CreatePostGenerationActions_NoIds_ReturnsEmpty()
         {
             Assert.Empty(NewFactory().CreatePostGenerationActions());
