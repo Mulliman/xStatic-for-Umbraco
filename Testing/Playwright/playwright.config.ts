@@ -113,5 +113,23 @@ export default defineConfig({
       },
       dependencies: ['chromium-ops'],
     },
+    // Self-contained specs: each creates and removes its own data, so they only need the login.
+    ...[
+      ['chromium-output', /07-output\.spec\.ts/],
+      ['chromium-json', /08-json-export\.spec\.ts/],
+      ['chromium-security', /09-security\.spec\.ts/],
+      ['chromium-validation', /10-validation\.spec\.ts/],
+      ['chromium-dashboards', /11-dashboards\.spec\.ts/],
+      ['chromium-parameterless-action', /12-parameterless-action\.spec\.ts/],
+    ].map(([name, testMatch]) => ({
+      name: name as string,
+      testMatch: testMatch as RegExp,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: STORAGE_STATE,
+      },
+      dependencies: ['setup'],
+    })),
   ],
 });
