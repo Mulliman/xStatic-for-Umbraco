@@ -59,17 +59,19 @@ namespace XStatic.Git
 
         public void CloneRepo(string folderPath, string branch)
         {
+            var tempdir = folderPath + "_temp";
+
+            if (Directory.Exists(tempdir))
+            {
+                Directory.Delete(tempdir, true);
+            }
+
+            // The generated site is moved aside so the remote can be cloned into the output folder,
+            // then copied back on top of the clone.
+            Directory.Move(folderPath, tempdir);
+
             try
             {
-                var tempdir = folderPath + "_temp";
-
-                if (Directory.Exists(tempdir))
-                {
-                    Directory.Delete(tempdir, true);
-                }
-
-                Directory.Move(folderPath, tempdir);
-
                 var cloneOptions = new CloneOptions();
                 cloneOptions.FetchOptions.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
                 {
@@ -77,17 +79,23 @@ namespace XStatic.Git
                     Password = _password,
                 };
 
-                string clonedRepoPath = Repository.Clone(_remoteUrl, folderPath, cloneOptions);
-
-                FileHelpers.CopyFilesInFolder(tempdir, folderPath);
-                Directory.Delete(tempdir, true);
+                Repository.Clone(_remoteUrl, folderPath, cloneOptions);
             }
-            catch (Exception e)
+            catch
             {
-                var message = e.Message;
+                // The clone failed (wrong URL, credentials or network). Put the generated site back, so it isn't
+                // lost and the next attempt doesn't delete it along with the temp folder.
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
 
+                Directory.Move(tempdir, folderPath);
                 throw;
             }
+
+            FileHelpers.CopyFilesInFolder(tempdir, folderPath);
+            Directory.Delete(tempdir, true);
         }
 
         public void CommitAndPush(string folderPath, string branch)
