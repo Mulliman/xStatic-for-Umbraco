@@ -27,7 +27,8 @@ Playwright tests reside in `Testing/Playwright`. These verify the entire flow fr
 
 ### 📋 Prerequisites
 1.  **A running Umbraco instance** on port 5000 (see [Setup Scripts](#-setup-scripts)).
-2.  **Node.js** installed on your machine.
+2.  **Node.js** and **Google Chrome** installed on your machine. The tests run in the installed Chrome
+    (`channel: 'chrome'`), so `npx playwright install` isn't needed.
 3.  **Dependencies**: Run `npm install` in the `Testing/Playwright` directory.
 
 ### 🏃 Running Tests

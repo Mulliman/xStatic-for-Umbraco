@@ -48,6 +48,8 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /00-auth\.setup\.ts/,
+      // Same installed Chrome as the other projects, so no extra Playwright browser download is needed.
+      use: { channel: 'chrome' },
     },
     {
       name: 'cleanup',
