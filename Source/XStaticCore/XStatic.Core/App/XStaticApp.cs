@@ -92,6 +92,20 @@ namespace XStatic.Core.App
 		}
 
 		/// <summary>
+		/// Files and folders to keep when a site's stored output is cleared, for example ".git" or "CNAME".
+		/// These replace the defaults (".git" and "CNAME"). The same setting can be made in appsettings.json as XStatic:DoNotDeletePaths.
+		/// </summary>
+		public XStaticServiceBuilder DoNotDeletePathsWhenClearing(params string[] paths)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.DoNotDeletePaths = paths?.ToList() ?? new List<string>();
+			});
+
+			return this;
+		}
+
+		/// <summary>
 		/// When a list of DocType aliases is provided, these will be excluded from the generation process.
 		/// </summary>
 		/// <param name="DocTypeAliasToExclude"></param>
