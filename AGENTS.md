@@ -9,13 +9,16 @@ path or convention below, update this file in the same change.
 
 ## Versions and branches
 
-| Branch       | Umbraco | .NET   | Package version | Status                    |
-|--------------|---------|--------|-----------------|---------------------------|
-| `master`     | 17 (LTS)| net10.0| 17.x            | Released, maintenance     |
-| `feature/18` | 18      | net10.0| 18.0.0-beta     | In progress               |
-| `feature/NN` | NN      |        |                 | Older majors, historical  |
+| Branch       | Umbraco | .NET   | Package version | Status                                |
+|--------------|---------|--------|-----------------|---------------------------------------|
+| `master`     | 17 → 18 | net10.0| 17.x → 18.x     | Latest major; becomes 18 at release   |
+| `feature/18` | 18      | net10.0| 18.0.0-beta     | In progress                           |
+| `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
+| `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
+| `feature/NN` | NN      |        |                 | Older majors, historical              |
 
 - One branch per Umbraco major. Put fixes on the branch for the version they target and say which in the PR.
+  A fix that applies to 17 and 18 goes on `lts/17` and is cherry-picked forward (or the other way round).
 - All Umbraco package references in a branch use the same version (currently `18.3.2` on `feature/18`, also
   the minimum Umbraco version consumers need). Bump them together, along with `@umbraco-cms/backoffice` in the
   client's `package.json`.

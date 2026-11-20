@@ -1,6 +1,6 @@
 name: "CI"
 
-# Every PR and every push to master / feature branches:
+# Every PR and every push to master / feature / lts branches:
 #   1. builds and tests (test.yml)
 #   2. packs all packages at a preview version (pack.yml), uploaded as the "nuget-packages" artifact
 #   3. publishes them to this repo's GitHub Packages NuGet feed. Skipped for PRs from forks and Dependabot,
@@ -17,6 +17,7 @@ on:
     branches:
       - master
       - 'feature/**'
+      - 'lts/**'
   workflow_dispatch:
 
 permissions:

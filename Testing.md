@@ -50,7 +50,7 @@ Tests are numbered to run in a specific order to maintain state:
 ## 🤖 Continuous Integration
 | Workflow | When | What |
 |----------|------|------|
-| `ci.yml` | Every PR, and every push to `master` / `feature/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
+| `ci.yml` | Every PR, and every push to `master` / `feature/**` / `lts/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
 | `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. |
 | `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
 | `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
