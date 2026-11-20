@@ -184,11 +184,11 @@ export class SitePage extends BasePage {
 
         const pickerModal = this.page.locator('umb-media-picker-modal').first();
         await expect(pickerModal).toBeVisible();
-        // Clicking a folder card opens the folder. Selecting it uses the round checkbox that appears in the
-        // card's top-left corner on hover.
+        // Clicking a folder card opens the folder. Selecting it uses the card's select checkbox (in its shadow
+        // DOM), which appears on hover.
         const card = pickerModal.locator('uui-card-media').filter({ hasText: folderName }).first();
         await card.hover();
-        await card.click({ position: { x: 12, y: 10 } });
+        await card.locator('#select-checkbox').click();
         await expect(card).toHaveAttribute('selected', '');
 
         const chooseInPicker = pickerModal.getByRole('button', { name: 'Choose', exact: true });
