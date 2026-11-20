@@ -94,7 +94,12 @@ namespace XStatic.Core.Actions
                 return null;
             }
 
-            return new ConfiguredPostGenerationAction(action, data.Config);
+            // Report results under the name the editor gave the action ("Copy 404 page"), not the type name
+            // ("FileCopyAction"), so several actions of the same type can be told apart.
+            return new ConfiguredPostGenerationAction(action, data.Config)
+            {
+                Name = string.IsNullOrWhiteSpace(data.Name) ? action.Name : data.Name
+            };
         }
     }
 }
