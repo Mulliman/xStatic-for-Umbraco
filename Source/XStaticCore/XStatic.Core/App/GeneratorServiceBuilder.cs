@@ -9,6 +9,7 @@ using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
+using XStatic.Core.Rag;
 using XStatic.Core.Repositories;
 using XStatic.Generator;
 
@@ -54,6 +55,18 @@ namespace XStatic.Core.App
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
             _services.AddTransient<FileRenameAction>();
+            _services.AddTransient<RagExportPostGenerationAction>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultRagServices()
+        {
+            _services.AddSingleton<IHtmlContentExtractor, HtmlContentExtractor>();
+            _services.AddSingleton<IRagChunker, RagChunker>();
+            _services.AddSingleton<IRagChunkSerializer, RagChunkSerializer>();
+            _services.AddSingleton<IWebMcpIndexBuilder, WebMcpIndexBuilder>();
+            _services.AddTransient<IRagExportService, RagExportService>();
 
             return this;
         }
@@ -124,6 +137,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
@@ -138,6 +152,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
