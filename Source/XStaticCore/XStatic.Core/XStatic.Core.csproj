@@ -21,12 +21,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.0.0" />
-	<PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
-	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.15" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="17.8.2" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="17.8.2" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.8.2" />
+	<PackageReference Include="Umbraco.Cms.Web.Website" Version="17.8.2" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.3" />
   </ItemGroup>
 
   <ItemGroup>

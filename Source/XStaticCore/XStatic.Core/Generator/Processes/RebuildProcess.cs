@@ -199,6 +199,18 @@ namespace XStatic.Core.Generator.Processes
             builder.AddMediaCrops(crops);
         }
 
+        private static string GetFailureMessage(XStaticResult result)
+        {
+            if (result == null)
+            {
+                return "Action returned no result.";
+            }
+
+            var message = string.IsNullOrWhiteSpace(result.Message) ? "Action failed." : result.Message;
+
+            return result.Exception == null ? message : $"{message} {result.Exception.Message}";
+        }
+
         private async Task<IEnumerable<GenerateItemResult>> RunPostActions(SiteConfig entity)
         {
             var actionIds = entity?.PostGenerationActionIds?.ToArray();
@@ -217,9 +229,11 @@ namespace XStatic.Core.Generator.Processes
                 {
                     var result = await action.Action.RunAction(entity.Id, action.Config);
 
-                    var convertedResult = result != null && !result.WasSuccessful
-                        ? GenerateItemResult.Error("PostAction", action.Name, result.Message ?? result.Exception?.Message ?? "Action failed")
-                        : GenerateItemResult.Success("PostAction", action.Name, result?.Message ?? "Completed");
+                    // Actions report failure by returning an error rather than throwing, so every action
+                    // still runs and all problems are listed at the end.
+                    var convertedResult = result?.WasSuccessful == true
+                        ? GenerateItemResult.Success("PostAction", action.Name, "Completed")
+                        : GenerateItemResult.Error("PostAction", action.Name, GetFailureMessage(result));
                     results.Add(convertedResult);
                 }
                 catch (Exception e)

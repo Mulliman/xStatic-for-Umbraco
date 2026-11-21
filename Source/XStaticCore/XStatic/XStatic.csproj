@@ -25,10 +25,10 @@
 
     <ItemGroup>
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
-        <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="17.0.0" />
-        <PackageReference Include="Microsoft.OpenApi" Version="2.3.0" />
+        <PackageReference Include="Umbraco.Cms.Core" Version="17.8.2" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="17.8.2" />
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="17.8.2" />
+        <PackageReference Include="Microsoft.OpenApi" Version="2.9.0" />
     </ItemGroup>
 
     <ItemGroup>

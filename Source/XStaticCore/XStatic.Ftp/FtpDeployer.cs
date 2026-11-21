@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Helpers;
@@ -40,16 +41,30 @@ namespace XStatic.Ftp
         {
             try
             {
-                FtpClient client = new FtpClient(_hostname, _port, _username, _password);
-                client.EncryptionMode = FtpEncryptionMode.Auto;
-                client.ValidateAnyCertificate = true;
+                var config = new FtpConfig
+                {
+                    EncryptionMode = FtpEncryptionMode.Auto,
+                    ValidateAnyCertificate = true
+                };
+
+                using var client = new FtpClient(_hostname, _username, _password, _port, config);
                 client.Connect();
 
                 var remoteFolder = string.IsNullOrEmpty(_folder) ? "/" : _folder;
 
-                client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror);
+                // Overwrite: UploadDirectory's default skips any file that already exists on the server, so pages
+                // edited since the last deploy were never updated.
+                var results = client.UploadDirectory(folderPath, remoteFolder, FtpFolderSyncMode.Mirror, FtpRemoteExists.Overwrite);
 
-                client.Dispose();
+                var failed = GetFailedItems(results);
+                if (failed.Count > 0)
+                {
+                    var first = failed[0];
+                    var reason = first.Exception?.Message
+                        ?? "the server did not confirm the upload. If folders were created but files were not, the data "
+                         + "connection is probably blocked: check the server's passive mode settings and firewall.";
+                    return XStaticResult.Error($"FTP deploy failed for {failed.Count} of {results.Count} item(s). First: {first.RemotePath}: {reason}", first.Exception);
+                }
             }
             catch (Exception e)
             {
@@ -57,6 +72,18 @@ namespace XStatic.Ftp
             }
 
             return XStaticResult.Success("Site deployed using FTP.");
+        }
+
+        /// <summary>
+        /// Gets the items that didn't upload. FluentFTP doesn't always mark a failed transfer as failed: when the data
+        /// connection can't be opened, files come back as neither successful nor failed, with no exception. So anything
+        /// not confirmed as uploaded or deliberately skipped counts as a failure.
+        /// </summary>
+        public static IReadOnlyList<FtpResult> GetFailedItems(IEnumerable<FtpResult> results)
+        {
+            return (results ?? Enumerable.Empty<FtpResult>())
+                .Where(r => r.IsFailed || (!r.IsSuccess && !r.IsSkipped && !r.IsSkippedByRule))
+                .ToList();
         }
     }
 }

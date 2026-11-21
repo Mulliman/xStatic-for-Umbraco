@@ -1,0 +1,76 @@
+name: "Test"
+
+# Reusable: build the solution, run unit + integration tests, type-check and build the backoffice client.
+# Called by ci.yml (PRs and branch pushes) and release.yml (tags). It has no triggers of its own.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  SOLUTION_PATH: 'Source/XStaticCore/XStaticCore.sln'
+  FE_PATH: 'Source/XStaticCore/XStatic14/XStatic14.Client/assets'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  dotnet:
+    name: 'Build and test (.NET)'
+    runs-on: 'windows-latest'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+
+      - name: 'Install dotnet'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 'Restore'
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: 'Build'
+        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+
+      - name: 'Unit tests'
+        run: dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+
+      - name: 'Integration tests (SQLite)'
+        env:
+          Tests__Database__DatabaseType: 'SQLite'
+        run: dotnet test Source/XStaticCore/XStatic.IntegrationTests/XStatic.IntegrationTests.csproj --no-build --configuration Release --logger "trx;LogFileName=integration.trx" --results-directory TestResults
+
+      - name: 'Upload test results'
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults
+
+  client:
+    name: 'Lint, test and build (backoffice client)'
+    runs-on: 'ubuntu-latest'
+    defaults:
+      run:
+        working-directory: ${{ env.FE_PATH }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+
+      - name: 'Use Node.js 24'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FE_PATH }}/package-lock.json
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'Lint and test (tsc + eslint + vitest)'
+        run: npm run check
+
+      - name: 'Build (tsc + vite)'
+        run: npm run build
