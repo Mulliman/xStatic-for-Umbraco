@@ -27,6 +27,14 @@ With this class created you can now create an action within Umbraco.
 Go to the Actions dashboard, create a new action, fill in the fields and save.
 You can now add this action to your static site definitions.
 
+## Built-in Actions
+
+xStatic includes several built-in `IPostGenerationAction` implementations:
+- `AddGenerationMetadataFileAction` — writes a `.xstatic-metadata` summary file.
+- `FileCopyAction`, `FileRenameAction`, `FileDeleteAction` — file manipulation helpers.
+- `GenerateCompanionMarkdownAction` — generates clean companion `.md` twins alongside `.html` pages.
+- `GenerateLlmsTxtAction` — compiles `/llms.txt` and optionally `/llms-full.txt` for LLMs and AI agents. See [AI and GEO.md](AI%20and%20GEO.md) for full configuration details.
+
 ## Example
 
 ```

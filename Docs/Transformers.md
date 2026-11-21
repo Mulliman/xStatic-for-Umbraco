@@ -39,3 +39,9 @@ public class CustomTransformerListFactory : DefaultHtmlTransformerListFactory
 ## Using the custom list
 
 Implementations of ITransformerListFactory will automatically get discovered by xStatic and will be available for selection withing the export type dashboard with the CMS. If you are using parameters in the constructor you need to register this class in your Startup ConfigureServices method.
+
+## Built-in Transformer Factories
+
+- `DefaultHtmlTransformerListFactory` — standard HTML transformers (`CachedByTransformer`, `CroppedImageUrlTransformer`, `HostnameTransformer`).
+- `GeoHtmlTransformerListFactory` — extends `DefaultHtmlTransformerListFactory` with `MarkdownDiscoveryTransformer` to inject `<link rel="alternate" type="text/markdown" href="...">` for AI / GEO discovery. See [AI and GEO.md](AI%20and%20GEO.md).
+- `DefaultJsonTransformerListFactory` — standard JSON API transformers.
