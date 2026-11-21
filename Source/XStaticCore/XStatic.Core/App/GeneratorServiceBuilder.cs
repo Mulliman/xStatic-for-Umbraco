@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
@@ -51,6 +52,8 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultActions()
         {
+            AddDefaultRagServices();
+
             _services.AddTransient<AddGenerationMetadataFileAction>();
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
@@ -62,11 +65,11 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultRagServices()
         {
-            _services.AddSingleton<IHtmlContentExtractor, HtmlContentExtractor>();
-            _services.AddSingleton<IRagChunker, RagChunker>();
-            _services.AddSingleton<IRagChunkSerializer, RagChunkSerializer>();
-            _services.AddSingleton<IWebMcpIndexBuilder, WebMcpIndexBuilder>();
-            _services.AddTransient<IRagExportService, RagExportService>();
+            _services.TryAddSingleton<IHtmlContentExtractor, HtmlContentExtractor>();
+            _services.TryAddSingleton<IRagChunker, RagChunker>();
+            _services.TryAddSingleton<IRagChunkSerializer, RagChunkSerializer>();
+            _services.TryAddSingleton<IWebMcpIndexBuilder, WebMcpIndexBuilder>();
+            _services.TryAddTransient<IRagExportService, RagExportService>();
 
             return this;
         }

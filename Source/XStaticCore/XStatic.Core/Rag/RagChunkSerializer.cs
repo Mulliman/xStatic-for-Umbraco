@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -151,7 +152,8 @@ namespace XStatic.Core.Rag
                 ? RagExportOptions.DefaultMarkdownFolder
                 : folderPath.Trim().Trim('/', '\\');
 
-            var slugSource = chunk.Url ?? string.Empty;
+            var rawUrl = chunk.Url ?? string.Empty;
+            var slugSource = rawUrl;
             if (Uri.TryCreate(slugSource, UriKind.Absolute, out var uri))
             {
                 slugSource = uri.AbsolutePath;
@@ -164,7 +166,14 @@ namespace XStatic.Core.Rag
                 slug = "index";
             }
 
-            return $"{folder}/{slug}-chunk-{chunk.ChunkIndex:D4}.md";
+            var urlHash = ComputeShortHash(rawUrl);
+            return $"{folder}/{slug}-{urlHash}-chunk-{chunk.ChunkIndex:D4}.md";
+        }
+
+        private static string ComputeShortHash(string value)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes((value ?? string.Empty).Trim().ToLowerInvariant()));
+            return Convert.ToHexString(bytes, 0, 4).ToLowerInvariant();
         }
 
         private static void AppendYamlField(StringBuilder sb, string key, string value)
@@ -174,12 +183,35 @@ namespace XStatic.Core.Rag
 
         private static string EscapeYamlString(string value)
         {
-            var escaped = (value ?? string.Empty)
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\r", string.Empty)
-                .Replace("\n", "\\n");
-            return $"\"{escaped}\"";
+            var sb = new StringBuilder((value?.Length ?? 0) + 2);
+            sb.Append('"');
+
+            foreach (var c in value ?? string.Empty)
+            {
+                switch (c)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '"': sb.Append("\\\""); break;
+                    case '\r': break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\t': sb.Append("\\t"); break;
+                    case '\u2028': sb.Append("\\u2028"); break;
+                    case '\u2029': sb.Append("\\u2029"); break;
+                    default:
+                        if (c < 0x20)
+                        {
+                            sb.Append($"\\u{(int)c:x4}");
+                        }
+                        else
+                        {
+                            sb.Append(c);
+                        }
+                        break;
+                }
+            }
+
+            sb.Append('"');
+            return sb.ToString();
         }
     }
 }

@@ -60,6 +60,13 @@ namespace XStatic.Core.Rag
                 throw new DirectoryNotFoundException($"Generated static site folder not found for site {staticSiteId}: '{siteRoot}'.");
             }
 
+            var outputPath = ValidateRelativeOutputPath(siteRoot, options.GetEffectiveOutputPath(), nameof(options.OutputPath));
+            var indexPath = options.GenerateWebMcpIndex
+                ? ValidateRelativeOutputPath(siteRoot, options.GetEffectiveWebMcpIndexPath(), nameof(options.WebMcpIndexPath))
+                : null;
+
+            var normalizedBaseUrl = NormalizeBaseUrl(options.BaseUrl);
+
             var htmlFiles = Directory.EnumerateFiles(siteRoot, "*.*", SearchOption.AllDirectories)
                 .Where(f => f.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
                             f.EndsWith(".htm", StringComparison.OrdinalIgnoreCase))
@@ -89,7 +96,7 @@ namespace XStatic.Core.Rag
                 }
 
                 var html = await File.ReadAllTextAsync(filePath, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
-                var canonicalUrl = BuildCanonicalUrl(options.BaseUrl, relativeUrl);
+                var canonicalUrl = BuildCanonicalUrl(normalizedBaseUrl, relativeUrl);
 
                 var document = _contentExtractor.Extract(html, canonicalUrl, relativeFilePath, metadata);
                 if (!document.LastModified.HasValue)
@@ -103,7 +110,7 @@ namespace XStatic.Core.Rag
             }
 
             var siteIdSegment = staticSiteId.ToString();
-            var outputPath = options.GetEffectiveOutputPath();
+            Dictionary<string, string> markdownChunkPaths = null;
 
             switch (options.OutputFormat)
             {
@@ -123,6 +130,9 @@ namespace XStatic.Core.Rag
                 }
                 case RagExportFormat.Markdown:
                 {
+                    CleanStaleMarkdownFolder(siteRoot, outputPath);
+                    markdownChunkPaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
                     foreach (var chunk in allChunks)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
@@ -131,6 +141,7 @@ namespace XStatic.Core.Rag
                         var chunkRelativePath = _serializer.GetMarkdownChunkRelativePath(chunk, outputPath);
                         var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, chunkRelativePath, md, Encoding.UTF8).ConfigureAwait(false);
                         writtenFiles.Add(storedPath);
+                        markdownChunkPaths[chunk.Id] = chunkRelativePath;
                     }
                     break;
                 }
@@ -139,9 +150,8 @@ namespace XStatic.Core.Rag
             WebMcpIndex webMcpIndex = null;
             if (options.GenerateWebMcpIndex)
             {
-                webMcpIndex = _webMcpIndexBuilder.Build(pages, allChunks, options, generatedAt);
+                webMcpIndex = _webMcpIndexBuilder.Build(pages, allChunks, options, generatedAt, markdownChunkPaths);
                 var indexJson = _webMcpIndexBuilder.Serialize(webMcpIndex);
-                var indexPath = options.GetEffectiveWebMcpIndexPath();
                 var storedIndexPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, indexPath, indexJson, Encoding.UTF8).ConfigureAwait(false);
                 writtenFiles.Add(storedIndexPath);
             }
@@ -154,7 +164,7 @@ namespace XStatic.Core.Rag
                 {
                     StaticSiteId = staticSiteId,
                     SiteName = options.SiteName,
-                    BaseUrl = options.BaseUrl,
+                    BaseUrl = normalizedBaseUrl,
                     Chunks = allChunks,
                     WebMcpIndex = webMcpIndex,
                     Options = options,
@@ -166,10 +176,22 @@ namespace XStatic.Core.Rag
                 foreach (var pusher in pushers)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var pushResult = await pusher.PushAsync(pushContext, cancellationToken).ConfigureAwait(false);
-                    if (pushResult != null)
+                    try
                     {
-                        vectorStoreResults.Add(pushResult);
+                        var pushResult = await pusher.PushAsync(pushContext, cancellationToken).ConfigureAwait(false);
+                        if (pushResult != null)
+                        {
+                            vectorStoreResults.Add(pushResult);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        var name = pusher?.Name ?? pusher?.GetType().Name ?? "UnknownPusher";
+                        vectorStoreResults.Add(VectorStorePushResult.Error(name, $"Vector store push failed for '{name}': {ex.Message}", ex));
                     }
                 }
             }
@@ -184,6 +206,72 @@ namespace XStatic.Core.Rag
                 WebMcpIndex = webMcpIndex,
                 VectorStoreResults = vectorStoreResults
             };
+        }
+
+        internal static string NormalizeBaseUrl(string baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                return string.Empty;
+            }
+
+            var trimmed = baseUrl.Trim().TrimEnd('/');
+            if (!trimmed.Contains("://", StringComparison.Ordinal))
+            {
+                trimmed = "https://" + trimmed.TrimStart('/');
+            }
+
+            if (Uri.TryCreate(trimmed, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            {
+                return trimmed;
+            }
+
+            return string.Empty;
+        }
+
+        internal static string ValidateRelativeOutputPath(string siteRoot, string relativePath, string paramName)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
+            {
+                throw new ArgumentException("Output path cannot be empty.", paramName);
+            }
+
+            var trimmed = relativePath.Trim().TrimStart('/', '\\');
+            if (Path.IsPathRooted(trimmed))
+            {
+                throw new ArgumentException($"Output path '{relativePath}' must be relative to the site root.", paramName);
+            }
+
+            var fullRoot = Path.GetFullPath(siteRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullTarget = Path.GetFullPath(Path.Combine(fullRoot, trimmed));
+
+            var isSameOrInside = string.Equals(fullTarget, fullRoot, StringComparison.OrdinalIgnoreCase) ||
+                fullTarget.StartsWith(fullRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+
+            if (!isSameOrInside)
+            {
+                throw new ArgumentException($"Output path '{relativePath}' resolves outside the generated site folder.", paramName);
+            }
+
+            return trimmed.Replace('\\', '/');
+        }
+
+        private static void CleanStaleMarkdownFolder(string siteRoot, string outputFolder)
+        {
+            var fullRoot = Path.GetFullPath(siteRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var targetDir = Path.GetFullPath(Path.Combine(fullRoot, outputFolder));
+
+            // Never wipe the site root itself; only clean a dedicated subfolder
+            if (string.Equals(targetDir, fullRoot, StringComparison.OrdinalIgnoreCase) || !Directory.Exists(targetDir))
+            {
+                return;
+            }
+
+            foreach (var existingMd in Directory.EnumerateFiles(targetDir, "*.md", SearchOption.TopDirectoryOnly))
+            {
+                File.Delete(existingMd);
+            }
         }
 
         internal static string ToRelativeUrl(string relativeFilePath)
@@ -215,14 +303,14 @@ namespace XStatic.Core.Rag
 
         internal static string BuildCanonicalUrl(string baseUrl, string relativeUrl)
         {
-            if (string.IsNullOrWhiteSpace(baseUrl))
+            var normalizedBase = NormalizeBaseUrl(baseUrl);
+            if (string.IsNullOrWhiteSpace(normalizedBase))
             {
                 return relativeUrl;
             }
 
-            var trimmedBase = baseUrl.Trim().TrimEnd('/');
             var trimmedRel = string.IsNullOrEmpty(relativeUrl) ? "/" : (relativeUrl.StartsWith("/") ? relativeUrl : "/" + relativeUrl);
-            return trimmedBase + trimmedRel;
+            return normalizedBase + trimmedRel;
         }
 
         internal static bool IsExcludedPath(string relativeUrl, string relativeFilePath, IList<string> excludedPaths)

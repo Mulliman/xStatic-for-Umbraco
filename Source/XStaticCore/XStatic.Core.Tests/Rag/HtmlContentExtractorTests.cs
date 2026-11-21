@@ -89,5 +89,50 @@ namespace XStatic.Core.Tests.Rag
             Assert.Equal("Sam", doc.CustomProperties["author"]);
             Assert.Equal("AI", doc.CustomProperties["category"]);
         }
+
+        [Fact]
+        public void Extract_MultipleArticlesWithoutMain_PreservesAllArticles()
+        {
+            const string html = """
+                <html>
+                <body>
+                    <nav>Site Nav</nav>
+                    <article><h2>Post One</h2><p>First article body.</p></article>
+                    <article><h2>Post Two</h2><p>Second article body.</p></article>
+                    <footer>Site Footer</footer>
+                </body>
+                </html>
+                """;
+
+            var doc = _extractor.Extract(html, "/blog/", "blog/index.html");
+
+            Assert.Equal(2, doc.Sections.Count);
+            Assert.Equal("Post One", doc.Sections[0].Heading);
+            Assert.Equal("First article body.", doc.Sections[0].Content);
+            Assert.Equal("Post Two", doc.Sections[1].Heading);
+            Assert.Equal("Second article body.", doc.Sections[1].Content);
+        }
+
+        [Fact]
+        public void Extract_MalformedUnclosedScriptAndNestedNav_StripsNoiseCleanly()
+        {
+            const string html = """
+                <html>
+                <body>
+                    <nav>Outer <nav>Inner Nav</nav> Outer Tail</nav>
+                    <p>Visible content.</p>
+                    <script>var leaked = "secret";
+                </body>
+                </html>
+                """;
+
+            var doc = _extractor.Extract(html, "/malformed/", "malformed/index.html");
+
+            var section = Assert.Single(doc.Sections);
+            Assert.Equal("Visible content.", section.Content);
+            Assert.DoesNotContain("Inner Nav", section.Content);
+            Assert.DoesNotContain("Outer Tail", section.Content);
+            Assert.DoesNotContain("leaked", section.Content);
+        }
     }
 }

@@ -13,52 +13,81 @@ namespace XStatic.Core.Rag
 
     public class HtmlContentExtractor : IHtmlContentExtractor
     {
-        private static readonly Regex CommentRegex = new Regex(@"<!--[\s\S]*?-->", RegexOptions.Compiled);
+        private static readonly TimeSpan RegexTimeout = TimeSpan.FromSeconds(2);
+        private const int MaxChromeStripPasses = 8;
+
+        private static readonly Regex CommentRegex = new Regex(
+            @"<!--[\s\S]*?-->",
+            RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex StripNoiseBlocksRegex = new Regex(
             @"<(script|style|noscript|template|svg|iframe)\b[^>]*>[\s\S]*?</\1>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
+        private static readonly Regex StripUnclosedNoiseBlocksRegex = new Regex(
+            @"<(script|style)\b[^>]*>[\s\S]*$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex StripChromeBlocksRegex = new Regex(
-            @"<(nav|footer|aside)\b[^>]*>[\s\S]*?</\1>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            @"<(nav|footer|aside)\b[^>]*>(?:(?!<\1\b)[\s\S])*?</\1>",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex TitleRegex = new Regex(
             @"<title\b[^>]*>([\s\S]*?)</title>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex HtmlLangRegex = new Regex(
             @"<html\b[^>]*\blang\s*=\s*[""']([^""']+)[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex MetaTagRegex = new Regex(
             @"<meta\b[^>]*>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex AttributeRegex = new Regex(
             @"([a-zA-Z0-9_:-]+)\s*=\s*(?:""([^""]*)""|'([^']*)')",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex MainRegex = new Regex(
             @"<main\b[^>]*>([\s\S]*?)</main>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex ArticleRegex = new Regex(
             @"<article\b[^>]*>([\s\S]*?)</article>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex BodyRegex = new Regex(
             @"<body\b[^>]*>([\s\S]*?)</body>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex HeadingRegex = new Regex(
             @"<h([1-6])\b[^>]*>([\s\S]*?)</h\1>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex BrRegex = new Regex(
             @"<br\s*/?>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex BlockEndRegex = new Regex(
             @"</(?:p|div|li|tr|blockquote|pre|section|article|header|dt|dd|figcaption|table|ul|ol)>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex AnyTagRegex = new Regex(
             @"<[^>]+>",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex HorizontalWhitespaceRegex = new Regex(
             @"[^\S\r\n]+",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled,
+            RegexTimeout);
         private static readonly Regex MultiNewlineRegex = new Regex(
             @"\n{3,}",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled,
+            RegexTimeout);
+        private static readonly Regex CollapseWhitespaceRegex = new Regex(
+            @"\s+",
+            RegexOptions.Compiled,
+            RegexTimeout);
 
         public RagPageDocument Extract(string html, string url, string relativePath, RagPageMetadata metadata = null)
         {
@@ -70,11 +99,11 @@ namespace XStatic.Core.Rag
 
             if (!string.IsNullOrWhiteSpace(html))
             {
-                var withoutComments = CommentRegex.Replace(html, string.Empty);
+                var withoutComments = SafeReplace(CommentRegex, html, string.Empty);
 
                 var metaValues = ExtractMetaTags(withoutComments);
 
-                var titleMatch = TitleRegex.Match(withoutComments);
+                var titleMatch = SafeMatch(TitleRegex, withoutComments);
                 if (titleMatch.Success)
                 {
                     document.Title = CleanInlineText(titleMatch.Groups[1].Value);
@@ -104,15 +133,17 @@ namespace XStatic.Core.Rag
                     document.LastModified = parsedLastModified;
                 }
 
-                var langMatch = HtmlLangRegex.Match(withoutComments);
+                var langMatch = SafeMatch(HtmlLangRegex, withoutComments);
                 if (langMatch.Success)
                 {
                     document.Culture = langMatch.Groups[1].Value.Trim();
                 }
 
-                var cleaned = StripNoiseBlocksRegex.Replace(withoutComments, string.Empty);
+                var cleaned = SafeReplace(StripNoiseBlocksRegex, withoutComments, string.Empty);
+                cleaned = SafeReplace(StripUnclosedNoiseBlocksRegex, cleaned, string.Empty);
+
                 var scopedHtml = SelectPrimaryContent(cleaned);
-                scopedHtml = StripChromeBlocksRegex.Replace(scopedHtml, string.Empty);
+                scopedHtml = StripChromeBlocks(scopedHtml);
 
                 ExtractSections(scopedHtml, document);
 
@@ -129,19 +160,24 @@ namespace XStatic.Core.Rag
 
         private static string SelectPrimaryContent(string html)
         {
-            var mainMatch = MainRegex.Match(html);
+            var mainMatch = SafeMatch(MainRegex, html);
             if (mainMatch.Success)
             {
                 return mainMatch.Groups[1].Value;
             }
 
-            var articleMatch = ArticleRegex.Match(html);
-            if (articleMatch.Success)
+            var articleMatches = SafeMatches(ArticleRegex, html);
+            if (articleMatches.Count == 1)
             {
-                return articleMatch.Groups[1].Value;
+                return articleMatches[0].Groups[1].Value;
             }
 
-            var bodyMatch = BodyRegex.Match(html);
+            if (articleMatches.Count > 1)
+            {
+                return string.Join("\n", articleMatches.Select(m => m.Groups[1].Value));
+            }
+
+            var bodyMatch = SafeMatch(BodyRegex, html);
             if (bodyMatch.Success)
             {
                 return bodyMatch.Groups[1].Value;
@@ -150,9 +186,26 @@ namespace XStatic.Core.Rag
             return html;
         }
 
+        private static string StripChromeBlocks(string html)
+        {
+            var current = html;
+            for (var pass = 0; pass < MaxChromeStripPasses; pass++)
+            {
+                var updated = SafeReplace(StripChromeBlocksRegex, current, string.Empty);
+                if (string.Equals(updated, current, StringComparison.Ordinal))
+                {
+                    break;
+                }
+
+                current = updated;
+            }
+
+            return current;
+        }
+
         private static void ExtractSections(string html, RagPageDocument document)
         {
-            var headingMatches = HeadingRegex.Matches(html);
+            var headingMatches = SafeMatches(HeadingRegex, html);
             if (headingMatches.Count == 0)
             {
                 var bodyText = HtmlToCleanText(html);
@@ -230,10 +283,10 @@ namespace XStatic.Core.Rag
         {
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (Match tagMatch in MetaTagRegex.Matches(html))
+            foreach (var tagMatch in SafeMatches(MetaTagRegex, html))
             {
                 var attrs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                foreach (Match attrMatch in AttributeRegex.Matches(tagMatch.Value))
+                foreach (var attrMatch in SafeMatches(AttributeRegex, tagMatch.Value))
                 {
                     var key = attrMatch.Groups[1].Value;
                     var val = attrMatch.Groups[2].Success ? attrMatch.Groups[2].Value : attrMatch.Groups[3].Value;
@@ -299,9 +352,9 @@ namespace XStatic.Core.Rag
                 return string.Empty;
             }
 
-            var withoutTags = AnyTagRegex.Replace(htmlFragment, " ");
+            var withoutTags = SafeReplace(AnyTagRegex, htmlFragment, " ");
             var decoded = WebUtility.HtmlDecode(withoutTags);
-            return Regex.Replace(decoded, @"\s+", " ").Trim();
+            return SafeReplace(CollapseWhitespaceRegex, decoded, " ").Trim();
         }
 
         private static string HtmlToCleanText(string htmlFragment)
@@ -311,20 +364,56 @@ namespace XStatic.Core.Rag
                 return string.Empty;
             }
 
-            var withBreaks = BrRegex.Replace(htmlFragment, "\n");
-            withBreaks = BlockEndRegex.Replace(withBreaks, "\n\n");
-            var withoutTags = AnyTagRegex.Replace(withBreaks, " ");
+            var withBreaks = SafeReplace(BrRegex, htmlFragment, "\n");
+            withBreaks = SafeReplace(BlockEndRegex, withBreaks, "\n\n");
+            var withoutTags = SafeReplace(AnyTagRegex, withBreaks, " ");
             var decoded = WebUtility.HtmlDecode(withoutTags)
                 .Replace("\r\n", "\n")
                 .Replace("\r", "\n");
 
             var lines = decoded
                 .Split('\n')
-                .Select(line => HorizontalWhitespaceRegex.Replace(line, " ").Trim())
+                .Select(line => SafeReplace(HorizontalWhitespaceRegex, line, " ").Trim())
                 .ToArray();
 
             var joined = string.Join("\n", lines);
-            return MultiNewlineRegex.Replace(joined, "\n\n").Trim();
+            return SafeReplace(MultiNewlineRegex, joined, "\n\n").Trim();
+        }
+
+        private static string SafeReplace(Regex regex, string input, string replacement)
+        {
+            try
+            {
+                return regex.Replace(input, replacement);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return input;
+            }
+        }
+
+        private static Match SafeMatch(Regex regex, string input)
+        {
+            try
+            {
+                return regex.Match(input);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return Match.Empty;
+            }
+        }
+
+        private static List<Match> SafeMatches(Regex regex, string input)
+        {
+            try
+            {
+                return regex.Matches(input).Cast<Match>().ToList();
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return new List<Match>();
+            }
         }
     }
 }

@@ -9,7 +9,12 @@ namespace XStatic.Core.Rag
 {
     public interface IWebMcpIndexBuilder
     {
-        WebMcpIndex Build(IEnumerable<RagPageDocument> pages, IEnumerable<RagChunk> chunks, RagExportOptions options, DateTimeOffset generatedAt);
+        WebMcpIndex Build(
+            IEnumerable<RagPageDocument> pages,
+            IEnumerable<RagChunk> chunks,
+            RagExportOptions options,
+            DateTimeOffset generatedAt,
+            IReadOnlyDictionary<string, string> chunkRelativePaths = null);
 
         string Serialize(WebMcpIndex index);
     }
@@ -26,7 +31,7 @@ namespace XStatic.Core.Rag
             WriteIndented = true
         };
 
-        private static readonly Regex WordRegex = new Regex(@"[a-zA-Z0-9]{3,}", RegexOptions.Compiled);
+        private static readonly Regex WordRegex = new Regex(@"[\p{L}\p{Nd}]{3,}", RegexOptions.Compiled);
 
         private static readonly HashSet<string> StopWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -35,11 +40,18 @@ namespace XStatic.Core.Rag
             "more", "about", "how", "what", "when", "where", "which", "who", "why", "use", "using"
         };
 
-        public WebMcpIndex Build(IEnumerable<RagPageDocument> pages, IEnumerable<RagChunk> chunks, RagExportOptions options, DateTimeOffset generatedAt)
+        public WebMcpIndex Build(
+            IEnumerable<RagPageDocument> pages,
+            IEnumerable<RagChunk> chunks,
+            RagExportOptions options,
+            DateTimeOffset generatedAt,
+            IReadOnlyDictionary<string, string> chunkRelativePaths = null)
         {
             options ??= new RagExportOptions();
             var pageList = (pages ?? Enumerable.Empty<RagPageDocument>()).ToList();
             var chunkList = (chunks ?? Enumerable.Empty<RagChunk>()).ToList();
+            var normalizedBaseUrl = RagExportService.NormalizeBaseUrl(options.BaseUrl);
+            var basePathPrefix = GetBasePathPrefix(normalizedBaseUrl);
 
             var chunksByUrl = chunkList
                 .GroupBy(c => c.Url ?? string.Empty, StringComparer.OrdinalIgnoreCase)
@@ -54,6 +66,24 @@ namespace XStatic.Core.Rag
                 var summary = BuildSummary(page, pageChunks);
                 var keywords = ExtractKeywords(page);
 
+                IList<string> chunkFiles = null;
+                if (chunkRelativePaths != null && chunkRelativePaths.Count > 0 && pageChunks.Count > 0)
+                {
+                    var files = new List<string>();
+                    foreach (var chunk in pageChunks)
+                    {
+                        if (chunkRelativePaths.TryGetValue(chunk.Id, out var relPath) && !string.IsNullOrWhiteSpace(relPath))
+                        {
+                            files.Add(PrependBasePath(basePathPrefix, relPath));
+                        }
+                    }
+
+                    if (files.Count > 0)
+                    {
+                        chunkFiles = files;
+                    }
+                }
+
                 entries.Add(new WebMcpPageEntry
                 {
                     Url = page.Url,
@@ -66,6 +96,7 @@ namespace XStatic.Core.Rag
                     Headings = page.Headings != null ? new List<string>(page.Headings) : new List<string>(),
                     Keywords = keywords,
                     ChunkIds = pageChunks.Select(c => c.Id).ToList(),
+                    ChunkFiles = chunkFiles,
                     ChunkCount = pageChunks.Count
                 });
             }
@@ -77,8 +108,8 @@ namespace XStatic.Core.Rag
                 SchemaVersion = "1.0",
                 GeneratedAt = generatedAt,
                 SiteName = string.IsNullOrWhiteSpace(options.SiteName) ? null : options.SiteName,
-                BaseUrl = string.IsNullOrWhiteSpace(options.BaseUrl) ? null : options.BaseUrl,
-                ChunksPath = "/" + outputPath.Replace('\\', '/'),
+                BaseUrl = string.IsNullOrWhiteSpace(normalizedBaseUrl) ? null : normalizedBaseUrl,
+                ChunksPath = PrependBasePath(basePathPrefix, outputPath),
                 ChunksFormat = options.OutputFormat.ToString().ToLowerInvariant(),
                 TotalPages = entries.Count,
                 TotalChunks = chunkList.Count,
@@ -106,38 +137,68 @@ namespace XStatic.Core.Rag
                     Name = "search_site_content",
                     Description = "Search static site pages by query terms against titles, headings, keywords, and summaries.",
                     ReadOnly = true,
-                    Parameters = new Dictionary<string, WebMcpToolParameter>(StringComparer.OrdinalIgnoreCase)
+                    InputSchema = new WebMcpToolInputSchema
                     {
-                        ["query"] = new WebMcpToolParameter
+                        Type = "object",
+                        Properties = new Dictionary<string, WebMcpToolProperty>(StringComparer.OrdinalIgnoreCase)
                         {
-                            Type = "string",
-                            Description = "Search query string.",
-                            Required = true
+                            ["query"] = new WebMcpToolProperty
+                            {
+                                Type = "string",
+                                Description = "Search query string."
+                            },
+                            ["limit"] = new WebMcpToolProperty
+                            {
+                                Type = "integer",
+                                Description = "Maximum number of matching pages to return."
+                            }
                         },
-                        ["limit"] = new WebMcpToolParameter
-                        {
-                            Type = "integer",
-                            Description = "Maximum number of matching pages to return.",
-                            Required = false
-                        }
+                        Required = new List<string> { "query" }
                     }
                 },
                 new WebMcpToolDefinition
                 {
                     Name = "get_page_chunks",
-                    Description = "Retrieve structured RAG text chunks for a specific page URL from the exported chunks artifact.",
+                    Description = "Retrieve structured RAG text chunks for a specific page URL from the exported chunks artifact or per-chunk files.",
                     ReadOnly = true,
-                    Parameters = new Dictionary<string, WebMcpToolParameter>(StringComparer.OrdinalIgnoreCase)
+                    InputSchema = new WebMcpToolInputSchema
                     {
-                        ["url"] = new WebMcpToolParameter
+                        Type = "object",
+                        Properties = new Dictionary<string, WebMcpToolProperty>(StringComparer.OrdinalIgnoreCase)
                         {
-                            Type = "string",
-                            Description = "Canonical or relative page URL from the index.",
-                            Required = true
-                        }
+                            ["url"] = new WebMcpToolProperty
+                            {
+                                Type = "string",
+                                Description = "Canonical or relative page URL from the index."
+                            }
+                        },
+                        Required = new List<string> { "url" }
                     }
                 }
             };
+        }
+
+        private static string GetBasePathPrefix(string normalizedBaseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(normalizedBaseUrl) ||
+                !Uri.TryCreate(normalizedBaseUrl, UriKind.Absolute, out var uri))
+            {
+                return string.Empty;
+            }
+
+            var path = uri.AbsolutePath.TrimEnd('/');
+            return path == "/" ? string.Empty : path;
+        }
+
+        private static string PrependBasePath(string basePathPrefix, string relativePath)
+        {
+            var normalizedRel = "/" + (relativePath ?? string.Empty).Replace('\\', '/').TrimStart('/');
+            if (string.IsNullOrEmpty(basePathPrefix))
+            {
+                return normalizedRel;
+            }
+
+            return basePathPrefix + normalizedRel;
         }
 
         private static string BuildSummary(RagPageDocument page, List<RagChunk> pageChunks)
@@ -204,7 +265,13 @@ namespace XStatic.Core.Rag
                 return value;
             }
 
-            return value.Substring(0, maxLength - 3).TrimEnd() + "...";
+            var cut = maxLength - 3;
+            if (cut > 0 && char.IsHighSurrogate(value[cut - 1]))
+            {
+                cut--;
+            }
+
+            return value.Substring(0, cut).TrimEnd() + "...";
         }
     }
 }

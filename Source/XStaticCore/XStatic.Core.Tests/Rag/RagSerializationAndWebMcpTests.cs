@@ -100,27 +100,39 @@ namespace XStatic.Core.Tests.Rag
             Assert.Contains("doc_type: \"guidePage\"", markdown);
             Assert.Contains("## Chunking", markdown);
             Assert.Contains("Split content cleanly on headings.", markdown);
-            Assert.Equal("rag-chunks/guides-rag-chunk-0002.md", relativePath);
+            Assert.Matches(@"^rag-chunks/guides-rag-[0-9a-f]{8}-chunk-0002\.md$", relativePath);
         }
 
         [Fact]
-        public void WebMcpIndexBuilder_BuildsAndSerializesValidIndexWithTools()
+        public void GetMarkdownChunkRelativePath_AvoidsCollisionsAcrossPathsAndUnicodeUrls()
+        {
+            var pathA = _serializer.GetMarkdownChunkRelativePath(new RagChunk { Url = "https://example.com/about-us/", ChunkIndex = 0 }, "rag-chunks");
+            var pathB = _serializer.GetMarkdownChunkRelativePath(new RagChunk { Url = "https://example.com/about/us/", ChunkIndex = 0 }, "rag-chunks");
+            var pathHome = _serializer.GetMarkdownChunkRelativePath(new RagChunk { Url = "https://example.com/", ChunkIndex = 0 }, "rag-chunks");
+            var pathJapanese = _serializer.GetMarkdownChunkRelativePath(new RagChunk { Url = "https://example.com/日本/", ChunkIndex = 0 }, "rag-chunks");
+
+            Assert.NotEqual(pathA, pathB);
+            Assert.NotEqual(pathHome, pathJapanese);
+        }
+
+        [Fact]
+        public void WebMcpIndexBuilder_BuildsAndSerializesValidIndexWithJsonSchemaToolsAndSubpath()
         {
             var generatedAt = new DateTimeOffset(2026, 5, 10, 14, 0, 0, TimeSpan.Zero);
             var options = new RagExportOptions
             {
                 SiteName = "xStatic Docs",
-                BaseUrl = "https://xstatic.dev",
-                OutputFormat = RagExportFormat.Jsonl,
-                OutputPath = "rag-chunks.jsonl"
+                BaseUrl = "https://xstatic.dev/docs",
+                OutputFormat = RagExportFormat.Markdown,
+                OutputPath = "rag-chunks"
             };
 
             var pages = new List<RagPageDocument>
             {
                 new RagPageDocument
                 {
-                    Url = "https://xstatic.dev/rag/",
-                    Title = "Static RAG Pipeline",
+                    Url = "https://xstatic.dev/docs/rag/",
+                    Title = "Static RAG Pipeline Übersicht",
                     Description = "Export Umbraco content into structured chunks for AI search.",
                     DocType = "docPage",
                     Headings = new List<string> { "Static RAG Pipeline", "WebMCP Index" }
@@ -131,32 +143,47 @@ namespace XStatic.Core.Tests.Rag
             {
                 new RagChunk
                 {
-                    Id = "https://xstatic.dev/rag/#chunk-0",
-                    Url = "https://xstatic.dev/rag/",
+                    Id = "https://xstatic.dev/docs/rag/#chunk-0",
+                    Url = "https://xstatic.dev/docs/rag/",
                     Title = "Static RAG Pipeline",
                     Content = "Export Umbraco content into structured chunks."
                 }
             };
 
-            var index = _indexBuilder.Build(pages, chunks, options, generatedAt);
+            var chunkPaths = new Dictionary<string, string>
+            {
+                ["https://xstatic.dev/docs/rag/#chunk-0"] = "rag-chunks/docs-rag-12345678-chunk-0000.md"
+            };
+
+            var index = _indexBuilder.Build(pages, chunks, options, generatedAt, chunkPaths);
             var json = _indexBuilder.Serialize(index);
 
             Assert.Equal("1.0", index.SchemaVersion);
-            Assert.Equal("/rag-chunks.jsonl", index.ChunksPath);
-            Assert.Equal("jsonl", index.ChunksFormat);
+            Assert.Equal("/docs/rag-chunks", index.ChunksPath);
+            Assert.Equal("markdown", index.ChunksFormat);
             Assert.Equal(1, index.TotalPages);
             Assert.Equal(1, index.TotalChunks);
             Assert.Equal(2, index.Tools.Count);
-            Assert.All(index.Tools, t => Assert.True(t.ReadOnly));
+            Assert.All(index.Tools, t =>
+            {
+                Assert.True(t.ReadOnly);
+                Assert.Equal("object", t.InputSchema.Type);
+                Assert.NotEmpty(t.InputSchema.Properties);
+                Assert.NotEmpty(t.InputSchema.Required);
+            });
 
             var pageEntry = Assert.Single(index.Pages);
-            Assert.Equal(new[] { "https://xstatic.dev/rag/#chunk-0" }, pageEntry.ChunkIds);
+            Assert.Equal(new[] { "https://xstatic.dev/docs/rag/#chunk-0" }, pageEntry.ChunkIds);
+            Assert.Equal(new[] { "/docs/rag-chunks/docs-rag-12345678-chunk-0000.md" }, pageEntry.ChunkFiles);
             Assert.Contains("static", pageEntry.Keywords);
             Assert.Contains("webmcp", pageEntry.Keywords);
+            Assert.Contains("übersicht", pageEntry.Keywords);
 
             using var parsed = JsonDocument.Parse(json);
             Assert.Equal("xStatic Docs", parsed.RootElement.GetProperty("siteName").GetString());
-            Assert.Equal(2, parsed.RootElement.GetProperty("tools").GetArrayLength());
+            var tools = parsed.RootElement.GetProperty("tools");
+            Assert.Equal(2, tools.GetArrayLength());
+            Assert.Equal("object", tools[0].GetProperty("inputSchema").GetProperty("type").GetString());
             Assert.Equal(1, parsed.RootElement.GetProperty("pages").GetArrayLength());
         }
     }

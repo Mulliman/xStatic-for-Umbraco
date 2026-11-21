@@ -22,7 +22,7 @@ namespace XStatic.Core.Rag
 
             options ??= new RagExportOptions();
             var maxChunkSize = Math.Max(1, options.MaxChunkSize);
-            var chunkOverlap = Math.Clamp(options.ChunkOverlap, 0, Math.Max(0, maxChunkSize - 1));
+            var chunkOverlap = Math.Clamp(options.ChunkOverlap, 0, maxChunkSize / 2);
 
             var rawSegments = new List<(string Heading, IList<string> HeadingPath, string Content)>();
 
@@ -161,6 +161,15 @@ namespace XStatic.Core.Rag
                 {
                     nextStart = end;
                 }
+                else if (overlap > 0 && nextStart > 0 && !char.IsWhiteSpace(text[nextStart - 1]))
+                {
+                    // Snap forward to the next word boundary so overlap doesn't start mid-word
+                    var nextSpace = text.IndexOf(' ', nextStart, end - nextStart);
+                    if (nextSpace > nextStart && nextSpace + 1 < end)
+                    {
+                        nextStart = nextSpace + 1;
+                    }
+                }
 
                 // Skip leading whitespace for the next chunk
                 while (nextStart < text.Length && char.IsWhiteSpace(text[nextStart]))
@@ -210,7 +219,12 @@ namespace XStatic.Core.Rag
                 return spaceBreak + 1;
             }
 
-            // 5. Hard character split
+            // 5. Hard character split (avoid splitting a UTF-16 surrogate pair)
+            if (maxEnd > start + 1 && maxEnd < text.Length && char.IsHighSurrogate(text[maxEnd - 1]))
+            {
+                return maxEnd - 1;
+            }
+
             return maxEnd;
         }
 

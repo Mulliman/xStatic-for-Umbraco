@@ -6,8 +6,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using XStatic.Core.Actions;
+using XStatic.Core.App;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Rag;
@@ -206,6 +208,136 @@ namespace XStatic.Core.Tests.Rag
             Assert.Equal("FailingPusher", result.PusherName);
             Assert.Contains("boom", result.Message);
             Assert.NotNull(result.Exception);
+        }
+
+        [Fact]
+        public async Task ExportAsync_NormalizesBareHostnameToHttpsUrl()
+        {
+            const int siteId = 101;
+            CreateSiteHtml(siteId, "about/index.html", "<html><head><title>About</title></head><body><main><h1>About</h1><p>Hello.</p></main></body></html>");
+
+            var storer = CreateTempStorer(siteId);
+            var service = new RagExportService(
+                storer.Object,
+                new HtmlContentExtractor(),
+                new RagChunker(),
+                new RagChunkSerializer(),
+                new WebMcpIndexBuilder());
+
+            var result = await service.ExportAsync(siteId, new RagExportOptions
+            {
+                BaseUrl = "example.com",
+                OutputFormat = RagExportFormat.Jsonl,
+                GenerateWebMcpIndex = true
+            });
+
+            var chunk = Assert.Single(result.Chunks);
+            Assert.Equal("https://example.com/about/", chunk.Url);
+            Assert.Equal("https://example.com/about/#chunk-0", chunk.Id);
+            Assert.Equal("https://example.com", result.WebMcpIndex.BaseUrl);
+        }
+
+        [Fact]
+        public async Task ExportAsync_RejectsOutputPathsEscapingSiteRoot()
+        {
+            const int siteId = 102;
+            CreateSiteHtml(siteId, "index.html", "<html><body><main><p>Home</p></main></body></html>");
+
+            var storer = CreateTempStorer(siteId);
+            var service = new RagExportService(
+                storer.Object,
+                new HtmlContentExtractor(),
+                new RagChunker(),
+                new RagChunkSerializer(),
+                new WebMcpIndexBuilder());
+
+            await Assert.ThrowsAsync<ArgumentException>(() => service.ExportAsync(siteId, new RagExportOptions
+            {
+                OutputPath = "../../../outside.jsonl"
+            }));
+
+            await Assert.ThrowsAsync<ArgumentException>(() => service.ExportAsync(siteId, new RagExportOptions
+            {
+                GenerateWebMcpIndex = true,
+                WebMcpIndexPath = "../outside-index.json"
+            }));
+        }
+
+        [Fact]
+        public async Task ExportAsync_MarkdownFormat_CleansStaleMarkdownFilesBeforeWriting()
+        {
+            const int siteId = 103;
+            CreateSiteHtml(siteId, "index.html", "<html><body><main><h1>Home</h1><p>Fresh.</p></main></body></html>");
+            var staleFile = Path.Combine(_root, siteId.ToString(), "rag-chunks", "deleted-page-00000000-chunk-0000.md");
+            Directory.CreateDirectory(Path.GetDirectoryName(staleFile)!);
+            File.WriteAllText(staleFile, "stale");
+
+            var storer = CreateTempStorer(siteId);
+            var service = new RagExportService(
+                storer.Object,
+                new HtmlContentExtractor(),
+                new RagChunker(),
+                new RagChunkSerializer(),
+                new WebMcpIndexBuilder());
+
+            var result = await service.ExportAsync(siteId, new RagExportOptions
+            {
+                OutputFormat = RagExportFormat.Markdown,
+                GenerateWebMcpIndex = true
+            });
+
+            Assert.False(File.Exists(staleFile));
+            Assert.Single(result.Chunks);
+            Assert.NotNull(result.WebMcpIndex);
+            Assert.Single(result.WebMcpIndex.Pages[0].ChunkFiles);
+        }
+
+        [Fact]
+        public async Task ExportAsync_RawVectorStorePusherException_IsCapturedAndDoesNotSkipSubsequentPushers()
+        {
+            const int siteId = 104;
+            CreateSiteHtml(siteId, "index.html", "<html><body><main><p>Body</p></main></body></html>");
+
+            var storer = CreateTempStorer(siteId);
+            var rawThrowingPusher = new Mock<IVectorStorePusher>();
+            rawThrowingPusher.SetupGet(p => p.Name).Returns("RawThrowingPusher");
+            rawThrowingPusher.Setup(p => p.PushAsync(It.IsAny<VectorStorePushContext>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("raw failure"));
+
+            var recordingPusher = new RecordingVectorStorePusher(batchSize: 10);
+
+            var service = new RagExportService(
+                storer.Object,
+                new HtmlContentExtractor(),
+                new RagChunker(),
+                new RagChunkSerializer(),
+                new WebMcpIndexBuilder(),
+                new IVectorStorePusher[] { rawThrowingPusher.Object, recordingPusher });
+
+            var result = await service.ExportAsync(siteId, new RagExportOptions
+            {
+                GenerateWebMcpIndex = false
+            });
+
+            Assert.Equal(2, result.VectorStoreResults.Count);
+            Assert.False(result.VectorStoreResults[0].WasSuccessful);
+            Assert.Contains("raw failure", result.VectorStoreResults[0].Message);
+            Assert.True(result.VectorStoreResults[1].WasSuccessful);
+            Assert.Single(recordingPusher.BatchesReceived);
+        }
+
+        [Fact]
+        public void AddDefaultActions_ResolvesRagExportPostGenerationActionWithoutSeparateRagCall()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton(Mock.Of<ISitesRepository>());
+            services.AddSingleton(Mock.Of<IStaticSiteStorer>());
+
+            new GeneratorServiceBuilder(services).AddDefaultActions();
+
+            using var provider = services.BuildServiceProvider();
+            var action = provider.GetService<RagExportPostGenerationAction>();
+            Assert.NotNull(action);
         }
 
         private sealed class RecordingVectorStorePusher : VectorStorePusherBase

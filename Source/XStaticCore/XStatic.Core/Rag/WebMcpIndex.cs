@@ -34,16 +34,23 @@ namespace XStatic.Core.Rag
 
         public bool ReadOnly { get; set; } = true;
 
-        public Dictionary<string, WebMcpToolParameter> Parameters { get; set; } = new Dictionary<string, WebMcpToolParameter>(StringComparer.OrdinalIgnoreCase);
+        public WebMcpToolInputSchema InputSchema { get; set; } = new WebMcpToolInputSchema();
     }
 
-    public class WebMcpToolParameter
+    public class WebMcpToolInputSchema
+    {
+        public string Type { get; set; } = "object";
+
+        public Dictionary<string, WebMcpToolProperty> Properties { get; set; } = new Dictionary<string, WebMcpToolProperty>(StringComparer.OrdinalIgnoreCase);
+
+        public IList<string> Required { get; set; } = new List<string>();
+    }
+
+    public class WebMcpToolProperty
     {
         public string Type { get; set; } = "string";
 
         public string Description { get; set; } = string.Empty;
-
-        public bool Required { get; set; }
     }
 
     public class WebMcpPageEntry
@@ -67,6 +74,8 @@ namespace XStatic.Core.Rag
         public IList<string> Keywords { get; set; } = new List<string>();
 
         public IList<string> ChunkIds { get; set; } = new List<string>();
+
+        public IList<string> ChunkFiles { get; set; }
 
         public int ChunkCount { get; set; }
     }

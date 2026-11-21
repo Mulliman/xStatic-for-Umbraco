@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -18,9 +19,9 @@ namespace XStatic.Core.Actions
     [XStaticEditableField(RagExportFields.MaxChunkSize, UIEditors.Integer)]
     [XStaticEditableField(RagExportFields.ChunkOverlap, UIEditors.Integer)]
     [XStaticEditableField(RagExportFields.SplitOnHeadings, UIEditors.Toggle)]
-    [XStaticEditableField(RagExportFields.ExcludedPaths, UIEditors.Text)]
-    [XStaticEditableField(RagExportFields.ExcludedDocTypes, UIEditors.Text)]
-    [XStaticEditableField(RagExportFields.CustomPropertyAliases, UIEditors.Text)]
+    [XStaticEditableField(RagExportFields.ExcludedPaths, UIEditors.TextArea)]
+    [XStaticEditableField(RagExportFields.ExcludedDocTypes, UIEditors.TextArea)]
+    [XStaticEditableField(RagExportFields.CustomPropertyAliases, UIEditors.TextArea)]
     [XStaticEditableField(RagExportFields.GenerateWebMcpIndex, UIEditors.Toggle)]
     [XStaticEditableField(RagExportFields.WebMcpIndexPath, UIEditors.Text)]
     public class RagExportPostGenerationAction : PostGenerationActionBase
@@ -29,6 +30,7 @@ namespace XStatic.Core.Actions
         private readonly IRagExportService _ragExportService;
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly IPublishedUrlProvider _publishedUrlProvider;
+        private readonly ILogger<RagExportPostGenerationAction> _logger;
 
         public override string Name => nameof(RagExportPostGenerationAction);
 
@@ -36,12 +38,14 @@ namespace XStatic.Core.Actions
             ISitesRepository sitesRepository,
             IRagExportService ragExportService,
             IUmbracoContextFactory umbracoContextFactory = null,
-            IPublishedUrlProvider publishedUrlProvider = null)
+            IPublishedUrlProvider publishedUrlProvider = null,
+            ILogger<RagExportPostGenerationAction> logger = null)
         {
             _sitesRepository = sitesRepository;
             _ragExportService = ragExportService;
             _umbracoContextFactory = umbracoContextFactory;
             _publishedUrlProvider = publishedUrlProvider;
+            _logger = logger;
         }
 
         public override async Task<XStaticResult> RunAction(int staticSiteId, Dictionary<string, string> parameters)
@@ -79,6 +83,7 @@ namespace XStatic.Core.Actions
             }
             catch (Exception ex)
             {
+                _logger?.LogError(ex, "Failed to export RAG chunks for static site {StaticSiteId}", staticSiteId);
                 return XStaticResult.Error("Failed to export RAG chunks.", ex);
             }
         }
@@ -120,9 +125,9 @@ namespace XStatic.Core.Actions
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fall back to HTML-only extraction if Umbraco context is unavailable
+                _logger?.LogWarning(ex, "Unable to collect Umbraco metadata for static site {StaticSiteId}; falling back to HTML-only extraction.", siteConfig.Id);
             }
 
             return metadataMap;
@@ -134,8 +139,18 @@ namespace XStatic.Core.Actions
             string culture,
             IList<string> customPropertyAliases)
         {
-            var relativeUrl = node.Url(_publishedUrlProvider, culture, UrlMode.Relative);
-            if (string.IsNullOrWhiteSpace(relativeUrl) || relativeUrl == "#")
+            var rawUrl = node.Url(_publishedUrlProvider, culture, UrlMode.Relative);
+            if (string.IsNullOrWhiteSpace(rawUrl) || rawUrl == "#")
+            {
+                return;
+            }
+
+            // Domain-bound cultures may return an absolute URL even with UrlMode.Relative
+            var relativeUrl = Uri.TryCreate(rawUrl, UriKind.Absolute, out var absoluteUri)
+                ? absoluteUri.AbsolutePath
+                : rawUrl;
+
+            if (map.ContainsKey(relativeUrl))
             {
                 return;
             }
@@ -152,22 +167,55 @@ namespace XStatic.Core.Actions
 
                     var prop = node.GetProperty(alias);
                     var value = prop?.GetValue(culture) ?? prop?.GetSourceValue(culture);
-                    if (value != null)
+                    var serializable = ToSerializableValue(value);
+                    if (serializable != null)
                     {
-                        customProps[alias] = value is string or int or long or double or decimal or bool or DateTime or DateTimeOffset
-                            ? value
-                            : value.ToString();
+                        customProps[alias] = serializable;
                     }
                 }
+            }
+
+            var updateDate = !string.IsNullOrWhiteSpace(culture)
+                ? node.CultureDate(culture)
+                : node.UpdateDate;
+            if (updateDate == default)
+            {
+                updateDate = node.UpdateDate;
             }
 
             map[relativeUrl] = new RagPageMetadata
             {
                 DocType = node.ContentType?.Alias,
-                LastModified = new DateTimeOffset(DateTime.SpecifyKind(node.UpdateDate, DateTimeKind.Utc)),
+                LastModified = new DateTimeOffset(DateTime.SpecifyKind(updateDate, DateTimeKind.Utc)),
                 Culture = culture,
                 CustomProperties = customProps
             };
+        }
+
+        private static object ToSerializableValue(object value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            if (value is string s)
+            {
+                return string.IsNullOrWhiteSpace(s) ? null : s;
+            }
+
+            if (value is int or long or double or float or decimal or bool or DateTime or DateTimeOffset or Guid)
+            {
+                return value;
+            }
+
+            if (value is IEnumerable<string> strings)
+            {
+                var list = strings.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                return list.Count > 0 ? list : null;
+            }
+
+            return null;
         }
     }
 }
