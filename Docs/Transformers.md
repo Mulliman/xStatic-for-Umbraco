@@ -9,7 +9,7 @@ To add your own transformer, create a class that implements ITransformer.
 ```
 public class ReplaceAWithETransformer : ITransformer
 {
-    public string Transform(string input, UmbracoContext context)
+    public string Transform(string input, IUmbracoContext context)
     {
         return input.Replace("a", "e");
     }
