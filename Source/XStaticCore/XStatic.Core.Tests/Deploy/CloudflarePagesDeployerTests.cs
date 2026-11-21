@@ -8,10 +8,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using XStatic.Cloudflare;
 using XStatic.Cloudflare.Actions;
 using XStatic.Core;
+using XStatic.Core.Actions;
+using XStatic.Core.Actions.Db;
 using XStatic.Core.Generator.Storage;
 using Xunit;
 
@@ -41,6 +44,9 @@ namespace XStatic.Core.Tests.Deploy
             File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<h1>Hello Cloudflare</h1>");
             Directory.CreateDirectory(Path.Combine(_tempDir, "docs"));
             File.WriteAllText(Path.Combine(_tempDir, "docs", "guide.md"), "# Guide");
+            // Special Cloudflare Pages files that must not be published in the static asset manifest
+            File.WriteAllText(Path.Combine(_tempDir, "_routes.json"), "{\"version\":1}");
+            File.WriteAllText(Path.Combine(_tempDir, "_worker.js"), "export default {}");
 
             var requests = new List<(HttpMethod Method, string Url, string Auth, string Body)>();
             var handler = new StubHttpMessageHandler(async req =>
@@ -106,8 +112,173 @@ namespace XStatic.Core.Tests.Deploy
             Assert.Equal("Bearer api-token-secret", requests[4].Auth);
             Assert.Contains("/index.html", requests[4].Body);
             Assert.Contains("/docs/guide.md", requests[4].Body);
+            Assert.DoesNotContain("/_routes.json", requests[4].Body);
+            Assert.DoesNotContain("/_worker.js", requests[4].Body);
             Assert.Contains("Vary: Accept", requests[4].Body);
             Assert.Contains("name=branch", requests[4].Body);
+        }
+
+        [Fact]
+        public async Task DeployWholeSite_PreservesExistingHeadersAndRedirectsAndUploadsOnlyMissingHashes()
+        {
+            File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<h1>Home</h1>");
+            File.WriteAllText(Path.Combine(_tempDir, "about.html"), "<h1>About</h1>");
+            File.WriteAllText(Path.Combine(_tempDir, "_headers"), "/*\n  X-Custom: keep-me\n");
+            File.WriteAllText(Path.Combine(_tempDir, "_redirects"), "/old /new 301\n");
+
+            var indexHash = CloudflarePagesDeployer.ComputeAssetHash(File.ReadAllBytes(Path.Combine(_tempDir, "index.html")), "html");
+            var aboutHash = CloudflarePagesDeployer.ComputeAssetHash(File.ReadAllBytes(Path.Combine(_tempDir, "about.html")), "html");
+
+            string? uploadBody = null;
+            string? deploymentBody = null;
+
+            var handler = new StubHttpMessageHandler(async req =>
+            {
+                var body = req.Content != null ? await req.Content.ReadAsStringAsync() : string.Empty;
+                var path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith("/upload-token"))
+                {
+                    return JsonResponse(new { success = true, result = new { jwt = "jwt-partial" } });
+                }
+
+                if (path.EndsWith("/check-missing"))
+                {
+                    // Report only about.html as missing
+                    return JsonResponse(new { success = true, result = new[] { aboutHash } });
+                }
+
+                if (path.EndsWith("/pages/assets/upload"))
+                {
+                    uploadBody = body;
+                    return JsonResponse(new { success = true, result = true });
+                }
+
+                if (path.EndsWith("/upsert-hashes"))
+                {
+                    return JsonResponse(new { success = true, result = true });
+                }
+
+                if (path.EndsWith("/deployments"))
+                {
+                    deploymentBody = body;
+                    return JsonResponse(new { success = true, result = new { id = "dep-3", url = "https://partial.pages.dev" } });
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
+            using var httpClient = new HttpClient(handler);
+            var deployer = new CloudflarePagesDeployer(new Dictionary<string, string>
+            {
+                [CloudflarePagesDeployerDefinition.FieldNames.AccountId] = "acc-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ApiToken] = "tok-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ProjectName] = "proj-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.EnableMarkdownHeaders] = "true"
+            }, httpClient);
+
+            var result = await deployer.DeployWholeSite(_tempDir);
+
+            Assert.True(result.WasSuccessful, result.Message);
+            Assert.NotNull(uploadBody);
+            Assert.Contains(aboutHash, uploadBody);
+            Assert.DoesNotContain(indexHash, uploadBody);
+
+            Assert.NotNull(deploymentBody);
+            Assert.Contains("X-Custom: keep-me", deploymentBody);
+            Assert.DoesNotContain("Vary: Accept", deploymentBody); // Existing _headers was not overwritten
+            Assert.Contains("/old /new 301", deploymentBody);
+        }
+
+        [Fact]
+        public async Task DeployWholeSite_RefreshesJwtOnUnauthorizedDuringUpload()
+        {
+            File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<h1>Retry JWT</h1>");
+            var tokenCalls = 0;
+            var uploadCalls = 0;
+
+            var handler = new StubHttpMessageHandler(async req =>
+            {
+                var body = req.Content != null ? await req.Content.ReadAsStringAsync() : string.Empty;
+                var path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith("/upload-token"))
+                {
+                    tokenCalls++;
+                    return JsonResponse(new { success = true, result = new { jwt = $"jwt-{tokenCalls}" } });
+                }
+
+                if (path.EndsWith("/check-missing"))
+                {
+                    using var doc = JsonDocument.Parse(body);
+                    var hashes = doc.RootElement.GetProperty("hashes").EnumerateArray().Select(e => e.GetString()).ToList();
+                    return JsonResponse(new { success = true, result = hashes });
+                }
+
+                if (path.EndsWith("/pages/assets/upload"))
+                {
+                    uploadCalls++;
+                    if (uploadCalls == 1)
+                    {
+                        return new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                        {
+                            Content = new StringContent("{\"success\":false}")
+                        };
+                    }
+
+                    Assert.Equal("Bearer jwt-2", req.Headers.Authorization?.ToString());
+                    return JsonResponse(new { success = true, result = true });
+                }
+
+                if (path.EndsWith("/upsert-hashes"))
+                {
+                    Assert.Equal("Bearer jwt-2", req.Headers.Authorization?.ToString());
+                    return JsonResponse(new { success = true, result = true });
+                }
+
+                if (path.EndsWith("/deployments"))
+                {
+                    return JsonResponse(new { success = true, result = new { id = "dep-jwt", url = "https://jwt.pages.dev" } });
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
+            using var httpClient = new HttpClient(handler);
+            var deployer = new CloudflarePagesDeployer(new Dictionary<string, string>
+            {
+                [CloudflarePagesDeployerDefinition.FieldNames.AccountId] = "acc-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ApiToken] = "tok-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ProjectName] = "proj-1"
+            }, httpClient);
+
+            var result = await deployer.DeployWholeSite(_tempDir);
+
+            Assert.True(result.WasSuccessful, result.Message);
+            Assert.Equal(2, tokenCalls);
+            Assert.Equal(2, uploadCalls);
+        }
+
+        [Fact]
+        public async Task DeployWholeSite_WhenApiReturnsHttp200WithSuccessFalse_ReturnsError()
+        {
+            File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<h1>Fail</h1>");
+
+            var handler = new StubHttpMessageHandler(_ =>
+                Task.FromResult(JsonResponse(new { success = false, errors = new[] { new { message = "Invalid token" } } })));
+
+            using var httpClient = new HttpClient(handler);
+            var deployer = new CloudflarePagesDeployer(new Dictionary<string, string>
+            {
+                [CloudflarePagesDeployerDefinition.FieldNames.AccountId] = "acc-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ApiToken] = "tok-1",
+                [CloudflarePagesDeployerDefinition.FieldNames.ProjectName] = "proj-1"
+            }, httpClient);
+
+            var result = await deployer.DeployWholeSite(_tempDir);
+
+            Assert.False(result.WasSuccessful);
+            Assert.Contains("proj-1", result.Message);
         }
 
         [Fact]
@@ -116,11 +287,6 @@ namespace XStatic.Core.Tests.Deploy
             File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<h1>Cached</h1>");
 
             var urls = new List<string>();
-            var handler = new StubHttpMessageHandler(_ =>
-            {
-                return Task.FromResult<HttpResponseMessage>(null!);
-            });
-
             var trackingHandler = new StubHttpMessageHandler(req =>
             {
                 urls.Add(req.RequestUri!.AbsolutePath);
@@ -232,6 +398,23 @@ namespace XStatic.Core.Tests.Deploy
 
             Assert.True(redirectsResult.WasSuccessful);
             Assert.Equal("/old-page /new-page 301\n", storedRedirects);
+        }
+
+        [Fact]
+        public void ActionFactory_CanCreateCloudflareHeadersActionViaDiWithoutExplicitActionRegistration()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton(Mock.Of<IStaticSiteStorer>());
+            using var provider = services.BuildServiceProvider();
+
+            var factory = new ActionFactory(Mock.Of<IActionRepository>(), provider);
+            var action = factory.CreatePostGenerationAction(new ActionDataModel
+            {
+                Name = "Cloudflare Headers",
+                Type = typeof(CloudflareHeadersAction).AssemblyQualifiedName
+            });
+
+            Assert.IsType<CloudflareHeadersAction>(action);
         }
 
         private static HttpResponseMessage JsonResponse(object payload)

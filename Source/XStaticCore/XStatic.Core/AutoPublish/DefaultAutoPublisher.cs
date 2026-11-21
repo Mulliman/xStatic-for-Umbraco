@@ -47,8 +47,22 @@ namespace XStatic.Core.AutoPublish
 			IWebHostEnvironment webHostEnvironment,
 			IActionFactory actionFactory,
 			IOptions<XStaticGlobalSettings> globalSettings,
+			ILogger<DefaultAutoPublisher> logger)
+			: this(sitesRepository, umbracoContextFactory, deployerService, deploymentTargetRepository, storer, exportTypeService, webHostEnvironment, actionFactory, globalSettings, logger, System.Array.Empty<IAutoPublishSiteResolver>())
+		{
+		}
+
+		public DefaultAutoPublisher(ISitesRepository sitesRepository,
+			IUmbracoContextFactory umbracoContextFactory,
+			IDeployerService deployerService,
+			IDeploymentTargetRepository deploymentTargetRepository,
+			IStaticSiteStorer storer,
+			IExportTypeService exportTypeService,
+			IWebHostEnvironment webHostEnvironment,
+			IActionFactory actionFactory,
+			IOptions<XStaticGlobalSettings> globalSettings,
 			ILogger<DefaultAutoPublisher> logger,
-			IEnumerable<IAutoPublishSiteResolver> siteResolvers = null)
+			IEnumerable<IAutoPublishSiteResolver> siteResolvers)
 		{
 			_sitesRepository = sitesRepository;
 			_umbracoContextFactory = umbracoContextFactory;
@@ -105,6 +119,11 @@ namespace XStatic.Core.AutoPublish
 
 			foreach (var resolver in _siteResolvers)
 			{
+				if (seenSiteIds.Count >= autoPublishSites.Count)
+				{
+					break;
+				}
+
 				var resolved = resolver.ResolveAffectedSites(publishedEntities, autoPublishSites, autoPublishSiteItems);
 				if (resolved == null)
 				{

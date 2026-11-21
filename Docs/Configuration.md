@@ -18,6 +18,9 @@ xStatic reads its global settings from the `XStatic` section of `appsettings.jso
 | `TrustSslWhenGenerating` | `false` | Accept any SSL certificate when xStatic fetches pages from the running site. Useful for local or Linux setups with self-signed certificates. |
 | `ExcludeGeneratingDocTypes` | none | Document type aliases whose pages are not generated. |
 | `DoNotDeletePaths` | `.git`, `CNAME` | Files and folders kept when a site's stored output is cleared. A path is kept when it ends with one of these values. Setting this list **replaces** the defaults, so include `.git` and `CNAME` if you still need them. |
+| `EnableRelationBasedAutoPublish` | `false` | When `true`, walks upstream Umbraco `umbDocument` relations during auto-publish so publishing shared content or Library elements outside a site's root tree triggers rebuilds for referencing sites. |
+| `AutoPublishMaxRelationDepth` | `5` | Maximum upstream relation traversal depth when `EnableRelationBasedAutoPublish` is enabled. |
+| `AutoPublishGlobalContentTypes` | none | Content type aliases (for example global headers/footers) whose publication triggers auto-publish across all auto-publish enabled sites when `EnableRelationBasedAutoPublish` is enabled. |
 | `UseXStaticUserRoles`, `RoleCreationUser`, `RoleCreationUseRootUser` | set by xStatic | Control the xStatic user groups. The automatic setup turns these on; see below. |
 
 ## Setting them in code
@@ -32,6 +35,9 @@ services.AddXStatic()
     .TrustUnsafeSslConnectionWhenGenerating()
     .ExcludeGeneratingDocTypes(new List<string> { "redirectPage" })
     .DoNotDeletePathsWhenClearing(".git", "CNAME", ".well-known")
+    .EnableRelationBasedAutoPublish(true)
+    .AutoPublishMaxRelationDepth(5)
+    .AutoPublishGlobalContentTypes(new List<string> { "globalFooter" })
     .Build();
 ```
 

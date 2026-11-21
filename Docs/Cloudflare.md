@@ -10,11 +10,13 @@ When `XStatic.Cloudflare` is referenced by your Umbraco site, xStatic's default 
 - **Cloudflare Pages Project Creator** (`cloudflare-pages-project-creator`) via `CloudflarePagesAutoInstaller`
 - **Cloudflare R2** deployer (`cloudflare-r2`) via `CloudflareR2AutoInstaller`
 
-If you configure xStatic manually, you can register the deployers and optional post-generation actions with:
+If you configure xStatic manually, register the deployers and optional post-generation actions as part of your builder chain:
 
 ```csharp
-builder.Services.AddXStatic()
-    .DeployServiceBuilder.AddCloudflareDeployers();
+var xStatic = builder.Services.AddXStatic()
+    .Automatic();
+xStatic.DeployServiceBuilder.AddCloudflareDeployers();
+xStatic.Build();
 
 builder.Services.AddCloudflareActions();
 ```

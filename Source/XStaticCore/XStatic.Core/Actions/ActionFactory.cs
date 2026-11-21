@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,7 +64,7 @@ namespace XStatic.Core.Actions
                 return iocInstance;
             }
 
-            var generator = Activator.CreateInstance(type) as IPostGenerationAction;
+            var generator = ActivatorUtilities.CreateInstance(_currentServiceProvider, type) as IPostGenerationAction;
             return generator;
         }
 

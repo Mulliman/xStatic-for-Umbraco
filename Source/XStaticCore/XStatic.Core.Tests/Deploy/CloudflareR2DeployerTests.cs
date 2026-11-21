@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using XStatic.Cloudflare;
@@ -27,6 +29,59 @@ namespace XStatic.Core.Tests.Deploy
             {
                 Directory.Delete(_tempDir, recursive: true);
             }
+        }
+
+        [Fact]
+        public void AwsSigV4Signer_ProducesExactExpectedSignatureForSpecialCharactersAndSubfolder()
+        {
+            // Independent reference calculation of AWS SigV4 for a PUT to an R2 object with spaces, '+', '%', and non-ASCII 'é'.
+            var uri = new Uri("https://acc123.r2.cloudflarestorage.com/my-bucket/sub%20dir/a%2Bb%25c%20caf%C3%A9.md");
+            var payload = Encoding.UTF8.GetBytes("# Café");
+            var utcNow = new DateTimeOffset(2026, 11, 21, 12, 30, 0, TimeSpan.Zero);
+
+            using var request = new HttpRequestMessage(HttpMethod.Put, uri);
+            AwsSigV4Signer.SignRequest(request, payload, "AKIAEXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", utcNow);
+
+            var payloadHash = Convert.ToHexString(SHA256.HashData(payload)).ToLowerInvariant();
+            var canonicalRequest =
+                "PUT\n" +
+                "/my-bucket/sub%20dir/a%2Bb%25c%20caf%C3%A9.md\n" +
+                "\n" +
+                "host:acc123.r2.cloudflarestorage.com\n" +
+                $"x-amz-content-sha256:{payloadHash}\n" +
+                "x-amz-date:20261121T123000Z\n" +
+                "\n" +
+                "host;x-amz-content-sha256;x-amz-date\n" +
+                payloadHash;
+
+            var hashedCanonicalRequest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonicalRequest))).ToLowerInvariant();
+            var stringToSign =
+                "AWS4-HMAC-SHA256\n" +
+                "20261121T123000Z\n" +
+                "20261121/auto/s3/aws4_request\n" +
+                hashedCanonicalRequest;
+
+            static byte[] Hmac(byte[] k, string d)
+            {
+                using var h = new HMACSHA256(k);
+                return h.ComputeHash(Encoding.UTF8.GetBytes(d));
+            }
+
+            var signingKey = Hmac(
+                Hmac(
+                    Hmac(
+                        Hmac(Encoding.UTF8.GetBytes("AWS4wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"), "20261121"),
+                        "auto"),
+                    "s3"),
+                "aws4_request");
+            var expectedSignature = Convert.ToHexString(Hmac(signingKey, stringToSign)).ToLowerInvariant();
+            var expectedAuth =
+                $"AWS4-HMAC-SHA256 Credential=AKIAEXAMPLE/20261121/auto/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature={expectedSignature}";
+
+            var actualAuth = request.Headers.GetValues("Authorization").Single();
+            Assert.Equal(expectedAuth, actualAuth);
+            Assert.Equal(payloadHash, request.Headers.GetValues("x-amz-content-sha256").Single());
+            Assert.Equal("20261121T123000Z", request.Headers.GetValues("x-amz-date").Single());
         }
 
         [Fact]

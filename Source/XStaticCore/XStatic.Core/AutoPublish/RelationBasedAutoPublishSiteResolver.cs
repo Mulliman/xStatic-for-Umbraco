@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
@@ -13,9 +14,10 @@ namespace XStatic.Core.AutoPublish
 {
     /// <summary>
     /// Resolves affected auto-publish sites for shared content items, Library nodes, and reusable Elements
-    /// (Umbraco 17+ / 18 / 19) that live outside a site's root content tree.
-    /// Walks upstream Umbraco relations (<see cref="IRelationService.GetByChildId"/>) to locate referencing
-    /// pages within configured static sites, and also honors configured global shared content types.
+    /// that live outside a site's root content tree.
+    /// Opt-in via <see cref="XStaticGlobalSettings.EnableRelationBasedAutoPublish"/>.
+    /// Walks upstream Umbraco reference relations (<c>umbDocument</c>) via <see cref="IRelationService.GetByChildId"/>
+    /// to locate referencing pages within configured static sites, and also honors configured global shared content types.
     /// </summary>
     public class RelationBasedAutoPublishSiteResolver : IAutoPublishSiteResolver
     {
@@ -42,7 +44,7 @@ namespace XStatic.Core.AutoPublish
             IReadOnlyDictionary<int, IPublishedContent> siteRootNodes)
         {
             var settings = _globalSettings?.Value;
-            if (settings != null && !settings.EnableRelationBasedAutoPublish)
+            if (settings == null || !settings.EnableRelationBasedAutoPublish || autoPublishSites.Count == 0)
             {
                 return Enumerable.Empty<ExtendedGeneratedSite>();
             }
@@ -51,15 +53,20 @@ namespace XStatic.Core.AutoPublish
             var addedSiteIds = new HashSet<int>();
 
             var globalAliases = new HashSet<string>(
-                settings?.AutoPublishGlobalContentTypes ?? Enumerable.Empty<string>(),
+                settings.AutoPublishGlobalContentTypes ?? Enumerable.Empty<string>(),
                 StringComparer.OrdinalIgnoreCase);
 
-            var maxDepth = settings?.AutoPublishMaxRelationDepth > 0
+            var maxDepth = settings.AutoPublishMaxRelationDepth > 0
                 ? settings.AutoPublishMaxRelationDepth
                 : XStaticGlobalSettings.DefaultAutoPublishMaxRelationDepth;
 
             foreach (var publishedItem in publishedEntities)
             {
+                if (addedSiteIds.Count >= autoPublishSites.Count)
+                {
+                    break;
+                }
+
                 if (publishedItem == null)
                 {
                     continue;
@@ -78,19 +85,19 @@ namespace XStatic.Core.AutoPublish
                         }
                     }
 
-                    if (addedSiteIds.Count == autoPublishSites.Count)
-                    {
-                        break;
-                    }
-
-                    continue;
+                    break;
                 }
 
-                // Walk upstream relations (e.g. Library/Element -> Block -> Page) to find referencing nodes inside any site tree.
+                // Walk upstream umbDocument relations (e.g. Library/Element -> Block -> Page) in batched BFS levels.
                 var referencingPaths = FindReferencingContentPaths(publishedItem.Id, maxDepth);
 
                 foreach (var path in referencingPaths)
                 {
+                    if (addedSiteIds.Count >= autoPublishSites.Count)
+                    {
+                        break;
+                    }
+
                     foreach (var site in autoPublishSites)
                     {
                         if (addedSiteIds.Contains(site.Id))
@@ -120,51 +127,86 @@ namespace XStatic.Core.AutoPublish
             }
 
             var visited = new HashSet<int> { childId };
-            var queue = new Queue<(int NodeId, int Depth)>();
-            queue.Enqueue((childId, 0));
+            var currentLevel = new List<int> { childId };
 
-            while (queue.Count > 0)
+            for (var depth = 0; depth < maxDepth && currentLevel.Count > 0; depth++)
             {
-                var (currentId, depth) = queue.Dequeue();
-                if (depth >= maxDepth)
-                {
-                    continue;
-                }
+                var nextLevelParentIds = new List<int>();
 
-                IEnumerable<IRelation> relations;
-                try
+                foreach (var currentId in currentLevel)
                 {
-                    relations = _relationService.GetByChildId(currentId);
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogWarning(ex, "xStatic failed to query relations for content ID {ContentId}", currentId);
-                    continue;
-                }
+                    IEnumerable<IRelation> relations;
+                    try
+                    {
+                        relations = _relationService.GetByChildId(currentId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogWarning(ex, "xStatic failed to query relations for content ID {ContentId}", currentId);
+                        continue;
+                    }
 
-                if (relations == null)
-                {
-                    continue;
-                }
-
-                foreach (var relation in relations)
-                {
-                    if (relation == null || !visited.Add(relation.ParentId))
+                    if (relations == null)
                     {
                         continue;
                     }
 
-                    var parentContent = _contentService.GetById(relation.ParentId);
-                    if (parentContent != null && !string.IsNullOrEmpty(parentContent.Path))
+                    foreach (var relation in relations)
                     {
-                        paths.Add(parentContent.Path);
-                    }
+                        if (relation == null || !IsReferenceRelation(relation))
+                        {
+                            continue;
+                        }
 
-                    queue.Enqueue((relation.ParentId, depth + 1));
+                        if (visited.Add(relation.ParentId))
+                        {
+                            nextLevelParentIds.Add(relation.ParentId);
+                        }
+                    }
                 }
+
+                if (nextLevelParentIds.Count == 0)
+                {
+                    break;
+                }
+
+                var parentContents = _contentService.GetByIds(nextLevelParentIds);
+                var validNextLevel = new List<int>();
+
+                if (parentContents != null)
+                {
+                    foreach (var parentContent in parentContents)
+                    {
+                        if (parentContent == null || parentContent.Trashed || IsInRecycleBin(parentContent.Path))
+                        {
+                            continue;
+                        }
+
+                        if (!string.IsNullOrEmpty(parentContent.Path))
+                        {
+                            paths.Add(parentContent.Path);
+                        }
+
+                        validNextLevel.Add(parentContent.Id);
+                    }
+                }
+
+                currentLevel = validNextLevel;
             }
 
             return paths;
+        }
+
+        private static bool IsReferenceRelation(IRelation relation)
+        {
+            var alias = relation.RelationType?.Alias;
+            return string.Equals(alias, Constants.Conventions.RelationTypes.RelatedDocumentAlias, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsInRecycleBin(string path)
+        {
+            return !string.IsNullOrEmpty(path) &&
+                (path.StartsWith("-1,-20,", StringComparison.Ordinal) || path == "-1,-20");
         }
     }
 }

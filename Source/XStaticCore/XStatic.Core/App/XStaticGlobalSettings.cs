@@ -26,9 +26,9 @@ namespace XStatic.Core.App
         /// <summary>
         /// Enables walking Umbraco relations (<see cref="Umbraco.Cms.Core.Services.IRelationService"/>) during
         /// auto-publish so updates to shared Library nodes or reusable Elements outside a site's content tree
-        /// trigger rebuilds for referencing sites. Enabled by default.
+        /// trigger rebuilds for referencing sites. Opt-in (disabled by default on LTS).
         /// </summary>
-        public bool EnableRelationBasedAutoPublish { get; set; } = true;
+        public bool EnableRelationBasedAutoPublish { get; set; } = false;
 
         /// <summary>
         /// Maximum upstream relation depth to traverse when locating referencing pages for a published item.

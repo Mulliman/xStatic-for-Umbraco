@@ -125,7 +125,7 @@ namespace XStatic.Cloudflare
             request.Content = new ByteArrayContent(payload);
             request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
 
-            AwsSigV4Signer.SignRequest(request, payload, _accessKeyId.Trim(), _secretAccessKey, _clock());
+            AwsSigV4Signer.SignRequest(request, payload, _accessKeyId.Trim(), _secretAccessKey.Trim(), _clock());
 
             using var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
