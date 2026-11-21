@@ -48,6 +48,8 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /00-auth\.setup\.ts/,
+      // Same installed Chrome as the other projects, so no extra Playwright browser download is needed.
+      use: { channel: 'chrome' },
     },
     {
       name: 'cleanup',
@@ -111,5 +113,25 @@ export default defineConfig({
       },
       dependencies: ['chromium-ops'],
     },
+    // Self-contained specs: each creates and removes its own data, so they only need the login.
+    ...[
+      ['chromium-output', /07-output\.spec\.ts/],
+      ['chromium-json', /08-json-export\.spec\.ts/],
+      ['chromium-security', /09-security\.spec\.ts/],
+      ['chromium-validation', /10-validation\.spec\.ts/],
+      ['chromium-dashboards', /11-dashboards\.spec\.ts/],
+      ['chromium-parameterless-action', /12-parameterless-action\.spec\.ts/],
+      // Skips itself unless the Docker FTP server in Testing/Ftp is running.
+      ['chromium-ftp', /13-ftp-deploy\.spec\.ts/],
+    ].map(([name, testMatch]) => ({
+      name: name as string,
+      testMatch: testMatch as RegExp,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: STORAGE_STATE,
+      },
+      dependencies: ['setup'],
+    })),
   ],
 });

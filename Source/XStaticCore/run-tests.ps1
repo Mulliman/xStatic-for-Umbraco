@@ -3,7 +3,7 @@
     Runs the xStatic unit and integration tests.
 
 .DESCRIPTION
-    The integration tests (XStatic.IntegrationTests) spin up Umbraco 17 against a real database,
+    The integration tests (XStatic.IntegrationTests) spin up Umbraco against a real database,
     recreate the schema xStatic 13.1.0 leaves behind, seed v13 sites, then run the v17 migration plan.
 
     SQLite is used by default and needs no setup. Use -Database LocalDb or -Database SqlServer to

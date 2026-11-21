@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace XStatic.Db
         }
     }
 
-    public abstract class XStaticMigrationBase : MigrationBase
+    public abstract class XStaticMigrationBase : AsyncMigrationBase
     {
         /// <summary>Comma separated Guids are 37 chars each, so the default 255 only fits 6 media roots.</summary>
         public const int MediaRootNodesLength = 4000;
@@ -82,7 +83,7 @@ namespace XStatic.Db
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             CreateSiteConfigTableIfMissing();
 
@@ -117,6 +118,8 @@ namespace XStatic.Db
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
+
+            return Task.CompletedTask;
         }
     }
 
@@ -127,9 +130,11 @@ namespace XStatic.Db
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             CreateDeploymentTargetTableIfMissing();
+
+            return Task.CompletedTask;
         }
     }
 
@@ -145,7 +150,7 @@ namespace XStatic.Db
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             var siteTableExisted = TableExists(SiteConfig.TableName);
 
@@ -158,6 +163,8 @@ namespace XStatic.Db
             }
 
             CopyV13Sites();
+
+            return Task.CompletedTask;
         }
 
         private void WidenMediaRootNodes()

@@ -368,10 +368,17 @@ XStatic14.Website
 
 # Testing
 Testing/Instances/
+Testing/Ftp/data/
 Testing/Playwright/test-results/
 Testing/Playwright/playwright-report/
 Testing/Playwright/node_modules/
 Testing/Playwright/playwright/.auth/
+Testing/Playwright/test_report.txt
+
+# Agent worktrees and per-user agent settings
+.claude/worktrees/
+.claude/settings.local.json
+TestResults/
 
 
 

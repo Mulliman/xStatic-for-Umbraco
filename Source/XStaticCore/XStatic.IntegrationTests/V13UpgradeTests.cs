@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,7 +132,7 @@ namespace XStatic.IntegrationTests
         public void UpgradingV13Database_SitesWithManyMediaRoots_AreStoredAndReadBack()
         {
             var contentType = ContentTypeBuilder.CreateBasicContentType();
-            GetRequiredService<IContentTypeService>().Save(contentType);
+            GetRequiredService<IContentTypeService>().CreateAsync(contentType, Umbraco.Cms.Core.Constants.Security.SuperUserKey).GetAwaiter().GetResult();
             var root = ContentBuilder.CreateBasicContent(contentType);
             GetRequiredService<IContentService>().Save(root);
 
@@ -207,7 +208,7 @@ namespace XStatic.IntegrationTests
         private (IContent Root, IMedia Media1, IMedia Media2) CreateContentAndMedia()
         {
             var contentType = ContentTypeBuilder.CreateBasicContentType();
-            GetRequiredService<IContentTypeService>().Save(contentType);
+            GetRequiredService<IContentTypeService>().CreateAsync(contentType, Umbraco.Cms.Core.Constants.Security.SuperUserKey).GetAwaiter().GetResult();
 
             var root = ContentBuilder.CreateBasicContent(contentType);
             GetRequiredService<IContentService>().Save(root);
@@ -269,7 +270,7 @@ namespace XStatic.IntegrationTests
         private void Execute(MigrationPlan plan)
         {
             var upgrader = new Upgrader(plan);
-            upgrader.Execute(GetRequiredService<IMigrationPlanExecutor>(), GetRequiredService<Umbraco.Cms.Core.Scoping.ICoreScopeProvider>(), KeyValueService);
+            upgrader.ExecuteAsync(GetRequiredService<IMigrationPlanExecutor>(), GetRequiredService<Umbraco.Cms.Core.Scoping.ICoreScopeProvider>(), KeyValueService).GetAwaiter().GetResult();
         }
 
         private List<DeploymentTargetDataModel> GetDeploymentTargets()
@@ -307,7 +308,7 @@ namespace XStatic.IntegrationTests
             {
             }
 
-            protected override void Migrate()
+            protected override Task MigrateAsync()
             {
                 Create.Table(SiteConfig.TableName)
                     .WithColumn("Id").AsInt16().Identity()
@@ -329,6 +330,8 @@ namespace XStatic.IntegrationTests
                     .Do();
 
                 CreateDeploymentTargetTableIfMissing();
+
+                return Task.CompletedTask;
             }
         }
     }

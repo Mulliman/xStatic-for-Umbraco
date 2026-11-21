@@ -2,7 +2,7 @@
     "$schema": "../umbraco-package-schema.json",
     "name": "XStatic14",
     "id": "XStatic14",
-    "version": "16.0.0",
+    "version": "18.0.0",
     "allowTelemetry": true,
     "extensions": [
         {
