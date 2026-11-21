@@ -10,7 +10,7 @@
 		<PackageTags>umbraco umbraco18 xstatic static site generation git umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-using-git/</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-with-Git</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<PackageIconUrl />

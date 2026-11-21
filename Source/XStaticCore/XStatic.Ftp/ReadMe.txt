@@ -1,30 +1,10 @@
-﻿
 ===========================================
-xStatic- FTP
+xStatic - FTP
 ===========================================
 
-Basic setup
------------
+Deploys your xStatic site to an FTP server. The remote folder is mirrored to match the
+generated site, so files on the server that aren't in the generated site are deleted.
 
-You may need to add the following to your program class:
+With the default setup there is nothing to register: the deployer is found automatically.
 
-using XStatic.Ftp;
-
-
-Configuring an FTP deployment step by step
-------------------------------------------
-
-(This is taken from https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-ftp-server/)
-
-
-Within the xStatic section of Umbraco, open your site configuration in edit mode by selecting from the tree or using the edit button on the dashboard.
-
-In the Deployment Target section, select FTP and fill in the fields with the details of your FTP server. For the hostname don't include the scheme, for example you only need to specify 'ftp.mywebsite.com'. If you don't specify a port number, 21 is used. Press Save.
-
-Select this Deployment Target from the dropdown list in the edit dialog of your site and press Save.
-
-Return to the xStatic dashboard, and press the deploy button. If the deploy button isn't showing, make sure you have built the site before.
-
-You should now be able to see that the files on the FTP server match the structure of your Umbraco site.
-
-Remember, you'll need to fill in the "Asset Paths" field in order for your styles to also be deployed to the Git repo.
+Full guide: https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP

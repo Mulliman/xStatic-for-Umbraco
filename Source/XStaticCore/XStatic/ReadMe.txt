@@ -67,3 +67,7 @@ Plugins
 
 Plugins can be found by search NuGet for xStatic or looking at the Information & Plugins tab. 
 These may require more services to be registered in the startup class. See specific plugins for details.
+Documentation
+-------------
+
+Full documentation is in the wiki: https://github.com/Mulliman/xStatic-for-Umbraco/wiki
