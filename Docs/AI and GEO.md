@@ -20,14 +20,14 @@ During generation, each page is fetched, transformed, saved as `.html`, and simu
 
 ### Option B: Per Site (`GenerateCompanionMarkdownAction`)
 If you prefer to keep the standard `StaticHtmlSiteGenerator`, add a **Post-Generation Action** using `GenerateCompanionMarkdownAction`:
-- **`ContentSelector`** *(optional)*: Comma-separated tag names, `#id`, `.class`, or XPath selectors (default automatically prefers `<main>`, `[role="main"]`, or `<article>`, falling back to `<body>`).
+- **`ContentSelector`** *(optional)*: Comma-separated simple selectors (`tag`, `#id`, `.class`) or raw XPath expressions starting with `//` (CSS combinators like `main > article` are not supported; invalid selectors safely fall back to auto-detection). By default, auto-detection prefers `<main>`, `[role="main"]`, or a single `<article>`, falling back to `<body>`.
 - **`ExcludePaths`** *(optional)*: Comma-separated URL prefixes to skip (e.g. `/404, /search`).
 
 ---
 
 ## 2. `/llms.txt` and `/llms-full.txt` (`GenerateLlmsTxtAction`)
 
-`GenerateLlmsTxtAction` is a built-in `IPostGenerationAction` that scans the generated static site output and compiles:
+`GenerateLlmsTxtAction` is a built-in `IPostGenerationAction` that scans the generated static site output (`.html` and `.htm` files) and compiles:
 - **`/llms.txt`**: A curated Markdown site map following the [llms.txt](https://llmstxt.org/) specification with site title, summary, and grouped section links.
 - **`/llms-full.txt`** *(optional, enabled by default)*: A single bundled Markdown document containing the full clean Markdown content of every included page.
 
@@ -36,12 +36,12 @@ Configure these in the xStatic **Actions** dashboard and attach the action to an
 
 | Field | Editor | Default | Description |
 | --- | --- | --- | --- |
-| `SiteTitle` | Text | Site name / root `<title>` | Top-level `# Title` in `/llms.txt` and `/llms-full.txt`. |
+| `SiteTitle` | Text | xStatic site config name (or root `<title>`) | Top-level `# Title` in `/llms.txt` and `/llms-full.txt`. |
 | `SiteDescription` | TextArea | Root `<meta name="description">` | Concise `> Summary` blockquote under the title. |
-| `GenerateFullFile` | Toggle | `true` | When enabled, also generates `/llms-full.txt`. |
-| `GenerateCompanionMarkdown` | Toggle | `false` | When enabled, generates missing companion `.md` twins for HTML pages that don't already have one. |
-| `UseMarkdownLinks` | Toggle | `true` | Links to companion `.md` URLs when they exist; falls back to the HTML page URL otherwise. |
-| `ExcludePaths` | Text | *(none)* | Comma-separated path prefixes to exclude (e.g. `/404, /search`). |
+| `GenerateFullFile` | Text (`true`/`false`) | `true` | When `true`, also generates `/llms-full.txt`. |
+| `GenerateCompanionMarkdown` | Text (`true`/`false`) | `false` | When `true`, generates or refreshes companion `.md` twins for HTML pages. |
+| `UseMarkdownLinks` | Text (`true`/`false`) | `true` | Links to companion `.md` URLs when they exist; falls back to the HTML page URL otherwise. |
+| `ExcludePaths` | Text | *(none)* | Comma-separated path prefixes to exclude (e.g. `/404, /search`, or static verification HTML files). |
 
 ### Example `/llms.txt` Output
 
@@ -71,8 +71,8 @@ Configure these in the xStatic **Actions** dashboard and attach the action to an
 ```
 
 ### Behavior
-- Derives the companion Markdown URL from `<link rel="canonical">`, `<meta property="og:url">`, or falls back to `index.md` for directory-based static sites.
-- Resolves root-relative URLs against the site's `TargetHostname` when configured.
+- When used with `StaticHtmlWithMarkdownSiteGenerator`, `MarkdownDiscoveryTransformer` implements `IPageContextTransformer` and receives each page's exact relative URL automatically, combining it with `TargetHostname` when configured.
+- When used with the standard `StaticHtmlSiteGenerator`, it derives the companion Markdown URL from `<link rel="canonical">` or `<meta property="og:url">` (resolving root-relative URLs against `TargetHostname`), or falls back to relative `index.md` (which assumes directory-style trailing-slash URLs such as `/about/`).
 - Idempotent: skips injection if `<link rel="alternate" type="text/markdown" ...>` is already present.
 - Preserves existing `<link rel="canonical">` and `<script type="application/ld+json">` blocks untouched, and exposes `MarkdownDiscoveryTransformer.ValidateJsonLd(html)` for validating JSON-LD payloads.
 

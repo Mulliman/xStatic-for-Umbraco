@@ -57,7 +57,7 @@ namespace XStatic.Core.Actions
 
             try
             {
-                var htmlFiles = Directory.GetFiles(siteRoot, "*.html", SearchOption.AllDirectories)
+                var htmlFiles = EnumerateHtmlFiles(siteRoot)
                     .OrderBy(f => f, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var htmlFile in htmlFiles)
@@ -83,6 +83,13 @@ namespace XStatic.Core.Actions
             {
                 return XStaticResult.Error("Failed to generate companion Markdown files.", ex);
             }
+        }
+
+        internal static IEnumerable<string> EnumerateHtmlFiles(string siteRoot)
+        {
+            return Directory.EnumerateFiles(siteRoot, "*.*", SearchOption.AllDirectories)
+                .Where(f => f.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".htm", StringComparison.OrdinalIgnoreCase));
         }
 
         internal static List<string> ParseExcludePaths(string excludePathsRaw)

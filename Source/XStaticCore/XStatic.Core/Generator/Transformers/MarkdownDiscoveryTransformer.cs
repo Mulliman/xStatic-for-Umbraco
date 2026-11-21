@@ -11,6 +11,15 @@ using XStatic.Core.Generator.Markdown;
 
 namespace XStatic.Core.Generator.Transformers
 {
+    /// <summary>
+    /// Optional extension of <see cref="ITransformer"/> for transformers that can use the page's relative URL
+    /// when available from the generator.
+    /// </summary>
+    public interface IPageContextTransformer : ITransformer
+    {
+        string Transform(string input, IUmbracoContext context, string pageUrl);
+    }
+
     public class JsonLdValidationResult
     {
         public int Index { get; set; }
@@ -24,7 +33,7 @@ namespace XStatic.Core.Generator.Transformers
     /// Injects a Markdown discovery &lt;link rel="alternate" type="text/markdown" href="..."&gt; tag into HTML &lt;head&gt;
     /// while preserving existing canonical and JSON-LD metadata intact.
     /// </summary>
-    public class MarkdownDiscoveryTransformer : ITransformer
+    public class MarkdownDiscoveryTransformer : IPageContextTransformer
     {
         private static readonly Regex ClosingHeadRegex = new Regex(@"</head\s*>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -44,19 +53,24 @@ namespace XStatic.Core.Generator.Transformers
 
         public string Transform(string input, IUmbracoContext context)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                return input;
-            }
+            return Transform(input, context, pageUrl: null);
+        }
 
-            var closingHeadMatch = ClosingHeadRegex.Match(input);
-            if (!closingHeadMatch.Success)
+        public string Transform(string input, IUmbracoContext context, string pageUrl)
+        {
+            if (string.IsNullOrEmpty(input))
             {
                 return input;
             }
 
             var doc = new HtmlDocument();
             doc.LoadHtml(input);
+
+            var insertIndex = FindHeadClosingInsertIndex(doc, input);
+            if (insertIndex < 0)
+            {
+                return input;
+            }
 
             var hasMarkdownAlternate = HasMarkdownAlternateLink(doc);
             var canonicalUrl = GetCanonicalUrl(doc);
@@ -75,8 +89,9 @@ namespace XStatic.Core.Generator.Transformers
 
             if (!hasMarkdownAlternate)
             {
-                var sourceUrl = !string.IsNullOrWhiteSpace(_pageUrl)
-                    ? _pageUrl
+                var explicitPageUrl = !string.IsNullOrWhiteSpace(pageUrl) ? pageUrl : _pageUrl;
+                var sourceUrl = !string.IsNullOrWhiteSpace(explicitPageUrl)
+                    ? explicitPageUrl
                     : !string.IsNullOrWhiteSpace(canonicalUrl)
                         ? canonicalUrl
                         : ogUrl;
@@ -91,7 +106,7 @@ namespace XStatic.Core.Generator.Transformers
             }
 
             // Minimal targeted insertion preserves original DOCTYPE, formatting, canonical tags, and JSON-LD byte-for-byte.
-            return input.Insert(closingHeadMatch.Index, tagsToInject.ToString());
+            return input.Insert(insertIndex, tagsToInject.ToString());
         }
 
         public static IReadOnlyList<JsonLdValidationResult> ValidateJsonLd(string html)
@@ -151,6 +166,22 @@ namespace XStatic.Core.Generator.Transformers
             }
 
             return results;
+        }
+
+        private static int FindHeadClosingInsertIndex(HtmlDocument doc, string input)
+        {
+            var headNode = doc.DocumentNode.SelectSingleNode("//head");
+            if (headNode?.EndNode != null && headNode.Closed)
+            {
+                var idx = headNode.EndNode.StreamPosition;
+                if (idx >= headNode.StreamPosition && idx <= input.Length)
+                {
+                    return idx;
+                }
+            }
+
+            var match = ClosingHeadRegex.Match(input);
+            return match.Success ? match.Index : -1;
         }
 
         private static bool HasMarkdownAlternateLink(HtmlDocument doc)

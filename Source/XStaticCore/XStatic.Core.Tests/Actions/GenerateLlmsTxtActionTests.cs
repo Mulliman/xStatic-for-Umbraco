@@ -205,5 +205,186 @@ namespace XStatic.Core.Tests.Actions
             Assert.Contains("Body", homeMd);
             Assert.DoesNotContain("Menu", homeMd);
         }
+
+        [Fact]
+        public async Task RunAction_ScansHtmFiles_EscapesTitles_AndRebuildsStaleCompanionMarkdown()
+        {
+            WriteSiteFile("legacy.htm", "<html><head><title>Legacy [v1]</title></head><body><main><h1>Legacy [v1]</h1><p>Fresh HTML body</p></main></body></html>");
+            var mdPath = Path.Combine(_siteDir, "legacy.md");
+            File.WriteAllText(mdPath, "# Stale Markdown", Encoding.UTF8);
+            File.SetLastWriteTimeUtc(mdPath, DateTime.UtcNow.AddHours(-2));
+            File.SetLastWriteTimeUtc(Path.Combine(_siteDir, "legacy.htm"), DateTime.UtcNow);
+
+            var sitesRepo = new Mock<ISitesRepository>();
+            sitesRepo.Setup(r => r.Get<SiteConfig>(42)).Returns(new SiteConfig { Id = 42, Name = "Site" });
+
+            var storer = CreateFileBackedStorer(42);
+            var action = new GenerateLlmsTxtAction(sitesRepo.Object, storer.Object);
+
+            var result = await action.RunAction(42, new Dictionary<string, string>
+            {
+                [GenerateLlmsTxtFields.GenerateCompanionMarkdown] = "true"
+            });
+
+            Assert.True(result.WasSuccessful);
+            var llmsTxt = await File.ReadAllTextAsync(Path.Combine(_siteDir, "llms.txt"));
+            Assert.Contains("- [Legacy \\[v1\\]](/legacy.md)", llmsTxt);
+
+            var llmsFullTxt = await File.ReadAllTextAsync(Path.Combine(_siteDir, "llms-full.txt"));
+            Assert.Contains("Fresh HTML body", llmsFullTxt);
+            Assert.DoesNotContain("Stale Markdown", llmsFullTxt);
+        }
+
+        [Fact]
+        public void GenerateLlmsTxtAction_EditableFields_UseStringCompatibleEditors()
+        {
+            var attrs = (XStaticEditableFieldAttribute[])Attribute.GetCustomAttributes(
+                typeof(GenerateLlmsTxtAction), typeof(XStaticEditableFieldAttribute), inherit: false);
+
+            Assert.NotEmpty(attrs);
+            Assert.DoesNotContain(attrs, a => a.EditorUiAlias == UIEditors.Toggle);
+        }
+
+        [Fact]
+        public async Task StaticHtmlWithMarkdownSiteGenerator_StoresHtmlAndMarkdown_AndPassesPageUrlToDiscoveryTransformer()
+        {
+            var storer = CreateFileBackedStorer(42);
+            var generator = new TestableMarkdownSiteGenerator(
+                storer.Object,
+                htmlToReturn: "<html><head><title>About</title></head><body><nav>Nav</nav><main><h1>About</h1><p>Hello world</p></main></body></html>",
+                relativeUrl: "/about/");
+
+            var transformers = new XStatic.Core.Generator.Transformers.GeoHtmlTransformerListFactory()
+                .BuildTransformers(new SiteConfig { TargetHostname = "https://example.com" });
+
+            var result = await generator.GeneratePage(1, 42, new EverythingIsIndexHtmlFileNameGenerator(), transformers);
+
+            Assert.True(result.WasSuccessful, result.Message);
+            var html = await File.ReadAllTextAsync(Path.Combine(_siteDir, "about", "index.html"));
+            var md = await File.ReadAllTextAsync(Path.Combine(_siteDir, "about", "index.md"));
+
+            Assert.Contains("<link rel=\"alternate\" type=\"text/markdown\" href=\"https://example.com/about/index.md\" />", html);
+            Assert.Contains("# About", md);
+            Assert.Contains("Hello world", md);
+            Assert.DoesNotContain("Nav", md);
+        }
+
+        [Fact]
+        public async Task StaticHtmlWithMarkdownSiteGenerator_DoesNotFailHtmlPage_WhenMarkdownConversionThrows()
+        {
+            var storer = CreateFileBackedStorer(42);
+            var failingConverter = new Mock<XStatic.Core.Generator.Markdown.IHtmlToMarkdownConverter>();
+            failingConverter.Setup(c => c.Convert(It.IsAny<string>(), It.IsAny<XStatic.Core.Generator.Markdown.HtmlToMarkdownOptions>()))
+                .Throws(new InvalidOperationException("Boom"));
+
+            var generator = new TestableMarkdownSiteGenerator(
+                storer.Object,
+                htmlToReturn: "<html><head><title>About</title></head><body><main><h1>About</h1></main></body></html>",
+                relativeUrl: "/about/",
+                converter: failingConverter.Object);
+
+            var result = await generator.GeneratePage(1, 42, new EverythingIsIndexHtmlFileNameGenerator());
+
+            Assert.True(result.WasSuccessful, result.Message);
+            Assert.True(File.Exists(Path.Combine(_siteDir, "about", "index.html")));
+            Assert.False(File.Exists(Path.Combine(_siteDir, "about", "index.md")));
+        }
+
+        private sealed class TestableMarkdownSiteGenerator : XStatic.Core.Generator.StaticHtmlWithMarkdownSiteGenerator
+        {
+            private readonly string _htmlToReturn;
+            private readonly string _relativeUrl;
+
+            public TestableMarkdownSiteGenerator(
+                IStaticSiteStorer storer,
+                string htmlToReturn,
+                string relativeUrl,
+                XStatic.Core.Generator.Markdown.IHtmlToMarkdownConverter? converter = null)
+                : base(
+                    CreateContextFactory(relativeUrl),
+                    CreateUrlProvider(relativeUrl),
+                    storer,
+                    Mock.Of<IImageCropNameGenerator>(),
+                    null!,
+                    Mock.Of<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>(),
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<XStatic.Core.Generator.StaticHtmlSiteGenerator>.Instance,
+                    Microsoft.Extensions.Options.Options.Create(new XStatic.Core.App.XStaticGlobalSettings()),
+                    converter)
+            {
+                _htmlToReturn = htmlToReturn;
+                _relativeUrl = relativeUrl;
+            }
+
+            protected override Task<string> GetFileDataFromWebClient(string absoluteUrl) => Task.FromResult(_htmlToReturn);
+
+            private static Umbraco.Cms.Core.Web.IUmbracoContextFactory CreateContextFactory(string relativeUrl)
+            {
+                var contentType = new Mock<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContentType>();
+                contentType.SetupGet(ct => ct.ItemType).Returns(Umbraco.Cms.Core.Models.PublishedContent.PublishedItemType.Content);
+
+                var content = new Mock<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>();
+                content.SetupGet(c => c.Id).Returns(1);
+                content.SetupGet(c => c.Key).Returns(Guid.NewGuid());
+                content.SetupGet(c => c.TemplateId).Returns(10);
+                content.SetupGet(c => c.ItemType).Returns(Umbraco.Cms.Core.Models.PublishedContent.PublishedItemType.Content);
+                content.SetupGet(c => c.ContentType).Returns(contentType.Object);
+                content.SetupGet(c => c.UrlSegment).Returns(relativeUrl.Trim('/'));
+
+                var contentCache = new Mock<Umbraco.Cms.Core.PublishedCache.IPublishedContentCache>();
+                contentCache.Setup(c => c.GetById(1)).Returns(content.Object);
+
+                var domainCache = new Mock<Umbraco.Cms.Core.PublishedCache.IDomainCache>();
+                domainCache.Setup(d => d.GetAll(false)).Returns(Array.Empty<Umbraco.Cms.Core.Routing.Domain>());
+
+                var umbracoContext = new Mock<Umbraco.Cms.Core.Web.IUmbracoContext>();
+                umbracoContext.SetupGet(c => c.Content).Returns(contentCache.Object);
+                umbracoContext.SetupGet(c => c.Domains).Returns(domainCache.Object);
+
+                var ctxRef = new Umbraco.Cms.Core.UmbracoContextReference(umbracoContext.Object, true, Mock.Of<Umbraco.Cms.Core.Web.IUmbracoContextAccessor>());
+                var factory = new Mock<Umbraco.Cms.Core.Web.IUmbracoContextFactory>();
+                factory.Setup(f => f.EnsureUmbracoContext()).Returns(ctxRef);
+                return factory.Object;
+            }
+
+            private static Umbraco.Cms.Core.Routing.IPublishedUrlProvider CreateUrlProvider(string relativeUrl)
+            {
+                var provider = new Mock<Umbraco.Cms.Core.Routing.IPublishedUrlProvider>();
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Relative,
+                        It.IsAny<string?>()))
+                    .Returns(relativeUrl);
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute,
+                        It.IsAny<string?>()))
+                    .Returns("https://localhost" + relativeUrl);
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<int>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Relative,
+                        It.IsAny<string?>(),
+                        It.IsAny<Uri?>()))
+                    .Returns(relativeUrl);
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<int>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute,
+                        It.IsAny<string?>(),
+                        It.IsAny<Uri?>()))
+                    .Returns("https://localhost" + relativeUrl);
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<Guid>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Relative,
+                        It.IsAny<string?>(),
+                        It.IsAny<Uri?>()))
+                    .Returns(relativeUrl);
+                provider.Setup(p => p.GetUrl(
+                        It.IsAny<Guid>(),
+                        Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute,
+                        It.IsAny<string?>(),
+                        It.IsAny<Uri?>()))
+                    .Returns("https://localhost" + relativeUrl);
+                return provider.Object;
+            }
+        }
     }
 }

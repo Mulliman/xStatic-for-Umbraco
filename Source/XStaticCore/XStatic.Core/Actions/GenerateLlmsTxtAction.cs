@@ -28,9 +28,9 @@ namespace XStatic.Core.Actions
     /// </summary>
     [XStaticEditableField(GenerateLlmsTxtFields.SiteTitle, UIEditors.Text)]
     [XStaticEditableField(GenerateLlmsTxtFields.SiteDescription, UIEditors.TextArea)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Toggle)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Toggle)]
-    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Toggle)]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Text)]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Text)]
+    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Text)]
     [XStaticEditableField(GenerateLlmsTxtFields.ExcludePaths, UIEditors.Text)]
     public class GenerateLlmsTxtAction : PostGenerationActionBase
     {
@@ -115,7 +115,7 @@ namespace XStatic.Core.Actions
             bool needMarkdownBody,
             List<string> excludedPrefixes)
         {
-            var htmlFiles = Directory.GetFiles(siteRoot, "*.html", SearchOption.AllDirectories)
+            var htmlFiles = GenerateCompanionMarkdownAction.EnumerateHtmlFiles(siteRoot)
                 .Select(f => new
                 {
                     FullPath = f,
@@ -141,10 +141,12 @@ namespace XStatic.Core.Actions
                 var markdownRelativePath = MarkdownPathHelper.GetCompanionMarkdownPath(file.RelativePath);
                 var markdownFullPath = Path.Combine(siteRoot, markdownRelativePath.Replace('/', Path.DirectorySeparatorChar));
                 var hasCompanionMarkdown = File.Exists(markdownFullPath);
+                var isCompanionFresh = hasCompanionMarkdown &&
+                    File.GetLastWriteTimeUtc(markdownFullPath) >= File.GetLastWriteTimeUtc(file.FullPath);
 
                 string markdownBody = null;
 
-                if (hasCompanionMarkdown && needMarkdownBody)
+                if (isCompanionFresh && needMarkdownBody)
                 {
                     markdownBody = await File.ReadAllTextAsync(markdownFullPath, Encoding.UTF8);
                 }
@@ -152,7 +154,7 @@ namespace XStatic.Core.Actions
                 {
                     markdownBody = _markdownConverter.Convert(html);
 
-                    if (generateCompanionMarkdown && !hasCompanionMarkdown)
+                    if (generateCompanionMarkdown && !isCompanionFresh)
                     {
                         await _staticSiteStorer.StoreSiteItem(siteStaticId.ToString(), markdownRelativePath, markdownBody, Encoding.UTF8);
                         hasCompanionMarkdown = true;
@@ -205,7 +207,9 @@ namespace XStatic.Core.Actions
                 foreach (var page in group)
                 {
                     var href = (useMarkdownLinks && page.HasCompanionMarkdown) ? page.MarkdownUrl : page.PageUrl;
-                    sb.Append("- [").Append(page.Title).Append("](").Append(href).Append(')');
+                    var escapedTitle = HtmlToMarkdownConverter.EscapeMarkdownLinkLabel(page.Title);
+                    var formattedHref = HtmlToMarkdownConverter.FormatMarkdownHref(href);
+                    sb.Append("- [").Append(escapedTitle).Append("](").Append(formattedHref).Append(')');
 
                     if (!string.IsNullOrWhiteSpace(page.Description))
                     {

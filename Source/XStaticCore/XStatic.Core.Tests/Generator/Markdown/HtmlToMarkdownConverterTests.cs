@@ -141,6 +141,78 @@ namespace XStatic.Core.Tests.Generator.Markdown
             Assert.DoesNotContain("Promo banner", markdown);
         }
 
+        [Theory]
+        [InlineData("#a'b")]
+        [InlineData("main > article")]
+        [InlineData("//div[@id='unclosed")]
+        public void Convert_InvalidContentSelector_FallsBackSafelyWithoutThrowing(string selector)
+        {
+            var html = "<html><body><main><h1>Safe Fallback</h1><p>Content</p></main></body></html>";
+
+            var markdown = _converter.Convert(html, new HtmlToMarkdownOptions
+            {
+                ContentSelector = selector
+            });
+
+            Assert.Contains("# Safe Fallback", markdown);
+            Assert.Contains("Content", markdown);
+        }
+
+        [Fact]
+        public void Convert_ListingPageWithMultipleArticlesAndNoMain_PreservesAllArticles()
+        {
+            var html = """
+                <html>
+                <body>
+                    <nav>Site Nav</nav>
+                    <article><h2>Post One</h2><p>First summary.</p></article>
+                    <article><h2>Post Two</h2><p>Second summary.</p></article>
+                </body>
+                </html>
+                """;
+
+            var markdown = _converter.Convert(html);
+
+            Assert.Contains("## Post One", markdown);
+            Assert.Contains("First summary.", markdown);
+            Assert.Contains("## Post Two", markdown);
+            Assert.Contains("Second summary.", markdown);
+            Assert.DoesNotContain("Site Nav", markdown);
+        }
+
+        [Fact]
+        public void Convert_DeeplyNestedHtml_DoesNotStackOverflow()
+        {
+            var open = string.Concat(System.Linq.Enumerable.Repeat("<span>", 400));
+            var close = string.Concat(System.Linq.Enumerable.Repeat("</span>", 400));
+            var html = $"<html><body><main><p>{open}Deep text{close}</p></main></body></html>";
+
+            var markdown = _converter.Convert(html);
+
+            Assert.Contains("Deep text", markdown);
+        }
+
+        [Fact]
+        public void Convert_EscapesBracketsInLinksAndImages_WrapsSpacedHrefs_AndHandlesDoubleBackticks()
+        {
+            var html = """
+                <html>
+                <body>
+                    <main>
+                        <p>See <a href="https://example.com/a (1).html">Guide [v2]</a> and <img src="/img/my pic.png" alt="Logo [dark]" />.</p>
+                        <p>Code: <code>a `` b</code></p>
+                    </main>
+                </body>
+                </html>
+                """;
+
+            var markdown = _converter.Convert(html);
+
+            Assert.Contains("[Guide \\[v2\\]](<https://example.com/a (1).html>)", markdown);
+            Assert.Contains("![Logo \\[dark\\]](</img/my pic.png>)", markdown);
+            Assert.Contains("```a `` b```", markdown);
+        }
+
         [Fact]
         public void ExtractMetadata_ReadsTitleDescriptionCanonicalOgUrlAndJsonLd()
         {

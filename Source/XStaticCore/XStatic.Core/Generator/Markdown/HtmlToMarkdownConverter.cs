@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.XPath;
 
 namespace XStatic.Core.Generator.Markdown
 {
     public class HtmlToMarkdownConverter : IHtmlToMarkdownConverter
     {
+        private const int MaxRecursionDepth = 256;
+
         private static readonly HashSet<string> AlwaysStripTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "script", "style", "noscript", "template", "svg", "iframe", "head", "canvas", "object", "embed"
@@ -28,18 +31,24 @@ namespace XStatic.Core.Generator.Markdown
         private static readonly Regex ExcessNewlinesRegex = new Regex(@"\n{3,}", RegexOptions.Compiled);
         private static readonly Regex TrailingSpacesPerLineRegex = new Regex(@"[ \t]+\n", RegexOptions.Compiled);
         private static readonly Regex CodeLanguageRegex = new Regex(@"(?:language|lang)-([a-zA-Z0-9_+#.-]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SimpleTagNameRegex = new Regex(@"^[a-zA-Z][a-zA-Z0-9_-]*$", RegexOptions.Compiled);
 
         public HtmlPageMetadata ExtractMetadata(string html)
         {
-            var metadata = new HtmlPageMetadata();
-
             if (string.IsNullOrWhiteSpace(html))
             {
-                return metadata;
+                return new HtmlPageMetadata();
             }
 
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
+
+            return ExtractMetadata(doc);
+        }
+
+        private static HtmlPageMetadata ExtractMetadata(HtmlDocument doc)
+        {
+            var metadata = new HtmlPageMetadata();
 
             var titleNode = doc.DocumentNode.SelectSingleNode("//head/title")
                 ?? doc.DocumentNode.SelectSingleNode("//title")
@@ -124,7 +133,7 @@ namespace XStatic.Core.Generator.Markdown
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var metadata = ExtractMetadata(html);
+            var metadata = ExtractMetadata(doc);
             var contentRoot = FindContentRoot(doc, options);
 
             if (contentRoot == null)
@@ -133,7 +142,7 @@ namespace XStatic.Core.Generator.Markdown
             }
 
             var sb = new StringBuilder();
-            RenderChildren(contentRoot, sb, options, listDepth: 0, insidePrimaryContent: IsPrimaryContentNode(contentRoot));
+            RenderChildren(contentRoot, sb, options, listDepth: 0, insidePrimaryContent: IsPrimaryContentNode(contentRoot), depth: 0);
 
             var markdown = NormalizeMarkdown(sb.ToString());
 
@@ -169,12 +178,19 @@ namespace XStatic.Core.Generator.Markdown
             }
 
             var main = doc.DocumentNode.SelectSingleNode("//main")
-                ?? doc.DocumentNode.SelectSingleNode("//*[@role='main']")
-                ?? doc.DocumentNode.SelectSingleNode("//article");
+                ?? doc.DocumentNode.SelectSingleNode("//*[@role='main']");
 
             if (main != null)
             {
                 return main;
+            }
+
+            // Only narrow to <article> when there is a single article on the page;
+            // listing pages with multiple <article> cards should fall back to <body>.
+            var articles = doc.DocumentNode.SelectNodes("//article");
+            if (articles != null && articles.Count == 1)
+            {
+                return articles[0];
             }
 
             return doc.DocumentNode.SelectSingleNode("//body") ?? doc.DocumentNode;
@@ -182,24 +198,64 @@ namespace XStatic.Core.Generator.Markdown
 
         private static HtmlNode SelectBySimpleSelector(HtmlNode root, string selector)
         {
-            if (selector.StartsWith("//"))
+            try
             {
-                return root.SelectSingleNode(selector);
+                if (selector.StartsWith("//"))
+                {
+                    return root.SelectSingleNode(selector);
+                }
+
+                if (selector.StartsWith("#"))
+                {
+                    var id = selector.Substring(1);
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        return null;
+                    }
+
+                    var literal = ToXPathLiteral(id);
+                    return root.SelectSingleNode($"//*[@id={literal}]");
+                }
+
+                if (selector.StartsWith("."))
+                {
+                    var cls = selector.Substring(1);
+                    if (string.IsNullOrEmpty(cls))
+                    {
+                        return null;
+                    }
+
+                    var literal = ToXPathLiteral($" {cls} ");
+                    return root.SelectSingleNode($"//*[contains(concat(' ', normalize-space(@class), ' '), {literal})]");
+                }
+
+                if (!SimpleTagNameRegex.IsMatch(selector))
+                {
+                    return null;
+                }
+
+                return root.SelectSingleNode($"//{selector}");
+            }
+            catch (XPathException)
+            {
+                return null;
+            }
+        }
+
+        private static string ToXPathLiteral(string value)
+        {
+            if (!value.Contains('\''))
+            {
+                return $"'{value}'";
             }
 
-            if (selector.StartsWith("#"))
+            if (!value.Contains('"'))
             {
-                var id = selector.Substring(1);
-                return root.SelectSingleNode($"//*[@id='{id}']");
+                return $"\"{value}\"";
             }
 
-            if (selector.StartsWith("."))
-            {
-                var cls = selector.Substring(1);
-                return root.SelectSingleNode($"//*[contains(concat(' ', normalize-space(@class), ' '), ' {cls} ')]");
-            }
-
-            return root.SelectSingleNode($"//{selector}");
+            var parts = value.Split('\'');
+            return "concat(" + string.Join(", \"'\", ", parts.Select(p => $"'{p}'")) + ")";
         }
 
         private static bool IsPrimaryContentNode(HtmlNode node)
@@ -265,15 +321,25 @@ namespace XStatic.Core.Generator.Markdown
             return false;
         }
 
-        private void RenderChildren(HtmlNode parent, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool insidePrimaryContent)
+        private void RenderChildren(HtmlNode parent, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool insidePrimaryContent, int depth)
         {
+            if (depth >= MaxRecursionDepth)
+            {
+                var fallbackText = NormalizeInlineWhitespace(HtmlEntity.DeEntitize(parent.InnerText));
+                if (!string.IsNullOrEmpty(fallbackText))
+                {
+                    AppendInlineText(sb, fallbackText);
+                }
+                return;
+            }
+
             foreach (var child in parent.ChildNodes)
             {
-                RenderNode(child, sb, options, listDepth, insidePrimaryContent);
+                RenderNode(child, sb, options, listDepth, insidePrimaryContent, depth + 1);
             }
         }
 
-        private void RenderNode(HtmlNode node, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool insidePrimaryContent)
+        private void RenderNode(HtmlNode node, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool insidePrimaryContent, int depth)
         {
             if (ShouldSkipNode(node, options, insidePrimaryContent))
             {
@@ -296,6 +362,16 @@ namespace XStatic.Core.Generator.Markdown
                 return;
             }
 
+            if (depth >= MaxRecursionDepth)
+            {
+                var fallbackText = NormalizeInlineWhitespace(HtmlEntity.DeEntitize(node.InnerText));
+                if (!string.IsNullOrEmpty(fallbackText))
+                {
+                    AppendInlineText(sb, fallbackText);
+                }
+                return;
+            }
+
             var tag = node.Name.ToLowerInvariant();
             var inPrimary = insidePrimaryContent || IsPrimaryContentNode(node);
 
@@ -309,7 +385,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "h6":
                 {
                     int level = tag[1] - '0';
-                    var headingText = RenderInlineToString(node, options, inPrimary).Trim();
+                    var headingText = RenderInlineToString(node, options, inPrimary, depth).Trim();
                     if (!string.IsNullOrEmpty(headingText))
                     {
                         EnsureBlankLine(sb);
@@ -320,7 +396,7 @@ namespace XStatic.Core.Generator.Markdown
 
                 case "p":
                 {
-                    var paragraph = RenderInlineToString(node, options, inPrimary).Trim();
+                    var paragraph = RenderInlineToString(node, options, inPrimary, depth).Trim();
                     if (!string.IsNullOrEmpty(paragraph))
                     {
                         EnsureBlankLine(sb);
@@ -330,7 +406,7 @@ namespace XStatic.Core.Generator.Markdown
                 }
 
                 case "br":
-                    sb.Append("\n");
+                    sb.Append("  \n");
                     break;
 
                 case "hr":
@@ -341,7 +417,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "strong":
                 case "b":
                 {
-                    var inner = RenderInlineToString(node, options, inPrimary).Trim();
+                    var inner = RenderInlineToString(node, options, inPrimary, depth).Trim();
                     if (!string.IsNullOrEmpty(inner))
                     {
                         AppendInlineText(sb, $"**{inner}**");
@@ -352,7 +428,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "em":
                 case "i":
                 {
-                    var inner = RenderInlineToString(node, options, inPrimary).Trim();
+                    var inner = RenderInlineToString(node, options, inPrimary, depth).Trim();
                     if (!string.IsNullOrEmpty(inner))
                     {
                         AppendInlineText(sb, $"*{inner}*");
@@ -363,7 +439,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "del":
                 case "s":
                 {
-                    var inner = RenderInlineToString(node, options, inPrimary).Trim();
+                    var inner = RenderInlineToString(node, options, inPrimary, depth).Trim();
                     if (!string.IsNullOrEmpty(inner))
                     {
                         AppendInlineText(sb, $"~~{inner}~~");
@@ -376,8 +452,9 @@ namespace XStatic.Core.Generator.Markdown
                     var codeText = HtmlEntity.DeEntitize(node.InnerText);
                     if (!string.IsNullOrEmpty(codeText))
                     {
-                        var fence = codeText.Contains("`") ? "``" : "`";
-                        AppendInlineText(sb, $"{fence}{codeText}{fence}");
+                        var fence = BuildInlineCodeFence(codeText);
+                        var pad = codeText.StartsWith("`") || codeText.EndsWith("`") ? " " : string.Empty;
+                        AppendInlineText(sb, $"{fence}{pad}{codeText}{pad}{fence}");
                     }
                     break;
                 }
@@ -402,7 +479,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "a":
                 {
                     var href = HtmlEntity.DeEntitize(node.GetAttributeValue("href", string.Empty)).Trim();
-                    var linkText = RenderInlineToString(node, options, inPrimary).Trim();
+                    var linkText = RenderInlineToString(node, options, inPrimary, depth).Trim();
 
                     if (string.IsNullOrEmpty(linkText) && string.IsNullOrEmpty(href))
                     {
@@ -420,8 +497,9 @@ namespace XStatic.Core.Generator.Markdown
                     }
                     else
                     {
-                        var label = string.IsNullOrEmpty(linkText) ? href : linkText;
-                        AppendInlineText(sb, $"[{label}]({href})");
+                        var label = EscapeMarkdownLinkLabel(string.IsNullOrEmpty(linkText) ? href : linkText);
+                        var formattedHref = FormatMarkdownHref(href);
+                        AppendInlineText(sb, $"[{label}]({formattedHref})");
                     }
                     break;
                 }
@@ -429,10 +507,10 @@ namespace XStatic.Core.Generator.Markdown
                 case "img":
                 {
                     var src = HtmlEntity.DeEntitize(node.GetAttributeValue("src", string.Empty)).Trim();
-                    var alt = HtmlEntity.DeEntitize(node.GetAttributeValue("alt", string.Empty)).Trim();
+                    var alt = EscapeMarkdownLinkLabel(HtmlEntity.DeEntitize(node.GetAttributeValue("alt", string.Empty)).Trim());
                     if (!string.IsNullOrEmpty(src))
                     {
-                        AppendInlineText(sb, $"![{alt}]({src})");
+                        AppendInlineText(sb, $"![{alt}]({FormatMarkdownHref(src)})");
                     }
                     break;
                 }
@@ -440,7 +518,7 @@ namespace XStatic.Core.Generator.Markdown
                 case "blockquote":
                 {
                     var innerSb = new StringBuilder();
-                    RenderChildren(node, innerSb, options, listDepth, inPrimary);
+                    RenderChildren(node, innerSb, options, listDepth, inPrimary, depth + 1);
                     var quoteBody = NormalizeMarkdown(innerSb.ToString());
                     if (!string.IsNullOrEmpty(quoteBody))
                     {
@@ -457,13 +535,13 @@ namespace XStatic.Core.Generator.Markdown
                 case "ul":
                 case "ol":
                 {
-                    RenderList(node, sb, options, listDepth, ordered: tag == "ol", inPrimary);
+                    RenderList(node, sb, options, listDepth, ordered: tag == "ol", inPrimary, depth + 1);
                     break;
                 }
 
                 case "table":
                 {
-                    RenderTable(node, sb, options, inPrimary);
+                    RenderTable(node, sb, options, inPrimary, depth + 1);
                     break;
                 }
 
@@ -478,19 +556,24 @@ namespace XStatic.Core.Generator.Markdown
                 case "summary":
                 {
                     EnsureBlockBreak(sb);
-                    RenderChildren(node, sb, options, listDepth, inPrimary);
+                    RenderChildren(node, sb, options, listDepth, inPrimary, depth + 1);
                     EnsureBlockBreak(sb);
                     break;
                 }
 
                 default:
-                    RenderChildren(node, sb, options, listDepth, inPrimary);
+                    RenderChildren(node, sb, options, listDepth, inPrimary, depth + 1);
                     break;
             }
         }
 
-        private void RenderList(HtmlNode listNode, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool ordered, bool insidePrimaryContent)
+        private void RenderList(HtmlNode listNode, StringBuilder sb, HtmlToMarkdownOptions options, int listDepth, bool ordered, bool insidePrimaryContent, int depth)
         {
+            if (depth >= MaxRecursionDepth)
+            {
+                return;
+            }
+
             if (listDepth == 0)
             {
                 EnsureBlankLine(sb);
@@ -521,7 +604,7 @@ namespace XStatic.Core.Generator.Markdown
                     }
                     else
                     {
-                        RenderNode(child, itemInlineSb, options, listDepth + 1, insidePrimaryContent);
+                        RenderNode(child, itemInlineSb, options, listDepth + 1, insidePrimaryContent, depth + 1);
                     }
                 }
 
@@ -538,7 +621,7 @@ namespace XStatic.Core.Generator.Markdown
 
                 foreach (var nested in nestedLists)
                 {
-                    RenderList(nested, sb, options, listDepth + 1, ordered: string.Equals(nested.Name, "ol", StringComparison.OrdinalIgnoreCase), insidePrimaryContent);
+                    RenderList(nested, sb, options, listDepth + 1, ordered: string.Equals(nested.Name, "ol", StringComparison.OrdinalIgnoreCase), insidePrimaryContent, depth + 1);
                 }
             }
 
@@ -548,9 +631,9 @@ namespace XStatic.Core.Generator.Markdown
             }
         }
 
-        private void RenderTable(HtmlNode tableNode, StringBuilder sb, HtmlToMarkdownOptions options, bool insidePrimaryContent)
+        private void RenderTable(HtmlNode tableNode, StringBuilder sb, HtmlToMarkdownOptions options, bool insidePrimaryContent, int depth)
         {
-            var rows = tableNode.SelectNodes(".//tr");
+            var rows = tableNode.SelectNodes("./tr | ./thead/tr | ./tbody/tr | ./tfoot/tr");
             if (rows == null || rows.Count == 0)
             {
                 return;
@@ -563,7 +646,7 @@ namespace XStatic.Core.Generator.Markdown
                     .Where(n => n.NodeType == HtmlNodeType.Element &&
                                 (string.Equals(n.Name, "th", StringComparison.OrdinalIgnoreCase) ||
                                  string.Equals(n.Name, "td", StringComparison.OrdinalIgnoreCase)))
-                    .Select(c => RenderInlineToString(c, options, insidePrimaryContent)
+                    .Select(c => RenderInlineToString(c, options, insidePrimaryContent, depth)
                         .Replace("\n", " ")
                         .Replace("|", "\\|")
                         .Trim())
@@ -608,11 +691,60 @@ namespace XStatic.Core.Generator.Markdown
             sb.Append('\n');
         }
 
-        private string RenderInlineToString(HtmlNode node, HtmlToMarkdownOptions options, bool insidePrimaryContent)
+        private string RenderInlineToString(HtmlNode node, HtmlToMarkdownOptions options, bool insidePrimaryContent, int depth)
         {
             var inner = new StringBuilder();
-            RenderChildren(node, inner, options, listDepth: 0, insidePrimaryContent);
+            RenderChildren(node, inner, options, listDepth: 0, insidePrimaryContent, depth + 1);
             return inner.ToString();
+        }
+
+        internal static string EscapeMarkdownLinkLabel(string label)
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                return label ?? string.Empty;
+            }
+
+            return label.Replace("[", "\\[").Replace("]", "\\]");
+        }
+
+        internal static string FormatMarkdownHref(string href)
+        {
+            if (string.IsNullOrEmpty(href))
+            {
+                return string.Empty;
+            }
+
+            if (href.IndexOfAny(new[] { ' ', '(', ')' }) >= 0)
+            {
+                return $"<{href}>";
+            }
+
+            return href;
+        }
+
+        private static string BuildInlineCodeFence(string codeText)
+        {
+            int maxRun = 0;
+            int currentRun = 0;
+
+            foreach (var ch in codeText)
+            {
+                if (ch == '`')
+                {
+                    currentRun++;
+                    if (currentRun > maxRun)
+                    {
+                        maxRun = currentRun;
+                    }
+                }
+                else
+                {
+                    currentRun = 0;
+                }
+            }
+
+            return new string('`', maxRun + 1);
         }
 
         private static string ExtractCodeLanguage(HtmlNode node)

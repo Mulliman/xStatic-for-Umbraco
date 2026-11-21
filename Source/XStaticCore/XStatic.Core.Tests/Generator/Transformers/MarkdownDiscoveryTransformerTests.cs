@@ -69,6 +69,40 @@ namespace XStatic.Core.Tests.Generator.Transformers
         }
 
         [Fact]
+        public void TransformWithPageUrl_UsesPageUrlAndTargetHostname_WhenCanonicalAndOgUrlMissing()
+        {
+            var html = "<html><head><title>About</title></head><body><h1>About</h1></body></html>";
+
+            var transformer = new MarkdownDiscoveryTransformer(targetHostname: "https://example.com");
+            var result = transformer.Transform(html, null, "/about/");
+
+            Assert.Contains("<link rel=\"alternate\" type=\"text/markdown\" href=\"https://example.com/about/index.md\" />", result);
+        }
+
+        [Fact]
+        public void Transform_IgnoresClosingHeadInsideCommentOrScript()
+        {
+            var html = """
+                <html>
+                <head>
+                    <!-- </head> -->
+                    <script>var s = "</head>";</script>
+                    <link rel="canonical" href="https://example.com/page/" />
+                </head>
+                <body><p>Body</p></body>
+                </html>
+                """;
+
+            var transformer = new MarkdownDiscoveryTransformer("https://example.com");
+            var result = transformer.Transform(html, null);
+
+            var expectedTag = "<link rel=\"alternate\" type=\"text/markdown\" href=\"https://example.com/page/index.md\" />";
+            Assert.Contains(expectedTag, result);
+            // Must be injected after the canonical tag (right before the real </head>), not inside the comment/script.
+            Assert.True(result.IndexOf(expectedTag) > result.IndexOf("rel=\"canonical\""));
+        }
+
+        [Fact]
         public void Transform_IsIdempotent_DoesNotDuplicateExistingMarkdownAlternateLink()
         {
             var html = """

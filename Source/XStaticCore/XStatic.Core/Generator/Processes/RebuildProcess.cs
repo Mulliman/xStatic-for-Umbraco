@@ -217,7 +217,9 @@ namespace XStatic.Core.Generator.Processes
                 {
                     var result = await action.Action.RunAction(entity.Id, action.Config);
 
-                    var convertedResult = GenerateItemResult.Success("PostAction", action.Name, "Completed");
+                    var convertedResult = result != null && !result.WasSuccessful
+                        ? GenerateItemResult.Error("PostAction", action.Name, result.Message ?? result.Exception?.Message ?? "Failed")
+                        : GenerateItemResult.Success("PostAction", action.Name, "Completed");
                     results.Add(convertedResult);
                 }
                 catch (Exception e)
