@@ -67,7 +67,8 @@ dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj
 
 # Frontend (from Source/XStaticCore/XStatic14/XStatic14.Client/assets)
 npm ci
-npx tsc --noEmit      # type-check, run on every UI change
+npm run check         # tsc --noEmit + eslint + vitest, run on every UI change
+npm test              # Vitest unit & Lit component tests
 npm run build         # tsc + vite build into ../wwwroot/App_Plugins/xstatic14
 npm run watch         # dev loop against a local test instance
 ```
@@ -82,7 +83,7 @@ unless such an instance is running — say so instead.
 2. Unit tests pass. Add or update tests for any logic you changed in `XStatic.Core` (most of it is untested;
    transformers, file-name generators and path helpers are pure and easy to cover).
 3. If you touched `XStatic/Db/` or V13 upgrade code, run the integration tests too.
-4. If you touched the UI, `npx tsc --noEmit` passes.
+4. If you touched the UI, `npm run check` passes with no new ESLint warnings in the files you touched.
 5. Say which checks you ran and which you couldn't (for example, Playwright without an instance).
 
 ## Do not edit / generated code
