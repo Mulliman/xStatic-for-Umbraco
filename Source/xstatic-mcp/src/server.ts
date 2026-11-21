@@ -1,7 +1,12 @@
+import { createRequire } from 'node:module';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { redactActions, redactDeploymentTargets, XStaticClient } from './client.js';
 import type { RebuildProcessResult } from './types.js';
+
+const require = createRequire(import.meta.url);
+const packageJson = require('../package.json') as { version?: string };
+const PACKAGE_VERSION = packageJson.version ?? '1.0.0';
 
 export interface CreateServerOptions {
   client: XStaticClient;
@@ -9,7 +14,7 @@ export interface CreateServerOptions {
 }
 
 export function createXStaticMcpServer(options: CreateServerOptions): McpServer {
-  const { client, version = '1.0.0' } = options;
+  const { client, version = PACKAGE_VERSION } = options;
 
   const server = new McpServer({
     name: 'xstatic-mcp',
@@ -145,7 +150,9 @@ export function createXStaticMcpServer(options: CreateServerOptions): McpServer 
           .boolean()
           .optional()
           .default(false)
-          .describe('When false (default), skips deployment if generation reports failures/warnings.'),
+          .describe(
+            'When true, still deploys if individual items reported warnings/errors during generation. Fatal build crashes (exception set or no generated items) always skip deployment.'
+          ),
       },
       annotations: {
         readOnlyHint: false,
@@ -158,6 +165,19 @@ export function createXStaticMcpServer(options: CreateServerOptions): McpServer 
       try {
         const buildResult = await client.generateSite(staticSiteId);
         const buildSummary = summarizeBuildResult(buildResult, false);
+
+        const isFatalBuildFailure =
+          Boolean(buildResult.exception) || (!buildResult.wasSuccessful && (buildResult.results?.length ?? 0) === 0);
+
+        if (isFatalBuildFailure) {
+          return okJson({
+            siteId: staticSiteId,
+            build: buildSummary,
+            deploy: null,
+            deployed: false,
+            reason: 'Skipped deployment because static site generation failed with a fatal error.',
+          });
+        }
 
         if (!buildResult.wasSuccessful && !deployOnWarnings) {
           return okJson({

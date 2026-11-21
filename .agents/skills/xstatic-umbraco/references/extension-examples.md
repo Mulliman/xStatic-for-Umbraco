@@ -107,6 +107,8 @@ public class CdnPrefixTransformer(string cdnBaseUrl) : ITransformer
 
 public class CdnHtmlTransformerListFactory : DefaultHtmlTransformerListFactory
 {
+    private const string MediaCdnBaseUrl = "https://cdn.example.com";
+
     public override IEnumerable<ITransformer> BuildTransformers(ISiteConfig siteConfig)
     {
         foreach (var transformer in base.BuildTransformers(siteConfig))
@@ -114,10 +116,8 @@ public class CdnHtmlTransformerListFactory : DefaultHtmlTransformerListFactory
             yield return transformer;
         }
 
-        if (!string.IsNullOrWhiteSpace(siteConfig.TargetHostname))
-        {
-            yield return new CdnPrefixTransformer(siteConfig.TargetHostname);
-        }
+        // Apply a dedicated CDN base URL (distinct from siteConfig.TargetHostname, which HostnameTransformer uses)
+        yield return new CdnPrefixTransformer(MediaCdnBaseUrl);
     }
 }
 ```

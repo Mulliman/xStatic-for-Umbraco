@@ -69,8 +69,13 @@ export class XStaticClient {
       return await this.request<SiteApiModel>('GET', `/api/v1/xstatic/sites/${encodeURIComponent(staticSiteId)}`);
     } catch (error) {
       if (error instanceof XStaticApiError && (error.status === 404 || error.status === 405)) {
-        // Fallback for older xStatic servers without the single-site route,
-        // while still returning null when the site ID does not exist.
+        // ASP.NET Core [ApiController] NotFound() returns RFC 7807 ProblemDetails JSON,
+        // meaning the single-site route exists and the site ID genuinely does not exist.
+        if (error.status === 404 && isProblemDetailsResponse(error.responseBody)) {
+          return null;
+        }
+
+        // Fallback for older xStatic servers without the single-site route.
         const sites = await this.listSites();
         return sites.find((s) => s.id === staticSiteId) ?? null;
       }
@@ -156,12 +161,54 @@ export class XStaticClient {
   }
 }
 
+function isProblemDetailsResponse(body: string): boolean {
+  if (!body) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as Record<string, unknown>;
+    return typeof parsed === 'object' && parsed !== null && parsed.status === 404 && typeof parsed.title === 'string';
+  } catch {
+    return false;
+  }
+}
+
 function isSensitiveField(alias: string, editorUiAlias?: string | null): boolean {
   if (editorUiAlias?.toLowerCase() === PASSWORD_EDITOR_ALIAS.toLowerCase()) {
     return true;
   }
 
-  return /(password|secret|token|apikey|api_key)/i.test(alias) || /(^|[._-])pat($|[._-])/i.test(alias);
+  return (
+    /(password|secret|token|apikey|api_key|credential)/i.test(alias) ||
+    /(^|[._-])(pat|key)($|[._-])/i.test(alias)
+  );
+}
+
+function redactFieldValue(alias: string, editorUiAlias: string | null | undefined, value: string | null | undefined): string | null | undefined {
+  if (!value) {
+    return value;
+  }
+
+  if (isSensitiveField(alias, editorUiAlias)) {
+    return REDACTED_VALUE;
+  }
+
+  // Strip embedded credentials from URL-shaped values (e.g. https://user:pat@github.com/org/repo.git)
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(value)) {
+    try {
+      const parsed = new URL(value);
+      if (parsed.username || parsed.password) {
+        parsed.username = REDACTED_VALUE;
+        parsed.password = '';
+        return parsed.toString();
+      }
+    } catch {
+      // Not a valid URL; fall through
+    }
+  }
+
+  return value;
 }
 
 /**
@@ -172,7 +219,7 @@ export function redactDeploymentTargets(targets: DeploymentTargetModel[]): Deplo
     ...target,
     fields: target.fields?.map((field) => ({
       ...field,
-      value: isSensitiveField(field.alias, field.editorUiAlias) && field.value ? REDACTED_VALUE : field.value,
+      value: redactFieldValue(field.alias, field.editorUiAlias, field.value),
     })),
   }));
 }
@@ -188,7 +235,7 @@ export function redactActions(actions: ActionModel[]): ActionModel[] {
           ...action.type,
           fields: action.type.fields?.map((field) => ({
             ...field,
-            value: isSensitiveField(field.alias, field.editorUiAlias) && field.value ? REDACTED_VALUE : field.value,
+            value: redactFieldValue(field.alias, field.editorUiAlias, field.value),
           })),
         }
       : action.type,

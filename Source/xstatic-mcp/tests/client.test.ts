@@ -67,6 +67,28 @@ describe('UmbracoTokenProvider', () => {
     expect(await provider.getAccessToken()).toBe('token-2');
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('deduplicates concurrent token requests and passes an abort signal', async () => {
+    let seenSignal: AbortSignal | null | undefined;
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (_url, init) => {
+      seenSignal = init?.signal;
+      return jsonResponse({ access_token: 'shared-token', expires_in: 60 });
+    });
+
+    const provider = new UmbracoTokenProvider({
+      baseUrl: 'https://umbraco.example.com',
+      clientId: 'cid',
+      clientSecret: 'csecret',
+      requestTimeoutMs: 5000,
+      fetchImpl: fetchMock,
+    });
+
+    const [t1, t2] = await Promise.all([provider.getAccessToken(), provider.getAccessToken()]);
+    expect(t1).toBe('shared-token');
+    expect(t2).toBe('shared-token');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(seenSignal).toBeInstanceOf(AbortSignal);
+  });
 });
 
 describe('XStaticClient', () => {
@@ -97,7 +119,7 @@ describe('XStaticClient', () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
-  it('falls back to listSites when single-site route returns 404', async () => {
+  it('falls back to listSites when single-site route returns empty 404', async () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ access_token: 'tok', expires_in: 300 }))
@@ -119,6 +141,32 @@ describe('XStaticClient', () => {
 
     const site = await client.getSite(7);
     expect(site?.name).toBe('Docs Site');
+  });
+
+  it('returns null without fallback when single-site route returns ProblemDetails 404', async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ access_token: 'tok', expires_in: 300 }))
+      .mockResolvedValueOnce(
+        jsonResponse({ type: 'https://tools.ietf.org/html/rfc9110#section-15.5.5', title: 'Not Found', status: 404 }, 404, 'Not Found')
+      );
+
+    const tokenProvider = new UmbracoTokenProvider({
+      baseUrl: 'https://umbraco.example.com',
+      clientId: 'cid',
+      clientSecret: 'csecret',
+      fetchImpl: fetchMock,
+    });
+
+    const client = new XStaticClient({
+      baseUrl: 'https://umbraco.example.com',
+      tokenProvider,
+      fetchImpl: fetchMock,
+    });
+
+    const site = await client.getSite(999);
+    expect(site).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('includes actionable role guidance on 403 Forbidden', async () => {
@@ -156,12 +204,20 @@ describe('secret redaction', () => {
         fields: [
           { alias: 'Netlify.PAT', name: 'PAT', editorUiAlias: PASSWORD_EDITOR_ALIAS, value: 'nfp_secret123' },
           { alias: 'Netlify.SiteId', name: 'Site ID', editorUiAlias: 'Umb.PropertyEditorUi.TextBox', value: 'site-abc' },
+          {
+            alias: 'Git.RemoteUrl',
+            name: 'Remote URL',
+            editorUiAlias: 'Umb.PropertyEditorUi.TextBox',
+            value: 'https://user:ghp_supersecret@github.com/org/repo.git',
+          },
         ],
       },
     ]);
 
     expect(targets[0].fields?.[0].value).toBe(REDACTED_VALUE);
     expect(targets[0].fields?.[1].value).toBe('site-abc');
+    expect(targets[0].fields?.[2].value).not.toContain('ghp_supersecret');
+    expect(targets[0].fields?.[2].value).toContain('github.com/org/repo.git');
 
     const actions = redactActions([
       {

@@ -147,4 +147,36 @@ describe('xstatic-mcp server', () => {
     expect(data.build.failedItems).toBe(1);
     expect(fetchMock).toHaveBeenCalledTimes(2); // token + generate only, no deploy
   });
+
+  it('always skips deploy in generate_and_deploy_site on fatal build exception even when deployOnWarnings is true', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/security/back-office/token')) {
+        return jsonResponse({ access_token: 'abc', expires_in: 3600 });
+      }
+      if (url.includes('/api/v1/xstatic/generate/generate-site?staticSiteId=3')) {
+        return jsonResponse({
+          siteId: 3,
+          wasSuccessful: false,
+          buildTime: 0,
+          results: [],
+          warnings: [],
+          exception: 'Root node not found',
+        });
+      }
+      return new Response('Unexpected call', { status: 500 });
+    });
+
+    const { mcpClient } = await setupConnectedPair(fetchMock);
+    const res = await mcpClient.callTool({
+      name: 'generate_and_deploy_site',
+      arguments: { staticSiteId: 3, deployOnWarnings: true },
+    });
+
+    const data = JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    expect(data.deployed).toBe(false);
+    expect(data.build.exception).toBe('Root node not found');
+    expect(data.reason).toMatch(/fatal error/i);
+    expect(fetchMock).toHaveBeenCalledTimes(2); // token + generate only, no deploy
+  });
 });

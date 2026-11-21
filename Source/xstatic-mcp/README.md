@@ -51,7 +51,7 @@ npm test
 | `UMBRACO_BASE_URL` | Yes | — | Base URL of your Umbraco instance (e.g. `https://localhost:44391`). |
 | `UMBRACO_CLIENT_ID` | Yes | — | Umbraco API User client ID. |
 | `UMBRACO_CLIENT_SECRET` | Yes | — | Umbraco API User client secret. |
-| `XSTATIC_REQUEST_TIMEOUT_MS` | No | `300000` | HTTP request timeout in milliseconds (default 5 minutes for large static builds). |
+| `XSTATIC_REQUEST_TIMEOUT_MS` | No | `300000` | HTTP request timeout in milliseconds (default 5 minutes for large static builds; note that some MCP hosts enforce shorter per-tool-call timeouts). |
 | `XSTATIC_ALLOW_INSECURE_TLS` | No | `false` | Set to `true` **only for local development** with self-signed HTTPS certificates. |
 
 ---

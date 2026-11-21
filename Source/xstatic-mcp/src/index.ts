@@ -16,6 +16,7 @@ async function main(): Promise<void> {
     baseUrl: config.baseUrl,
     clientId: config.clientId,
     clientSecret: config.clientSecret,
+    requestTimeoutMs: Math.min(config.requestTimeoutMs, 30_000),
   });
 
   const client = new XStaticClient({
