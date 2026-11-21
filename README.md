@@ -32,12 +32,15 @@ Once installed, restart your Umbraco site. You will find a new **xStatic** secti
 
 ## 📖 Documentation
 
-Detailed documentation for xStatic can be found in the `/Docs` folder of this repository, or online:
+Everything is in the **[xStatic wiki](https://github.com/Mulliman/xStatic-for-Umbraco/wiki)**: installation, a first-site tutorial, every backoffice screen,
+the deployers, troubleshooting and how to extend xStatic. Good places to start:
 
-- [Main Documentation](https://www.sammullins.co.uk/software/xstatic-for-umbraco/)
-- [Extending xStatic](https://www.sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic/)
-- [Post-Generation Actions](Docs/Actions.md)
-- [How Deployment Works](Docs/Deployers.md)
+- [Installation](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Installation) and [Your first static site](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Your-First-Static-Site)
+- [Deploying to Netlify](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-Netlify), [with Git](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-with-Git) or [to FTP](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP)
+- [Extending xStatic](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Extending-xStatic)
+- [Troubleshooting](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Troubleshooting)
+
+The wiki is written in the [`Wiki/`](Wiki) folder of this repository and published automatically, so fixes are welcome as pull requests.
 
 ---
 
@@ -45,10 +48,10 @@ Detailed documentation for xStatic can be found in the `/Docs` folder of this re
 
 Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for instructions on setting up test instances and running automated tests.
 
-For AI contributions and development context, see our [Agents.md](Agents.md) file.
+For AI contributions and development context, see our [AGENTS.md](AGENTS.md) file.
 
 ---
 
 ## 📄 License & Support
 
-xStatic is an open-source project. For more information on why it could be of use to you, please visit [sammullins.co.uk](https://www.sammullins.co.uk/software/xstatic-for-umbraco/).
+xStatic is an open-source project. For more information on why it could be of use to you, see [What is xStatic?](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/What-is-xStatic) in the wiki.

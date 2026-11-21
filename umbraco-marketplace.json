@@ -8,7 +8,7 @@
     ]
   },
   "Category": "Headless",
-  "DocumentationUrl": "https://www.sammullins.co.uk/software/xstatic-for-umbraco/",
+  "DocumentationUrl": "https://github.com/Mulliman/xStatic-for-Umbraco/wiki",
   "LicenseTypes": [ "Free" ],
   "IssueTrackerUrl": "https://github.com/Mulliman/xStatic-for-Umbraco/issues",
   "Screenshots": [
@@ -38,5 +38,5 @@
     "Headless"
   ],
   "Title": "xStatic",
-  "VideoUrl": "https://www.youtube.com/watch?v=XOwgBITayyc"
+  "VideoUrl": "https://www.youtube.com/watch?v=_BW8oV3LI1Q"
 }
