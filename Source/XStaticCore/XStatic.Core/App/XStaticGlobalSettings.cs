@@ -20,5 +20,25 @@ namespace XStatic.Core.App
         /// Set in appsettings.json as <c>XStatic:DoNotDeletePaths</c>. Setting it replaces the defaults.
         /// </summary>
         public IList<string> DoNotDeletePaths { get; set; } = new List<string>();
+
+        public const int DefaultAutoPublishMaxRelationDepth = 5;
+
+        /// <summary>
+        /// Enables walking Umbraco relations (<see cref="Umbraco.Cms.Core.Services.IRelationService"/>) during
+        /// auto-publish so updates to shared Library nodes or reusable Elements outside a site's content tree
+        /// trigger rebuilds for referencing sites. Enabled by default.
+        /// </summary>
+        public bool EnableRelationBasedAutoPublish { get; set; } = true;
+
+        /// <summary>
+        /// Maximum upstream relation depth to traverse when locating referencing pages for a published item.
+        /// </summary>
+        public int AutoPublishMaxRelationDepth { get; set; } = DefaultAutoPublishMaxRelationDepth;
+
+        /// <summary>
+        /// Optional list of content type aliases (e.g. global site settings or shared Library element types)
+        /// whose publication should trigger auto-publish across all auto-publish enabled sites.
+        /// </summary>
+        public IList<string> AutoPublishGlobalContentTypes { get; set; } = new List<string>();
     }
 }
