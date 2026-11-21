@@ -31,4 +31,39 @@ describe('xstatic-loader', () => {
 		await el.updateComplete;
 		expect(el.progress).toBe(100);
 	});
+
+	it('clears the interval when disconnected from the DOM', async () => {
+		const el = document.createElement('xstatic-loader') as Loader;
+		el.estimatedTime = 20;
+		document.body.appendChild(el);
+		await el.updateComplete;
+
+		vi.advanceTimersByTime(3000);
+		await el.updateComplete;
+		expect(el.time).toBe(3);
+
+		el.remove();
+
+		vi.advanceTimersByTime(5000);
+		expect(el.time).toBe(3);
+	});
+
+	it('does not divide by zero or jump to 100% when estimatedTime is 0 or negative', async () => {
+		const el = document.createElement('xstatic-loader') as Loader;
+		el.estimatedTime = 0;
+		document.body.appendChild(el);
+		await el.updateComplete;
+
+		vi.advanceTimersByTime(3000);
+		await el.updateComplete;
+		expect(Number.isNaN(el.progress)).toBe(false);
+		expect(Number.isFinite(el.progress)).toBe(true);
+		expect(el.progress).toBe(1);
+		expect(el.time).toBe(3);
+
+		el.estimatedTime = -5;
+		vi.advanceTimersByTime(2000);
+		await el.updateComplete;
+		expect(el.progress).toBe(1);
+	});
 });

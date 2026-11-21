@@ -16,9 +16,6 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "generate": "openapi-ts --input http://localhost:23994/umbraco/swagger/xstatic-v1/swagger.json --output src/api --debug"
   },
-  "dependencies": {
-    "lit": "^3.3.3"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hey-api/openapi-ts": "^0.99.0",

@@ -24,7 +24,7 @@ export default tseslint.config(
 				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
 			],
 			'@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
-			'lit/no-invalid-html': 'warn',
+			'lit/no-invalid-html': 'error',
 			'lit/no-legacy-template-syntax': 'error',
 			'lit/no-duplicate-template-bindings': 'error',
 			'lit/no-useless-template-literals': 'warn',

@@ -1,6 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
 import ActionContext, { ACTION_CONTEXT_TOKEN } from './context.action';
 
 import "./element.action";
@@ -66,7 +65,7 @@ class ActionGrid extends UmbElementMixin(LitElement) {
 export default ActionGrid;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-action-grid': ActionGrid
     }
 }

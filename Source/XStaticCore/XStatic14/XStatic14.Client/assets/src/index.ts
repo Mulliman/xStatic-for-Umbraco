@@ -19,7 +19,7 @@ export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
       }
     });
 
-    _host.consumeContext(UMB_AUTH_CONTEXT, async (_auth) =>  {
+    _host.consumeContext(UMB_AUTH_CONTEXT, (_auth) =>  {
         const umbOpenApi = _auth?.getOpenApiConfiguration();
 
         if (!umbOpenApi) {
@@ -27,10 +27,8 @@ export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
             return;
         }
 
-        var token = await umbOpenApi.token();
-
         OpenAPI.BASE = umbOpenApi.base!;
-        OpenAPI.TOKEN = token;
+        OpenAPI.TOKEN = async () => (await umbOpenApi.token()) ?? '';
         OpenAPI.WITH_CREDENTIALS = !!umbOpenApi.credentials;
         OpenAPI.CREDENTIALS = umbOpenApi.credentials!;
     });

@@ -19,16 +19,37 @@ export class Loader extends LitElement {
 
 	time: number = 0;
 
+	#intervalId?: ReturnType<typeof setInterval>;
+
 	constructor() {
 		super();
 
 		this.progress = 1;
-		
-		setInterval(() => {
+	}
+
+	override connectedCallback() {
+		super.connectedCallback();
+
+		if (this.#intervalId !== undefined) {
+			clearInterval(this.#intervalId);
+		}
+
+		this.#intervalId = setInterval(() => {
 			this.time++;
-			var progress = Math.round(this.time / this.estimatedTime * 100);
-			this.progress = Math.min(100, progress);
+			if (this.estimatedTime > 0) {
+				const progress = Math.round((this.time / this.estimatedTime) * 100);
+				this.progress = Math.min(100, progress);
+			}
 		}, 1000);
+	}
+
+	override disconnectedCallback() {
+		super.disconnectedCallback();
+
+		if (this.#intervalId !== undefined) {
+			clearInterval(this.#intervalId);
+			this.#intervalId = undefined;
+		}
 	}
 
 	override render() {
