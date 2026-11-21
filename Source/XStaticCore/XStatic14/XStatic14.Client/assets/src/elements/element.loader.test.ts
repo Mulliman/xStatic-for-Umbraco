@@ -60,6 +60,7 @@ describe('xstatic-loader', () => {
 		expect(Number.isFinite(el.progress)).toBe(true);
 		expect(el.progress).toBe(1);
 		expect(el.time).toBe(3);
+		expect(el.shadowRoot?.textContent).toContain('0:03 of 0:00');
 
 		el.estimatedTime = -5;
 		vi.advanceTimersByTime(2000);

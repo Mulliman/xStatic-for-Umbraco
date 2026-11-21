@@ -17,6 +17,7 @@ export class Loader extends LitElement {
 	@state()
 	public progress: number = 1;
 
+	@state()
 	time: number = 0;
 
 	#intervalId?: ReturnType<typeof setInterval>;

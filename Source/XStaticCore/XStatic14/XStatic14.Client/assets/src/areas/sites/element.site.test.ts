@@ -174,21 +174,17 @@ describe('xstatic-site-element', () => {
 			await siteEl.updateComplete;
 
 			(siteEl.shadowRoot?.querySelector('uui-button[label="Generate"]') as HTMLElement).click();
-			await Promise.resolve();
-			await Promise.resolve();
+			await vi.advanceTimersByTimeAsync(0);
 			expect(mockContext.generateSite).toHaveBeenCalledWith(sampleSite.id);
 
 			await siteEl.updateComplete;
 			(siteEl.shadowRoot?.querySelector('uui-button[label="Deploy"]') as HTMLElement).click();
-			await Promise.resolve();
-			await Promise.resolve();
-			await Promise.resolve();
+			await vi.advanceTimersByTimeAsync(0);
 			expect(mockContext.deploySite).toHaveBeenCalledWith(sampleSite.id);
 
 			await siteEl.updateComplete;
 			(siteEl.shadowRoot?.querySelector('uui-button[label="Download"]') as HTMLElement).click();
-			await Promise.resolve();
-			await Promise.resolve();
+			await vi.advanceTimersByTimeAsync(0);
 			expect(mockContext.downloadSite).toHaveBeenCalledWith(sampleSite.id);
 		} finally {
 			vi.useRealTimers();

@@ -27,6 +27,8 @@ describe('xstatic-site-table', () => {
 
 		const rows = el.shadowRoot?.querySelectorAll('uui-table-row');
 		expect(rows?.length).toBe(2);
+		expect(rows?.[0].querySelectorAll('uui-table-cell').length).toBe(2);
+		expect(rows?.[1].querySelectorAll('uui-table-cell').length).toBe(2);
 
 		const icons = el.shadowRoot?.querySelectorAll('umb-icon');
 		expect(icons?.length).toBe(2);
