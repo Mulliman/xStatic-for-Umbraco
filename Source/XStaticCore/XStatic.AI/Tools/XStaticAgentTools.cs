@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using XStatic.AI.Configuration;
+using XStatic.AI.Audit;
 using XStatic.AI.Security;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
@@ -11,7 +10,8 @@ namespace XStatic.AI.Tools;
 
 /// <summary>
 /// Callable tool methods exposing xStatic static site management to <c>Microsoft.Extensions.AI</c>
-/// and <c>Umbraco.AI.Agent</c> copilots while enforcing <see cref="XStatic.Security.XStaticRoles"/>.
+/// and <c>Umbraco.AI.Agent</c> copilots while enforcing Umbraco backoffice authentication and
+/// <see cref="XStatic.Security.XStaticRoles"/>.
 /// </summary>
 public class XStaticAgentTools
 {
@@ -21,13 +21,13 @@ public class XStaticAgentTools
     public const string DeploySiteToolName = "xstatic_deploy_site";
 
     private const int MaxWarningsReturned = 20;
-    private const int MaxAuditPreviewLength = 2000;
+    private const int MaxMetadataPreviewLength = 2000;
 
     private readonly ISitesRepository _sitesRepository;
     private readonly IStaticSiteStorer _staticSiteStorer;
     private readonly IXStaticSiteOperations _siteOperations;
     private readonly IXStaticToolAuthorizationService _authorizationService;
-    private readonly IOptions<XStaticAIOptions> _aiOptions;
+    private readonly IAuditReportStore _auditReportStore;
     private readonly ILogger<XStaticAgentTools> _logger;
 
     public XStaticAgentTools(
@@ -35,14 +35,14 @@ public class XStaticAgentTools
         IStaticSiteStorer staticSiteStorer,
         IXStaticSiteOperations siteOperations,
         IXStaticToolAuthorizationService authorizationService,
-        IOptions<XStaticAIOptions> aiOptions,
+        IAuditReportStore auditReportStore,
         ILogger<XStaticAgentTools> logger)
     {
         _sitesRepository = sitesRepository ?? throw new ArgumentNullException(nameof(sitesRepository));
         _staticSiteStorer = staticSiteStorer ?? throw new ArgumentNullException(nameof(staticSiteStorer));
         _siteOperations = siteOperations ?? throw new ArgumentNullException(nameof(siteOperations));
         _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        _aiOptions = aiOptions ?? throw new ArgumentNullException(nameof(aiOptions));
+        _auditReportStore = auditReportStore ?? throw new ArgumentNullException(nameof(auditReportStore));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -75,7 +75,7 @@ public class XStaticAgentTools
         return XStaticToolResponse<IReadOnlyList<XStaticSiteSummary>>.Ok(sites);
     }
 
-    [Description("Inspects the status, last generation/deployment metadata, generated HTML page count, and latest AI audit report for a specific xStatic site.")]
+    [Description("Inspects the status, last generation/deployment metadata, generated HTML page count, and latest AI audit metrics for a specific xStatic site.")]
     public XStaticToolResponse<XStaticSiteStatusResult> GetSiteStatus(
         [Description("The numeric ID of the configured xStatic site.")] int staticSiteId)
     {
@@ -97,7 +97,6 @@ public class XStaticAgentTools
         var hasOutput = !string.IsNullOrWhiteSpace(storagePath) && Directory.Exists(storagePath);
         var htmlCount = 0;
         string? metadata = null;
-        string? latestAudit = null;
 
         if (hasOutput)
         {
@@ -107,22 +106,11 @@ public class XStaticAgentTools
             var metadataPath = Path.Combine(storagePath, ".xstatic-metadata");
             if (File.Exists(metadataPath))
             {
-                metadata = File.ReadAllText(metadataPath);
-            }
-
-            var auditFileName = string.IsNullOrWhiteSpace(_aiOptions.Value.DefaultReportFileName)
-                ? ".xstatic-ai-audit.md"
-                : _aiOptions.Value.DefaultReportFileName.TrimStart('/', '\\');
-
-            var auditPath = Path.Combine(storagePath, auditFileName);
-            if (File.Exists(auditPath))
-            {
-                var content = File.ReadAllText(auditPath);
-                latestAudit = content.Length > MaxAuditPreviewLength
-                    ? content[..MaxAuditPreviewLength] + "\n...[truncated]"
-                    : content;
+                metadata = ReadBoundedText(metadataPath, MaxMetadataPreviewLength);
             }
         }
+
+        var latestAudit = _auditReportStore.ReadLatestAuditMetadata(site.Id);
 
         var status = new XStaticSiteStatusResult(
             Id: site.Id,
@@ -138,7 +126,7 @@ public class XStaticAgentTools
             HasGeneratedOutput: hasOutput,
             GeneratedHtmlPageCount: htmlCount,
             GenerationMetadata: metadata,
-            LatestAiAuditSummary: latestAudit);
+            LatestAiAudit: latestAudit);
 
         return XStaticToolResponse<XStaticSiteStatusResult>.Ok(status);
     }
@@ -170,16 +158,22 @@ public class XStaticAgentTools
                 TotalItems: result.Results?.Count ?? 0,
                 WarningCount: result.Warnings.Count,
                 Warnings: warnings,
-                Error: result.Exception);
+                Error: string.IsNullOrWhiteSpace(result.Exception) ? null : "Site generation failed. Check server logs for details.");
+
+            if (!string.IsNullOrWhiteSpace(result.Exception))
+            {
+                _logger.LogWarning("xStatic site generation for site {SiteId} reported error: {Error}", staticSiteId, result.Exception);
+            }
 
             return result.WasSuccessful
                 ? XStaticToolResponse<XStaticGenerateSiteResult>.Ok(payload)
-                : new XStaticToolResponse<XStaticGenerateSiteResult>(false, payload, result.Exception ?? "Site generation completed with warnings/errors.");
+                : new XStaticToolResponse<XStaticGenerateSiteResult>(false, payload, payload.Error ?? "Site generation completed with warnings/errors.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "xStatic AI tool failed while generating site {SiteId}", staticSiteId);
-            return XStaticToolResponse<XStaticGenerateSiteResult>.Fail(ex.Message);
+            return XStaticToolResponse<XStaticGenerateSiteResult>.Fail(
+                $"Failed to generate xStatic site {staticSiteId}. Check server logs for details.");
         }
     }
 
@@ -198,20 +192,36 @@ public class XStaticAgentTools
         try
         {
             var result = await _siteOperations.DeploySiteAsync(staticSiteId, cancellationToken).ConfigureAwait(false);
+            if (!result.WasSuccessful && result.Exception is not null)
+            {
+                _logger.LogError(result.Exception, "xStatic deployment failed for site {SiteId}: {Message}", staticSiteId, result.Message);
+            }
+
             var payload = new XStaticDeploySiteResult(
                 SiteId: staticSiteId,
                 WasSuccessful: result.WasSuccessful,
-                Message: result.Message,
-                Error: result.Exception?.Message);
+                Message: result.WasSuccessful ? result.Message : null,
+                Error: result.WasSuccessful ? null : $"Deployment failed for xStatic site {staticSiteId}. Check server logs for details.");
 
             return result.WasSuccessful
                 ? XStaticToolResponse<XStaticDeploySiteResult>.Ok(payload)
-                : new XStaticToolResponse<XStaticDeploySiteResult>(false, payload, result.Message ?? result.Exception?.Message ?? "Deployment failed.");
+                : new XStaticToolResponse<XStaticDeploySiteResult>(false, payload, payload.Error);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "xStatic AI tool failed while deploying site {SiteId}", staticSiteId);
-            return XStaticToolResponse<XStaticDeploySiteResult>.Fail(ex.Message);
+            return XStaticToolResponse<XStaticDeploySiteResult>.Fail(
+                $"Failed to deploy xStatic site {staticSiteId}. Check server logs for details.");
         }
+    }
+
+    private static string ReadBoundedText(string filePath, int maxChars)
+    {
+        using var reader = new StreamReader(filePath);
+        var buffer = new char[maxChars + 1];
+        var read = reader.ReadBlock(buffer, 0, buffer.Length);
+        return read > maxChars
+            ? new string(buffer, 0, maxChars) + "\n...[truncated]"
+            : new string(buffer, 0, read);
     }
 }

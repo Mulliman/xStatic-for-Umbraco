@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using OpenIddict.Validation.AspNetCore;
+using Umbraco.Cms.Core;
 using XStatic.AI.Configuration;
 using XStatic.AI.Security;
 using XStatic.Core.App;
@@ -19,15 +21,50 @@ public class XStaticToolAuthorizationServiceTests
         var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
 
         Assert.False(result.IsAuthorized);
-        Assert.Contains("Authentication", result.DenialReason);
+        Assert.Contains("authentication", result.DenialReason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Authorize_DeniesWhenHttpContextIsNull_AndAuthorizationRequired()
+    {
+        var service = CreateService(useXStaticRoles: true, requireAuth: true, user: null);
+
+        var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
+
+        Assert.False(result.IsAuthorized);
+    }
+
+    [Fact]
+    public void Authorize_DeniesFrontendMemberEvenWithXStaticAdminRole()
+    {
+        var member = CreateUser("member@example.com", authType: "UmbracoMembers", XStaticRoles.XStaticAdminGroup);
+        var service = CreateService(useXStaticRoles: true, requireAuth: true, user: member);
+
+        var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
+
+        Assert.False(result.IsAuthorized);
+        Assert.Contains("backoffice", result.DenialReason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Authorize_DeniesFrontendMember_WhenUseXStaticUserRolesDisabled()
+    {
+        var member = CreateUser("member@example.com", authType: "UmbracoMembers");
+        var service = CreateService(useXStaticRoles: false, requireAuth: true, user: member);
+
+        var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
+
+        Assert.False(result.IsAuthorized);
+        Assert.Contains("backoffice", result.DenialReason, StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
-    [InlineData(XStaticRoles.XStaticNormalUserGroup)]
-    [InlineData(XStaticRoles.XStaticAdminGroup)]
-    public void Authorize_AllowsNormalAndAdminRoles_ForNormalUserAccess(string role)
+    [InlineData(XStaticRoles.XStaticNormalUserGroup, Constants.Security.BackOfficeAuthenticationType)]
+    [InlineData(XStaticRoles.XStaticAdminGroup, Constants.Security.BackOfficeAuthenticationType)]
+    [InlineData(XStaticRoles.XStaticNormalUserGroup, OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    public void Authorize_AllowsBackOfficeNormalAndAdminRoles_ForNormalUserAccess(string role, string authType)
     {
-        var user = CreateUser("editor@example.com", role);
+        var user = CreateUser("editor@example.com", authType, role);
         var service = CreateService(useXStaticRoles: true, requireAuth: true, user: user);
 
         var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
@@ -37,9 +74,9 @@ public class XStaticToolAuthorizationServiceTests
     }
 
     [Fact]
-    public void Authorize_DeniesUserWithoutXStaticRole_WhenUseXStaticUserRolesEnabled()
+    public void Authorize_DeniesBackOfficeUserWithoutXStaticRole_WhenUseXStaticUserRolesEnabled()
     {
-        var user = CreateUser("editor@example.com", "writer");
+        var user = CreateUser("editor@example.com", Constants.Security.BackOfficeAuthenticationType, "writer");
         var service = CreateService(useXStaticRoles: true, requireAuth: true, user: user);
 
         var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
@@ -51,7 +88,7 @@ public class XStaticToolAuthorizationServiceTests
     [Fact]
     public void Authorize_DeniesNormalUser_ForAdminAccessLevel()
     {
-        var user = CreateUser("editor@example.com", XStaticRoles.XStaticNormalUserGroup);
+        var user = CreateUser("editor@example.com", Constants.Security.BackOfficeAuthenticationType, XStaticRoles.XStaticNormalUserGroup);
         var service = CreateService(useXStaticRoles: true, requireAuth: true, user: user);
 
         var result = service.Authorize(XStaticToolAccessLevel.Admin);
@@ -61,9 +98,9 @@ public class XStaticToolAuthorizationServiceTests
     }
 
     [Fact]
-    public void Authorize_AllowsAuthenticatedUserWithoutXStaticRole_WhenUseXStaticUserRolesDisabled()
+    public void Authorize_AllowsBackOfficeUserWithoutXStaticRole_WhenUseXStaticUserRolesDisabled()
     {
-        var user = CreateUser("editor@example.com", "writer");
+        var user = CreateUser("editor@example.com", Constants.Security.BackOfficeAuthenticationType, "writer");
         var service = CreateService(useXStaticRoles: false, requireAuth: true, user: user);
 
         var result = service.Authorize(XStaticToolAccessLevel.NormalUser);
@@ -97,10 +134,10 @@ public class XStaticToolAuthorizationServiceTests
             httpContextAccessor);
     }
 
-    private static ClaimsPrincipal CreateUser(string name, params string[] roles)
+    private static ClaimsPrincipal CreateUser(string name, string authType, params string[] roles)
     {
         var claims = new List<Claim> { new(ClaimTypes.Name, name) };
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-        return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: "BackOffice"));
+        return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: authType));
     }
 }

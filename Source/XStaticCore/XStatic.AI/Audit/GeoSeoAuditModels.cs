@@ -47,4 +47,5 @@ public sealed record AiAuditReport(
     IReadOnlyList<PageAuditSnapshot> Pages,
     IReadOnlyList<PageAuditIssue> Issues,
     string AiSummaryMarkdown,
-    string? ModelId = null);
+    string? ModelId = null,
+    bool AiSummaryAvailable = true);

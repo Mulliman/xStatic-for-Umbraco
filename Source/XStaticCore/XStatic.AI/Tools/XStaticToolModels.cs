@@ -1,3 +1,5 @@
+using XStatic.AI.Audit;
+
 namespace XStatic.AI.Tools;
 
 /// <summary>
@@ -45,7 +47,7 @@ public sealed record XStaticSiteStatusResult(
     bool HasGeneratedOutput,
     int GeneratedHtmlPageCount,
     string? GenerationMetadata,
-    string? LatestAiAuditSummary);
+    LatestAuditMetadata? LatestAiAudit);
 
 public sealed record XStaticGenerateSiteResult(
     int SiteId,

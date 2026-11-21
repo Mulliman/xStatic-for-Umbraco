@@ -59,7 +59,14 @@ public class XStaticAIToolProvider : IXStaticAIToolProvider
     public ChatOptions ConfigureChatOptions(ChatOptions? options = null)
     {
         options ??= new ChatOptions();
-        options.Tools ??= new List<AITool>();
+        if (options.Tools is null)
+        {
+            options.Tools = new List<AITool>();
+        }
+        else if (options.Tools.IsReadOnly)
+        {
+            options.Tools = new List<AITool>(options.Tools);
+        }
 
         foreach (var tool in GetAITools())
         {

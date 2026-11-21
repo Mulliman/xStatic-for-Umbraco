@@ -35,6 +35,7 @@ public static class XStaticAIServiceCollectionExtensions
         services.TryAddSingleton<IXStaticAIToolProvider, XStaticAIToolProvider>();
 
         services.TryAddSingleton<IPageSignalExtractor, HtmlPageSignalExtractor>();
+        services.TryAddSingleton<IAuditReportStore, FileSystemAuditReportStore>();
         services.TryAddSingleton<IGeoSeoAuditService, GeoSeoAuditService>();
         services.TryAddTransient<AiPreDeployAuditAction>();
 

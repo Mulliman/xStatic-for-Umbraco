@@ -58,13 +58,13 @@ public partial class HtmlPageSignalExtractor : IPageSignalExtractor
         {
             var normalizedPrefixes = includePathPrefixes
                 .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(p => "/" + p.Trim().TrimStart('/'))
+                .Select(p => "/" + p.Trim().Trim('/'))
                 .ToList();
 
             if (normalizedPrefixes.Count > 0)
             {
                 selectedFiles = selectedFiles.Where(file =>
-                    normalizedPrefixes.Any(prefix => file.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
+                    normalizedPrefixes.Any(prefix => MatchesPathPrefix(file, prefix)));
             }
         }
 
@@ -367,6 +367,17 @@ public partial class HtmlPageSignalExtractor : IPageSignalExtractor
         }
 
         return text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+
+    private static bool MatchesPathPrefix(string filePath, string normalizedPrefix)
+    {
+        if (normalizedPrefix == "/")
+        {
+            return true;
+        }
+
+        return string.Equals(filePath, normalizedPrefix, StringComparison.OrdinalIgnoreCase)
+            || filePath.StartsWith(normalizedPrefix + "/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizeRelativePath(string relativePath)

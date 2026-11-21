@@ -1,5 +1,6 @@
-using System.Text;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,8 @@ using Moq;
 using XStatic.AI.Audit;
 using XStatic.AI.Composition;
 using XStatic.AI.Configuration;
+using XStatic.Core.Actions;
+using XStatic.Core.Actions.Db;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Repositories;
@@ -17,11 +20,16 @@ namespace XStatic.AI.Tests;
 public class GeoSeoAuditTests : IDisposable
 {
     private readonly string _tempDir;
+    private readonly string _siteOutputDir;
+    private readonly string _contentRootDir;
 
     public GeoSeoAuditTests()
     {
         _tempDir = Path.Combine(Path.GetTempPath(), "xstatic-ai-audit-tests-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_tempDir);
+        _siteOutputDir = Path.Combine(_tempDir, "site-output");
+        _contentRootDir = Path.Combine(_tempDir, "content-root");
+        Directory.CreateDirectory(_siteOutputDir);
+        Directory.CreateDirectory(_contentRootDir);
     }
 
     public void Dispose()
@@ -66,7 +74,7 @@ public class GeoSeoAuditTests : IDisposable
 
         var extractor = new HtmlPageSignalExtractor();
         var snapshots = extractor.ExtractFromDirectory(
-            _tempDir,
+            _siteOutputDir,
             maxPages: 10,
             maxCharactersPerPage: 2000,
             thinContentWordThreshold: 20,
@@ -96,6 +104,28 @@ public class GeoSeoAuditTests : IDisposable
     }
 
     [Fact]
+    public void HtmlPageSignalExtractor_RespectsIncludePathBoundaryAndMaxPages()
+    {
+        WritePage("blog/a.html", "<html><head><title>A</title></head><body><h1>A</h1></body></html>");
+        WritePage("blog/b.html", "<html><head><title>B</title></head><body><h1>B</h1></body></html>");
+        WritePage("blog-archive/c.html", "<html><head><title>C</title></head><body><h1>C</h1></body></html>");
+
+        var extractor = new HtmlPageSignalExtractor();
+        var snapshots = extractor.ExtractFromDirectory(
+            _siteOutputDir,
+            maxPages: 1,
+            maxCharactersPerPage: 1000,
+            thinContentWordThreshold: 1,
+            includePathPrefixes: ["/blog"],
+            out var totalDiscovered);
+
+        Assert.Equal(3, totalDiscovered);
+        var single = Assert.Single(snapshots);
+        Assert.StartsWith("/blog/", single.RelativePath);
+        Assert.DoesNotContain(snapshots, s => s.RelativePath.StartsWith("/blog-archive/"));
+    }
+
+    [Fact]
     public async Task GeoSeoAuditService_CallsMockedIChatClient_AndBuildsReport()
     {
         WritePage("index.html", "<html><head><title>Landing</title></head><body><h1>Landing</h1><p>Hello world</p></body></html>");
@@ -109,7 +139,7 @@ public class GeoSeoAuditTests : IDisposable
         });
 
         var storer = new Mock<IStaticSiteStorer>();
-        storer.Setup(s => s.GetStorageLocationOfSite(1)).Returns(_tempDir);
+        storer.Setup(s => s.GetStorageLocationOfSite(1)).Returns(_siteOutputDir);
 
         IEnumerable<ChatMessage>? capturedMessages = null;
         var chatClient = new Mock<IChatClient>();
@@ -139,6 +169,7 @@ public class GeoSeoAuditTests : IDisposable
 
         Assert.True(result.WasSuccessful);
         Assert.NotNull(result.Data);
+        Assert.True(result.Data.AiSummaryAvailable);
         Assert.Equal("mock-model-1", result.Data.ModelId);
         Assert.Equal(1, result.Data.AuditedPageCount);
         Assert.Contains("Add a meta description", result.Data.AiSummaryMarkdown);
@@ -152,43 +183,67 @@ public class GeoSeoAuditTests : IDisposable
     }
 
     [Fact]
-    public async Task GeoSeoAuditService_ReturnsError_WhenNoIChatClientConfigured()
+    public async Task GeoSeoAuditService_DegradesGracefully_WhenNoIChatClientOrUpstreamThrows()
     {
-        WritePage("index.html", "<html><head><title>Landing</title></head><body><h1>Landing</h1></body></html>");
+        WritePage("index.html", "<html><head></head><body><p>Thin</p></body></html>");
 
         var sitesRepo = new Mock<ISitesRepository>();
         sitesRepo.Setup(r => r.Get<SiteConfig>(1)).Returns(new SiteConfig { Id = 1, Name = "Site" });
 
         var storer = new Mock<IStaticSiteStorer>();
-        storer.Setup(s => s.GetStorageLocationOfSite(1)).Returns(_tempDir);
+        storer.Setup(s => s.GetStorageLocationOfSite(1)).Returns(_siteOutputDir);
 
-        var resolver = new Mock<IXStaticChatClientResolver>();
-        resolver.Setup(r => r.Resolve(It.IsAny<string?>())).Returns((IChatClient?)null);
+        // Case 1: No IChatClient registered
+        var nullResolver = new Mock<IXStaticChatClientResolver>();
+        nullResolver.Setup(r => r.Resolve(It.IsAny<string?>())).Returns((IChatClient?)null);
 
-        var service = new GeoSeoAuditService(
+        var serviceWithoutClient = new GeoSeoAuditService(
             sitesRepo.Object,
             storer.Object,
             new HtmlPageSignalExtractor(),
-            resolver.Object,
+            nullResolver.Object,
             Options.Create(new XStaticAIOptions()),
             NullLogger<GeoSeoAuditService>.Instance);
 
-        var result = await service.AuditSiteAsync(1);
+        var noClientResult = await serviceWithoutClient.AuditSiteAsync(1);
+        Assert.True(noClientResult.WasSuccessful);
+        Assert.NotNull(noClientResult.Data);
+        Assert.False(noClientResult.Data.AiSummaryAvailable);
+        Assert.Equal(1, noClientResult.Data.CriticalIssueCount);
+        Assert.Contains("AI summary unavailable", noClientResult.Data.AiSummaryMarkdown);
 
-        Assert.False(result.WasSuccessful);
-        Assert.Contains("IChatClient", result.Message);
+        // Case 2: Upstream IChatClient throws
+        var failingClient = new Mock<IChatClient>();
+        failingClient
+            .Setup(c => c.GetResponseAsync(
+                It.IsAny<IEnumerable<ChatMessage>>(),
+                It.IsAny<ChatOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("429 Too Many Requests"));
+
+        var failingResolver = new Mock<IXStaticChatClientResolver>();
+        failingResolver.Setup(r => r.Resolve(It.IsAny<string?>())).Returns(failingClient.Object);
+
+        var serviceWithFailure = new GeoSeoAuditService(
+            sitesRepo.Object,
+            storer.Object,
+            new HtmlPageSignalExtractor(),
+            failingResolver.Object,
+            Options.Create(new XStaticAIOptions()),
+            NullLogger<GeoSeoAuditService>.Instance);
+
+        var errorResult = await serviceWithFailure.AuditSiteAsync(1);
+        Assert.True(errorResult.WasSuccessful);
+        Assert.NotNull(errorResult.Data);
+        Assert.False(errorResult.Data.AiSummaryAvailable);
+        Assert.Equal(1, errorResult.Data.CriticalIssueCount);
+        Assert.Contains("AI summary unavailable", errorResult.Data.AiSummaryMarkdown);
     }
 
     [Fact]
-    public async Task AiPreDeployAuditAction_WritesMarkdownAndJsonReports_AndRespectsFailOnCritical()
+    public async Task AiPreDeployAuditAction_WritesReportsOutsideDeployFolder_AndRespectsFailOnCritical()
     {
-        var storedFiles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var storer = new Mock<IStaticSiteStorer>();
-        storer
-            .Setup(s => s.StoreSiteItem(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Encoding>()))
-            .Callback<string, string, string, Encoding>((_, path, content, _) => storedFiles[path] = content)
-            .ReturnsAsync((string _, string path, string _, Encoding _) => path);
-
+        var reportStore = CreateReportStore();
         var report = new AiAuditReport(
             StaticSiteId: 9,
             SiteName: "Blog",
@@ -211,21 +266,89 @@ public class GeoSeoAuditTests : IDisposable
 
         var action = new AiPreDeployAuditAction(
             auditService.Object,
-            storer.Object,
+            reportStore,
             Options.Create(new XStaticAIOptions { WriteJsonReport = true }));
 
-        var result = await action.RunAction(9, new Dictionary<string, string>
+        // FailOnCritical = true -> returns error, but still writes report outside site output folder
+        var failResult = await action.RunAction(9, new Dictionary<string, string>
         {
-            [AiPreDeployAuditFields.ReportPath] = ".xstatic-ai-audit.md",
+            [AiPreDeployAuditFields.ReportPath] = "custom-audit.md",
             [AiPreDeployAuditFields.FailOnCritical] = "true"
         });
 
+        Assert.False(failResult.WasSuccessful);
+        Assert.Contains("1 critical issue", failResult.Message);
+
+        var reportDir = reportStore.GetSiteReportDirectory(9);
+        Assert.True(File.Exists(Path.Combine(reportDir, "custom-audit.md")));
+        Assert.True(File.Exists(Path.Combine(reportDir, "custom-audit.json")));
+        Assert.Empty(Directory.GetFiles(_siteOutputDir));
+
+        var latestMetadata = reportStore.ReadLatestAuditMetadata(9);
+        Assert.NotNull(latestMetadata);
+        Assert.Equal("custom-audit.md", latestMetadata.ReportFileName);
+        Assert.Equal(1, latestMetadata.CriticalIssueCount);
+
+        // FailOnCritical = false -> returns success
+        var passResult = await action.RunAction(9, new Dictionary<string, string>
+        {
+            [AiPreDeployAuditFields.ReportPath] = "custom-audit.md",
+            [AiPreDeployAuditFields.FailOnCritical] = "false"
+        });
+
+        Assert.True(passResult.WasSuccessful);
+    }
+
+    [Theory]
+    [InlineData("../../../wwwroot/evil.md")]
+    [InlineData("..\\..\\outside.md")]
+    [InlineData("/etc/passwd")]
+    public async Task AiPreDeployAuditAction_RejectsPathTraversalReportPaths(string maliciousPath)
+    {
+        var reportStore = CreateReportStore();
+        var auditService = new Mock<IGeoSeoAuditService>();
+
+        var action = new AiPreDeployAuditAction(
+            auditService.Object,
+            reportStore,
+            Options.Create(new XStaticAIOptions()));
+
+        var result = await action.RunAction(9, new Dictionary<string, string>
+        {
+            [AiPreDeployAuditFields.ReportPath] = maliciousPath
+        });
+
         Assert.False(result.WasSuccessful);
-        Assert.Contains("1 critical issue", result.Message);
-        Assert.True(storedFiles.ContainsKey(".xstatic-ai-audit.md"));
-        Assert.True(storedFiles.ContainsKey(".xstatic-ai-audit.json"));
-        Assert.Contains("Fix broken link.", storedFiles[".xstatic-ai-audit.md"]);
-        Assert.Contains("/post/index.html", storedFiles[".xstatic-ai-audit.json"]);
+        Assert.Contains("Invalid ReportPath", result.Message);
+        auditService.Verify(
+            s => s.AuditSiteAsync(It.IsAny<int>(), It.IsAny<AiAuditRequestOptions?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public void AddXStaticAI_ResolvesAiPreDeployAuditActionThroughActionFactory()
+    {
+        var env = new Mock<IWebHostEnvironment>();
+        env.SetupGet(e => e.ContentRootPath).Returns(_contentRootDir);
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        services.AddSingleton(env.Object);
+        services.AddSingleton(new Mock<ISitesRepository>().Object);
+        services.AddSingleton(new Mock<IStaticSiteStorer>().Object);
+        services.AddXStaticAI();
+
+        using var provider = services.BuildServiceProvider();
+        var actionFactory = new ActionFactory(new Mock<IActionRepository>().Object, provider);
+        var created = actionFactory.CreatePostGenerationAction(new ActionDataModel
+        {
+            Id = 1,
+            Name = "AI Audit",
+            Type = typeof(AiPreDeployAuditAction).AssemblyQualifiedName
+        });
+
+        Assert.IsType<AiPreDeployAuditAction>(created);
     }
 
     [Fact]
@@ -250,9 +373,16 @@ public class GeoSeoAuditTests : IDisposable
         Assert.Equal("umbraco-geo-audit", requestedAlias);
     }
 
+    private FileSystemAuditReportStore CreateReportStore()
+    {
+        var env = new Mock<IWebHostEnvironment>();
+        env.SetupGet(e => e.ContentRootPath).Returns(_contentRootDir);
+        return new FileSystemAuditReportStore(env.Object, Options.Create(new XStaticAIOptions()));
+    }
+
     private void WritePage(string relativePath, string html)
     {
-        var fullPath = Path.Combine(_tempDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+        var fullPath = Path.Combine(_siteOutputDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
         File.WriteAllText(fullPath, html);
     }

@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
   </ItemGroup>
 
   <ItemGroup>

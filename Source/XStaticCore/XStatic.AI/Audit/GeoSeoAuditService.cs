@@ -12,7 +12,7 @@ using XStatic.Core.Repositories;
 namespace XStatic.AI.Audit;
 
 /// <summary>
-/// Runs an AI-assisted GEO/SEO audit over generated static HTML pages using <see cref="IChatClient"/>.
+/// Runs a deterministic + AI-assisted GEO/SEO audit over generated static HTML pages using <see cref="IChatClient"/>.
 /// </summary>
 public interface IGeoSeoAuditService
 {
@@ -74,21 +74,10 @@ public class GeoSeoAuditService : IGeoSeoAuditService
         if (string.IsNullOrWhiteSpace(storagePath) || !Directory.Exists(storagePath))
         {
             return XStaticResult<AiAuditReport>.Error(
-                $"No generated static output found at '{storagePath}'. Generate the site before running the AI audit.");
+                $"No generated static output found for site ID {staticSiteId}. Generate the site before running the AI audit.");
         }
 
         var options = _aiOptions.Value;
-        var profileAlias = !string.IsNullOrWhiteSpace(requestOptions?.ProfileAlias)
-            ? requestOptions.ProfileAlias
-            : options.ProfileAlias;
-
-        var chatClient = _chatClientResolver.Resolve(profileAlias);
-        if (chatClient is null)
-        {
-            return XStaticResult<AiAuditReport>.Error(
-                "No Microsoft.Extensions.AI IChatClient is configured. Register an IChatClient in DI or configure an Umbraco.AI chat client factory via AddXStaticAIChatClient.");
-        }
-
         var maxPages = requestOptions?.MaxPages is > 0
             ? requestOptions.MaxPages.Value
             : options.DefaultMaxPagesToAudit;
@@ -107,50 +96,100 @@ public class GeoSeoAuditService : IGeoSeoAuditService
             requestOptions?.IncludePathPrefixes,
             out var totalDiscovered);
 
+        var allIssues = snapshots.SelectMany(s => s.DeterministicIssues).ToList();
+
         if (snapshots.Count == 0)
         {
-            return XStaticResult<AiAuditReport>.Error(
-                "No HTML pages were found in the generated site output to audit.");
-        }
-
-        var allIssues = snapshots.SelectMany(s => s.DeterministicIssues).ToList();
-        var userPrompt = BuildAuditPrompt(site, snapshots, totalDiscovered);
-
-        try
-        {
-            var messages = new List<ChatMessage>
-            {
-                new(ChatRole.System, SystemPrompt),
-                new(ChatRole.User, userPrompt)
-            };
-
-            var response = await chatClient.GetResponseAsync(messages, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            var aiSummary = string.IsNullOrWhiteSpace(response.Text)
-                ? "_No AI summary was returned by the configured chat model._"
-                : response.Text.Trim();
-
-            var report = new AiAuditReport(
+            var emptyReport = new AiAuditReport(
                 StaticSiteId: site.Id,
                 SiteName: site.Name ?? $"Site {site.Id}",
                 GeneratedAtUtc: DateTimeOffset.UtcNow,
                 TotalHtmlFilesDiscovered: totalDiscovered,
-                AuditedPageCount: snapshots.Count,
-                CriticalIssueCount: allIssues.Count(i => i.Severity == AuditSeverity.Critical),
-                WarningIssueCount: allIssues.Count(i => i.Severity == AuditSeverity.Warning),
+                AuditedPageCount: 0,
+                CriticalIssueCount: 0,
+                WarningIssueCount: 0,
                 Pages: snapshots,
                 Issues: allIssues,
-                AiSummaryMarkdown: aiSummary,
-                ModelId: response.ModelId);
+                AiSummaryMarkdown: "_No HTML pages matched the audit criteria (for example, a JSON-only export or restrictive IncludePaths filter)._",
+                ModelId: null,
+                AiSummaryAvailable: false);
 
-            return XStaticResult<AiAuditReport>.Success(report);
+            return XStaticResult<AiAuditReport>.Success(emptyReport);
         }
-        catch (Exception ex)
+
+        var profileAlias = !string.IsNullOrWhiteSpace(requestOptions?.ProfileAlias)
+            ? requestOptions.ProfileAlias
+            : options.ProfileAlias;
+
+        var chatClient = _chatClientResolver.Resolve(profileAlias);
+        string aiSummary;
+        string? modelId = null;
+        bool aiSummaryAvailable = false;
+
+        if (chatClient is null)
         {
-            _logger.LogError(ex, "AI GEO/SEO audit failed for site {SiteId}", staticSiteId);
-            return XStaticResult<AiAuditReport>.Error($"AI GEO/SEO audit failed: {ex.Message}", ex);
+            _logger.LogWarning(
+                "No Microsoft.Extensions.AI IChatClient is configured for site {SiteId} (profile '{ProfileAlias}'). Producing deterministic GEO/SEO report only.",
+                staticSiteId,
+                profileAlias ?? "(default)");
+
+            aiSummary = "_AI summary unavailable: no `Microsoft.Extensions.AI` `IChatClient` is configured. Register an `IChatClient` in DI or configure `AddXStaticAIChatClient` to enable AI synthesis._";
         }
+        else
+        {
+            var userPrompt = BuildAuditPrompt(site, snapshots, totalDiscovered);
+            try
+            {
+                var messages = new List<ChatMessage>
+                {
+                    new(ChatRole.System, SystemPrompt),
+                    new(ChatRole.User, userPrompt)
+                };
+
+                var response = await chatClient.GetResponseAsync(messages, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
+                modelId = response.ModelId;
+                if (!string.IsNullOrWhiteSpace(response.Text))
+                {
+                    aiSummary = response.Text.Trim();
+                    aiSummaryAvailable = true;
+                }
+                else
+                {
+                    aiSummary = "_AI summary unavailable: the configured chat model returned an empty response._";
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "AI GEO/SEO synthesis failed for site {SiteId}; falling back to deterministic findings only.",
+                    staticSiteId);
+
+                aiSummary = "_AI summary unavailable due to an upstream model error. See server logs for details; deterministic findings above remain complete._";
+            }
+        }
+
+        var report = new AiAuditReport(
+            StaticSiteId: site.Id,
+            SiteName: site.Name ?? $"Site {site.Id}",
+            GeneratedAtUtc: DateTimeOffset.UtcNow,
+            TotalHtmlFilesDiscovered: totalDiscovered,
+            AuditedPageCount: snapshots.Count,
+            CriticalIssueCount: allIssues.Count(i => i.Severity == AuditSeverity.Critical),
+            WarningIssueCount: allIssues.Count(i => i.Severity == AuditSeverity.Warning),
+            Pages: snapshots,
+            Issues: allIssues,
+            AiSummaryMarkdown: aiSummary,
+            ModelId: modelId,
+            AiSummaryAvailable: aiSummaryAvailable);
+
+        return XStaticResult<AiAuditReport>.Success(report);
     }
 
     public string FormatMarkdownReport(AiAuditReport report)

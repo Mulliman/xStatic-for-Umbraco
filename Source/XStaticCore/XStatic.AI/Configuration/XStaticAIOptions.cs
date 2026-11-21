@@ -30,9 +30,15 @@ public class XStaticAIOptions
     public int ThinContentWordThreshold { get; set; } = 150;
 
     /// <summary>
-    /// Relative path inside the generated site folder where the Markdown audit report is written.
+    /// Directory (relative to the application's content root, or an absolute path) where AI audit reports are stored.
+    /// Kept outside the generated static site folder so internal audit findings are never deployed publicly.
     /// </summary>
-    public string DefaultReportFileName { get; set; } = ".xstatic-ai-audit.md";
+    public string AuditReportDirectory { get; set; } = "umbraco/Data/xStatic/reports";
+
+    /// <summary>
+    /// Relative file name inside the site's audit report directory where the Markdown audit report is written.
+    /// </summary>
+    public string DefaultReportFileName { get; set; } = "xstatic-ai-audit.md";
 
     /// <summary>
     /// When <c>true</c>, also writes a machine-readable JSON companion report alongside the Markdown report.

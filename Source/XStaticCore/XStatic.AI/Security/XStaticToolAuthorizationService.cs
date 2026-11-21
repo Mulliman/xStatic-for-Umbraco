@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using OpenIddict.Validation.AspNetCore;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Security;
 using XStatic.AI.Configuration;
 using XStatic.Core.App;
 using XStatic.Security;
@@ -34,7 +37,8 @@ public sealed record XStaticToolAuthorizationResult(bool IsAuthorized, string? D
 }
 
 /// <summary>
-/// Enforces xStatic role-based authorization (<see cref="XStaticRoles"/>) for AI agent tool calls.
+/// Enforces Umbraco backoffice authentication and xStatic role-based authorization (<see cref="XStaticRoles"/>)
+/// for AI agent tool calls.
 /// </summary>
 public interface IXStaticToolAuthorizationService
 {
@@ -45,22 +49,32 @@ public interface IXStaticToolAuthorizationService
 
 /// <summary>
 /// Default implementation of <see cref="IXStaticToolAuthorizationService"/> that mirrors
-/// xStatic's backoffice authorization policies (<see cref="XStaticGlobalSettings.UseXStaticUserRoles"/> and <see cref="XStaticRoles"/>).
+/// xStatic's backoffice authorization policies (<see cref="XStaticGlobalSettings.UseXStaticUserRoles"/> and <see cref="XStaticRoles"/>)
+/// while rejecting non-backoffice identities (such as front-end Umbraco Members).
 /// </summary>
 public class XStaticToolAuthorizationService : IXStaticToolAuthorizationService
 {
+    private static readonly HashSet<string> AllowedBackOfficeAuthTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Constants.Security.BackOfficeAuthenticationType,
+        OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme
+    };
+
     private readonly IOptions<XStaticGlobalSettings> _globalSettings;
     private readonly IOptions<XStaticAIOptions> _aiOptions;
     private readonly IHttpContextAccessor? _httpContextAccessor;
+    private readonly IBackOfficeSecurityAccessor? _backOfficeSecurityAccessor;
 
     public XStaticToolAuthorizationService(
         IOptions<XStaticGlobalSettings> globalSettings,
         IOptions<XStaticAIOptions> aiOptions,
-        IHttpContextAccessor? httpContextAccessor = null)
+        IHttpContextAccessor? httpContextAccessor = null,
+        IBackOfficeSecurityAccessor? backOfficeSecurityAccessor = null)
     {
         _globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
         _aiOptions = aiOptions ?? throw new ArgumentNullException(nameof(aiOptions));
         _httpContextAccessor = httpContextAccessor;
+        _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
     }
 
     public XStaticToolAuthorizationResult Authorize(
@@ -72,11 +86,32 @@ public class XStaticToolAuthorizationService : IXStaticToolAuthorizationService
             return XStaticToolAuthorizationResult.Allowed();
         }
 
+        // Prefer Umbraco's IBackOfficeSecurityAccessor when no explicit principal was passed
+        if (user is null && _backOfficeSecurityAccessor?.BackOfficeSecurity?.CurrentUser is { } backOfficeUser)
+        {
+            if (!_globalSettings.Value.UseXStaticUserRoles)
+            {
+                return XStaticToolAuthorizationResult.Allowed();
+            }
+
+            var groupAliases = backOfficeUser.Groups
+                .Select(g => g.Alias)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            return CheckRoles(groupAliases.Contains, requiredAccess);
+        }
+
         var principal = user ?? _httpContextAccessor?.HttpContext?.User;
         if (principal?.Identity?.IsAuthenticated != true)
         {
             return XStaticToolAuthorizationResult.Denied(
-                "Authentication is required to execute xStatic tools.");
+                "Backoffice authentication is required to execute xStatic tools.");
+        }
+
+        if (!IsBackOfficePrincipal(principal))
+        {
+            return XStaticToolAuthorizationResult.Denied(
+                "Only authenticated Umbraco backoffice users may execute xStatic tools.");
         }
 
         if (!_globalSettings.Value.UseXStaticUserRoles)
@@ -84,7 +119,22 @@ public class XStaticToolAuthorizationService : IXStaticToolAuthorizationService
             return XStaticToolAuthorizationResult.Allowed();
         }
 
-        var isAdmin = principal.IsInRole(XStaticRoles.XStaticAdminGroup);
+        return CheckRoles(principal.IsInRole, requiredAccess);
+    }
+
+    private static bool IsBackOfficePrincipal(ClaimsPrincipal principal)
+    {
+        return principal.Identities.Any(identity =>
+            identity.IsAuthenticated
+            && !string.IsNullOrWhiteSpace(identity.AuthenticationType)
+            && AllowedBackOfficeAuthTypes.Contains(identity.AuthenticationType));
+    }
+
+    private static XStaticToolAuthorizationResult CheckRoles(
+        Func<string, bool> hasRole,
+        XStaticToolAccessLevel requiredAccess)
+    {
+        var isAdmin = hasRole(XStaticRoles.XStaticAdminGroup);
         if (requiredAccess == XStaticToolAccessLevel.Admin)
         {
             return isAdmin
@@ -93,7 +143,7 @@ public class XStaticToolAuthorizationService : IXStaticToolAuthorizationService
                     $"User does not have the required '{XStaticRoles.XStaticAdminGroup}' role.");
         }
 
-        var isNormalUser = principal.IsInRole(XStaticRoles.XStaticNormalUserGroup);
+        var isNormalUser = hasRole(XStaticRoles.XStaticNormalUserGroup);
         return isAdmin || isNormalUser
             ? XStaticToolAuthorizationResult.Allowed()
             : XStaticToolAuthorizationResult.Denied(

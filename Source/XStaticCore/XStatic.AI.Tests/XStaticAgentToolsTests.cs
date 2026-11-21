@@ -1,9 +1,7 @@
-using System.Text.Json;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
-using XStatic.AI.Configuration;
+using XStatic.AI.Audit;
 using XStatic.AI.Security;
 using XStatic.AI.Tools;
 using XStatic.Core;
@@ -24,6 +22,7 @@ public class XStaticAgentToolsTests : IDisposable
     private readonly Mock<IStaticSiteStorer> _storer = new();
     private readonly Mock<IXStaticSiteOperations> _operations = new();
     private readonly Mock<IXStaticToolAuthorizationService> _auth = new();
+    private readonly Mock<IAuditReportStore> _reportStore = new();
 
     public XStaticAgentToolsTests()
     {
@@ -88,12 +87,21 @@ public class XStaticAgentToolsTests : IDisposable
     }
 
     [Fact]
-    public void GetSiteStatus_ReturnsOutputMetricsMetadataAndAuditPreview()
+    public void GetSiteStatus_ReturnsOutputMetricsMetadataAndDeterministicAuditMetadata()
     {
         File.WriteAllText(Path.Combine(_tempDir, "index.html"), "<html><body>Home</body></html>");
         File.WriteAllText(Path.Combine(_tempDir, ".xstatic-metadata"), "Id: 4\nName: Docs");
-        File.WriteAllText(Path.Combine(_tempDir, ".xstatic-ai-audit.md"), "# Audit\nAll clear.");
 
+        var latestAudit = new LatestAuditMetadata(
+            GeneratedAtUtc: DateTimeOffset.UtcNow,
+            AuditedPageCount: 1,
+            TotalHtmlFilesDiscovered: 1,
+            CriticalIssueCount: 0,
+            WarningIssueCount: 2,
+            AiSummaryAvailable: true,
+            ReportFileName: "custom-audit.md");
+
+        _reportStore.Setup(s => s.ReadLatestAuditMetadata(4)).Returns(latestAudit);
         _sitesRepo.Setup(r => r.Get<SiteConfig>(4)).Returns(new SiteConfig
         {
             Id = 4,
@@ -112,7 +120,7 @@ public class XStaticAgentToolsTests : IDisposable
         Assert.True(response.Data.HasGeneratedOutput);
         Assert.Equal(1, response.Data.GeneratedHtmlPageCount);
         Assert.Contains("Name: Docs", response.Data.GenerationMetadata);
-        Assert.Contains("All clear.", response.Data.LatestAiAuditSummary);
+        Assert.Equal(latestAudit, response.Data.LatestAiAudit);
     }
 
     [Fact]
@@ -143,18 +151,36 @@ public class XStaticAgentToolsTests : IDisposable
     }
 
     [Fact]
-    public async Task DeploySiteAsync_InvokesDeployOperationsAndReturnsResult()
+    public async Task DeploySiteAsync_InvokesDeployOperationsAndSanitizesUnexpectedErrors()
     {
         _operations.Setup(o => o.DeploySiteAsync(5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(XStaticResult.Success("Deployed to Netlify."));
 
         var tools = CreateTools();
-        var response = await tools.DeploySiteAsync(5);
+        var okResponse = await tools.DeploySiteAsync(5);
 
-        Assert.True(response.Success);
-        Assert.NotNull(response.Data);
-        Assert.True(response.Data.WasSuccessful);
-        Assert.Equal("Deployed to Netlify.", response.Data.Message);
+        Assert.True(okResponse.Success);
+        Assert.NotNull(okResponse.Data);
+        Assert.True(okResponse.Data.WasSuccessful);
+        Assert.Equal("Deployed to Netlify.", okResponse.Data.Message);
+
+        _operations.Setup(o => o.DeploySiteAsync(6, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(@"No output at C:\secret\server\path"));
+
+        var errResponse = await tools.DeploySiteAsync(6);
+        Assert.False(errResponse.Success);
+        Assert.DoesNotContain(@"C:\secret\server\path", errResponse.Error);
+    }
+
+    [Fact]
+    public void ConfigureChatOptions_HandlesFixedSizeToolsArray()
+    {
+        var provider = new XStaticAIToolProvider(CreateTools());
+        var options = new ChatOptions { Tools = Array.Empty<AITool>() };
+
+        var configured = provider.ConfigureChatOptions(options);
+
+        Assert.Equal(4, configured.Tools?.Count);
     }
 
     [Fact]
@@ -207,6 +233,6 @@ public class XStaticAgentToolsTests : IDisposable
             _storer.Object,
             _operations.Object,
             _auth.Object,
-            Options.Create(new XStaticAIOptions()),
+            _reportStore.Object,
             NullLogger<XStaticAgentTools>.Instance);
 }

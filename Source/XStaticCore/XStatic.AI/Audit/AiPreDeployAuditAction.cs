@@ -1,10 +1,7 @@
-using System.Text;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
 using XStatic.AI.Configuration;
 using XStatic.Core;
 using XStatic.Core.Actions.FileActions;
-using XStatic.Core.Generator.Storage;
 
 namespace XStatic.AI.Audit;
 
@@ -18,35 +15,30 @@ public static class AiPreDeployAuditFields
 }
 
 /// <summary>
-/// Optional xStatic <see cref="XStatic.Core.Actions.IPostGenerationAction"/> that runs an AI-powered
-/// pre-deploy GEO/SEO audit over generated HTML pages and writes an actionable report before deployment.
+/// Optional xStatic <see cref="XStatic.Core.Actions.IPostGenerationAction"/> that runs a deterministic
+/// and AI-assisted GEO/SEO audit over generated HTML pages and writes an actionable report outside
+/// the deployable static site folder.
 /// </summary>
-[XStaticEditableField(AiPreDeployAuditFields.MaxPages, UIEditors.Integer)]
+[XStaticEditableField(AiPreDeployAuditFields.MaxPages, UIEditors.Text)]
 [XStaticEditableField(AiPreDeployAuditFields.ReportPath, UIEditors.Text)]
-[XStaticEditableField(AiPreDeployAuditFields.FailOnCritical, UIEditors.Toggle)]
+[XStaticEditableField(AiPreDeployAuditFields.FailOnCritical, UIEditors.Text)]
 [XStaticEditableField(AiPreDeployAuditFields.ProfileAlias, UIEditors.Text)]
 [XStaticEditableField(AiPreDeployAuditFields.IncludePaths, UIEditors.Text)]
 public class AiPreDeployAuditAction : PostGenerationActionBase
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     private readonly IGeoSeoAuditService _auditService;
-    private readonly IStaticSiteStorer _staticSiteStorer;
+    private readonly IAuditReportStore _reportStore;
     private readonly IOptions<XStaticAIOptions> _aiOptions;
 
     public override string Name => nameof(AiPreDeployAuditAction);
 
     public AiPreDeployAuditAction(
         IGeoSeoAuditService auditService,
-        IStaticSiteStorer staticSiteStorer,
+        IAuditReportStore reportStore,
         IOptions<XStaticAIOptions> aiOptions)
     {
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-        _staticSiteStorer = staticSiteStorer ?? throw new ArgumentNullException(nameof(staticSiteStorer));
+        _reportStore = reportStore ?? throw new ArgumentNullException(nameof(reportStore));
         _aiOptions = aiOptions ?? throw new ArgumentNullException(nameof(aiOptions));
     }
 
@@ -78,6 +70,17 @@ public class AiPreDeployAuditAction : PostGenerationActionBase
             reportPath = _aiOptions.Value.DefaultReportFileName;
         }
 
+        // Validate ReportPath before running the audit so invalid/traversal paths fail fast
+        try
+        {
+            var siteReportDir = _reportStore.GetSiteReportDirectory(staticSiteId);
+            FileSystemAuditReportStore.ResolveSafePath(siteReportDir, reportPath);
+        }
+        catch (ArgumentException ex)
+        {
+            return XStaticResult.Error($"Invalid ReportPath '{reportPath}': {ex.Message}", ex);
+        }
+
         var auditResult = await _auditService.AuditSiteAsync(
             staticSiteId,
             new AiAuditRequestOptions(
@@ -96,16 +99,13 @@ public class AiPreDeployAuditAction : PostGenerationActionBase
 
         try
         {
-            await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), reportPath, markdown, Encoding.UTF8)
+            await _reportStore.SaveReportAsync(
+                staticSiteId,
+                reportPath,
+                markdown,
+                report,
+                _aiOptions.Value.WriteJsonReport)
                 .ConfigureAwait(false);
-
-            if (_aiOptions.Value.WriteJsonReport)
-            {
-                var jsonReportPath = Path.ChangeExtension(reportPath, ".json");
-                var json = JsonSerializer.Serialize(report, JsonOptions);
-                await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), jsonReportPath, json, Encoding.UTF8)
-                    .ConfigureAwait(false);
-            }
         }
         catch (Exception ex)
         {
@@ -115,10 +115,10 @@ public class AiPreDeployAuditAction : PostGenerationActionBase
         if (failOnCritical && report.CriticalIssueCount > 0)
         {
             return XStaticResult.Error(
-                $"AI pre-deploy GEO/SEO audit found {report.CriticalIssueCount} critical issue(s) across {report.AuditedPageCount} audited page(s). See '{reportPath}'.");
+                $"AI pre-deploy GEO/SEO audit found {report.CriticalIssueCount} critical issue(s) across {report.AuditedPageCount} audited page(s). Report saved as '{reportPath}'.");
         }
 
         return XStaticResult.Success(
-            $"AI pre-deploy GEO/SEO audit completed for {report.AuditedPageCount} page(s) ({report.CriticalIssueCount} critical, {report.WarningIssueCount} warnings). Report saved to '{reportPath}'.");
+            $"AI pre-deploy GEO/SEO audit completed for {report.AuditedPageCount} page(s) ({report.CriticalIssueCount} critical, {report.WarningIssueCount} warnings). Report saved as '{reportPath}'.");
     }
 }
