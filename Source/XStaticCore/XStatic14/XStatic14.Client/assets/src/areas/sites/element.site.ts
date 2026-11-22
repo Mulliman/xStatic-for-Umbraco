@@ -1,7 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, property, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
-import { when } from 'lit/directives/when.js';
+import { LitElement, css, html, customElement, property, state, when } from '@umbraco-cms/backoffice/external/lit';
 import type {
     xStaticTableItem,
   } from "../../elements/element.site-table";
@@ -14,7 +12,6 @@ import "../../elements/element.loader";
 
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 import { formatDate, formatTime } from '../../code/datetime';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('xstatic-site-element')
 class SiteElement extends UmbElementMixin(LitElement) {
@@ -126,7 +123,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
         this.addTableItem(array, "autoDeploy", "icon-settings", "value", autoDeployBadge);
         this.addTableItem(array, "lastGen", "icon-time", "value", lastGen);
         this.addTableItem(array, "lastDeployed", "icon-umb-deploy", "value", lastDeployed);
-        this.addTableItem(array, "targetLocation", "icon-link", "value", this.site?.targetHostname ? unsafeHTML(`<a href="https://${this.site.targetHostname}" target="_blank" />${this.site.targetHostname}</a>`) : null );
+        this.addTableItem(array, "targetLocation", "icon-link", "value", this.site?.targetHostname ? html`<a href=${`https://${this.site.targetHostname}`} target="_blank" rel="noopener noreferrer">${this.site.targetHostname}</a>` : null );
         this.addTableItem(array, "folder", "icon-folder", "value", (!this.site?.folderSize || this.site?.folderSize === '0B') ? null : "Size: " + this.site?.folderSize);
 
         return array;
@@ -161,33 +158,39 @@ class SiteElement extends UmbElementMixin(LitElement) {
     }
 
     async #delete() {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Delete Site',
-            content: 'Are you sure you want to delete this Site?',
-            confirmLabel: 'Delete',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'danger',
+                headline: 'Delete Site',
+                content: 'Are you sure you want to delete this Site?',
+                confirmLabel: 'Delete',
+            });
+        } catch {
+            return;
+        }
 
         await this.#siteContext!.deleteSite(this.site!.id);
     }
 
     async #clean() {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Clean Up Site',
-            content: 'Are you sure you want to clean the generated files for this site? You will need to build again before you can deploy.',
-            confirmLabel: 'Clean up',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'danger',
+                headline: 'Clean Up Site',
+                content: 'Are you sure you want to clean the generated files for this site? You will need to build again before you can deploy.',
+                confirmLabel: 'Clean up',
+            });
+        } catch {
+            return;
+        }
 
         await this.#siteContext!.cleanSite(this.site!.id);
     }
 
     async #generate() {
         try {
-            let currentSeconds = 0;
+            const currentSeconds = 0;
             this.runningTask = { task: "Generating", startTime: new Date(), expectedDuration: this.site!.lastBuildDurationInSeconds ?? 0, currentSeconds };
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             await this.#siteContext!.generateSite(this.site!.id);
         } finally {
@@ -196,18 +199,20 @@ class SiteElement extends UmbElementMixin(LitElement) {
     }
 
     async #deploy() {
-        await umbConfirmModal(this, {
-            color: 'positive',
-            headline: 'Deploy Site',
-            content: 'Are you sure you want to deploy this site?',
-            confirmLabel: 'Deploy',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'positive',
+                headline: 'Deploy Site',
+                content: 'Are you sure you want to deploy this site?',
+                confirmLabel: 'Deploy',
+            });
+        } catch {
+            return;
+        }
 
         try {
-            let currentSeconds = 0;
+            const currentSeconds = 0;
             this.runningTask = { task: "Deploying", startTime: new Date(), expectedDuration: this.site!.lastDeployDurationInSeconds ?? 0, currentSeconds };
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             await this.#siteContext!.deploySite(this.site!.id);
         } finally {
@@ -217,10 +222,8 @@ class SiteElement extends UmbElementMixin(LitElement) {
 
     async #download() {
         try {
-            let currentSeconds = 0;
+            const currentSeconds = 0;
             this.runningTask = { task: "Downloading", startTime: new Date(), expectedDuration: 10, currentSeconds };
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             await this.#siteContext!.downloadSite(this.site!.id);
         } finally {
@@ -283,7 +286,7 @@ class SiteElement extends UmbElementMixin(LitElement) {
 export default SiteElement;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-site-element': SiteElement
     }
 }

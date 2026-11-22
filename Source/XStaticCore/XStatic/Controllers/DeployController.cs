@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Umbraco.Cms.Api.Common.Attributes;
@@ -35,6 +36,9 @@ namespace XStatic.Controllers
 
         [HttpPost("deploy-site")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Deploy_DeploySite")]
+        [EndpointSummary("Deploy a static site")]
+        [EndpointDescription("Deploys the locally generated static files for the specified site to its configured deployment target.")]
         [ProducesResponseType(typeof(IXStaticWebResult), StatusCodes.Status200OK)]
         public async Task<IXStaticWebResult> DeployStaticSite(int staticSiteId)
         {

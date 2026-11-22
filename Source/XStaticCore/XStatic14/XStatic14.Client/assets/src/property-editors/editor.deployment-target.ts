@@ -1,6 +1,7 @@
 import { css, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { DeployerField } from '../api';
+import { toApiFieldValue, toEditorValue } from '../code/field-value-converter';
 import XStaticPropertyEditorDynamicFormBase from './editor.dynamic-form';
 
 @customElement('xstatic-property-editor-deployment-target')
@@ -11,7 +12,7 @@ export class XStaticPropertyEditorDeploymentTypeElement
         return value.filter((f) => f.name).map((field) => {
             return {
                 alias: field.alias,
-                value: field.value
+                value: toEditorValue(field.value, field.editorUiAlias)
             } as UmbPropertyValueData;
         });
     }
@@ -20,7 +21,7 @@ export class XStaticPropertyEditorDeploymentTypeElement
         return this.fields?.map((f) => ({
             alias: f.alias,
             name: f.name,
-            value: value.find((x) => x.alias === f.alias)?.value,
+            value: toApiFieldValue(value.find((x) => x.alias === f.alias)?.value),
             editorUiAlias: f.editorUiAlias
         } as DeployerField)) ?? [];
     }

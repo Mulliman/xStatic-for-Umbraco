@@ -1,6 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
 import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
 
 import "./element.export-type";
@@ -67,7 +66,7 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
 export default ExportTypeGrid;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-export-type-grid': ExportTypeGrid
     }
 }

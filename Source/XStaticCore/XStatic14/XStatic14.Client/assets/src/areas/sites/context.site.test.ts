@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
+import { blobDownload } from '@umbraco-cms/backoffice/utils';
 import { V1Service } from '../../api';
+import { xStaticEvent } from '../../xstatic-event';
 import SiteContext from './context.site';
 
 vi.mock('@umbraco-cms/backoffice/resources', () => ({
@@ -16,7 +18,12 @@ vi.mock('@umbraco-cms/backoffice/utils', () => ({
 class TestSiteContextHost extends UmbLitElement {}
 
 describe('SiteContext', () => {
+	const contexts: SiteContext[] = [];
+
 	afterEach(() => {
+		for (const ctx of contexts.splice(0)) {
+			ctx.destroy();
+		}
 		document.body.innerHTML = '';
 		vi.restoreAllMocks();
 	});
@@ -25,6 +32,7 @@ describe('SiteContext', () => {
 		const host = document.createElement('test-site-context-host') as TestSiteContextHost;
 		document.body.appendChild(host);
 		const ctx = new SiteContext(host);
+		contexts.push(ctx);
 		return { host, ctx };
 	}
 
@@ -105,5 +113,44 @@ describe('SiteContext', () => {
 		await ctx.generateSite(1);
 
 		expect(peek).not.toHaveBeenCalled();
+	});
+
+	it('removes the xStaticEvent window listener on destroy', () => {
+		const getAllSpy = vi
+			.spyOn(V1Service, 'getApiV1XstaticSitesGetAll')
+			.mockResolvedValue([] as never);
+		vi.spyOn(V1Service, 'getApiV1XstaticSitesGetSiteDependencies').mockResolvedValue({} as never);
+
+		const { ctx } = createHostAndContext();
+		vi.spyOn(ctx, 'refreshData').mockResolvedValue(undefined);
+
+		window.dispatchEvent(new xStaticEvent());
+		expect(getAllSpy).toHaveBeenCalledTimes(1);
+
+		ctx.destroy();
+
+		window.dispatchEvent(new xStaticEvent());
+		expect(getAllSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('uses a 1-indexed month in the downloadSite zip filename', async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date(2026, 0, 15, 9, 30, 45)); // January 15, 2026
+
+		try {
+			const blob = new Blob(['zip']);
+			vi.spyOn(V1Service, 'getApiV1XstaticDownloadDownloadSite').mockResolvedValue(blob as never);
+
+			const { ctx } = createHostAndContext();
+			await ctx.downloadSite(5);
+
+			expect(blobDownload).toHaveBeenCalledWith(
+				blob,
+				'xStatic Site Download-5-202611593045.zip',
+				'application/zip',
+			);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

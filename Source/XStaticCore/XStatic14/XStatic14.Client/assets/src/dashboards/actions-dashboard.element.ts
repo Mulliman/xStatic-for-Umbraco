@@ -33,7 +33,7 @@ export class XStaticActionsDashboard extends UmbElementMixin(LitElement) {
 export default XStaticActionsDashboard;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-actions-dashboard': XStaticActionsDashboard
     }
 }

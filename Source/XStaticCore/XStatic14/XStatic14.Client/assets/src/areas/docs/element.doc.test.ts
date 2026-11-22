@@ -28,6 +28,8 @@ describe('xstatic-doc-element', () => {
 		const buttons = el.shadowRoot?.querySelectorAll('uui-button');
 		expect(buttons?.length).toBe(2);
 		expect(buttons?.[0].getAttribute('href')).toBe('https://example.com/docs');
+		expect(buttons?.[0].getAttribute('color')).toBe('default');
 		expect(buttons?.[1].getAttribute('href')).toBe('https://github.com/Mulliman/xStatic-for-Umbraco');
+		expect(buttons?.[1].getAttribute('color')).toBe('positive');
 	});
 });

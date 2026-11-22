@@ -58,3 +58,9 @@ public class StaticHtmlSiteGenerator : GeneratorBase
 ## Using the Custom Generator
 
 Implementations of IGenerator will automatically get discovered by xStatic and will be available for selection withing the export type dashboard with the CMS. If you are using parameters in the constructor (which you almost certainly will be) you need to register this class in your Startup ConfigureServices method.
+
+## Built-in Generators
+
+- `StaticHtmlSiteGenerator` — standard static HTML page generator.
+- `StaticHtmlWithMarkdownSiteGenerator` — generates static HTML pages alongside clean companion Markdown (`.md`) twins for LLMs and AI agents. See [AI and GEO.md](AI%20and%20GEO.md).
+- `BasicJsonApiGenerator` — generates JSON API files from Umbraco content.

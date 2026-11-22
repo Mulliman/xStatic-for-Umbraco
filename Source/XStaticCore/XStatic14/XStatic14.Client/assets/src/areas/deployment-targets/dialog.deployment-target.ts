@@ -8,6 +8,7 @@ import { UmbPropertyDatasetElement, UmbPropertyValueData } from "@umbraco-cms/ba
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from "./context.deployment-targets";
 
 import "../../elements/element.validation-error";
+import { toApiFieldValue } from "../../code/field-value-converter";
 
 @customElement('xstatic-edit-deployment-target-modal')
 export class EditDeploymentTargetModalElement extends
@@ -204,6 +205,10 @@ export class EditDeploymentTargetModalElement extends
                         alias: 'fields',
                         value: selectedConfig
                     },
+                    {
+                        alias: 'help',
+                        value: selectedActionType?.help
+                    }
                 ],
             },
         ];
@@ -297,7 +302,7 @@ export class EditDeploymentTargetModalElement extends
         var record: Record<string, string | null> = {};
 
         if (array) {
-            array.forEach((x) => { if (x?.alias) { record[x.alias] = x.value ?? null } });
+            array.forEach((x) => { if (x?.alias) { record[x.alias] = toApiFieldValue(x.value); } });
         }
 
         return record;
