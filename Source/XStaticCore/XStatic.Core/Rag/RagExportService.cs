@@ -110,6 +110,7 @@ namespace XStatic.Core.Rag
             }
 
             var siteIdSegment = staticSiteId.ToString();
+            var utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
             Dictionary<string, string> markdownChunkPaths = null;
 
             switch (options.OutputFormat)
@@ -117,14 +118,14 @@ namespace XStatic.Core.Rag
                 case RagExportFormat.Json:
                 {
                     var json = _serializer.SerializeJson(allChunks, options, generatedAt);
-                    var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, outputPath, json, Encoding.UTF8).ConfigureAwait(false);
+                    var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, outputPath, json, utf8NoBom).ConfigureAwait(false);
                     writtenFiles.Add(storedPath);
                     break;
                 }
                 case RagExportFormat.Jsonl:
                 {
                     var jsonl = _serializer.SerializeJsonl(allChunks);
-                    var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, outputPath, jsonl, Encoding.UTF8).ConfigureAwait(false);
+                    var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, outputPath, jsonl, utf8NoBom).ConfigureAwait(false);
                     writtenFiles.Add(storedPath);
                     break;
                 }
@@ -139,7 +140,7 @@ namespace XStatic.Core.Rag
 
                         var md = _serializer.SerializeMarkdown(chunk);
                         var chunkRelativePath = _serializer.GetMarkdownChunkRelativePath(chunk, outputPath);
-                        var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, chunkRelativePath, md, Encoding.UTF8).ConfigureAwait(false);
+                        var storedPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, chunkRelativePath, md, utf8NoBom).ConfigureAwait(false);
                         writtenFiles.Add(storedPath);
                         markdownChunkPaths[chunk.Id] = chunkRelativePath;
                     }
@@ -152,7 +153,7 @@ namespace XStatic.Core.Rag
             {
                 webMcpIndex = _webMcpIndexBuilder.Build(pages, allChunks, options, generatedAt, markdownChunkPaths);
                 var indexJson = _webMcpIndexBuilder.Serialize(webMcpIndex);
-                var storedIndexPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, indexPath, indexJson, Encoding.UTF8).ConfigureAwait(false);
+                var storedIndexPath = await _staticSiteStorer.StoreSiteItem(siteIdSegment, indexPath, indexJson, utf8NoBom).ConfigureAwait(false);
                 writtenFiles.Add(storedIndexPath);
             }
 
