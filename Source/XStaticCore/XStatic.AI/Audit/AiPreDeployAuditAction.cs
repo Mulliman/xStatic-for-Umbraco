@@ -19,9 +19,9 @@ public static class AiPreDeployAuditFields
 /// and AI-assisted GEO/SEO audit over generated HTML pages and writes an actionable report outside
 /// the deployable static site folder.
 /// </summary>
-[XStaticEditableField(AiPreDeployAuditFields.MaxPages, UIEditors.Integer)]
-[XStaticEditableField(AiPreDeployAuditFields.ReportPath, UIEditors.Text)]
-[XStaticEditableField(AiPreDeployAuditFields.FailOnCritical, UIEditors.Toggle)]
+[XStaticEditableField(AiPreDeployAuditFields.MaxPages, UIEditors.Integer, DefaultValue = "10")]
+[XStaticEditableField(AiPreDeployAuditFields.ReportPath, UIEditors.Text, DefaultValue = "xstatic-ai-audit.md")]
+[XStaticEditableField(AiPreDeployAuditFields.FailOnCritical, UIEditors.Toggle, DefaultValue = "false")]
 [XStaticEditableField(AiPreDeployAuditFields.ProfileAlias, UIEditors.Text)]
 [XStaticEditableField(AiPreDeployAuditFields.IncludePaths, UIEditors.Text)]
 public class AiPreDeployAuditAction : PostGenerationActionBase

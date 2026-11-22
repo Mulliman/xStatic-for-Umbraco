@@ -236,13 +236,22 @@ namespace XStatic.Core.Tests.Actions
         }
 
         [Fact]
-        public void GenerateLlmsTxtAction_EditableFields_UseStringCompatibleEditors()
+        public void GenerateLlmsTxtAction_EditableFields_UseToggleEditorsWithDefaults()
         {
-            var attrs = (XStaticEditableFieldAttribute[])Attribute.GetCustomAttributes(
-                typeof(GenerateLlmsTxtAction), typeof(XStaticEditableFieldAttribute), inherit: false);
+            var model = new XStatic.Core.Models.ConfigurableTypeModel(typeof(GenerateLlmsTxtAction));
 
-            Assert.NotEmpty(attrs);
-            Assert.Contains(attrs, a => a.FieldName == GenerateLlmsTxtFields.GenerateFullFile && a.EditorUiAlias == UIEditors.Toggle);
+            Assert.NotNull(model.Fields);
+            var fullFile = Assert.Single(model.Fields, f => f.Name == GenerateLlmsTxtFields.GenerateFullFile);
+            Assert.Equal(UIEditors.Toggle, fullFile.EditorUiAlias);
+            Assert.Equal("true", fullFile.Value);
+
+            var companion = Assert.Single(model.Fields, f => f.Name == GenerateLlmsTxtFields.GenerateCompanionMarkdown);
+            Assert.Equal(UIEditors.Toggle, companion.EditorUiAlias);
+            Assert.Equal("false", companion.Value);
+
+            var mdLinks = Assert.Single(model.Fields, f => f.Name == GenerateLlmsTxtFields.UseMarkdownLinks);
+            Assert.Equal(UIEditors.Toggle, mdLinks.EditorUiAlias);
+            Assert.Equal("true", mdLinks.Value);
         }
 
         [Fact]
