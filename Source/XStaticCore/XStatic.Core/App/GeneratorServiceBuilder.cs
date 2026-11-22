@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
@@ -9,6 +10,7 @@ using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
+using XStatic.Core.Rag;
 using XStatic.Core.Repositories;
 using XStatic.Generator;
 
@@ -50,10 +52,24 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultActions()
         {
+            AddDefaultRagServices();
+
             _services.AddTransient<AddGenerationMetadataFileAction>();
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
             _services.AddTransient<FileRenameAction>();
+            _services.AddTransient<RagExportPostGenerationAction>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultRagServices()
+        {
+            _services.TryAddSingleton<IHtmlContentExtractor, HtmlContentExtractor>();
+            _services.TryAddSingleton<IRagChunker, RagChunker>();
+            _services.TryAddSingleton<IRagChunkSerializer, RagChunkSerializer>();
+            _services.TryAddSingleton<IWebMcpIndexBuilder, WebMcpIndexBuilder>();
+            _services.TryAddTransient<IRagExportService, RagExportService>();
 
             return this;
         }
@@ -124,6 +140,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
@@ -138,6 +155,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
