@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
@@ -47,6 +48,9 @@ namespace XStatic.Controllers
 
 		[HttpPost("generate-site")]
 		[MapToApiVersion("1.0")]
+		[EndpointName("Generate_GenerateSite")]
+		[EndpointSummary("Generate a static site")]
+		[EndpointDescription("Crawls Umbraco content, media, and assets, applies configured transformers, writes static files to storage, and executes post-generation actions for the specified static site.")]
 		[ProducesResponseType(typeof(RebuildProcessResult), StatusCodes.Status200OK)]
 		public async Task<RebuildProcessResult> RebuildStaticSite(int staticSiteId)
 		{

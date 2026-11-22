@@ -1,6 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, property, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, customElement, property, state } from '@umbraco-cms/backoffice/external/lit';
 
 import type {
     xStaticTableColumn,
@@ -104,7 +103,7 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
 export default ConfigSectionElement;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-config-section-element': ConfigSectionElement
     }
 }

@@ -1,7 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, property } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
-import { when } from 'lit/directives/when.js';
+import { LitElement, css, html, customElement, property, when } from '@umbraco-cms/backoffice/external/lit';
 
 export type DocModel = {
     heading: string;
@@ -37,7 +35,7 @@ class DocElement extends UmbElementMixin(LitElement) {
                         ${when(doc.author, () => (html`<h4>Author: <strong>${doc.author}</strong></h4>`))}
 
                         <div class="buttons">
-                                ${doc.links?.map(link => html`<uui-button label=${link.text} href=${link.href} target="_blank" color=${link.text?.indexOf("Git") ? "positive" : "default"} look="primary"></uui-button>&nbsp;`)}
+                                ${doc.links?.map(link => html`<uui-button label=${link.text} href=${link.href} target="_blank" color=${link.text?.includes("Git") ? "positive" : "default"} look="primary"></uui-button>&nbsp;`)}
                         </div>
                         
                     </div>
@@ -72,7 +70,7 @@ class DocElement extends UmbElementMixin(LitElement) {
 export default DocElement;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-doc-element': DocElement
     }
 }

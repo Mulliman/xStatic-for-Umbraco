@@ -28,3 +28,9 @@ if (typeof HTMLElement !== 'undefined' && typeof HTMLElement.prototype.attachInt
 		} as unknown as ElementInternals;
 	};
 }
+
+// happy-dom does not define SVGAElement, which @umbraco-cms/backoffice router's
+// global click handler checks via `instanceof SVGAElement`.
+if (typeof globalThis.SVGAElement === 'undefined') {
+	(globalThis as Record<string, unknown>).SVGAElement = class SVGAElement {};
+}
