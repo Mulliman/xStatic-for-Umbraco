@@ -124,7 +124,17 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultAutoDeployServices()
         {
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, PathBasedAutoPublishSiteResolver>());
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, RelationBasedAutoPublishSiteResolver>());
             _services.AddSingleton<IAutoPublisher, DefaultAutoPublisher>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddAutoPublishSiteResolver<TResolver>()
+            where TResolver : class, IAutoPublishSiteResolver
+        {
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, TResolver>());
 
             return this;
         }

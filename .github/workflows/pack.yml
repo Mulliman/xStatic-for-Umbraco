@@ -60,6 +60,7 @@ jobs:
             'Source/XStaticCore/XStatic.Netlify/XStatic.Netlify.csproj',
             'Source/XStaticCore/XStatic.Git/XStatic.Git.csproj',
             'Source/XStaticCore/XStatic.Ftp/XStatic.Ftp.csproj',
+            'Source/XStaticCore/XStatic.Cloudflare/XStatic.Cloudflare.csproj',
             'Source/XStaticCore/XStatic.RemoteOperations/XStatic.RemoteOperations.csproj',
             'Source/XStaticCore/XStatic.AI/XStatic.AI.csproj'
           )

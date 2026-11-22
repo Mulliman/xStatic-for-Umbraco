@@ -118,6 +118,58 @@ namespace XStatic.Core.App
 			});
 
 			return this;
+		}
+
+		/// <summary>
+		/// Registers an additional <see cref="XStatic.Core.AutoPublish.IAutoPublishSiteResolver"/> for resolving
+		/// affected static sites during auto-publish (for example, custom Umbraco 18/19 Library or Element dependency graphs).
+		/// </summary>
+		public XStaticServiceBuilder AddAutoPublishSiteResolver<TResolver>()
+			where TResolver : class, XStatic.Core.AutoPublish.IAutoPublishSiteResolver
+		{
+			GeneratorServiceBuilder.AddAutoPublishSiteResolver<TResolver>();
+
+			return this;
+		}
+
+		/// <summary>
+		/// Enables or disables walking Umbraco relations during auto-publish so shared content or Library elements
+		/// outside a site's root tree trigger rebuilds for referencing sites.
+		/// </summary>
+		public XStaticServiceBuilder EnableRelationBasedAutoPublish(bool enabled = true)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.EnableRelationBasedAutoPublish = enabled;
+			});
+
+			return this;
+		}
+
+		/// <summary>
+		/// Sets the maximum upstream relation traversal depth used by relation-based auto-publish.
+		/// </summary>
+		public XStaticServiceBuilder AutoPublishMaxRelationDepth(int maxDepth)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.AutoPublishMaxRelationDepth = maxDepth;
+			});
+
+			return this;
+		}
+
+		/// <summary>
+		/// Configures content type aliases whose publication should trigger auto-publish across all auto-publish enabled sites.
+		/// </summary>
+		public XStaticServiceBuilder AutoPublishGlobalContentTypes(IList<string> contentTypeAliases)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.AutoPublishGlobalContentTypes = contentTypeAliases;
+			});
+
+			return this;
 		}		
 
 		public XStaticServiceBuilder Build()

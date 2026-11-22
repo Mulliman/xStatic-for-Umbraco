@@ -39,7 +39,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `XStatic/` | Umbraco integration: `XStaticComposer`, Management API controllers (`Controllers/`), DB migrations (`Db/`), user-group setup (`Security/`). NuGet: `XStatic`. |
 | `XStatic14/XStatic14.Client/` | Backoffice UI (Razor Class Library). TypeScript/Lit source in `assets/src`, built by Vite into `wwwroot/App_Plugins/xstatic14`. NuGet: `XStatic.Client`. |
 | `XStatic14/XStatic14/` | Empty shim project that only references the client. No code — don't add any. |
-| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/` | Deployer plugins, each a separate NuGet package. |
+| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/`, `XStatic.Cloudflare/` | Deployer plugins, each a separate NuGet package. |
 | `XStatic.RemoteOperations/` | Client library for triggering xStatic remotely (JWT auth). |
 | `XStatic.Core.Tests/` | xUnit + Moq unit tests. Fast, no Umbraco instance needed. |
 | `XStatic.IntegrationTests/` | NUnit tests on `Umbraco.Cms.Tests.Integration` against a real DB (SQLite by default). |
