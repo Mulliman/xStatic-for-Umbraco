@@ -26,9 +26,9 @@ namespace XStatic.Cloudflare
 
         public IEnumerable<DeployerField> Fields => new[]
         {
-            new DeployerField { Alias = FieldNames.AccountId, Name = "Account ID", EditorUiAlias = UIEditors.Text },
-            new DeployerField { Alias = FieldNames.ApiToken, Name = "API Token", EditorUiAlias = UIEditors.Password },
-            new DeployerField { Alias = FieldNames.ProjectName, Name = "Project Name", EditorUiAlias = UIEditors.Text },
+            new DeployerField { Alias = FieldNames.AccountId, Name = "Account ID *", EditorUiAlias = UIEditors.Text, Help = "Your 32-character Cloudflare Account ID (from the dashboard URL or Workers & Pages overview)." },
+            new DeployerField { Alias = FieldNames.ApiToken, Name = "API Token *", EditorUiAlias = UIEditors.Password, Help = "Cloudflare API Token with Account -> Cloudflare Pages: Edit permission." },
+            new DeployerField { Alias = FieldNames.ProjectName, Name = "Project Name *", EditorUiAlias = UIEditors.Text, Help = "Existing Cloudflare Pages Direct Upload project name (lowercase letters, digits, and hyphens)." },
             new DeployerField { Alias = FieldNames.Branch, Name = "Branch (optional)", EditorUiAlias = UIEditors.Text, Help = "Leave blank to deploy to the project's production branch, or specify a preview branch name." },
             new DeployerField { Alias = FieldNames.EnableMarkdownHeaders, Name = "Generate AI/Markdown _headers", EditorUiAlias = UIEditors.Toggle, Help = "When enabled and no _headers file exists, adds a _headers file with Vary: Accept and text/markdown Content-Type rules for Markdown for Agents." }
         };

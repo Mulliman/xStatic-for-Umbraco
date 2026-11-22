@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XStatic.Core;
 using XStatic.Core.Deploy;
@@ -15,6 +16,8 @@ namespace XStatic.Cloudflare
 {
     public class CloudflarePagesDeploymentTargetCreator : IDeploymentTargetCreator
     {
+        private static readonly Regex ValidProjectNameRegex = new Regex("^[a-z0-9](?:[a-z0-9-]{0,56}[a-z0-9])?$", RegexOptions.Compiled);
+
         private readonly Dictionary<string, string> _parameters;
         private readonly HttpClient _httpClient;
         private readonly bool _ownsHttpClient;
@@ -58,17 +61,24 @@ namespace XStatic.Cloudflare
                 throw new XStaticException("Cloudflare Pages Project Name is required.");
             }
 
+            var trimmedProjectName = projectName.Trim();
+            if (!ValidProjectNameRegex.IsMatch(trimmedProjectName))
+            {
+                throw new XStaticException(
+                    $"Invalid Cloudflare Pages Project Name '{trimmedProjectName}'. Project names must be 1-58 lowercase letters, digits, or hyphens, and cannot start or end with a hyphen.");
+            }
+
             var branch = string.IsNullOrWhiteSpace(productionBranch) ? "main" : productionBranch.Trim();
 
             try
             {
-                var url = $"{_apiBaseUrl}/accounts/{Uri.EscapeDataString(accountId)}/pages/projects";
+                var url = $"{_apiBaseUrl}/accounts/{Uri.EscapeDataString(accountId.Trim())}/pages/projects";
                 using var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
                 request.Content = new StringContent(
                     JsonSerializer.Serialize(new
                     {
-                        name = projectName.Trim(),
+                        name = trimmedProjectName,
                         production_branch = branch
                     }),
                     Encoding.UTF8,
@@ -157,9 +167,9 @@ namespace XStatic.Cloudflare
 
         public IEnumerable<DeployerField> Fields => new[]
         {
-            new DeployerField { Alias = FieldNames.AccountId, Name = "Account ID", EditorUiAlias = UIEditors.Text },
-            new DeployerField { Alias = FieldNames.ApiToken, Name = "API Token", EditorUiAlias = UIEditors.Password },
-            new DeployerField { Alias = FieldNames.ProjectName, Name = "Project Name", EditorUiAlias = UIEditors.Text },
+            new DeployerField { Alias = FieldNames.AccountId, Name = "Account ID *", EditorUiAlias = UIEditors.Text, Help = "Your 32-character Cloudflare Account ID (from the dashboard URL or Workers & Pages overview)." },
+            new DeployerField { Alias = FieldNames.ApiToken, Name = "API Token *", EditorUiAlias = UIEditors.Password, Help = "Cloudflare API Token with Account -> Cloudflare Pages: Edit permission." },
+            new DeployerField { Alias = FieldNames.ProjectName, Name = "Project Name *", EditorUiAlias = UIEditors.Text, Help = "1-58 lowercase letters, digits, or hyphens (cannot start or end with a hyphen; e.g. 'my-umbraco-site')." },
             new DeployerField { Alias = FieldNames.ProductionBranch, Name = "Production Branch", EditorUiAlias = UIEditors.Text, Value = "main", Help = "Defaults to 'main' if left blank." }
         };
     }
