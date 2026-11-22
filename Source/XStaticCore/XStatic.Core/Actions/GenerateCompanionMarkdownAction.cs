@@ -74,7 +74,7 @@ namespace XStatic.Core.Actions
                     var markdown = _markdownConverter.Convert(html, options);
                     var markdownRelativePath = MarkdownPathHelper.GetCompanionMarkdownPath(relativeHtmlPath);
 
-                    await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), markdownRelativePath, markdown, Encoding.UTF8);
+                    await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), markdownRelativePath, markdown, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 }
 
                 return XStaticResult.Success();

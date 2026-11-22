@@ -242,7 +242,7 @@ namespace XStatic.Core.Tests.Actions
                 typeof(GenerateLlmsTxtAction), typeof(XStaticEditableFieldAttribute), inherit: false);
 
             Assert.NotEmpty(attrs);
-            Assert.DoesNotContain(attrs, a => a.EditorUiAlias == UIEditors.Toggle);
+            Assert.Contains(attrs, a => a.FieldName == GenerateLlmsTxtFields.GenerateFullFile && a.EditorUiAlias == UIEditors.Toggle);
         }
 
         [Fact]

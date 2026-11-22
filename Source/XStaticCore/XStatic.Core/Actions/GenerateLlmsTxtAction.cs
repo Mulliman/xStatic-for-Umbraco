@@ -28,9 +28,9 @@ namespace XStatic.Core.Actions
     /// </summary>
     [XStaticEditableField(GenerateLlmsTxtFields.SiteTitle, UIEditors.Text)]
     [XStaticEditableField(GenerateLlmsTxtFields.SiteDescription, UIEditors.TextArea)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Text)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Text)]
-    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Text)]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Toggle)]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Toggle)]
+    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Toggle)]
     [XStaticEditableField(GenerateLlmsTxtFields.ExcludePaths, UIEditors.Text)]
     public class GenerateLlmsTxtAction : PostGenerationActionBase
     {
@@ -91,12 +91,13 @@ namespace XStatic.Core.Actions
                     : rootPage?.Description;
 
                 var llmsTxt = BuildLlmsTxt(siteTitle, siteDescription, pages, useMarkdownLinks);
-                await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), "llms.txt", llmsTxt, Encoding.UTF8);
+                var utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+                await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), "llms.txt", llmsTxt, utf8NoBom);
 
                 if (generateFullFile)
                 {
                     var llmsFullTxt = BuildLlmsFullTxt(siteTitle, siteDescription, pages);
-                    await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), "llms-full.txt", llmsFullTxt, Encoding.UTF8);
+                    await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), "llms-full.txt", llmsFullTxt, utf8NoBom);
                 }
 
                 return XStaticResult.Success();
@@ -156,7 +157,7 @@ namespace XStatic.Core.Actions
 
                     if (generateCompanionMarkdown && !isCompanionFresh)
                     {
-                        await _staticSiteStorer.StoreSiteItem(siteStaticId.ToString(), markdownRelativePath, markdownBody, Encoding.UTF8);
+                        await _staticSiteStorer.StoreSiteItem(siteStaticId.ToString(), markdownRelativePath, markdownBody, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                         hasCompanionMarkdown = true;
                     }
                 }
