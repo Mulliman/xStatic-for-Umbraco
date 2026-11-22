@@ -80,8 +80,10 @@ public class FileSystemAuditReportStore : IAuditReportStore
         var siteReportDir = GetSiteReportDirectory(staticSiteId);
         var resolvedMarkdownPath = ResolveSafePath(siteReportDir, relativeReportPath);
 
+        var utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
         Directory.CreateDirectory(Path.GetDirectoryName(resolvedMarkdownPath)!);
-        await File.WriteAllTextAsync(resolvedMarkdownPath, markdownContent, Encoding.UTF8, cancellationToken)
+        await File.WriteAllTextAsync(resolvedMarkdownPath, markdownContent, utf8NoBom, cancellationToken)
             .ConfigureAwait(false);
 
         if (writeJsonReport)
@@ -89,7 +91,7 @@ public class FileSystemAuditReportStore : IAuditReportStore
             var jsonRelative = Path.ChangeExtension(relativeReportPath, ".json");
             var resolvedJsonPath = ResolveSafePath(siteReportDir, jsonRelative);
             var json = JsonSerializer.Serialize(report, JsonOptions);
-            await File.WriteAllTextAsync(resolvedJsonPath, json, Encoding.UTF8, cancellationToken)
+            await File.WriteAllTextAsync(resolvedJsonPath, json, utf8NoBom, cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -104,7 +106,7 @@ public class FileSystemAuditReportStore : IAuditReportStore
             AiSummaryAvailable: report.AiSummaryAvailable,
             ReportFileName: Path.GetRelativePath(siteReportDir, resolvedMarkdownPath).Replace('\\', '/'));
 
-        await File.WriteAllTextAsync(pointerPath, JsonSerializer.Serialize(metadata, JsonOptions), Encoding.UTF8, cancellationToken)
+        await File.WriteAllTextAsync(pointerPath, JsonSerializer.Serialize(metadata, JsonOptions), utf8NoBom, cancellationToken)
             .ConfigureAwait(false);
 
         return resolvedMarkdownPath;
