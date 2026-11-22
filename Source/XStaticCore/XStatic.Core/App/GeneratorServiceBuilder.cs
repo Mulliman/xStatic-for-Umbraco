@@ -8,6 +8,7 @@ using XStatic.Core.Actions.FileActions;
 using XStatic.Core.AutoPublish;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Markdown;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Rag;
@@ -58,6 +59,8 @@ namespace XStatic.Core.App
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
             _services.AddTransient<FileRenameAction>();
+            _services.AddTransient<GenerateCompanionMarkdownAction>();
+            _services.AddTransient<GenerateLlmsTxtAction>();
             _services.AddTransient<RagExportPostGenerationAction>();
 
             return this;
@@ -76,8 +79,11 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultHtmlGeneratorServices()
         {
+            _services.AddSingleton<IHtmlToMarkdownConverter, HtmlToMarkdownConverter>();
             _services.AddSingleton<StaticHtmlSiteGenerator>();
+            _services.AddSingleton<StaticHtmlWithMarkdownSiteGenerator>();
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
+            _services.AddTransient<GeoHtmlTransformerListFactory>();
 
             return this;
         }
