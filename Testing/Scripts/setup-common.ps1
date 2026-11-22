@@ -34,7 +34,11 @@ Write-Host "Adding Project to Solution..."
 dotnet sln add $InstanceName
 
 Write-Host "Adding clean starter kit..."
-dotnet add $InstanceName package clean
+if ($UmbracoVersion -like "17.*") {
+    dotnet add $InstanceName package clean --version "7.*"
+} else {
+    dotnet add $InstanceName package clean
+}
 
 Write-Host "Enabling AllowConcurrentLogins..."
 $appSettingsPath = Join-Path $InstanceDir "appsettings.Development.json"

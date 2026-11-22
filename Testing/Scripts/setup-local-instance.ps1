@@ -1,9 +1,10 @@
 param (
-    [string]$UmbracoVersion = "17.1.0",
+    [string]$UmbracoVersion = "17.8.2",
     [string]$InstanceName,
     [int]$Port = 5000,
     [string]$BaseDir = "..\Instances",
-    [switch]$IncludeAllExtensions = $false
+    [switch]$IncludeAllExtensions = $false,
+    [switch]$NoStart = $false
 )
 
 # Interactive Mode: specific logic if parameters weren't passed
@@ -61,7 +62,9 @@ $xStaticProject = Join-Path $SourceRoot "XStatic\XStatic.csproj"
 $xStaticNetlify = Join-Path $SourceRoot "XStatic.Netlify\XStatic.Netlify.csproj"
 $xStaticGit = Join-Path $SourceRoot "XStatic.Git\XStatic.Git.csproj"
 $xStaticFtp = Join-Path $SourceRoot "XStatic.Ftp\XStatic.Ftp.csproj"
+$xStaticCloudflare = Join-Path $SourceRoot "XStatic.Cloudflare\XStatic.Cloudflare.csproj"
 $xStaticRemote = Join-Path $SourceRoot "XStatic.RemoteOperations\XStatic.RemoteOperations.csproj"
+$xStaticAi = Join-Path $SourceRoot "XStatic.AI\XStatic.AI.csproj"
 
 Write-Host "Adding Local xStatic Reference..."
 dotnet add $InstanceName reference $xStaticProject
@@ -80,9 +83,17 @@ if ($IncludeAllExtensions) {
     dotnet add $InstanceName reference $xStaticFtp
     if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.Ftp reference"; exit $LASTEXITCODE }
 
+    Write-Host "Adding Local xStatic.Cloudflare Reference..."
+    dotnet add $InstanceName reference $xStaticCloudflare
+    if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.Cloudflare reference"; exit $LASTEXITCODE }
+
     Write-Host "Adding Local xStatic.RemoteOperations Reference..."
     dotnet add $InstanceName reference $xStaticRemote
     if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.RemoteOperations reference"; exit $LASTEXITCODE }
+
+    Write-Host "Adding Local xStatic.AI Reference..."
+    dotnet add $InstanceName reference $xStaticAi
+    if ($LASTEXITCODE -ne 0) { Write-Error "Failed to add xStatic.AI reference"; exit $LASTEXITCODE }
 }
 
 Write-Host "Instance setup complete in $InstanceDir"
@@ -98,6 +109,8 @@ npm run watch
 Set-Content -Path "Start-Watcher.bat" -Value $watcherBatContent
 Write-Host "Created Start-Watcher.bat in $InstanceDir"
 
-# Run Start.bat
-Write-Host "Starting site via Start.bat..."
-& .\Start.bat
+if (-not $NoStart) {
+    # Run Start.bat
+    Write-Host "Starting site via Start.bat..."
+    & .\Start.bat
+}
