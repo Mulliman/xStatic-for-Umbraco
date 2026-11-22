@@ -38,6 +38,8 @@ Detailed documentation for xStatic can be found in the `/Docs` folder of this re
 - [Extending xStatic](https://www.sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic/)
 - [Post-Generation Actions](Docs/Actions.md)
 - [How Deployment Works](Docs/Deployers.md)
+- [xStatic MCP Server (`xstatic-mcp`)](Source/xstatic-mcp/README.md) — Official Model Context Protocol server for Umbraco 17+
+- [xStatic Agent Skill (`SKILL.md`)](.agents/skills/xstatic-umbraco/SKILL.md) — Guidance for coding agents building xStatic v17+ extensions
 
 ---
 

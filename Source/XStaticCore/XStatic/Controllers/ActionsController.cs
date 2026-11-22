@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
@@ -27,6 +28,9 @@ namespace XStatic.Controllers
 
         [HttpGet("get-post-actions")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Actions_GetPostActions")]
+        [EndpointSummary("List post-generation actions")]
+        [EndpointDescription("Returns all configured post-generation actions and their editable field values. Requires the xStaticAdmin role when xStatic roles are enabled.")]
         [ProducesResponseType(typeof(IEnumerable<ActionModel>), StatusCodes.Status200OK)]
         public IEnumerable<ActionModel> GetPostActions()
         {
@@ -37,6 +41,9 @@ namespace XStatic.Controllers
 
         [HttpPost("create-post-action")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Actions_CreatePostAction")]
+        [EndpointSummary("Create a post-generation action")]
+        [EndpointDescription("Creates a new configured post-generation action.")]
         [ProducesResponseType(typeof(ActionModel), StatusCodes.Status200OK)]
         public ActionModel CreatePostAction([FromBody] ActionUpdateModel model)
         {
@@ -55,6 +62,9 @@ namespace XStatic.Controllers
 
         [HttpPost("update-post-action")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Actions_UpdatePostAction")]
+        [EndpointSummary("Update a post-generation action")]
+        [EndpointDescription("Updates an existing configured post-generation action.")]
         [ProducesResponseType(typeof(ActionModel), StatusCodes.Status200OK)]
         public ActionModel UpdatePostAction([FromBody] ActionUpdateModel model)
         {
@@ -74,6 +84,9 @@ namespace XStatic.Controllers
 
         [HttpDelete("delete-post-action")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Actions_DeletePostAction")]
+        [EndpointSummary("Delete a post-generation action")]
+        [EndpointDescription("Deletes a configured post-generation action by ID.")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public void DeletePostAction(int id)
         {
