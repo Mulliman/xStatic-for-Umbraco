@@ -42,12 +42,16 @@ export class ExportTypeContext extends ConfigContextBase {
     }
 
     public async deleteExportType(id: number) : Promise<void> {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Delete Export Type',
-            content: 'Are you sure you want to delete this Export Type?',
-            confirmLabel: 'Delete',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'danger',
+                headline: 'Delete Export Type',
+                content: 'Are you sure you want to delete this Export Type?',
+                confirmLabel: 'Delete',
+            });
+        } catch {
+            return;
+        }
 
         await tryExecute(this, V1Service.deleteApiV1XstaticConfigDeleteExportType({ id : id } ));
         await this.getConfig();

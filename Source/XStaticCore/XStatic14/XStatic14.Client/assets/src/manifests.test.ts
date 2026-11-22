@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import manifests from './manifests';
+import packageManifest from '../public/umbraco-package.json';
 
 describe('xStatic extension manifests', () => {
 	it('exports manifests with non-empty type, alias, and name', () => {
@@ -39,5 +40,19 @@ describe('xStatic extension manifests', () => {
 			'xStatic.xStaticNormalUserCondition',
 			'xStatic.xStaticAdminUserCondition',
 		]);
+	});
+
+	it('has unique aliases across all manifests', () => {
+		const aliases = manifests.map((m) => m.alias);
+		expect(new Set(aliases).size).toBe(aliases.length);
+	});
+
+	it('declares a single backofficeEntryPoint and v17 version in umbraco-package.json', () => {
+		const entryPoints = packageManifest.extensions.filter(
+			(ext) => ext.type === 'backofficeEntryPoint',
+		);
+		expect(entryPoints).toHaveLength(1);
+		expect(entryPoints[0].alias).toBe('XStatic14.EntryPoint');
+		expect(packageManifest.version).toMatch(/^17\./);
 	});
 });

@@ -1,6 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditDeploymentTargetModal } from './dialog.deployment-target';
 import { DeploymentTargetCreatorModal } from './dialog.deployment-target-creator';
@@ -81,7 +80,7 @@ class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
 export default NewDeploymentTargetElement;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-new-deployment-target-element': NewDeploymentTargetElement
     }
 }

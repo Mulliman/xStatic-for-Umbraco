@@ -23,16 +23,22 @@ describe('backoffice entry point onInit', () => {
 		expect(registered.size).toBe(new Set(manifests.map((m) => m.alias)).size);
 
 		expect(authCallback).toBeDefined();
+		let callCount = 0;
+		const tokenFn = vi.fn(async () => `test-jwt-token-${++callCount}`);
 		await authCallback!({
 			getOpenApiConfiguration: () => ({
 				base: 'https://example.test',
-				token: async () => 'test-jwt-token',
+				token: tokenFn,
 				credentials: 'include' as const,
 			}),
 		});
 
 		expect(OpenAPI.BASE).toBe('https://example.test');
-		expect(OpenAPI.TOKEN).toBe('test-jwt-token');
+		expect(typeof OpenAPI.TOKEN).toBe('function');
+		expect(tokenFn).not.toHaveBeenCalled();
+		expect(await (OpenAPI.TOKEN as () => Promise<string>)()).toBe('test-jwt-token-1');
+		expect(await (OpenAPI.TOKEN as () => Promise<string>)()).toBe('test-jwt-token-2');
+		expect(tokenFn).toHaveBeenCalledTimes(2);
 		expect(OpenAPI.WITH_CREDENTIALS).toBe(true);
 		expect(OpenAPI.CREDENTIALS).toBe('include');
 	});
