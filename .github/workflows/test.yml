@@ -37,6 +37,9 @@ jobs:
       - name: 'Unit tests'
         run: dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=unit.trx" --results-directory TestResults
 
+      - name: 'AI unit tests'
+        run: dotnet test Source/XStaticCore/XStatic.AI.Tests/XStatic.AI.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=ai-unit.trx" --results-directory TestResults
+
       - name: 'Integration tests (SQLite)'
         env:
           Tests__Database__DatabaseType: 'SQLite'
