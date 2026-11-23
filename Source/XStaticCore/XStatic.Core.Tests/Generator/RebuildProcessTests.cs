@@ -8,8 +8,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Umbraco.Cms.Core;
+using UmbracoObjectTypes = Umbraco.Cms.Core.Models.UmbracoObjectTypes;
+using Umbraco.Cms.Core.Models.Entities;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.App;
@@ -70,7 +73,7 @@ namespace XStatic.Core.Tests.Generator
             return path;
         }
 
-        private RebuildProcess NewProcess(XStaticGlobalSettings? settings = null)
+        private RebuildProcess NewProcess(XStaticGlobalSettings? settings = null, IEntityService? entityService = null)
         {
             var umbracoContext = new Mock<IUmbracoContext>();
             umbracoContext.Setup(c => c.Content).Returns(_content.Object);
@@ -84,7 +87,7 @@ namespace XStatic.Core.Tests.Generator
                 e.ContentRootPath == _contentRoot && e.WebRootPath == Path.Combine(_contentRoot, "wwwroot"));
 
             return new RebuildProcess(contextFactory.Object, _exportTypes.Object, _sites.Object, environment, _actions.Object,
-                Options.Create(settings ?? new XStaticGlobalSettings()), NullLogger.Instance);
+                Options.Create(settings ?? new XStaticGlobalSettings()), NullLogger.Instance, entityService!);
         }
 
         [Fact]
@@ -208,6 +211,32 @@ namespace XStatic.Core.Tests.Generator
             Assert.True(actionResult.WasSuccessful);
             Assert.Equal("PostAction", actionResult.Type);
             Assert.Equal("Copy", actionResult.Item);
+        }
+
+        [Fact]
+        public async Task RebuildSite_MediaRoot_GeneratesDescendantsListedByTheEntityService()
+        {
+            // The published cache's navigation can report no children (first boot after a package migration created
+            // the media), so the descendants come from the entity service.
+            var rootKey = Guid.NewGuid();
+            var root = Mock.Of<IPublishedContent>(m => m.Id == 100 && m.Key == rootKey);
+            _media.Setup(m => m.GetById(rootKey)).Returns(root);
+            GivenSite(s => s.MediaRootNodes = rootKey.ToString());
+
+            var entities = new Mock<IEntityService>();
+            entities.Setup(e => e.GetDescendants(100, UmbracoObjectTypes.Media)).Returns(new[]
+            {
+                Mock.Of<IEntitySlim>(e => e.Id == 101),
+                Mock.Of<IEntitySlim>(e => e.Id == 102),
+                Mock.Of<IEntitySlim>(e => e.Id == 103 && e.Trashed == true),
+            });
+            _generator.Setup(g => g.GenerateMedia(It.IsAny<int>(), SiteId, It.IsAny<IEnumerable<Crop>>()))
+                .ReturnsAsync((int id, int _, IEnumerable<Crop> _) => GenerateItemResult.Success("Media", id.ToString()));
+
+            var result = await NewProcess(entityService: entities.Object).RebuildSite(SiteId);
+
+            Assert.True(result.WasSuccessful, result.Exception);
+            Assert.Equal(new[] { "100", "101", "102" }, result.Results.Where(r => r.Type == "Media").Select(r => r.Item));
         }
 
         [Fact]

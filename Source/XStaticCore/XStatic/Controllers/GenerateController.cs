@@ -11,6 +11,7 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 
 using XStatic.Core.App;
@@ -35,7 +36,8 @@ namespace XStatic.Controllers
 		IWebHostEnvironment webHostEnvironment,
 		IActionFactory actionFactory,
 		IOptions<XStaticGlobalSettings> globalSettings,
-		ILogger<GenerateController> logger
+		ILogger<GenerateController> logger,
+		IEntityService entityService
 		) : ManagementApiControllerBase
 	{
 		private readonly IUmbracoContextFactory _umbracoContextFactory = umbracoContextFactory;
@@ -45,6 +47,7 @@ namespace XStatic.Controllers
 		private readonly IActionFactory _actionFactory = actionFactory;
 		private readonly IOptions<XStaticGlobalSettings> _globalSettings = globalSettings;
 		private readonly ILogger<GenerateController> _logger = logger;
+		private readonly IEntityService _entityService = entityService;
 
 		[HttpPost("generate-site")]
 		[MapToApiVersion("1.0")]
@@ -54,7 +57,7 @@ namespace XStatic.Controllers
 		[ProducesResponseType(typeof(RebuildProcessResult), StatusCodes.Status200OK)]
 		public async Task<RebuildProcessResult> RebuildStaticSite(int staticSiteId)
 		{
-			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory, _globalSettings, _logger);
+			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory, _globalSettings, _logger, _entityService);
 
 			return await process.RebuildSite(staticSiteId);
 		}
