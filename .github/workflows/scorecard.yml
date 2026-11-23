@@ -1,0 +1,54 @@
+name: "OpenSSF Scorecard"
+
+# The Open Source Security Foundation's Scorecard rates the repository's security practices from 0 to 10
+# (code review, branch protection, dependency updates, pinned dependencies, token permissions, and so on).
+# Results appear under Security → Code scanning. The public score, shown by the README badge, is at
+# https://scorecard.dev/viewer/?uri=github.com/Mulliman/xStatic-for-Umbraco
+#
+# publish_results: true has rules: no top-level env or defaults, only approved actions, and a GitHub-hosted
+# Ubuntu runner. Keep to them when editing this file, or the publish step is rejected.
+
+on:
+  branch_protection_rule:  # re-score when branch protection changes
+  schedule:
+    - cron: '41 2 * * 6'  # Saturdays 02:41 UTC
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: 'Scorecard analysis'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: read
+      actions: read
+      security-events: write  # upload results to code scanning
+      id-token: write         # publish the results so the badge works
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: 'Run Scorecard'
+        uses: ossf/scorecard-action@v2.6.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: 'Upload results as an artifact'
+        uses: actions/upload-artifact@v7
+        with:
+          name: scorecard-results
+          path: results.sarif
+          retention-days: 5
+
+      - name: 'Upload results to code scanning'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif
