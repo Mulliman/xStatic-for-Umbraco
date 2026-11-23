@@ -1,0 +1,1 @@
+xStatic for Umbraco is open source under the MIT licence. This wiki lives in the [`Wiki/` folder of the repository](https://github.com/Mulliman/xStatic-for-Umbraco/tree/master/Wiki): to fix or add a page, edit it there and open a pull request.

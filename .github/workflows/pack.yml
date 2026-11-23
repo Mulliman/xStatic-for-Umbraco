@@ -37,6 +37,9 @@ jobs:
 
       - name: 'Build backoffice client'
         working-directory: ${{ env.FE_PATH }}
+        env:
+          PACKAGE_VERSION: ${{ inputs.version }}
+          DOCS_GIT_REF: ${{ github.ref_name }}
         run: |
           npm ci
           npm run build
