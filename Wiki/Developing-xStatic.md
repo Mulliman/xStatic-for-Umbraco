@@ -54,8 +54,8 @@ There is one branch per Umbraco major version.
 
 | Branch | Umbraco | Status |
 |--------|---------|--------|
-| `master` | 17, becoming 18 | The latest major. `feature/18` merges into it at release |
-| `feature/18` | 18 | In progress |
+| `master` | 18 | The latest major |
+| `feature/18` | 18 | Merged into `master` at 18.0.0 |
 | `lts/17` | 17 (LTS) | Long-term support |
 | `lts/13` | 13 (LTS) | Long-term support |
 

@@ -19,18 +19,19 @@ which Umbraco version, and [Upgrading](Upgrading.md) covers moving between them.
 From your Umbraco project folder, run:
 
 ```powershell
-dotnet add package xStatic --prerelease
+dotnet add package xStatic
 ```
 
 Or add the reference to your `.csproj` yourself:
 
 ```xml
-<PackageReference Include="xStatic" Version="18.*-*" />
+<PackageReference Include="xStatic" Version="18.*" />
 ```
 
-xStatic 18 is currently in beta (`18.0.0-beta`), so the `--prerelease` flag and the `-*` in the version are needed
-until a stable release is published. The same goes for the deployer and other xStatic packages below. Drop the flag
-after that.
+Use the same major version for the deployer and other xStatic packages below.
+
+On **Umbraco 19**, xStatic 19 is in beta (`19.0.0-beta`). Add `--prerelease` (or use `Version="19.*-*"`) to every xStatic
+package until 19.0.0 is released. Without it you get xStatic 18, which doesn't run on Umbraco 19.
 
 That is all the code you need. You don't have to edit `Program.cs`. Start the site (`dotnet run`, or press F5 in your
 editor) and sign in to the backoffice.
