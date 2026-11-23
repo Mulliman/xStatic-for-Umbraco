@@ -87,6 +87,24 @@ namespace XStatic.Core.Generator.Jobs
 			return this;
 		}
 
+		/// <summary>
+		/// Adds media items by id. Ids already added are skipped.
+		/// </summary>
+		public JobBuilder AddMediaIds(IEnumerable<int> mediaIds)
+		{
+			if (mediaIds == null) return this;
+
+			foreach (var id in mediaIds)
+			{
+				if (!job.MediaIds.Contains(id))
+				{
+					job.MediaIds.Add(id);
+				}
+			}
+
+			return this;
+		}
+
 		public JobBuilder AddMediaWithDescendants(IPublishedContent media)
 		{
 			if (media == null) return this;

@@ -186,6 +186,15 @@ If you trusted self-signed certificates with an old code or app setting, use `XS
 `appsettings.json` (available since 17.1.0; from 14.2.0 to 17.0 it can only be set in code with
 `TrustUnsafeSslConnectionWhenGenerating()`). See [Configuration](Configuration.md).
 
+### RebuildProcess needs an IEntityService
+
+This only matters if your own code creates `RebuildProcess` with `new`. In 17.3.1 xStatic added a constructor that
+takes an `IEntityService`, which it uses to list the media under each media root from the database. That fixes media
+missing on a new site's first boot. The old constructor without it was marked obsolete, and 18.0.0 removes it.
+
+Add `IEntityService` to your class's constructor (it's registered in every Umbraco site) and pass it as the last
+argument. The example in [Architecture](Architecture.md#the-generate-pipeline) shows the full call.
+
 ## Behaviour changes in 18.0.0
 
 These changes are also in 17.3.0, so they apply if you move to that release too.

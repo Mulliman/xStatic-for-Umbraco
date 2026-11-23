@@ -62,6 +62,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.App;
@@ -76,12 +77,13 @@ public class SiteBuilder(
     IWebHostEnvironment webHostEnvironment,
     IActionFactory actionFactory,
     IOptions<XStaticGlobalSettings> globalSettings,
-    ILogger<SiteBuilder> logger)
+    ILogger<SiteBuilder> logger,
+    IEntityService entityService)
 {
     public Task<RebuildProcessResult> BuildAsync(int siteId)
     {
         var process = new RebuildProcess(umbracoContextFactory, exportTypeService, sitesRepository,
-            webHostEnvironment, actionFactory, globalSettings, logger);
+            webHostEnvironment, actionFactory, globalSettings, logger, entityService);
 
         return process.RebuildSite(siteId);
     }

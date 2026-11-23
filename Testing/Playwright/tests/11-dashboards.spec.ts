@@ -18,10 +18,12 @@ test.describe('Dashboards', () => {
     test('Documentation dashboard shows built-in wiki documentation and plugins tab', async ({ page }) => {
         await page.goto('/umbraco/section/xstatic/dashboard/xstatic-info');
 
-        await expect(page.getByRole('tab', { name: /Documentation/ })).toBeVisible();
+        // The section's own "Documentation" dashboard tab has the same name, so look inside the docs grid.
+        const docs = page.locator('xstatic-docs-grid');
+        await expect(docs.getByRole('tab', { name: /Documentation/ })).toBeVisible();
         await expect(page.getByRole('heading', { name: /Home/ })).toBeVisible();
 
-        await page.getByRole('tab', { name: /Plugins/ }).click();
+        await docs.getByRole('tab', { name: /Plugins/ }).click();
         await expect(page.getByRole('heading', { name: /Plugins/ })).toBeVisible();
     });
 });

@@ -28,6 +28,7 @@ test.describe.serial('FTP deploy', () => {
     const runId = process.env.TEST_RUN_ID || 'local';
     const siteName = `FTP Site ${runId}`;
     const targetName = `FTP Target ${runId}`;
+    let ftpDeployerInstalled = false;
 
     test.beforeAll(async () => {
         test.skip(!(await ftpServerIsRunning()), `No FTP server on 127.0.0.1:${ftpPort}. Start it with: docker compose -f Testing/Ftp/docker-compose.yml up -d`);
@@ -37,9 +38,13 @@ test.describe.serial('FTP deploy', () => {
         const targets = new DeploymentTargetPage(page);
         await targets.goto();
         await page.getByRole('button', { name: 'Manually Configure New' }).click();
-        const deployerOptions = await page.getByLabel('Field for Deployer *').locator('option').allTextContents();
+        const deployerSelect = page.getByLabel('Field for Deployer *');
+        // The options load after the form opens. File System is always installed, so once it's listed the rest are too.
+        await expect(deployerSelect.locator('option', { hasText: 'File System' })).toBeAttached();
+        const deployerOptions = await deployerSelect.locator('option').allTextContents();
         await page.getByRole('button', { name: 'Cancel' }).click();
-        test.skip(!deployerOptions.some(o => /ftp/i.test(o)), 'The FTP deployer is not installed in this test site (setup-local-instance.ps1 -IncludeAllExtensions).');
+        ftpDeployerInstalled = deployerOptions.some(o => /ftp/i.test(o));
+        test.skip(!ftpDeployerInstalled, 'The FTP deployer is not installed in this test site (setup-local-instance.ps1 -IncludeAllExtensions).');
 
         await targets.create(targetName, 'ftp', {
             Hostname: '127.0.0.1',
@@ -57,6 +62,8 @@ test.describe.serial('FTP deploy', () => {
     });
 
     test('Deploy uploads the site, replaces old files and removes ones no longer in the site', async ({ page }) => {
+        test.skip(!ftpDeployerInstalled, 'The FTP deployer is not installed in this test site, so no FTP site was set up.');
+
         // What an earlier deploy might have left: an out-of-date home page and a page since deleted.
         fs.rmSync(remoteSite, { recursive: true, force: true });
         fs.mkdirSync(remoteSite, { recursive: true });
