@@ -43,7 +43,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Testing/Ftp/` | Docker Compose FTP server (vsftpd) for checking the FTP deployer by hand or with Playwright spec 13. |
 | `Wiki/` | The user and developer documentation, published to the GitHub wiki by `.github/workflows/wiki.yml` when `master` changes. Flat Markdown pages plus `_Sidebar.md`; style guide, content plan and checker in `Tools/Wiki/`. `Docs/` only points to it now. |
-| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. `codeql.yml` and `scorecard.yml` are security scans, and `dependabot.yml` covers `master`, `lts/17` and `feature/19`. Details: `Testing.md`; release steps: `RELEASING.md`; supported versions and how to report a vulnerability: `SECURITY.md`. |
+| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. `codeql.yml` and `scorecard.yml` are security scans, `dependabot-automerge.yml` auto-merges minor and patch Dependabot PRs, and `dependabot.yml` covers `master`, `lts/17` and `feature/19`. Details: `Testing.md`; release steps: `RELEASING.md`; supported versions and how to report a vulnerability: `SECURITY.md`. |
 
 ## Commands
 

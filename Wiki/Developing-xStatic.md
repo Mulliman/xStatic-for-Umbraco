@@ -150,9 +150,11 @@ silently.
 | `wiki.yml` | Changes to `Wiki/` | Checks the wiki, and publishes it when `master` changes |
 | `codeql.yml` | Every pull request, pushes to `master`, `feature/**` and `lts/**`, and weekly | Scans the C#, TypeScript and workflow files for security problems. Findings show under **Security** then **Code scanning**, and on the pull request |
 | `scorecard.yml` | Pushes to `master`, and weekly | Rates the repository's security practices with the OpenSSF Scorecard, and publishes the score shown on the README |
+| `dependabot-automerge.yml` | Dependabot pull requests | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates wait for a person |
 
 Dependabot (`.github/dependabot.yml`) opens grouped update pull requests once a month for `master`, `lts/17` and
-`feature/19`. It leaves Umbraco packages alone, because they are bumped together by hand. To report a security problem, see
+`feature/19`. It leaves Umbraco packages alone, because they are bumped together by hand. Minor and patch updates merge
+themselves once the required checks pass; major updates wait for review. To report a security problem, see
 [SECURITY.md](../SECURITY.md).
 
 All seven packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push

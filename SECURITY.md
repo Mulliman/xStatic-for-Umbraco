@@ -81,7 +81,9 @@ xStatic is maintained by one volunteer, so these are targets rather than guarant
 - Packages are built, tested and pushed to nuget.org by GitHub Actions, using
   [NuGet Trusted Publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing), so no long-lived NuGet
   API key exists.
-- [Dependabot](.github/dependabot.yml) proposes dependency updates for each supported branch.
+- [Dependabot](.github/dependabot.yml) proposes dependency updates for each supported branch. Minor and patch
+  updates, including security fixes, merge automatically once the required checks pass. Workflow actions are pinned
+  to commit SHAs.
 - [CodeQL](.github/workflows/codeql.yml) scans the C#, TypeScript and workflow code on every pull request and push.
 - The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Mulliman/xStatic-for-Umbraco) checks the
   repository's security practices every week.
