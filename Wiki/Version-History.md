@@ -89,8 +89,8 @@ The long-term support line continues on the `lts/17` branch.
 
 ### v18: Umbraco 18 (2026)
 
-The upgrade to Umbraco 18 landed on 2 October 2026 (18.0.0-alpha), with a beta on 17 November. See
-[What's new in 18.0.0](#whats-new-in-1800).
+The upgrade to Umbraco 18 landed on 2 October 2026 (18.0.0-alpha), with a beta on 17 November and the 18.0.0 release
+on 23 November. See [What's new in 18.0.0](#whats-new-in-1800).
 
 ## Releases
 
@@ -99,7 +99,9 @@ grouped. The newest are first.
 
 | Release | Date | Notes |
 |---------|------|-------|
-| v18.0.0 | not yet released | Umbraco 18.3.2 and .NET 10 |
+| v18.0.0 | 2026-11-23 | Umbraco 18.3.2 and .NET 10, everything in 17.3.0 and 17.3.1 |
+| v17.3.1 | 2026-11-23 | Media generated on a new site's first boot |
+| v17.3.0 | 2026-11-23 | Cloudflare deployer, MCP server, AI/GEO output, RAG and WebMCP export, `xStatic.AI`, docs in the backoffice |
 | v18.0.0-beta | 2026-11-17 | Beta of the 18 line |
 | v17.3.0-beta | 2026-11-17 | v13 site upgrade, missing asset path reporting |
 | v17.2.1 | 2026-11-17 | Build fix |
@@ -133,11 +135,21 @@ a local default, and the packages take their version from the tag. See
 ## What's new in 18.0.0
 
 18.0.0 requires **Umbraco 18.3.2 or later** and .NET 10. The theme is that xStatic now tells you when something went
-wrong, where before it could report success. Nothing was released yet at the time of writing, so check the
-[GitHub releases](https://github.com/Mulliman/xStatic-for-Umbraco/releases) for the final notes.
+wrong, where before it could report success. The [GitHub release](https://github.com/Mulliman/xStatic-for-Umbraco/releases/tag/v18.0.0)
+has the same notes.
 
 Most of the fixes below were also made on the `lts/17` branch, so they ship in **17.3.0 and 18.0.0**. They are not in the
 17.3.0-beta or 18.0.0-beta pre-releases, apart from missing asset path reporting and the v13 site upgrade.
+
+**New in 17.3.0 and 18.0.0**
+
+- [Cloudflare Pages and R2 deployers](Deploying-to-Cloudflare.md), in the new `xStatic.Cloudflare` package.
+- Companion Markdown pages, `/llms.txt` and `/llms-full.txt` ([AI and GEO](AI-and-GEO.md)).
+- RAG chunk export and a WebMCP index ([RAG and WebMCP](RAG-and-WebMCP.md)).
+- The `xstatic-mcp` MCP server and an agent skill ([MCP server and agent skill](MCP-Server-and-Agent-Skill.md)).
+- The optional `xStatic.AI` package with a pre-deploy GEO/SEO audit ([AI integration](AI-Integration.md)).
+- Relation-based auto publish for shared content ([Auto publish](Auto-Publish.md)).
+- This wiki is built into the backoffice **Documentation** tab.
 
 **Reporting and reliability**
 
@@ -155,6 +167,7 @@ Most of the fixes below were also made on the `lts/17` branch, so they ship in *
 - `DoNotDeletePaths` takes effect, from `appsettings.json`.
 - Sites upgraded from xStatic 13 load, and are migrated automatically.
 - Document types can be excluded from generation (`XStatic:ExcludeGeneratingDocTypes`).
+- Media under a site's media roots is listed from the database, so it is generated on a new site's first boot (17.3.1).
 
 **Housekeeping**
 

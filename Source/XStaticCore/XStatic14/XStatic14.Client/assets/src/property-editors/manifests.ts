@@ -23,7 +23,7 @@ export const dynamicFormSchema : ManifestPropertyEditorSchema = {
 export const deploymentTargetSchema : ManifestPropertyEditorSchema = {
   type: 'propertyEditorSchema',
   name: 'Deployment Target Editor Schema',
-  alias: 'xstatic.schema.dynamicForm',
+  alias: 'xstatic.schema.deploymentTarget',
   meta: {
       defaultPropertyEditorUiAlias: 'xstatic.propertyEditorUi.dynamicForm',
       settings: {

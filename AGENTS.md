@@ -11,8 +11,8 @@ path or convention below, update this file in the same change.
 
 | Branch       | Umbraco | .NET   | Package version | Status                                |
 |--------------|---------|--------|-----------------|---------------------------------------|
-| `master`     | 17 → 18 | net10.0| 17.x → 18.x     | Latest major; becomes 18 at release   |
-| `feature/18` | 18      | net10.0| 18.0.0-beta     | In progress                           |
+| `master`     | 18      | net10.0| 18.x            | Latest major                          |
+| `feature/18` | 18      | net10.0| 18.x            | Merged into `master` at 18.0.0        |
 | `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
 | `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
 | `feature/NN` | NN      |        |                 | Older majors, historical              |
@@ -35,7 +35,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `XStatic/` | Umbraco integration: `XStaticComposer`, Management API controllers (`Controllers/`), DB migrations (`Db/`), user-group setup (`Security/`). NuGet: `XStatic`. |
 | `XStatic14/XStatic14.Client/` | Backoffice UI (Razor Class Library). TypeScript/Lit source in `assets/src`, built by Vite into `wwwroot/App_Plugins/xstatic14`. NuGet: `XStatic.Client`. |
 | `XStatic14/XStatic14/` | Empty shim project that only references the client. No code — don't add any. |
-| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/` | Deployer plugins, each a separate NuGet package. |
+| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/`, `XStatic.Cloudflare/` | Deployer plugins, each a separate NuGet package. |
 | `XStatic.RemoteOperations/` | Client library for triggering xStatic remotely (JWT auth). |
 | `XStatic.Core.Tests/` | xUnit + Moq unit tests. Fast, no Umbraco instance needed. |
 | `XStatic.IntegrationTests/` | NUnit tests on `Umbraco.Cms.Tests.Integration` against a real DB (SQLite by default). |
@@ -63,7 +63,8 @@ dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj
 
 # Frontend (from Source/XStaticCore/XStatic14/XStatic14.Client/assets)
 npm ci
-npx tsc --noEmit      # type-check, run on every UI change
+npm run check         # tsc --noEmit + eslint + vitest, run on every UI change
+npm test              # Vitest unit & Lit component tests
 npm run build         # tsc + vite build into ../wwwroot/App_Plugins/xstatic14
 npm run watch         # dev loop against a local test instance
 ```
@@ -78,7 +79,7 @@ unless such an instance is running — say so instead.
 2. Unit tests pass. Add or update tests for any logic you changed in `XStatic.Core` (most of it is untested;
    transformers, file-name generators and path helpers are pure and easy to cover).
 3. If you touched `XStatic/Db/` or V13 upgrade code, run the integration tests too.
-4. If you touched the UI, `npx tsc --noEmit` passes.
+4. If you touched the UI, `npm run check` passes with no new ESLint warnings in the files you touched.
 5. Say which checks you ran and which you couldn't (for example, Playwright without an instance).
 
 ## Do not edit / generated code

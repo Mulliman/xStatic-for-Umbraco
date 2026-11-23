@@ -19,18 +19,16 @@ which Umbraco version, and [Upgrading](Upgrading.md) covers moving between them.
 From your Umbraco project folder, run:
 
 ```powershell
-dotnet add package xStatic --prerelease
+dotnet add package xStatic
 ```
 
 Or add the reference to your `.csproj` yourself:
 
 ```xml
-<PackageReference Include="xStatic" Version="18.*-*" />
+<PackageReference Include="xStatic" Version="18.*" />
 ```
 
-xStatic 18 is currently in beta (`18.0.0-beta`), so the `--prerelease` flag and the `-*` in the version are needed
-until a stable release is published. The same goes for the deployer and other xStatic packages below. Drop the flag
-after that.
+Use the same major version for the deployer and other xStatic packages below.
 
 That is all the code you need. You don't have to edit `Program.cs`. Start the site (`dotnet run`, or press F5 in your
 editor) and sign in to the backoffice.
@@ -50,7 +48,9 @@ xStatic is split into several NuGet packages. Most sites need `xStatic` plus one
 | `xStatic.Netlify` | The [Netlify deployer](Deploying-to-Netlify.md), including the **Netlify Site Creator** | You host on Netlify |
 | `xStatic.Git` | The [Git deployer](Deploying-with-Git.md), used for GitHub Pages and similar | You host from a Git repository |
 | `xStatic.Ftp` | The [FTP deployer](Deploying-to-FTP.md) | You host on an FTP server |
+| `xStatic.Cloudflare` | The [Cloudflare Pages and R2 deployers](Deploying-to-Cloudflare.md), project creator, and `_headers`/`_redirects` actions | You host on Cloudflare Pages or Cloudflare R2 |
 | `xStatic.RemoteOperations` | A .NET client for [triggering xStatic remotely](Remote-Operations.md) with an Umbraco API user | You want builds from a scheduler or another application |
+| `xStatic.AI` | Optional [AI pre-deploy GEO/SEO audit and agent tools](AI-Integration.md) built on `Microsoft.Extensions.AI` | You want automated pre-deploy audits or `Umbraco.AI.Agent` integration |
 
 The **File System** deployer is built into `xStatic.Core`, so you don't need a package to
 [deploy to a folder](Deploying-to-a-Folder.md).

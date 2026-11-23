@@ -20,5 +20,7 @@ namespace XStatic.Core
         public string FieldName { get; }
 
         public string EditorUiAlias { get; set; } = "Umb.PropertyEditorUi.TextBox";
+
+        public string DefaultValue { get; set; }
     }
 }

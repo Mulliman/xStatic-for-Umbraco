@@ -48,12 +48,16 @@ export class ActionContext extends ConfigContextBase {
     }
 
     public async deleteAction(id: number) : Promise<void> {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Delete Action',
-            content: 'Are you sure you want to delete this Action?',
-            confirmLabel: 'Delete',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'danger',
+                headline: 'Delete Action',
+                content: 'Are you sure you want to delete this Action?',
+                confirmLabel: 'Delete',
+            });
+        } catch {
+            return;
+        }
 
         await tryExecute(this, V1Service.deleteApiV1XstaticActionsDeletePostAction({ id : id } ));
         await this.#getActions();

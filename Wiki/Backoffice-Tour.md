@@ -13,7 +13,7 @@ section header is a dashboard.
 | [Deployment Targets](#deployment-targets) | Admins only | Set up where sites are deployed to |
 | [Actions](#actions) | Admins only | Set up steps that run after generation |
 | [Config](#config) | Normal users and admins | See which components are installed |
-| [Documentation](#documentation) | Normal users and admins | Links to docs and plugins |
+| [Documentation](#documentation) | Normal users and admins | Read the built-in xStatic docs and browse plugins |
 
 The tabs appear in that order, with **xStatic Sites** first.
 
@@ -134,14 +134,10 @@ target and action dialogs. See [Architecture](Architecture.md) for how component
 
 ## Documentation
 
-A list of links, loaded from the internet when you open the tab. It has two groups:
+The **Documentation** tab has two sub-views, both built directly into `xStatic.Client` so they work offline without leaving the backoffice:
 
-- **Documentation**: cards with a **Read on external site** button, for the original website guides.
-- **Plugins**: community and official plugins, with **NuGet** and **Git Repo** buttons and an **Author** line.
-
-The content comes from `https://xstaticplugins.netlify.app/help.json` and `plugins.json`, not from your installed
-package, so it stays current between releases. If your browser can't reach that address, the two headings still show but there are no cards under them.
-This wiki is the full documentation.
+- **Documentation**: the full xStatic wiki for your installed version. Use the sidebar to browse topics, search across page titles, headings and body text, copy code snippets, or open any page on GitHub.
+- **Plugins**: official xStatic add-on packages available for your version (deployers, AI integration, remote operations and the MCP server), with direct links to their built-in documentation, NuGet and GitHub source.
 
 ## Languages and wording
 

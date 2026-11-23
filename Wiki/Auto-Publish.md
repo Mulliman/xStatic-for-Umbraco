@@ -49,9 +49,42 @@ For a busy editorial team or a large site, a scheduled build is usually kinder t
 
 You can also leave **Auto Publish** off and press **Generate** and **Deploy** yourself ([Generating and deploying](Generating-and-Deploying.md)).
 
-## Replacing the behaviour
+## Shared content and relation-based auto publish
 
-Auto publishing goes through the `IAutoPublisher` interface. If you register your own implementation you can change which sites are built or add debouncing. See [Extending xStatic](Extending-xStatic.md).
+By default, auto publish checks whether the published node sits under a site's **Root Node** (`PathBasedAutoPublishSiteResolver`). If you keep shared content or reusable components outside a site's content tree (for example in a top-level `/Shared` or `/Library` folder), publishing those items won't trigger auto publish unless you enable relation-based resolution.
+
+Add these optional settings to `appsettings.json` (and restart the site):
+
+```json
+{
+  "XStatic": {
+    "EnableRelationBasedAutoPublish": true,
+    "AutoPublishMaxRelationDepth": 5,
+    "AutoPublishGlobalContentTypes": [ "globalNavigation", "sharedFooter" ]
+  }
+}
+```
+
+When enabled:
+
+- `RelationBasedAutoPublishSiteResolver` walks upstream Umbraco `umbDocument` reference relations (up to `AutoPublishMaxRelationDepth`, ignoring trashed nodes and copy relations) to find any referencing pages under an auto-publish site.
+- Publishing any node whose document type alias is listed in `AutoPublishGlobalContentTypes` triggers a rebuild of all auto-publish sites.
+
+## Replacing or extending the behaviour
+
+Auto publishing goes through `IAutoPublisher` and composable `IAutoPublishSiteResolver` implementations. To add a custom site resolver (for example for a custom shared content or Library reference model), register it on the builder:
+
+```csharp
+using XStatic.Core.App;
+
+builder.Services.AddXStatic()
+    .Automatic()
+    .EnableRelationBasedAutoPublish(true)
+    .AddAutoPublishSiteResolver<MyCustomSiteResolver>()
+    .Build();
+```
+
+You can also replace `IAutoPublisher` completely to add debouncing or custom scheduling. See [Extending xStatic](Extending-xStatic.md) and [Configuration](Configuration.md).
 
 ## Next steps
 

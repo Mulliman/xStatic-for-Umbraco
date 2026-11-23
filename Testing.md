@@ -59,6 +59,8 @@ These create and remove their own data, so they only depend on the login:
 - `12-parameterless-action.spec.ts`: an action type with no parameters can be created, edited and deleted.
 - `13-ftp-deploy.spec.ts`: deploys through the backoffice to the Docker FTP server. Skipped unless that server is
   running; see [FTP deployer](#-ftp-deployer).
+- `14-typed-fields-and-ai-output.spec.ts`: checks Toggle/Integer editable field persistence on actions and verifies
+  companion `.md`, `MarkdownDiscoveryTransformer`, `/llms.txt`, `/llms-full.txt`, RAG JSONL chunks and `webmcp-index.json`.
 
 ## 📡 FTP deployer
 The FTP deployer is tested in two ways.

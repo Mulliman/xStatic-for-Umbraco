@@ -31,7 +31,7 @@ namespace XStatic.Core.Models
 
             var attrs = type?.GetCustomAttributes(typeof(XStaticEditableFieldAttribute), false)
                 ?.Cast<XStaticEditableFieldAttribute>()
-                ?.Select(a => new ConfigurableTypeField { Name = a.FieldName, Value = "", EditorUiAlias = a.EditorUiAlias });
+                ?.Select(a => new ConfigurableTypeField { Name = a.FieldName, Value = a.DefaultValue ?? "", EditorUiAlias = a.EditorUiAlias });
 
             if(attrs?.Any() == true)
             {

@@ -14,26 +14,28 @@ export class SiteContext extends ConfigContextBase {
 
     #isSiteDependenciesLoaded: boolean = false;
 
+    #onXStaticEvent = () => {
+        this.#isSitesLoaded.setValue(false);
+        this.#isSiteDependenciesLoaded = false;
+
+        this.#initSites();
+        this.#initSiteDependencies();
+        this.refreshData();
+    };
+
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(SITE_CONTEXT_TOKEN, this);
 
-		window.addEventListener("xStaticEvent", () => {
-            this.#isSitesLoaded.setValue(false); 
-            this.#isSiteDependenciesLoaded = false; 
-
-            this.#initSites();
-            this.#initSiteDependencies();
-            this.refreshData();
-        });
+        window.addEventListener("xStaticEvent", this.#onXStaticEvent);
     }
 
     override destroy(): void {
-		window.removeEventListener("xStaticEvent", () => {});
-        
+        window.removeEventListener("xStaticEvent", this.#onXStaticEvent);
+
         super.destroy();
-	}
+    }
 
     #sites = new UmbArrayState<SiteApiModel>([], (x) => x.id);
     public get sites() : Observable<SiteApiModel[]> { return this.#initSites(); }
@@ -165,7 +167,7 @@ export class SiteContext extends ConfigContextBase {
     public async downloadSite(id: number): Promise<void> {
         const date = new Date();
         
-        const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+        const dateString = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
 
         const data = await tryExecute(this, V1Service.getApiV1XstaticDownloadDownloadSite({ staticSiteId: id }));
         blobDownload(data, `xStatic Site Download-${id}-${dateString}.zip`, 'application/zip');

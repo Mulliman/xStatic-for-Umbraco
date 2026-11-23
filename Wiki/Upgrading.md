@@ -23,15 +23,14 @@ These apply to every upgrade.
    version. The minimum Umbraco version is the one xStatic was built against: for 18.0.0 that is **Umbraco 18.3.2**.
 3. **Update every xStatic package together, to the same version.** The packages are released as a set, so don't mix versions:
    - `xStatic` (required, it brings in `xStatic.Core` and `xStatic.Client`)
-   - `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp` (only the deployers you use)
+   - `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`, `xStatic.Cloudflare` (only the deployers you use)
+   - `xStatic.AI` (only if you use [AI integration](AI-Integration.md))
    - `xStatic.RemoteOperations` (only if you use [Remote operations](Remote-Operations.md))
 
    ```powershell
    dotnet add package xStatic --version 18.0.0
    dotnet add package xStatic.Netlify --version 18.0.0
    ```
-
-   Until 18.0.0 is released, only `18.0.0-beta` exists, so use `--version 18.0.0-beta` (or add `--prerelease`).
 
 4. **Remove any `xStatic` registration code you no longer need.** Since 14.1.0 `XStaticComposer` registers xStatic
    for you; see [Registration code](#registration-code-startupcs-and-programcs).
@@ -185,6 +184,15 @@ ends with one of the values. See [Configuration](Configuration.md) and
 If you trusted self-signed certificates with an old code or app setting, use `XStatic:TrustSslWhenGenerating` in
 `appsettings.json` (available since 17.1.0; from 14.2.0 to 17.0 it can only be set in code with
 `TrustUnsafeSslConnectionWhenGenerating()`). See [Configuration](Configuration.md).
+
+### RebuildProcess needs an IEntityService
+
+This only matters if your own code creates `RebuildProcess` with `new`. In 17.3.1 xStatic added a constructor that
+takes an `IEntityService`, which it uses to list the media under each media root from the database. That fixes media
+missing on a new site's first boot. The old constructor without it was marked obsolete, and 18.0.0 removes it.
+
+Add `IEntityService` to your class's constructor (it's registered in every Umbraco site) and pass it as the last
+argument. The example in [Architecture](Architecture.md#the-generate-pipeline) shows the full call.
 
 ## Behaviour changes in 18.0.0
 
