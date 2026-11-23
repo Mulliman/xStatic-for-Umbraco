@@ -1,0 +1,27 @@
+# A local FTP server for testing the FTP deployer by hand or with Playwright (tests/13-ftp-deploy.spec.ts).
+# See Testing.md, "FTP deployer".
+#
+#   docker compose -f Testing/Ftp/docker-compose.yml up -d
+#   docker compose -f Testing/Ftp/docker-compose.yml down
+#
+# Deployment target: Hostname 127.0.0.1, Port 2121, Username xstest, Password xstestpw, Folder /home/xstest/site.
+# Uploaded files appear in Testing/Ftp/data/site.
+services:
+  ftp:
+    # vsftpd. Pinned by digest so the tests don't change underneath us.
+    image: delfer/alpine-ftp-server@sha256:b27013e7436cea343826ba7edb77aa3a8b2d22df14e366b82d10a3b0b5ecc880
+    container_name: xstatic-ftp
+    ports:
+      - "2121:21"
+      # Passive data ports. Each host port must match the container port, because the server tells the client the
+      # port number to connect to. Without these, logging in works but no file can be transferred.
+      - "21100-21110:21100-21110"
+    environment:
+      USERS: "xstest|xstestpw|/home/xstest"
+      MIN_PORT: "21100"
+      MAX_PORT: "21110"
+      # The address sent in PASV replies. Without it the server sends its internal Docker IP, which the host can't
+      # reach. FluentFTP uses EPSV, which sends only a port, but other FTP clients need this.
+      ADDRESS: "127.0.0.1"
+    volumes:
+      - ./data:/home/xstest

@@ -27,7 +27,8 @@ Playwright tests reside in `Testing/Playwright`. These verify the entire flow fr
 
 ### 📋 Prerequisites
 1.  **A running Umbraco instance** on port 5000 (see [Setup Scripts](#-setup-scripts)).
-2.  **Node.js** installed on your machine.
+2.  **Node.js** and **Google Chrome** installed on your machine. The tests run in the installed Chrome
+    (`channel: 'chrome'`), so `npx playwright install` isn't needed.
 3.  **Dependencies**: Run `npm install` in the `Testing/Playwright` directory.
 
 ### 🏃 Running Tests
@@ -45,6 +46,70 @@ Tests are numbered to run in a specific order to maintain state:
 4.  `03-operations.spec.ts`: Triggers generation/deploy and verifies output.
 5.  `04-issue70.spec.ts`: Regression tests for specific fixes.
 6.  `05-cleanup.spec.ts`: Removes test data (sites, actions) from the instance.
+7.  `06-issue77.spec.ts`: Regression test for issue #77.
+
+These create and remove their own data, so they only depend on the login:
+
+- `07-output.spec.ts`: checks what's generated (pages, assets, media, image crops, post-generation action output),
+  what Deploy copies to a folder, and that Clean keeps the do-not-delete paths.
+- `08-json-export.spec.ts`: a JSON export type produces valid JSON.
+- `09-security.spec.ts`: every xStatic API endpoint rejects anonymous requests.
+- `10-validation.spec.ts`: empty create forms aren't submitted.
+- `11-dashboards.spec.ts`: the Config and Documentation dashboards load.
+- `12-parameterless-action.spec.ts`: an action type with no parameters can be created, edited and deleted.
+- `13-ftp-deploy.spec.ts`: deploys through the backoffice to the Docker FTP server. Skipped unless that server is
+  running; see [FTP deployer](#-ftp-deployer).
+- `14-typed-fields-and-ai-output.spec.ts`: checks Toggle/Integer editable field persistence on actions and verifies
+  companion `.md`, `MarkdownDiscoveryTransformer`, `/llms.txt`, `/llms-full.txt`, RAG JSONL chunks and `webmcp-index.json`.
+
+## 📡 FTP deployer
+The FTP deployer is tested in two ways.
+
+**In the unit tests (runs in CI).** `XStatic.Core.Tests/Deploy/FtpDeployerServerTests.cs` runs the real deployer against
+an FTP server inside the test process (FubarDev.FtpServer), so it needs nothing installed. It covers uploads, updating
+and removing files, and a blocked passive data connection.
+
+**Against a real FTP server in Docker (by hand).** `Testing/Ftp/docker-compose.yml` runs vsftpd:
+
+```powershell
+docker compose -f Testing/Ftp/docker-compose.yml up -d
+```
+
+Then either create an FTP deployment target in the backoffice (Hostname `127.0.0.1`, Port `2121`, Username `xstest`,
+Password `xstestpw`, Folder `/home/xstest/site`) and deploy, or run the Playwright spec:
+
+```powershell
+npx playwright test --project=chromium-ftp
+```
+
+Uploaded files appear in `Testing/Ftp/data/site` (gitignored). The test site needs the FTP deployer installed: create it
+with `setup-local-instance.ps1 -IncludeAllExtensions`, or add a reference to `XStatic.Ftp.csproj`. Stop the server with
+`docker compose -f Testing/Ftp/docker-compose.yml down`.
+
+FTP opens a separate connection for each file transfer, on a "passive" port the server picks. The compose file
+publishes that port range (21100–21110) and sets the address the server announces. Without the ports, logging in and
+creating folders work but no file can be transferred, which the deployer reports as a failed deploy.
+
+## 🤖 Continuous Integration
+| Workflow | When | What |
+|----------|------|------|
+| `ci.yml` | Every PR, and every push to `master` / `feature/**` / `lts/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
+| `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. |
+| `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
+| `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
+
+**Preview versions** come from the nearest `v*` tag (`.github/scripts/Get-PreviewVersion.ps1`): PRs get
+`18.0.0-pr.<PR>.<run>`, and branch pushes get `18.0.0-preview.<run>`. If the nearest tag is a full release such as
+`v17.2.1`, previews target the next patch (`17.2.2-preview.<run>`). PRs from forks and Dependabot run the tests and pack,
+but can't publish to the feed; their packages are in the run's artifact.
+
+**Installing a preview:** GitHub Packages needs a personal access token (classic) with `read:packages`, even for public
+packages:
+
+```powershell
+dotnet nuget add source "https://nuget.pkg.github.com/Mulliman/index.json" --name xstatic-preview --username <github-username> --password <token>
+dotnet add package xStatic --version 18.0.0-preview.42 --source xstatic-preview
+```
 
 ### ⚙️ Configuration
 Settings are managed in `Testing/Playwright/playwright.config.ts`:

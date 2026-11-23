@@ -22,7 +22,10 @@ export class DeploymentTargetPage extends BasePage {
         await this.page.getByLabel('Field for Deployer *').selectOption(deployer);
 
         for (const [key, value] of Object.entries(config)) {
-            await this.page.getByRole('textbox', { name: `Field for ${key}` }).fill(value);
+            // xStatic's password editor renders an input with no accessible name, so find it through its property.
+            const textbox = this.page.getByRole('textbox', { name: `Field for ${key}` });
+            const field = (await textbox.count()) > 0 ? textbox : this.page.locator(`umb-property[label="${key}"] input`);
+            await field.fill(value);
         }
 
         await this.page.getByRole('button', { name: 'Submit' }).click();

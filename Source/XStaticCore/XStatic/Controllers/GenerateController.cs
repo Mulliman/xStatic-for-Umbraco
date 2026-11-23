@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 
 using XStatic.Core.App;
@@ -34,7 +36,8 @@ namespace XStatic.Controllers
 		IWebHostEnvironment webHostEnvironment,
 		IActionFactory actionFactory,
 		IOptions<XStaticGlobalSettings> globalSettings,
-		ILogger<GenerateController> logger
+		ILogger<GenerateController> logger,
+		IEntityService entityService
 		) : ManagementApiControllerBase
 	{
 		private readonly IUmbracoContextFactory _umbracoContextFactory = umbracoContextFactory;
@@ -44,13 +47,17 @@ namespace XStatic.Controllers
 		private readonly IActionFactory _actionFactory = actionFactory;
 		private readonly IOptions<XStaticGlobalSettings> _globalSettings = globalSettings;
 		private readonly ILogger<GenerateController> _logger = logger;
+		private readonly IEntityService _entityService = entityService;
 
 		[HttpPost("generate-site")]
 		[MapToApiVersion("1.0")]
+		[EndpointName("Generate_GenerateSite")]
+		[EndpointSummary("Generate a static site")]
+		[EndpointDescription("Crawls Umbraco content, media, and assets, applies configured transformers, writes static files to storage, and executes post-generation actions for the specified static site.")]
 		[ProducesResponseType(typeof(RebuildProcessResult), StatusCodes.Status200OK)]
 		public async Task<RebuildProcessResult> RebuildStaticSite(int staticSiteId)
 		{
-			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory, _globalSettings, _logger);
+			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepo, _webHostEnvironment, _actionFactory, _globalSettings, _logger, _entityService);
 
 			return await process.RebuildSite(staticSiteId);
 		}

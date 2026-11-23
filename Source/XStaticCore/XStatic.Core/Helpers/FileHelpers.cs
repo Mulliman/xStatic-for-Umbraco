@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -7,6 +8,20 @@ namespace XStatic.Core.Helpers
     public static class FileHelpers
     {
         public static readonly string[] DefaultNonDeletePaths = new[] { ".git", "CNAME" };
+
+        /// <summary>
+        /// Returns the paths to keep when clearing a site's output: the configured paths, or
+        /// <see cref="DefaultNonDeletePaths"/> when none are configured.
+        /// </summary>
+        public static string[] GetDoNotDeletePaths(IEnumerable<string> configuredPaths)
+        {
+            var paths = configuredPaths?
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => p.Trim())
+                .ToArray();
+
+            return paths?.Length > 0 ? paths : DefaultNonDeletePaths;
+        }
 
         public static string PathCombine(string path1, string path2)
         {

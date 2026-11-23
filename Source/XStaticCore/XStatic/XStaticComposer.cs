@@ -24,7 +24,7 @@ namespace XStatic
                     .Build();
             }
 
-            builder.AddNotificationHandler<UmbracoApplicationStartingNotification, XStaticDatabaseNotificationHandler>();
+            builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, XStaticDatabaseNotificationHandler>();
             builder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, AddXStaticRolesNotificationHandler>();
             builder.AddNotificationAsyncHandler<ContentPublishedNotification, AutoPublishNotificationHandler>();
         }

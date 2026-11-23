@@ -33,7 +33,7 @@ export class XStaticDeploymentTargetsDashboard extends UmbElementMixin(LitElemen
 export default XStaticDeploymentTargetsDashboard;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-deployment-target-dashboard': XStaticDeploymentTargetsDashboard
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,7 +64,7 @@ namespace XStatic.Core.Actions
                 return iocInstance;
             }
 
-            var generator = Activator.CreateInstance(type) as IPostGenerationAction;
+            var generator = ActivatorUtilities.CreateInstance(_currentServiceProvider, type) as IPostGenerationAction;
             return generator;
         }
 
@@ -94,7 +95,12 @@ namespace XStatic.Core.Actions
                 return null;
             }
 
-            return new ConfiguredPostGenerationAction(action, data.Config);
+            // Report results under the name the editor gave the action ("Copy 404 page"), not the type name
+            // ("FileCopyAction"), so several actions of the same type can be told apart.
+            return new ConfiguredPostGenerationAction(action, data.Config)
+            {
+                Name = string.IsNullOrWhiteSpace(data.Name) ? action.Name : data.Name
+            };
         }
     }
 }

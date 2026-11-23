@@ -5,12 +5,12 @@
       <Product>xStatic.Ftp</Product>
       <PackageId>xStatic.Ftp</PackageId>
       <Title>xStatic.Ftp</Title>
-      <Version>17.0.0-beta</Version>
+      <Version>18.0.0-beta</Version>
       <Description>FTP functionality for xStatic for Umbraco.</Description>
-      <PackageTags>umbraco umbraco17 xstatic static site generation ftp umbraco-marketplace</PackageTags>
+      <PackageTags>umbraco umbraco18 xstatic static site generation ftp umbraco-marketplace</PackageTags>
       <Copyright>Sam Mullins</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/deploying-to-ftp-server/</PackageProjectUrl>
+      <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP</PackageProjectUrl>
       <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
       <RepositoryType>Git</RepositoryType>
       <PackageIconUrl />
@@ -24,9 +24,9 @@
 	</ItemGroup>
 	
     <ItemGroup>
-        <PackageReference Include="FluentFTP" Version="35.0.5" />
-        <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
-        <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
+        <PackageReference Include="FluentFTP" Version="55.1.0" />
+        <PackageReference Include="Umbraco.Cms.Core" Version="18.3.2" />
+        <PackageReference Include="Umbraco.Cms.Web.Website" Version="18.3.2" />
     </ItemGroup>
 
     <ItemGroup>

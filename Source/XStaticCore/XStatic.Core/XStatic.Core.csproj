@@ -6,13 +6,13 @@
     <Product>xStatic.Core</Product>
     <PackageId>xStatic.Core</PackageId>
     <Title>xStatic.Core</Title>
-    <Version>17.0.0-beta</Version>
-    <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 17+.</Description>
-    <PackageTags>umbraco umbraco17 xstatic static site generation</PackageTags>
+    <Version>18.0.0-beta</Version>
+    <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 18+.</Description>
+    <PackageTags>umbraco umbraco18 xstatic static site generation</PackageTags>
     <Authors>Sam Mullins</Authors>
     <Copyright>Sam Mullins</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco/wiki</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageIcon>Logo.png</PackageIcon>
@@ -20,13 +20,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.0.0" />
-	<PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
-	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="18.3.2" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="18.3.2" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="18.3.2" />
+	<PackageReference Include="Umbraco.Cms.Web.Website" Version="18.3.2" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.3" />
   </ItemGroup>
 
   <ItemGroup>

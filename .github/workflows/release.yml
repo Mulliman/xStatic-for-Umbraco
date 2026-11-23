@@ -1,0 +1,83 @@
+name: "Release"
+
+# Publishes every xStatic NuGet package to nuget.org from one tag.
+# Easiest: GitHub → Releases → Draft a new release → new tag such as v18.0.0 or v18.1.0-beta → Publish.
+# (Pushing the tag from git works too.) The tag, without its "v", is the version of all packages.
+# Run it manually (workflow_dispatch) to test and pack without publishing; the packages are the
+# run's "nuget-packages" artifact.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version to pack (dry run, nothing is published), e.g. 18.0.0-test.1'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: 'Test'
+    uses: ./.github/workflows/test.yml
+
+  version:
+    name: 'Work out version'
+    runs-on: 'ubuntu-latest'
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: 'Work out version'
+        id: version
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME -replace '^v', '' } else { $env:INPUT_VERSION }
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "'$version' is not a valid package version." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Release version: $version"
+
+  pack:
+    name: 'Pack'
+    needs: [test, version]
+    uses: ./.github/workflows/pack.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+
+  publish:
+    name: 'Publish to NuGet'
+    needs: pack
+    if: github.ref_type == 'tag'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      id-token: write  # required for NuGet Trusted Publishing (OIDC)
+      contents: read
+    steps:
+      - name: 'Download packages'
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: packages
+
+      - name: 'Install dotnet'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 'NuGet login (Trusted Publishing)'
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      # Pushing the .nupkg files also uploads the matching .snupkg symbol packages.
+      - name: 'Push packages'
+        run: dotnet nuget push "packages/*.nupkg" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

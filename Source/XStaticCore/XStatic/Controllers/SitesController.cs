@@ -1,17 +1,20 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using Microsoft.Extensions.Options;
 using System.IO;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 using XStatic.Controllers.Attributes;
 using XStatic.Core.Actions;
+using XStatic.Core.App;
 using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.ExportTypes;
 using XStatic.Core.Generator.Storage;
@@ -33,7 +36,8 @@ namespace XStatic.Controllers
         IStaticSiteStorer storer,
         IExportTypeRepository exportTypeRepo,
         IActionRepository actionRepository,
-        IDeploymentTargetRepository deploymentTargetRepository) : Controller
+        IDeploymentTargetRepository deploymentTargetRepository,
+        IOptions<XStaticGlobalSettings> globalSettings) : Controller
     {
         private readonly IUmbracoContextFactory _context = context;
         private readonly IStaticSiteStorer _storer = storer;
@@ -44,40 +48,52 @@ namespace XStatic.Controllers
 
         [HttpGet("get-all")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_GetAll")]
+        [EndpointSummary("List all static sites")]
+        [EndpointDescription("Returns all configured xStatic static sites enriched with root content path, export type name, and stored output folder size.")]
         [ProducesResponseType(typeof(IEnumerable<SiteApiModel>), StatusCodes.Status200OK)]
         public IEnumerable<SiteApiModel> GetAll()
         {
             var sites = _sitesRepo.GetAll();
-            var exportTypes = _exportTypeRepo.GetAll();
+            var exportTypes = _exportTypeRepo.GetAll().ToList();
 
             using var cref = _context.EnsureUmbracoContext();
 
             foreach (var site in sites)
             {
-                var node = cref.UmbracoContext.Content.GetById(site.RootNode);
-
-                site.ExportTypeName = exportTypes.FirstOrDefault(et => et.Id == site.ExportFormat)?.Name;
-
-                if (node == null)
-                {
-                    site.RootPath = "Item Not Found";
-                }
-                else
-                {
-                    site.RootPath = node.Parent == null ? node.Name : node.Parent.Name + "/" + node.Name;
-
-                    var folder = _storer.GetStorageLocationOfSite(site.Id);
-                    var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
-
-                    site.FolderSize = FileHelpers.BytesToString(size);
-                }
+                EnrichSite(site, exportTypes, cref);
             }
 
             return sites.Select(s => new SiteApiModel(s));
         }
 
+        [HttpGet("{staticSiteId:int}")]
+        [MapToApiVersion("1.0")]
+        [EndpointName("Sites_GetById")]
+        [EndpointSummary("Get a static site by ID")]
+        [EndpointDescription("Returns configuration and build/deploy status for a single xStatic static site.")]
+        [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<SiteApiModel> GetById(int staticSiteId)
+        {
+            var site = _sitesRepo.Get<ExtendedGeneratedSite>(staticSiteId);
+            if (site == null)
+            {
+                return NotFound();
+            }
+
+            var exportTypes = _exportTypeRepo.GetAll().ToList();
+            using var cref = _context.EnsureUmbracoContext();
+            EnrichSite(site, exportTypes, cref);
+
+            return Ok(new SiteApiModel(site));
+        }
+
         [HttpPost("create")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_Create")]
+        [EndpointSummary("Create a static site")]
+        [EndpointDescription("Creates a new xStatic static site configuration.")]
         [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
         public SiteApiModel Create([FromBody] SiteUpdateModel site)
         {
@@ -88,6 +104,9 @@ namespace XStatic.Controllers
 
         [HttpPost("update")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_Update")]
+        [EndpointSummary("Update a static site")]
+        [EndpointDescription("Updates an existing xStatic static site configuration.")]
         [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
         public SiteApiModel Update([FromBody] SiteUpdateModel site)
         {
@@ -98,6 +117,9 @@ namespace XStatic.Controllers
 
         [HttpDelete("delete")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_Delete")]
+        [EndpointSummary("Delete a static site")]
+        [EndpointDescription("Deletes an xStatic static site configuration by ID.")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public void Delete(int staticSiteId)
         {
@@ -106,24 +128,15 @@ namespace XStatic.Controllers
 
         [HttpDelete("clear-stored-site")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_ClearStoredSite")]
+        [EndpointSummary("Clear generated files for a static site")]
+        [EndpointDescription("Deletes locally stored generated output files for the specified static site while preserving protected paths, then returns the updated site list.")]
         [ProducesResponseType(typeof(IEnumerable<SiteApiModel>), StatusCodes.Status200OK)]
         public IEnumerable<SiteApiModel> ClearStoredSite(int staticSiteId)
         {
             var folder = _storer.GetStorageLocationOfSite(staticSiteId);
 
-            var doNotDeletePaths = FileHelpers.DefaultNonDeletePaths;
-
-            var doNotDeletePathsRaw = ConfigurationManager.AppSettings["xStatic.DoNotDeletePaths"];
-
-            if (doNotDeletePathsRaw != null)
-            {
-                var split = doNotDeletePathsRaw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (split.Any())
-                {
-                    doNotDeletePaths = split;
-                }
-            }
+            var doNotDeletePaths = FileHelpers.GetDoNotDeletePaths(globalSettings?.Value?.DoNotDeletePaths);
 
             FileHelpers.DeleteFolderContents(folder, doNotDeletePaths);
 
@@ -132,6 +145,9 @@ namespace XStatic.Controllers
 
         [HttpGet("get-site-dependencies")]
         [MapToApiVersion("1.0")]
+        [EndpointName("Sites_GetDependencies")]
+        [EndpointSummary("List site configuration dependencies")]
+        [EndpointDescription("Returns available export types, safe post-generation action summaries, and safe deployment target summaries for configuring a static site.")]
         [ProducesResponseType(typeof(SiteDependenciesModel), StatusCodes.Status200OK)]
         public SiteDependenciesModel GetSiteDependencies()
         {
@@ -145,6 +161,28 @@ namespace XStatic.Controllers
                 ExportTypes = exportTypes,
                 Deployers = deployers
             };
+        }
+
+        private void EnrichSite(ExtendedGeneratedSite site, IList<XStatic.Core.Generator.Db.ExportTypeDataModel> exportTypes, UmbracoContextReference cref)
+        {
+            var node = cref.UmbracoContext.Content.GetById(site.RootNode);
+
+            site.ExportTypeName = exportTypes.FirstOrDefault(et => et.Id == site.ExportFormat)?.Name;
+
+            if (node == null)
+            {
+                site.RootPath = "Item Not Found";
+            }
+            else
+            {
+                var parent = node.Parent();
+                site.RootPath = parent == null ? node.Name : parent.Name + "/" + node.Name;
+
+                var folder = _storer.GetStorageLocationOfSite(site.Id);
+                var size = FileHelpers.GetDirectorySize(new DirectoryInfo(folder));
+
+                site.FolderSize = FileHelpers.BytesToString(size);
+            }
         }
     }
 

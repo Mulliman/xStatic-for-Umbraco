@@ -63,12 +63,16 @@ export class DeploymentTargetContext extends ConfigContextBase {
     }
 
     public async deleteDeploymentTarget(id: number) : Promise<void> {
-        await umbConfirmModal(this, {
-            color: 'danger',
-            headline: 'Delete Deployment Target',
-            content: 'Are you sure you want to delete this Deployment Target?',
-            confirmLabel: 'Delete',
-        });
+        try {
+            await umbConfirmModal(this, {
+                color: 'danger',
+                headline: 'Delete Deployment Target',
+                content: 'Are you sure you want to delete this Deployment Target?',
+                confirmLabel: 'Delete',
+            });
+        } catch {
+            return;
+        }
 
         await tryExecute(this, V1Service.deleteApiV1XstaticDeploymentTargetsDeleteDeploymentTarget({ id : id } ));
         await this.#getDeploymentTargets();

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace XStatic.IntegrationTests.V13
@@ -17,14 +18,14 @@ namespace XStatic.IntegrationTests.V13
         }
     }
 
-    public class V13MigrationAllTheThings : MigrationBase
+    public class V13MigrationAllTheThings : AsyncMigrationBase
     {
         public V13MigrationAllTheThings(IMigrationContext context)
             : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             if (!TableExists("XStaticSiteConfigs"))
             {
@@ -76,6 +77,8 @@ namespace XStatic.IntegrationTests.V13
                 Generator = "XStatic.Core.Generator.StaticHtmlSiteGenerator, XStatic.Core",
                 FileNameGenerator = "XStatic.Core.Generator.Storage.EverythingIsIndexHtmlFileNameGenerator, XStatic.Core"
             }).Do();
+
+            return Task.CompletedTask;
         }
     }
 }
