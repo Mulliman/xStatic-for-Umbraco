@@ -28,9 +28,9 @@ namespace XStatic.Core.Actions
     /// </summary>
     [XStaticEditableField(GenerateLlmsTxtFields.SiteTitle, UIEditors.Text)]
     [XStaticEditableField(GenerateLlmsTxtFields.SiteDescription, UIEditors.TextArea)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Toggle)]
-    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Toggle)]
-    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Toggle)]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateFullFile, UIEditors.Toggle, DefaultValue = "true")]
+    [XStaticEditableField(GenerateLlmsTxtFields.GenerateCompanionMarkdown, UIEditors.Toggle, DefaultValue = "false")]
+    [XStaticEditableField(GenerateLlmsTxtFields.UseMarkdownLinks, UIEditors.Toggle, DefaultValue = "true")]
     [XStaticEditableField(GenerateLlmsTxtFields.ExcludePaths, UIEditors.Text)]
     public class GenerateLlmsTxtAction : PostGenerationActionBase
     {
@@ -90,8 +90,8 @@ namespace XStatic.Core.Actions
                     ? siteDescriptionOverride.Trim()
                     : rootPage?.Description;
 
-                var llmsTxt = BuildLlmsTxt(siteTitle, siteDescription, pages, useMarkdownLinks);
                 var utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+                var llmsTxt = BuildLlmsTxt(siteTitle, siteDescription, pages, useMarkdownLinks);
                 await _staticSiteStorer.StoreSiteItem(staticSiteId.ToString(), "llms.txt", llmsTxt, utf8NoBom);
 
                 if (generateFullFile)

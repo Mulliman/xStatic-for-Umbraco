@@ -14,16 +14,16 @@ using XStatic.Core.Repositories;
 
 namespace XStatic.Core.Actions
 {
-    [XStaticEditableField(RagExportFields.OutputFormat, UIEditors.Text)]
+    [XStaticEditableField(RagExportFields.OutputFormat, UIEditors.Text, DefaultValue = "Jsonl")]
     [XStaticEditableField(RagExportFields.OutputPath, UIEditors.Text)]
-    [XStaticEditableField(RagExportFields.MaxChunkSize, UIEditors.Integer)]
-    [XStaticEditableField(RagExportFields.ChunkOverlap, UIEditors.Integer)]
-    [XStaticEditableField(RagExportFields.SplitOnHeadings, UIEditors.Toggle)]
+    [XStaticEditableField(RagExportFields.MaxChunkSize, UIEditors.Integer, DefaultValue = "1000")]
+    [XStaticEditableField(RagExportFields.ChunkOverlap, UIEditors.Integer, DefaultValue = "150")]
+    [XStaticEditableField(RagExportFields.SplitOnHeadings, UIEditors.Toggle, DefaultValue = "true")]
     [XStaticEditableField(RagExportFields.ExcludedPaths, UIEditors.TextArea)]
     [XStaticEditableField(RagExportFields.ExcludedDocTypes, UIEditors.TextArea)]
     [XStaticEditableField(RagExportFields.CustomPropertyAliases, UIEditors.TextArea)]
-    [XStaticEditableField(RagExportFields.GenerateWebMcpIndex, UIEditors.Toggle)]
-    [XStaticEditableField(RagExportFields.WebMcpIndexPath, UIEditors.Text)]
+    [XStaticEditableField(RagExportFields.GenerateWebMcpIndex, UIEditors.Toggle, DefaultValue = "true")]
+    [XStaticEditableField(RagExportFields.WebMcpIndexPath, UIEditors.Text, DefaultValue = "webmcp-index.json")]
     public class RagExportPostGenerationAction : PostGenerationActionBase
     {
         private readonly ISitesRepository _sitesRepository;

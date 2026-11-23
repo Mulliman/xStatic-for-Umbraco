@@ -123,6 +123,7 @@ export default defineConfig({
       ['chromium-parameterless-action', /12-parameterless-action\.spec\.ts/],
       // Skips itself unless the Docker FTP server in Testing/Ftp is running.
       ['chromium-ftp', /13-ftp-deploy\.spec\.ts/],
+      ['chromium-typed-fields-ai', /14-typed-fields-and-ai-output\.spec\.ts/],
     ].map(([name, testMatch]) => ({
       name: name as string,
       testMatch: testMatch as RegExp,

@@ -6,6 +6,7 @@ export interface SiteOptions {
     postActions?: string[];
     /** Name of a media folder to pick as the media root. */
     mediaRoot?: string;
+    targetHostname?: string;
 }
 
 export interface GenerateItemResult {
@@ -130,6 +131,12 @@ export class SitePage extends BasePage {
 
         if (options.mediaRoot) {
             await this.chooseMediaRoot(options.mediaRoot);
+        }
+
+        if (options.targetHostname) {
+            const hostProp = this.page.locator('umb-property[alias="targetHostname"]');
+            await expect(hostProp).toBeVisible();
+            await hostProp.locator('input').first().fill(options.targetHostname);
         }
 
         await this.page.getByRole('button', { name: 'Submit' }).click();
