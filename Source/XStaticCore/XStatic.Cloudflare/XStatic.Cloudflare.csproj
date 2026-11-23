@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net11.0</TargetFramework>
+		<ContentTargetFolders>.</ContentTargetFolders>
+		<Product>xStatic.Cloudflare</Product>
+		<PackageId>xStatic.Cloudflare</PackageId>
+		<Title>xStatic.Cloudflare</Title>
+		<Version>19.0.0-alpha</Version>
+		<Description>Cloudflare Pages Direct Upload and Cloudflare R2 deployers and post-generation actions for xStatic for Umbraco.</Description>
+		<PackageTags>umbraco umbraco17 xstatic static site generation cloudflare pages r2 umbraco-marketplace</PackageTags>
+		<Copyright>Sam Mullins</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<PackageIcon>Logo.png</PackageIcon>
+		<PackageIconUrl />
+		<Authors>Sam Mullins</Authors>
+		<Company>Sam Mullins</Company>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="ReadMe.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Umbraco.Cms.Core" Version="19.0.0-rc1" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="19.0.0-rc1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="App_Plugins\XStatic.Cloudflare\**\*.*">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+		<None Include="..\..\..\Brand\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\XStatic.Core\XStatic.Core.csproj" />
+	</ItemGroup>
+</Project>

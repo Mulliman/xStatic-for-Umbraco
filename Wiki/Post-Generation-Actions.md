@@ -8,7 +8,13 @@ A post-generation action (an "action") is a small step that runs on the generate
 | `FileRenameAction` | Moves (renames) a file inside the output folder | **FilePath**, **NewFilePath** |
 | `FileDeleteAction` | Deletes a file from the output folder | **FilePath** |
 | `AddGenerationMetadataFileAction` | Writes a `.xstatic-metadata` text file about the build | None |
+| `GenerateCompanionMarkdownAction` | Generates companion `.md` files next to every `.html` page ([AI and GEO](AI-and-GEO.md)) | **ContentSelector**, **ExcludePaths** |
+| `GenerateLlmsTxtAction` | Compiles `/llms.txt` and optionally `/llms-full.txt` ([AI and GEO](AI-and-GEO.md)) | **SiteTitle**, **SiteDescription**, **GenerateFullFile**, **GenerateCompanionMarkdown**, **UseMarkdownLinks**, **ExcludePaths** |
+| `RagExportPostGenerationAction` | Exports structured RAG chunks (`Jsonl`, `Json`, or `Markdown`) and `webmcp-index.json` ([RAG and WebMCP](RAG-and-WebMCP.md)) | **OutputFormat**, **OutputPath**, **MaxChunkSize**, **ChunkOverlap**, **SplitOnHeadings**, **ExcludedPaths**, **ExcludedDocTypes**, **CustomPropertyAliases**, **GenerateWebMcpIndex**, **WebMcpIndexPath** |
 | `Netlify404Action` | Copies a file to `404.html` (only with the `xStatic.Netlify` package, plus `AddNetlifyActions()`) | **FilePath** |
+| `CloudflareHeadersAction` | Writes `/_headers` for Cloudflare Pages, including optional *Markdown for Agents* rules (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **IncludeMarkdownForAgents**, **CustomRules** |
+| `CloudflareRedirectsAction` | Writes `/_redirects` for Cloudflare Pages (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **Rules** |
+| `AiPreDeployAuditAction` | Runs a deterministic and optional LLM-assisted GEO/SEO audit and saves reports outside the output folder (with `xStatic.AI`, see [AI integration](AI-Integration.md)) | **MaxPages**, **ReportPath**, **FailOnCritical**, **ProfileAlias**, **IncludePaths** |
 
 Actions run after pages, media and assets are saved, and before you deploy. They work on the generated copy of the site only, never on your Umbraco content.
 

@@ -24,7 +24,14 @@
 - [To Netlify](Deploying-to-Netlify.md)
 - [With Git](Deploying-with-Git.md)
 - [To FTP](Deploying-to-FTP.md)
+- [To Cloudflare](Deploying-to-Cloudflare.md)
 - [Remote operations](Remote-Operations.md)
+
+**AI and agents**
+- [AI and GEO](AI-and-GEO.md)
+- [RAG and WebMCP](RAG-and-WebMCP.md)
+- [MCP server and agent skill](MCP-Server-and-Agent-Skill.md)
+- [AI integration](AI-Integration.md)
 
 **Recipes**
 - [Static failover site](Static-Failover-Site.md)

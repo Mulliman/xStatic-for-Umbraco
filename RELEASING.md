@@ -3,8 +3,8 @@
 Releases are the maintainer's decision. Agents prepare branches, notes and checks, but never create tags or
 releases, or push to NuGet.
 
-All 7 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`,
-`xStatic.RemoteOperations`) are released together with one version, taken from the tag.
+All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`,
+`xStatic.Cloudflare`, `xStatic.AI`, `xStatic.RemoteOperations`) are released together with one version, taken from the tag.
 
 ## Which branch
 

@@ -15,16 +15,16 @@ import { join, dirname, resolve, relative, extname, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, '..', '..');
-const wikiDir = join(repoRoot, 'Wiki');
-const imageDirName = 'images';
-const specialPages = ['_Sidebar.md', '_Footer.md'];
+export const repoRoot = resolve(here, '..', '..');
+export const wikiDir = join(repoRoot, 'Wiki');
+export const imageDirName = 'images';
+export const specialPages = ['_Sidebar.md', '_Footer.md'];
 
-function listPages() {
+export function listPages() {
   return readdirSync(wikiDir).filter(f => f.endsWith('.md')).sort();
 }
 
-function listImages() {
+export function listImages() {
   const dir = join(wikiDir, imageDirName);
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter(f => statSync(join(dir, f)).isFile());
@@ -32,7 +32,7 @@ function listImages() {
 
 // GitHub heading anchor rules: lower-case, drop punctuation except - and _, spaces become -,
 // duplicates get -1, -2, ...
-function slugify(text) {
+export function slugify(text) {
   return text
     .trim()
     .toLowerCase()
@@ -43,14 +43,14 @@ function slugify(text) {
     .replace(/\s/g, '-');
 }
 
-function stripCode(markdown) {
+export function stripCode(markdown) {
   // Remove fenced code blocks and inline code so links/headings inside them are ignored.
   return markdown
     .replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1\s*$/gm, '')
     .replace(/`[^`\n]*`/g, '');
 }
 
-function anchorsFor(markdown) {
+export function anchorsFor(markdown) {
   const anchors = new Set();
   const counts = new Map();
   for (const line of stripCode(markdown).split('\n')) {
@@ -66,6 +66,49 @@ function anchorsFor(markdown) {
   return anchors;
 }
 
+export function parseSidebar(sidebarMarkdown) {
+  const sections = [];
+  let current = null;
+
+  for (const rawLine of sidebarMarkdown.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    // Top-level standalone linked entry like `**[Home](Home.md)**`
+    const standalone = /^\*\*\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]+)?\)\*\*$/.exec(line);
+    if (standalone) {
+      const slug = standalone[2].slice(0, -3);
+      sections.push({
+        title: '',
+        items: [{ slug, label: standalone[1] }],
+      });
+      current = null;
+      continue;
+    }
+
+    // Section heading like `**Getting started**`
+    const heading = /^\*\*([^*]+)\*\*$/.exec(line);
+    if (heading) {
+      current = { title: heading[1].trim(), items: [] };
+      sections.push(current);
+      continue;
+    }
+
+    // Bullet item like `- [What is xStatic?](What-is-xStatic.md)`
+    const item = /^-\s+\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]+)?\)$/.exec(line);
+    if (item) {
+      const slug = item[2].slice(0, -3);
+      if (!current) {
+        current = { title: '', items: [] };
+        sections.push(current);
+      }
+      current.items.push({ slug, label: item[1] });
+    }
+  }
+
+  return sections;
+}
+
 function linksIn(markdown) {
   const links = [];
   const text = stripCode(markdown);
@@ -76,7 +119,7 @@ function linksIn(markdown) {
   return links;
 }
 
-function check() {
+export function check() {
   const errors = [];
   const warnings = [];
   const pages = listPages();
@@ -218,18 +261,21 @@ function rewriteLinks(markdown, fn) {
     .join('');
 }
 
-const [, , command, ...rest] = process.argv;
-const opt = name => {
-  const i = rest.indexOf(name);
-  return i >= 0 ? rest[i + 1] : undefined;
-};
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  const [, , command, ...rest] = process.argv;
+  const opt = name => {
+    const i = rest.indexOf(name);
+    return i >= 0 ? rest[i + 1] : undefined;
+  };
 
-if (command === 'check') {
-  process.exit(check() ? 0 : 1);
-} else if (command === 'build') {
-  if (!check()) process.exit(1);
-  build(rest[0], opt('--repo-url') ?? 'https://github.com/Mulliman/xStatic-for-Umbraco', opt('--branch') ?? 'master');
-} else {
-  console.log('Usage: node Tools/Wiki/wiki.mjs check | build <outDir> [--repo-url URL] [--branch NAME]');
-  process.exit(command ? 1 : 0);
+  if (command === 'check') {
+    process.exit(check() ? 0 : 1);
+  } else if (command === 'build') {
+    if (!check()) process.exit(1);
+    build(rest[0], opt('--repo-url') ?? 'https://github.com/Mulliman/xStatic-for-Umbraco', opt('--branch') ?? 'master');
+  } else {
+    console.log('Usage: node Tools/Wiki/wiki.mjs check | build <outDir> [--repo-url URL] [--branch NAME]');
+    process.exit(command ? 1 : 0);
+  }
 }
