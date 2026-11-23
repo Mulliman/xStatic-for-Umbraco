@@ -11,8 +11,8 @@ path or convention below, update this file in the same change.
 
 | Branch       | Umbraco | .NET   | Package version | Status                                |
 |--------------|---------|--------|-----------------|---------------------------------------|
-| `master`     | 17 → 18 | net10.0| 17.x → 18.x     | Latest major; becomes 18 at release   |
-| `feature/18` | 18      | net10.0| 18.0.0-beta     | In progress                           |
+| `master`     | 18      | net10.0| 18.x            | Latest major                          |
+| `feature/18` | 18      | net10.0| 18.x            | Merged into `master` at 18.0.0        |
 | `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
 | `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
 | `feature/NN` | NN      |        |                 | Older majors, historical              |

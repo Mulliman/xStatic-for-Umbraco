@@ -7,7 +7,7 @@ The work still happens on the Umbraco server. The remote program is only a trigg
 | | |
 |---|---|
 | NuGet package | `xStatic.RemoteOperations` |
-| Install | `dotnet add package xStatic.RemoteOperations --prerelease` (in the calling project, not the Umbraco site) |
+| Install | `dotnet add package xStatic.RemoteOperations` (in the calling project, not the Umbraco site) |
 | Needs | An Umbraco API user with a client credential (an id and a secret) in an xStatic user group, and a URL the caller can reach |
 | Main class | `XStatic.RemoteOperations.XStaticRemoteOperationsClient` |
 | Target framework | .NET 10 |
@@ -37,8 +37,6 @@ cd XStaticScheduler
 dotnet add package xStatic.RemoteOperations --prerelease
 dotnet add package Microsoft.Extensions.Logging.Console
 ```
-
-`--prerelease` is needed while the version for Umbraco 18 is `18.0.0-beta`; without it you get the latest stable release, which is the Umbraco 17 version.
 
 Replace `Program.cs` with this. It reads its settings from environment variables, generates every site, deploys the ones that have a deployment target, and returns a non-zero exit code if anything went wrong:
 
