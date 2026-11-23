@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using XStatic.Core.App;
@@ -12,6 +13,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core.Actions;
 using XStatic.Core.Generator.Db;
@@ -33,13 +38,21 @@ namespace XStatic.Core.Generator.Processes
 	private readonly IOptions<XStaticGlobalSettings> _globalSettings;
 		private readonly ILogger _logger;
 
+        /// <summary>
+        /// Creates the process.
+        /// </summary>
+        /// <param name="entityService">
+        /// Lists the media under each media root from the database. If null, it's resolved from the application's
+        /// services, and if that fails the published cache is used, which can miss media on a site's first boot.
+        /// </param>
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository repo,
             IWebHostEnvironment webHostEnvironment,
             IActionFactory actionFactory,
-			IOptions<XStaticGlobalSettings> globalSettings, 
-			ILogger logger)
+            IOptions<XStaticGlobalSettings> globalSettings,
+            ILogger logger,
+            IEntityService entityService)
         {
             _umbracoContextFactory = umbracoContextFactory;
             _exportTypeService = exportTypeService;
@@ -48,6 +61,43 @@ namespace XStatic.Core.Generator.Processes
             _actionFactory = actionFactory;
             _globalSettings = globalSettings;
             _logger = logger;
+            _entityService = entityService;
+        }
+
+        private IEntityService _entityService;
+        private bool _entityServiceLookedUp;
+
+        /// <summary>
+        /// The entity service passed in, or else the application's. Only looked up once.
+        /// </summary>
+        private IEntityService EntityService
+        {
+            get
+            {
+                if (_entityService != null || _entityServiceLookedUp)
+                {
+                    return _entityService;
+                }
+
+                _entityServiceLookedUp = true;
+                Exception error = null;
+
+                try
+                {
+                    _entityService = StaticServiceProvider.Instance?.GetService<IEntityService>();
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+
+                if (_entityService == null)
+                {
+                    _logger?.LogWarning(error, "xStatic could not get IEntityService, so media will be listed from the published cache. On a new site's first boot that can miss media. Create RebuildProcess with an IEntityService to avoid this.");
+                }
+
+                return _entityService;
+            }
         }
 
         public async Task<RebuildProcessResult> RebuildSite(int staticSiteId)
@@ -166,7 +216,7 @@ namespace XStatic.Core.Generator.Processes
             return resolver.AddAssetsToBuilder(entity.AssetPaths, builder);
         }
 
-        private static void AddMediaToBuilder(SiteConfig entity, UmbracoContextReference umbracoContext, JobBuilder builder)
+        private void AddMediaToBuilder(SiteConfig entity, UmbracoContextReference umbracoContext, JobBuilder builder)
         {
             if (!string.IsNullOrEmpty(entity.MediaRootNodes))
             {
@@ -181,11 +231,42 @@ namespace XStatic.Core.Generator.Processes
 
                         if (rootMedia != null)
                         {
-                            builder.AddMediaWithDescendants(rootMedia);
+                            AddMediaWithDescendants(rootMedia, builder);
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a media item and everything under it. The descendants are listed from the database, because the
+        /// published cache's navigation can be missing media: on the first boot of a new site, media created by a
+        /// package migration (such as a starter kit's) isn't in it until the site restarts.
+        /// </summary>
+        private void AddMediaWithDescendants(IPublishedContent rootMedia, JobBuilder builder)
+        {
+            IEnumerable<int> descendantIds = null;
+
+            try
+            {
+                descendantIds = EntityService?.GetDescendants(rootMedia.Id, UmbracoObjectTypes.Media)
+                    .Where(x => !x.Trashed)
+                    .Select(x => x.Id)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "xStatic could not list the media under {MediaId} from the database; using the published cache instead", rootMedia.Id);
+            }
+
+            if (descendantIds == null)
+            {
+                builder.AddMediaWithDescendants(rootMedia);
+                return;
+            }
+
+            builder.AddMedia(rootMedia);
+            builder.AddMediaIds(descendantIds);
         }
 
         private void AddMediaCropsToBuilder(SiteConfig entity, JobBuilder builder)

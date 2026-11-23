@@ -155,6 +155,7 @@ Most of the fixes below were also made on the `lts/17` branch, so they ship in *
 - `DoNotDeletePaths` takes effect, from `appsettings.json`.
 - Sites upgraded from xStatic 13 load, and are migrated automatically.
 - Document types can be excluded from generation (`XStatic:ExcludeGeneratingDocTypes`).
+- Media under a site's media roots is listed from the database, so it is generated on a new site's first boot (17.3.1).
 
 **Housekeeping**
 
