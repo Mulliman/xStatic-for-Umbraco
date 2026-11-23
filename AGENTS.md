@@ -11,9 +11,9 @@ path or convention below, update this file in the same change.
 
 | Branch       | Umbraco | .NET   | Package version | Status                                |
 |--------------|---------|--------|-----------------|---------------------------------------|
-| `master`     | 17 → 18 | net10.0| 17.x → 18.x     | Latest major; becomes 18 at release   |
-| `feature/19` | 19 (RC) | net11.0| 19.0.0-alpha    | In progress (this branch), Umbraco 19 is short-term support |
-| `feature/18` | 18      | net10.0| 18.0.0-beta     | Ready for release                     |
+| `master`     | 18      | net10.0| 18.x            | Latest major                          |
+| `feature/19` | 19 (RC) | net11.0| 19.0.0-beta     | Beta (this branch), Umbraco 19 is short-term support |
+| `feature/18` | 18      | net10.0| 18.x            | Merged into `master` at 18.0.0        |
 | `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
 | `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
 | `feature/NN` | NN      |        |                 | Older majors, historical              |
@@ -36,14 +36,14 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `XStatic/` | Umbraco integration: `XStaticComposer`, Management API controllers (`Controllers/`), DB migrations (`Db/`), user-group setup (`Security/`). NuGet: `XStatic`. |
 | `XStatic14/XStatic14.Client/` | Backoffice UI (Razor Class Library). TypeScript/Lit source in `assets/src`, built by Vite into `wwwroot/App_Plugins/xstatic14`. NuGet: `XStatic.Client`. |
 | `XStatic14/XStatic14/` | Empty shim project that only references the client. No code — don't add any. |
-| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/` | Deployer plugins, each a separate NuGet package. |
+| `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/`, `XStatic.Cloudflare/` | Deployer plugins, each a separate NuGet package. |
 | `XStatic.RemoteOperations/` | Client library for triggering xStatic remotely (JWT auth). |
 | `XStatic.Core.Tests/` | xUnit + Moq unit tests. Fast, no Umbraco instance needed. |
 | `XStatic.IntegrationTests/` | NUnit tests on `Umbraco.Cms.Tests.Integration` against a real DB (SQLite by default). |
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Testing/Ftp/` | Docker Compose FTP server (vsftpd) for checking the FTP deployer by hand or with Playwright spec 13. |
-| `Docs/` | Docs for package consumers: configuration (`Configuration.md`, the `XStatic` appsettings section) and extension points (Generators, Transformers, Deployers, Actions, File Name Generation). |
+| `Wiki/` | The user and developer documentation, published to the GitHub wiki by `.github/workflows/wiki.yml` when `master` changes. Flat Markdown pages plus `_Sidebar.md`; style guide, content plan and checker in `Tools/Wiki/`. `Docs/` only points to it now. |
 | `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`; release steps: `RELEASING.md`. |
 
 ## Commands
@@ -64,7 +64,8 @@ dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj
 
 # Frontend (from Source/XStaticCore/XStatic14/XStatic14.Client/assets)
 npm ci
-npx tsc --noEmit      # type-check, run on every UI change
+npm run check         # tsc --noEmit + eslint + vitest, run on every UI change
+npm test              # Vitest unit & Lit component tests
 npm run build         # tsc + vite build into ../wwwroot/App_Plugins/xstatic14
 npm run watch         # dev loop against a local test instance
 ```
@@ -79,7 +80,7 @@ unless such an instance is running — say so instead.
 2. Unit tests pass. Add or update tests for any logic you changed in `XStatic.Core` (most of it is untested;
    transformers, file-name generators and path helpers are pure and easy to cover).
 3. If you touched `XStatic/Db/` or V13 upgrade code, run the integration tests too.
-4. If you touched the UI, `npx tsc --noEmit` passes.
+4. If you touched the UI, `npm run check` passes with no new ESLint warnings in the files you touched.
 5. Say which checks you ran and which you couldn't (for example, Playwright without an instance).
 
 ## Do not edit / generated code
@@ -140,15 +141,17 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   Don't change or remove public interface members, constructor signatures or virtual methods in a minor release.
   To add something, add a new interface, an overload, a default interface method, or a new constructor that keeps
   the old one (`[Obsolete]` is fine).
-- New deployers, generators, transformers or actions follow the existing plugin pattern (see `Docs/` and the
+- New deployers, generators, transformers or actions follow the existing plugin pattern (see the `Writing-a-*` wiki pages and the
   Netlify, Git and FTP projects). Don't special-case them inside the core.
 - Backoffice UI: Lit web components using `@umbraco-cms/backoffice` and the `uui-*` component library. Don't
   add other UI frameworks.
 - Don't add NuGet or npm dependencies without saying why in the PR. Prefer what Umbraco already ships.
-- Keep the docs in `Docs/` correct when you change an extension interface; their code samples should compile.
+- **Keep the wiki true.** When you change behaviour, a setting, a UI label, an endpoint or an extension interface,
+  update the wiki pages that describe it in the same change (`Tools/Wiki/CONTENT-PLAN.md` says which page owns
+  which topic). Follow `Tools/Wiki/STYLE.md`, keep C# samples compiling, and run `node Tools/Wiki/wiki.mjs check`.
 - Global settings live in `XStaticGlobalSettings`, bound from the `XStatic` section of appsettings and read through
   `IOptions<XStaticGlobalSettings>`. A new setting gets a property there, a builder method in `XStaticApp.cs`, and a
-  row in `Docs/Configuration.md`. Don't read `ConfigurationManager.AppSettings`; Umbraco sites have no `app.config`.
+  row in `Wiki/Configuration.md`. Don't read `ConfigurationManager.AppSettings`; Umbraco sites have no `app.config`.
 - Don't commit secrets, test-instance folders or logs.
 - New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/pack.yml`.
   The `<Version>` in each csproj is only the local default; releases take their version from the tag.

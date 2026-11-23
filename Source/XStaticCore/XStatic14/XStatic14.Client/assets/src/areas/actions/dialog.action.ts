@@ -9,6 +9,7 @@ import ActionContext, { ACTION_CONTEXT_TOKEN } from "./context.action";
 
 import "../../elements/element.validation-error";
 import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
+import { toApiFieldValue } from "../../code/field-value-converter";
 
 @customElement('xstatic-edit-action-modal')
 export class EditActionModalElement extends
@@ -314,7 +315,7 @@ export class EditActionModalElement extends
         var record: Record<string, string | null> = {};
 
         if (array) {
-            array.forEach((x) => { if (x?.name) { record[x.name] = x.value ?? null } });
+            array.forEach((x) => { if (x?.name) { record[x.name] = toApiFieldValue(x.value); } });
         }
 
         return record;

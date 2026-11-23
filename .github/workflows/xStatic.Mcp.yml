@@ -1,0 +1,39 @@
+name: xStatic MCP Server
+
+on:
+  push:
+    paths:
+      - 'Source/xstatic-mcp/**'
+      - '.github/workflows/xStatic.Mcp.yml'
+  pull_request:
+    paths:
+      - 'Source/xstatic-mcp/**'
+      - '.github/workflows/xStatic.Mcp.yml'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Source/xstatic-mcp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Source/xstatic-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test

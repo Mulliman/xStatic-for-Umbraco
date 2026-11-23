@@ -84,7 +84,6 @@ export class SiteTable extends LitElement {
 				style="--uui-table-cell-padding: 0 var(--uui-size-5); text-align:${column.align ?? 'left'}; width: ${column.width || 'auto'};">
 					${this._renderCellContent(column, item)}
 			</uui-table-cell>
-		</uui-table-cell>
 		`;
 	}
 

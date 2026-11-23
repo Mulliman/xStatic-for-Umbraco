@@ -3,8 +3,8 @@
 Releases are the maintainer's decision. Agents prepare branches, notes and checks, but never create tags or
 releases, or push to NuGet.
 
-All 7 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`,
-`xStatic.RemoteOperations`) are released together with one version, taken from the tag.
+All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`,
+`xStatic.Cloudflare`, `xStatic.AI`, `xStatic.RemoteOperations`) are released together with one version, taken from the tag.
 
 ## Which branch
 
@@ -22,7 +22,7 @@ All 7 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
    site and the branch's code must be the version you're releasing.
 3. **Deployers you changed are tried for real**: Netlify and FTP need a real account or server. The Git deployer
    is covered by tests against a local repository.
-4. **Docs are current**: `AGENTS.md` (versions table, known issues), `Docs/` (samples compile), `README.md`.
+4. **Docs are current**: `AGENTS.md` (versions table, known issues), `Wiki/` (pages match the release, samples compile, `node Tools/Wiki/wiki.mjs check` passes), `README.md`.
 5. **Release notes are written**, including:
    - the minimum Umbraco version
    - anything that behaves differently (new errors, removed dependencies, new settings)

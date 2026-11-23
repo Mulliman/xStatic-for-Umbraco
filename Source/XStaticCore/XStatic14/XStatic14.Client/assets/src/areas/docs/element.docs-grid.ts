@@ -1,132 +1,223 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
-import DocsContext, { DOCS_CONTEXT_TOKEN } from './context.docs';
+import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { DOCS_CONTEXT_TOKEN } from './context.docs';
+import type { DocModel } from './element.doc';
+import type { WikiDocsBundle } from './types.docs';
 
-import { DocModel } from './element.doc';
 import './element.doc';
+import './element.wiki-viewer';
+
+type ActiveTab = 'docs' | 'plugins';
+
+const DEFAULT_WIKI_URL = 'https://github.com/Mulliman/xStatic-for-Umbraco/wiki';
 
 @customElement('xstatic-docs-grid')
 class DocsGrid extends UmbElementMixin(LitElement) {
+	@state()
+	private _activeTab: ActiveTab = 'docs';
 
-    @state()
-    isLoaded = false;
+	@state()
+	private _selectedDocSlug?: string;
 
-    @state()
-    plugins: Array<DocModel> | undefined;
+	@state()
+	private _bundle?: WikiDocsBundle;
 
-    @state()
-    docs: Array<DocModel> | undefined;
+	@state()
+	private _docsLoaded = false;
 
-    #docsContext?: DocsContext;
+	@state()
+	private _docsError = false;
 
-    constructor() {
-        super();
+	@state()
+	private _plugins: Array<DocModel> = [];
 
-        this.consumeContext(
-            DOCS_CONTEXT_TOKEN,
-            (context) => {
-                this.#docsContext = context;
+	constructor() {
+		super();
 
-                this.observe(this.#docsContext?.docs, (d) => {
-                    this.docs = d;
-                });
+		this.consumeContext(DOCS_CONTEXT_TOKEN, (context) => {
+			if (!context) return;
 
-                this.observe(this.#docsContext?.plugins, (p) => {
-                    this.plugins = p;
-                    this.isLoaded = true;
-                });
-            }
-        );
-    }
+			this.observe(context.bundle, (bundle) => {
+				this._bundle = bundle;
+			});
 
-    //#region Render
+			this.observe(context.docsLoaded, (loaded) => {
+				this._docsLoaded = loaded;
+			});
 
-    render() {
-        if (!this.plugins) {
-            return this.isLoaded ? html`` : html`Loading...`;
-        }
+			this.observe(context.docsError, (hasError) => {
+				this._docsError = hasError;
+			});
 
-        return html`
-            <h2>Documentation - <span>xStatic was built by Sam Mullins and you can read the xStatic documentation on his website.</span></h2>
-            <div class="grid"> 
-                ${this.#renderDocs()}
-            </div>
-            
-            <h2 class="space">Plugins - <span>xStatic is extensible and plugins can be custom built or installed from NuGet. Below are all the plugins currently publicly registered.</span></h2>
-            <div class="grid"> 
-                ${this.#renderPlugins()}
-            </div>
-        `;
-    }
+			this.observe(context.plugins, (plugins) => {
+				this._plugins = plugins;
+			});
+		});
+	}
 
-    #renderDocs() {
-        if (!this.docs) {
-            return null;
-        }
+	#selectTab(tab: ActiveTab) {
+		this._activeTab = tab;
+	}
 
-        var markup = html`${this.docs.map(x => html`<xstatic-doc-element .doc=${x}></xstatic-doc-element>`)}`;
+	#onOpenWikiPage(event: CustomEvent<{ slug: string }>) {
+		const slug = event.detail?.slug;
+		if (!slug) return;
+		this._selectedDocSlug = slug;
+		this._activeTab = 'docs';
+	}
 
-        return html`
-            ${markup}
-        `;
-    }
+	render() {
+		const wikiUrl = this._bundle?.wikiUrl ?? DEFAULT_WIKI_URL;
+		const version = this._bundle?.version;
 
-    #renderPlugins() {
-        if (!this.plugins) {
-            return null;
-        }
+		return html`
+			<div class="docs-toolbar">
+				<uui-tab-group class="sub-tabs">
+					<uui-tab
+						label="Documentation"
+						?active=${this._activeTab === 'docs'}
+						@click=${() => this.#selectTab('docs')}
+					>
+						Documentation
+					</uui-tab>
+					<uui-tab
+						label="Plugins"
+						?active=${this._activeTab === 'plugins'}
+						@click=${() => this.#selectTab('plugins')}
+					>
+						Plugins ${this._plugins.length > 0 ? html`(${this._plugins.length})` : ''}
+					</uui-tab>
+				</uui-tab-group>
 
-        var pluginsMarkup = html`${this.plugins.map(x => html`<xstatic-doc-element .doc=${x}></xstatic-doc-element>`)}`;
+				<div class="toolbar-meta">
+					${version ? html`<uui-tag look="secondary">v${version}</uui-tag>` : ''}
+					<uui-button
+						compact
+						look="outline"
+						label="Open on GitHub Wiki"
+						href=${wikiUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Open on GitHub Wiki
+					</uui-button>
+				</div>
+			</div>
 
-        return html`
-            ${pluginsMarkup}
-        `;
-    }
+			${this._activeTab === 'docs' ? this.#renderDocsView(wikiUrl) : this.#renderPluginsView()}
+		`;
+	}
 
-    // #endregion Render
+	#renderDocsView(wikiUrl: string) {
+		if (!this._docsLoaded) {
+			return html`<div class="status-box"><uui-loader-bar></uui-loader-bar><p>Loading documentation...</p></div>`;
+		}
 
-    // #region Styles
+		if (this._docsError || !this._bundle) {
+			return html`
+				<uui-box headline="Documentation">
+					<p>The bundled xStatic documentation could not be loaded.</p>
+					<uui-button
+						look="primary"
+						label="Open on GitHub Wiki"
+						href=${wikiUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Open on GitHub Wiki
+					</uui-button>
+				</uui-box>
+			`;
+		}
 
-    static styles = css`
-        :host {
-            
-        }
+		return html`
+			<xstatic-wiki-viewer
+				.bundle=${this._bundle}
+				.initialSlug=${this._selectedDocSlug}
+			></xstatic-wiki-viewer>
+		`;
+	}
 
-        .grid{
-            position: relative;
-            display: grid;
-            grid-gap: 20px;
-            grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
-            grid-auto-rows: 1fr
-        }
+	#renderPluginsView() {
+		return html`
+			<div class="plugins-section" @xstatic-open-wiki-page=${this.#onOpenWikiPage}>
+				<h2>
+					Plugins -
+					<span>Official xStatic add-on packages available for this version. Install them from NuGet (or npm for the MCP server) or build your own using the extension APIs.</span>
+				</h2>
 
-        .grid > div{
-            display: block;
-            position: relative;
-        }
+				${!this._docsLoaded
+					? html`<div class="status-box"><uui-loader-bar></uui-loader-bar><p>Loading plugins...</p></div>`
+					: this._plugins.length === 0
+						? html`
+							<uui-box headline="No plugins listed">
+								<p>No add-on packages were included in this build's documentation bundle.</p>
+							</uui-box>
+						`
+						: html`
+							<div class="grid">
+								${this._plugins.map((plugin) => html`<xstatic-doc-element .doc=${plugin}></xstatic-doc-element>`)}
+							</div>
+						`}
+			</div>
+		`;
+	}
 
-        h2{
-            margin-bottom: 2rem;
-        }
+	static styles = css`
+		:host {
+			display: block;
+		}
 
-        h2.space{
-            margin-top: 4rem;
-        }
+		.docs-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: var(--uui-size-space-4, 16px);
+			flex-wrap: wrap;
+			margin-bottom: var(--uui-size-space-5, 20px);
+			border-bottom: 1px solid var(--uui-color-border, #d8d7d9);
+		}
 
-        h2 > span {
-            font-size: 0.8em;
-            color: #666;
-        }
-    `;
+		.sub-tabs {
+			--uui-tab-divider: transparent;
+		}
 
-    // #endregion Styles
+		.toolbar-meta {
+			display: flex;
+			align-items: center;
+			gap: var(--uui-size-space-3, 12px);
+			padding-bottom: 6px;
+		}
+
+		.status-box {
+			padding: var(--uui-size-space-5, 20px) 0;
+			color: var(--uui-color-text-alt, #6b7280);
+		}
+
+		.grid {
+			position: relative;
+			display: grid;
+			grid-gap: 20px;
+			grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+			grid-auto-rows: 1fr;
+		}
+
+		h2 {
+			margin: 0 0 1.5rem;
+		}
+
+		h2 > span {
+			font-size: 0.8em;
+			font-weight: normal;
+			color: var(--uui-color-text-alt, #666);
+		}
+	`;
 }
 
 export default DocsGrid;
 
 declare global {
-    interface HtmlElementTagNameMap {
-        'xstatic-docs-grid': DocsGrid
-    }
+	interface HTMLElementTagNameMap {
+		'xstatic-docs-grid': DocsGrid;
+	}
 }

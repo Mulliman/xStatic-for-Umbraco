@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using XStatic.Core.Actions;
@@ -7,8 +8,10 @@ using XStatic.Core.Actions.FileActions;
 using XStatic.Core.AutoPublish;
 using XStatic.Core.Generator;
 using XStatic.Core.Generator.ExportTypes;
+using XStatic.Core.Generator.Markdown;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
+using XStatic.Core.Rag;
 using XStatic.Core.Repositories;
 using XStatic.Generator;
 
@@ -50,18 +53,37 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultActions()
         {
+            AddDefaultRagServices();
+
             _services.AddTransient<AddGenerationMetadataFileAction>();
             _services.AddTransient<FileCopyAction>();
             _services.AddTransient<FileDeleteAction>();
             _services.AddTransient<FileRenameAction>();
+            _services.AddTransient<GenerateCompanionMarkdownAction>();
+            _services.AddTransient<GenerateLlmsTxtAction>();
+            _services.AddTransient<RagExportPostGenerationAction>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddDefaultRagServices()
+        {
+            _services.TryAddSingleton<IHtmlContentExtractor, HtmlContentExtractor>();
+            _services.TryAddSingleton<IRagChunker, RagChunker>();
+            _services.TryAddSingleton<IRagChunkSerializer, RagChunkSerializer>();
+            _services.TryAddSingleton<IWebMcpIndexBuilder, WebMcpIndexBuilder>();
+            _services.TryAddTransient<IRagExportService, RagExportService>();
 
             return this;
         }
 
         public GeneratorServiceBuilder AddDefaultHtmlGeneratorServices()
         {
+            _services.AddSingleton<IHtmlToMarkdownConverter, HtmlToMarkdownConverter>();
             _services.AddSingleton<StaticHtmlSiteGenerator>();
+            _services.AddSingleton<StaticHtmlWithMarkdownSiteGenerator>();
             _services.AddTransient<DefaultHtmlTransformerListFactory>();
+            _services.AddTransient<GeoHtmlTransformerListFactory>();
 
             return this;
         }
@@ -102,7 +124,17 @@ namespace XStatic.Core.App
 
         public GeneratorServiceBuilder AddDefaultAutoDeployServices()
         {
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, PathBasedAutoPublishSiteResolver>());
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, RelationBasedAutoPublishSiteResolver>());
             _services.AddSingleton<IAutoPublisher, DefaultAutoPublisher>();
+
+            return this;
+        }
+
+        public GeneratorServiceBuilder AddAutoPublishSiteResolver<TResolver>()
+            where TResolver : class, IAutoPublishSiteResolver
+        {
+            _services.TryAddEnumerable(ServiceDescriptor.Singleton<IAutoPublishSiteResolver, TResolver>());
 
             return this;
         }
@@ -124,6 +156,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()
@@ -138,6 +171,7 @@ namespace XStatic.Core.App
                 .AddDefaultExportTypeServices()
                 .AddDefaultActionServices()
                 .AddDefaultActions()
+                .AddDefaultRagServices()
                 .AddDefaultHtmlGeneratorServices()
                 .AddDefaultJsonGeneratorServices()
                 .AddDefaultImageCropServices()

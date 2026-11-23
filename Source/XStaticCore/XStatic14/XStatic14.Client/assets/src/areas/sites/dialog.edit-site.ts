@@ -56,7 +56,13 @@ export class EditSiteModalElement extends
                     this.actions = x?.actions ?? [];
                     this.deploymentTargets = x?.deployers ?? [];
 
-                    this.updateValue({ content: this.data?.content });
+                    if (!this.isConnected) {
+                        return;
+                    }
+
+                    if (this.modalContext && this.data?.content) {
+                        this.updateValue({ content: this.data.content });
+                    }
 
                     if (this.data?.content) {
                         this.#mapToPropertyValueData();

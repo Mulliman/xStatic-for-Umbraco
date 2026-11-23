@@ -7,6 +7,7 @@ import { test, expect, request } from '@playwright/test';
  */
 const endpoints: Array<[method: 'GET' | 'POST' | 'DELETE', path: string]> = [
     ['GET', 'sites/get-all'],
+    ['GET', 'sites/2147483647'],
     ['POST', 'sites/create'],
     ['POST', 'sites/update'],
     ['DELETE', 'sites/delete?staticSiteId=2147483647'],
