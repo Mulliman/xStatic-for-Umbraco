@@ -36,6 +36,9 @@ dotnet sln add $InstanceName
 Write-Host "Adding clean starter kit..."
 if ($UmbracoVersion -like "17.*") {
     dotnet add $InstanceName package clean --version "7.*"
+} elseif ($UmbracoVersion -like "19.*") {
+    # Clean 8 is built for Umbraco 18. Its views don't compile on 19 (pickers return collections), so use the 19 pre-release.
+    dotnet add $InstanceName package clean --prerelease
 } else {
     dotnet add $InstanceName package clean
 }
