@@ -96,8 +96,10 @@ function defaultFallbackRef(version) {
 }
 
 export function resolveDocGitRef(requestedRef, version) {
-  if (isSupportedDocRef(requestedRef)) {
-    return requestedRef.trim();
+  if (typeof requestedRef === 'string' && requestedRef.trim()) {
+    return isSupportedDocRef(requestedRef)
+      ? requestedRef.trim()
+      : defaultFallbackRef(version);
   }
 
   if (isSupportedDocRef(process.env.DOCS_GIT_REF)) {
