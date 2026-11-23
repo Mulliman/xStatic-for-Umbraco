@@ -15,10 +15,13 @@ test.describe('Dashboards', () => {
         }
     });
 
-    test('Documentation dashboard shows the documentation and plugins sections', async ({ page }) => {
+    test('Documentation dashboard shows built-in wiki documentation and plugins tab', async ({ page }) => {
         await page.goto('/umbraco/section/xstatic/dashboard/xstatic-info');
 
-        await expect(page.getByRole('heading', { name: /Documentation/ })).toBeVisible();
+        await expect(page.getByRole('tab', { name: /Documentation/ })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Home/ })).toBeVisible();
+
+        await page.getByRole('tab', { name: /Plugins/ }).click();
         await expect(page.getByRole('heading', { name: /Plugins/ })).toBeVisible();
     });
 });

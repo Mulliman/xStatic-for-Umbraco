@@ -72,6 +72,12 @@ jobs:
       - name: 'Install dependencies'
         run: npm ci
 
+      - name: 'Check wiki links and docs compiler'
+        working-directory: ${{ github.workspace }}
+        run: |
+          node Tools/Wiki/wiki.mjs check
+          node --test Tools/Wiki/compile-client-docs.test.mjs
+
       - name: 'Lint and test (tsc + eslint + vitest)'
         run: npm run check
 
