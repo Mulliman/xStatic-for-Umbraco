@@ -31,7 +31,7 @@ export class XStaticMainDashboard extends UmbElementMixin(LitElement) {
 export default XStaticMainDashboard;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-main-dashboard': XStaticMainDashboard
     }
 }

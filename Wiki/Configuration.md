@@ -19,6 +19,9 @@ All settings are optional. xStatic works with none of them. They live in an `XSt
 | [`TrustSslWhenGenerating`](#trustsslwhengenerating) | `false` | Accept any SSL certificate when xStatic downloads pages and crops from your site |
 | [`ExcludeGeneratingDocTypes`](#excludegeneratingdoctypes) | none | Document type aliases whose pages aren't generated |
 | [`DoNotDeletePaths`](#donotdeletepaths) | `.git`, `CNAME` | Files and folders kept when you select **Clean** |
+| [`EnableRelationBasedAutoPublish`](#relation-based-auto-publish) | `false` | Walk upstream Umbraco document relations during auto publish so shared content triggers referencing sites |
+| [`AutoPublishMaxRelationDepth`](#relation-based-auto-publish) | `5` | Maximum upstream relation traversal depth for relation-based auto publish |
+| [`AutoPublishGlobalContentTypes`](#relation-based-auto-publish) | none | Document type aliases whose publication rebuilds all auto-publish sites when relation-based auto publish is enabled |
 | [`UseXStaticUserRoles`, `RoleCreationUser`, `RoleCreationUseRootUser`](#user-group-settings) | Set by xStatic | Control the xStatic user groups |
 
 The settings are bound to [XStaticGlobalSettings](../Source/XStaticCore/XStatic.Core/App/XStaticGlobalSettings.cs) and read through `IOptions<XStaticGlobalSettings>`. They're read when the site starts, so restart the site after you change them. There are no settings for the output folder, timeouts or languages.
@@ -64,6 +67,20 @@ Files and folders to keep when you select **Clean** on a site ([Generating and d
 - **Setting this list replaces the defaults.** The defaults are `.git` and `CNAME`, so include them if you still want them. An empty list, or one with only blank entries, means "use the defaults". It can't be used to switch protection off.
 
 Before xStatic 17.3.0 / 18.0.0 this was read from `xStatic.DoNotDeletePaths` in the .NET Framework `app.config`, which modern Umbraco sites don't have, so it never took effect. If you set it that way, move the value to `XStatic:DoNotDeletePaths`.
+
+### Relation-based auto publish
+
+`EnableRelationBasedAutoPublish`, `AutoPublishMaxRelationDepth` and `AutoPublishGlobalContentTypes` let [Auto publish](Auto-Publish.md#shared-content-and-relation-based-auto-publish) rebuild sites when shared content outside a site's root tree is published:
+
+```json
+{
+  "XStatic": {
+    "EnableRelationBasedAutoPublish": true,
+    "AutoPublishMaxRelationDepth": 5,
+    "AutoPublishGlobalContentTypes": [ "globalNavigation", "sharedFooter" ]
+  }
+}
+```
 
 ### User group settings
 

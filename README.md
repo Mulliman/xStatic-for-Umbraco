@@ -41,6 +41,8 @@ the deployers, troubleshooting and how to extend xStatic. Good places to start:
 - [Troubleshooting](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Troubleshooting)
 
 The wiki is written in the [`Wiki/`](Wiki) folder of this repository and published automatically, so fixes are welcome as pull requests.
+- [xStatic MCP Server (`xstatic-mcp`)](Source/xstatic-mcp/README.md) — official Model Context Protocol server for xStatic
+- [xStatic Agent Skill (`SKILL.md`)](.agents/skills/xstatic-umbraco/SKILL.md) — guidance for coding agents building xStatic extensions
 
 ---
 

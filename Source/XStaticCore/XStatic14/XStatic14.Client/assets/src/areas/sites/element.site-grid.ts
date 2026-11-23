@@ -1,6 +1,5 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { customElement, state } from "lit/decorators.js";
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
 import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
 
 import "./element.site";
@@ -64,7 +63,7 @@ class SiteGrid extends UmbElementMixin(LitElement) {
 export default SiteGrid;
 
 declare global {
-  interface HtmlElementTagNameMap {
+  interface HTMLElementTagNameMap {
     "xstatic-site-grid": SiteGrid;
   }
 }

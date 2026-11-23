@@ -1,4 +1,4 @@
-import { css, customElement, html, property, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
+import { css, customElement, html, property, repeat, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
 // import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
@@ -8,7 +8,8 @@ import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 type DynamicFormField = { 
     name?: string | null | undefined,
     alias?: string | null | undefined,
-    editorUiAlias?: string | null | undefined
+    editorUiAlias?: string | null | undefined,
+    help?: string | null | undefined
 };
 
 export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends DynamicFormField> 
@@ -46,10 +47,7 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
             this.value = fields;
 
             const help = config.getValueByAlias('help') as string | null | undefined;
-
-            if(help){
-                this.help = help;
-            }
+            this.help = help ?? undefined;
         }
     
         onPropertyDataChange(e: Event) {
@@ -84,15 +82,16 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
                       @change=${this.onPropertyDataChange}
                     >
 
-                      ${this.fields
-                    .map(
-                        (prop) => {
-                            return html`<umb-property
+                      ${repeat(
+                        this.fields,
+                        (prop) => `${prop.alias ?? prop.name ?? ''}-${prop.editorUiAlias ?? 'Umb.PropertyEditorUi.TextBox'}`,
+                        (prop) => html`<umb-property
                               alias=${prop.alias!}
                               label=${prop.name!}
+                              .description=${prop.help ?? ''}
                               property-editor-ui-alias=${prop.editorUiAlias ?? "Umb.PropertyEditorUi.TextBox"}
-                            ></umb-property>`}
-                    )}
+                            ></umb-property>`
+                      )}
 
                     </umb-property-dataset>
                 </div>

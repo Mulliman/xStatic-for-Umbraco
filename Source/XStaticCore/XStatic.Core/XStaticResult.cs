@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+using XStatic.Core.Models;
 
 namespace XStatic.Core
 {
@@ -8,6 +10,7 @@ namespace XStatic.Core
 
         public string Message { get; set; }
 
+        [JsonConverter(typeof(SafeExceptionJsonConverter))]
         public Exception Exception { get; set; }
 
         public static XStaticResult Success()
@@ -42,6 +45,7 @@ namespace XStatic.Core
 
         public string Message { get; set; }
 
+        [JsonConverter(typeof(SafeExceptionJsonConverter))]
         public Exception Exception { get; set; }
 
         public T Data { get; set; }

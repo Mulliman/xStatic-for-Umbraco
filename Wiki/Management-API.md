@@ -58,6 +58,7 @@ If you register xStatic without `UseSecureUserGroups()`, both policies only requ
 | Verb | Route | Request | Response | What it does |
 |------|-------|---------|----------|--------------|
 | GET | `sites/get-all` | none | list of `SiteApiModel` | All sites, with the export type name, the root node's path (**Item Not Found** if the node isn't published or has been deleted), and the stored output size (only worked out when the root node is found) |
+| GET | `sites/{staticSiteId}` | route | `SiteApiModel` | Single site configuration and status by ID (`404` if not found) |
 | POST | `sites/create` | body `SiteUpdateModel` | `SiteApiModel` | Creates a site |
 | POST | `sites/update` | body `SiteUpdateModel` with `id` | `SiteApiModel` | Updates a site |
 | DELETE | `sites/delete?staticSiteId={id}` | query | empty | Deletes the site's settings. The stored output stays on disk |
@@ -273,7 +274,7 @@ The OpenAPI document for xStatic's API is registered under the name `xstatic-v1`
 https://your-site/umbraco/openapi/xstatic-v1.json
 ```
 
-Use it to generate a client in another language. Umbraco serves its OpenAPI documents from the same address as the
+Use it to generate a client in another language or inspect schemas for MCP tooling (see [MCP server and agent skill](MCP-Server-and-Agent-Skill.md)). Umbraco serves its OpenAPI documents from the same address as the
 backoffice. If the URL returns a 404 in a published environment, check whether Umbraco's OpenAPI documents are only
 enabled in development on your version.
 

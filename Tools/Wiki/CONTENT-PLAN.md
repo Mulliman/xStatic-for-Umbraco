@@ -73,7 +73,12 @@ The videos are linked from the page they illustrate and collected on [Videos-and
 | Deploying-to-Netlify | Netlify deployer, site creator, 404 action |
 | Deploying-with-Git | Git deployer, GitHub Pages, tokens, limitations |
 | Deploying-to-FTP | FTP deployer, mirror behaviour, passive mode, test server |
+| Deploying-to-Cloudflare | Cloudflare Pages Direct Upload, Project Creator, R2 deployer, `_headers` and `_redirects` actions |
 | Remote-Operations | API users, the client package, scheduled builds |
+| AI-and-GEO | Companion `.md` twins, `/llms.txt`, `/llms-full.txt`, `MarkdownDiscoveryTransformer`, `GeoHtmlTransformerListFactory` |
+| RAG-and-WebMCP | Static RAG chunk exporter (`Jsonl`, `Json`, `Markdown`), `webmcp-index.json`, `IVectorStorePusher` |
+| MCP-Server-and-Agent-Skill | Official `xstatic-mcp` MCP server, API user setup, client configs, xStatic v17+ Agent Skill |
+| AI-Integration | Optional `xStatic.AI` package, `AiPreDeployAuditAction`, `IXStaticAIToolProvider` for `Umbraco.AI.Agent` |
 | Static-Failover-Site | Recipe from the Umbraco 15 video |
 | JSON-Export | Headless JSON output |
 | Architecture | Pipeline in depth, jobs, discovery, registration |

@@ -1,91 +1,93 @@
-﻿import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
-import { tryExecute } from '@umbraco-cms/backoffice/resources'
+﻿import { UmbControllerBase } from '@umbraco-cms/backoffice/class-api';
+import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
+import { UmbContextToken } from '@umbraco-cms/backoffice/context-api';
+import { Observable, UmbArrayState, UmbBooleanState, UmbObjectState } from '@umbraco-cms/backoffice/observable-api';
 
-import { DocModel } from './element.doc';
+import type { DocModel } from './element.doc';
+import type { WikiDocsBundle, WikiPlugin } from './types.docs';
+
+export const DOCS_BUNDLE_URL = '/App_Plugins/xstatic14/docs/docs-bundle.json';
 
 export class DocsContext extends UmbControllerBase {
-    #isDocsLoaded: any;
-    #isPluginsLoaded: any;
+	#docsInitStarted = false;
 
-    #plugins = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public get plugins() : Observable<DocModel[]> { return this.#initPlugins(); }
+	#bundle = new UmbObjectState<WikiDocsBundle | undefined>(undefined);
+	#docsLoaded = new UmbBooleanState(false);
+	#docsError = new UmbBooleanState(false);
+	#plugins = new UmbArrayState<DocModel>([], (d) => d.heading);
 
-    #docs = new UmbArrayState<DocModel>([], (d) => d.heading);
-    public get docs() : Observable<DocModel[]> { return this.#initDocs(); }
-    
-    constructor(host: UmbControllerHost) {
-        super(host);
+	public get bundle(): Observable<WikiDocsBundle | undefined> {
+		this.#ensureDocsLoaded();
+		return this.#bundle.asObservable();
+	}
 
-        this.provideContext(DOCS_CONTEXT_TOKEN, this);
-    }
+	public get docsLoaded(): Observable<boolean> {
+		this.#ensureDocsLoaded();
+		return this.#docsLoaded.asObservable();
+	}
 
-    #initDocs() : Observable<DocModel[]> {
-        if(!this.#isDocsLoaded){
-            this.#getDocs();
-        }
+	public get docsError(): Observable<boolean> {
+		return this.#docsError.asObservable();
+	}
 
-        return this.#docs.asObservable();
-    }
+	public get plugins(): Observable<Array<DocModel>> {
+		this.#ensureDocsLoaded();
+		return this.#plugins.asObservable();
+	}
 
-    async #getDocs() {
-        const data = await tryExecute(this, (await fetch('https://xstaticplugins.netlify.app/help.json')).json());
+	constructor(host: UmbControllerHost) {
+		super(host);
 
-        if(data){
-            const arr = data as Array<any>;
+		this.provideContext(DOCS_CONTEXT_TOKEN, this);
+	}
 
-            var mapped = arr.map((d) => ({
-                heading: d['title'],
-                description : d['description'],
-                links: [{href: d['link'], text: 'Read on external site'}]
-            }) as DocModel);
+	#ensureDocsLoaded() {
+		if (this.#docsInitStarted) return;
+		this.#docsInitStarted = true;
+		void this.#fetchDocsBundle();
+	}
 
-            this.#docs.setValue(mapped);
-        }
-    }
+	async #fetchDocsBundle() {
+		try {
+			const response = await fetch(DOCS_BUNDLE_URL);
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
+			const data = (await response.json()) as WikiDocsBundle;
+			if (!data || typeof data.pages !== 'object') {
+				throw new Error('Invalid docs bundle format');
+			}
+			this.#bundle.setValue(data);
+			this.#plugins.setValue(this.#mapPlugins(data.plugins ?? []));
+			this.#docsError.setValue(false);
+		} catch {
+			this.#docsError.setValue(true);
+		} finally {
+			this.#docsLoaded.setValue(true);
+		}
+	}
 
-    #initPlugins() : Observable<DocModel[]> {
-        if(!this.#isPluginsLoaded){
-            this.#getPlugins();
-        }
+	#mapPlugins(items: Array<WikiPlugin>): Array<DocModel> {
+		return items.map((item) => {
+			const links: Array<{ href: string; text: string }> = [];
+			if (item.packageUrl) {
+				links.push({ href: item.packageUrl, text: item.kind === 'npm' ? 'npm' : 'NuGet' });
+			}
+			if (item.gitUrl) {
+				links.push({ href: item.gitUrl, text: 'Git Repo' });
+			}
 
-        return this.#plugins.asObservable();
-    }
-
-    async #getPlugins() {
-        const data = await tryExecute(this, (await fetch('https://xstaticplugins.netlify.app/plugins.json')).json());
-
-        if(data){
-            const arr = data as Array<any>;
-
-            var mapped = arr.map((d) => ({
-                heading: d['id'],
-                author: d['authors'],
-                description : d['description'],
-                links: this.#getLinks(d)
-            }) as DocModel);
-
-            this.#plugins.setValue(mapped);
-        }
-    }
-
-    #getLinks(item: any){
-        let arr : Array<{href: string, text: string}>= [];
-
-        if(item['nugetLink']){
-            arr.push({href: item['nugetLink'], text: 'NuGet'});
-        }
-
-        if(item['gitLink']){
-            arr.push({href: item['gitLink'], text: 'Git Repo'});
-        }
-
-        return arr;
-    }
+			return {
+				heading: item.id,
+				author: item.author,
+				description: item.description,
+				docSlug: item.docSlug,
+				links,
+			};
+		});
+	}
 }
 
 export default DocsContext;
 
-export const DOCS_CONTEXT_TOKEN = new UmbContextToken<DocsContext>("xStatic.DocsContext");
+export const DOCS_CONTEXT_TOKEN = new UmbContextToken<DocsContext>('xStatic.DocsContext');

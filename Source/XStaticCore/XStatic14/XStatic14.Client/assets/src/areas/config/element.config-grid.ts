@@ -1,6 +1,5 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { customElement, state } from 'lit/decorators.js';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
 import ConfigContext, { CONFIG_CONTEXT_TOKEN } from './context.config';
 
 import { XStaticConfig } from '../../api';
@@ -143,7 +142,7 @@ class ConfigGrid extends UmbElementMixin(LitElement) {
 export default ConfigGrid;
 
 declare global {
-    interface HtmlElementTagNameMap {
+    interface HTMLElementTagNameMap {
         'xstatic-config-grid': ConfigGrid
     }
 }

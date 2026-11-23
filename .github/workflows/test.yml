@@ -37,6 +37,9 @@ jobs:
       - name: 'Unit tests'
         run: dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=unit.trx" --results-directory TestResults
 
+      - name: 'AI unit tests'
+        run: dotnet test Source/XStaticCore/XStatic.AI.Tests/XStatic.AI.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=ai-unit.trx" --results-directory TestResults
+
       - name: 'Integration tests (SQLite)'
         env:
           Tests__Database__DatabaseType: 'SQLite'
@@ -50,7 +53,7 @@ jobs:
           path: TestResults
 
   client:
-    name: 'Type-check and build (backoffice client)'
+    name: 'Lint, test and build (backoffice client)'
     runs-on: 'ubuntu-latest'
     defaults:
       run:
@@ -68,6 +71,15 @@ jobs:
 
       - name: 'Install dependencies'
         run: npm ci
+
+      - name: 'Check wiki links and docs compiler'
+        working-directory: ${{ github.workspace }}
+        run: |
+          node Tools/Wiki/wiki.mjs check
+          node --test Tools/Wiki/compile-client-docs.test.mjs
+
+      - name: 'Lint and test (tsc + eslint + vitest)'
+        run: npm run check
 
       - name: 'Build (tsc + vite)'
         run: npm run build

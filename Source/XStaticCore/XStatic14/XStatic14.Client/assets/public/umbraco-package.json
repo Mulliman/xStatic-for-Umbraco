@@ -6,12 +6,6 @@
     "allowTelemetry": true,
     "extensions": [
         {
-            "name": "xStatic",
-            "type": "backofficeEntryPoint",
-            "alias": "My.Custom.Section",
-            "js": "/App_Plugins/xstatic14/assets.js"
-        },
-        {
             "name": "XStatic14.entrypoint",
             "alias": "XStatic14.EntryPoint",
             "type": "backofficeEntryPoint",
