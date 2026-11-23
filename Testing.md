@@ -98,6 +98,7 @@ creating folders work but no file can be transferred, which the deployer reports
 | `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
 | `codeql.yml` | Every PR, pushes to `master` / `feature/**` / `lts/**`, and weekly | CodeQL security scan of the C#, TypeScript and workflow files, without building. Results go to Security → Code scanning. Exclusions are in `.github/codeql/codeql-config.yml`. |
 | `scorecard.yml` | Pushes to `master`, and weekly | OpenSSF Scorecard check of the repo's security practices. Publishes the score shown by the README badge. |
+| `dependabot-automerge.yml` | Dependabot PRs | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates are left for review. |
 | `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
 
 **Preview versions** come from the nearest `v*` tag (`.github/scripts/Get-PreviewVersion.ps1`): PRs get
@@ -106,7 +107,9 @@ creating folders work but no file can be transferred, which the deployer reports
 but can't publish to the feed; their packages are in the run's artifact.
 
 **Dependabot** (`.github/dependabot.yml`) opens monthly, grouped update PRs for NuGet, npm and Actions on `master`,
-`lts/17` and `feature/19`. It never bumps Umbraco packages, which are bumped together by hand.
+`lts/17` and `feature/19`. It never bumps Umbraco packages, which are bumped together by hand. Minor and patch updates
+merge themselves once the required checks pass (`dependabot-automerge.yml`); major updates wait for review. Actions are
+pinned to commit SHAs, and Dependabot keeps those up to date.
 
 **Installing a preview:** GitHub Packages needs a personal access token (classic) with `read:packages`, even for public
 packages:
