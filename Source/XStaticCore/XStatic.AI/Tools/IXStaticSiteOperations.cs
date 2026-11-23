@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using XStatic.Core;
 using XStatic.Core.Actions;
@@ -41,6 +42,7 @@ public class XStaticSiteOperations : IXStaticSiteOperations
     private readonly IDeploymentTargetRepository _deploymentTargetRepository;
     private readonly IDeployerService _deployerService;
     private readonly ILogger<XStaticSiteOperations> _logger;
+    private readonly IEntityService? _entityService;
 
     public XStaticSiteOperations(
         IUmbracoContextFactory umbracoContextFactory,
@@ -53,7 +55,25 @@ public class XStaticSiteOperations : IXStaticSiteOperations
         IDeploymentTargetRepository deploymentTargetRepository,
         IDeployerService deployerService,
         ILogger<XStaticSiteOperations> logger)
+        : this(umbracoContextFactory, exportTypeService, sitesRepository, webHostEnvironment, actionFactory, globalSettings,
+            staticSiteStorer, deploymentTargetRepository, deployerService, logger, entityService: null)
     {
+    }
+
+    public XStaticSiteOperations(
+        IUmbracoContextFactory umbracoContextFactory,
+        IExportTypeService exportTypeService,
+        ISitesRepository sitesRepository,
+        IWebHostEnvironment webHostEnvironment,
+        IActionFactory actionFactory,
+        IOptions<XStaticGlobalSettings> globalSettings,
+        IStaticSiteStorer staticSiteStorer,
+        IDeploymentTargetRepository deploymentTargetRepository,
+        IDeployerService deployerService,
+        ILogger<XStaticSiteOperations> logger,
+        IEntityService? entityService)
+    {
+        _entityService = entityService;
         _umbracoContextFactory = umbracoContextFactory ?? throw new ArgumentNullException(nameof(umbracoContextFactory));
         _exportTypeService = exportTypeService ?? throw new ArgumentNullException(nameof(exportTypeService));
         _sitesRepository = sitesRepository ?? throw new ArgumentNullException(nameof(sitesRepository));
@@ -77,7 +97,8 @@ public class XStaticSiteOperations : IXStaticSiteOperations
             _webHostEnvironment,
             _actionFactory,
             _globalSettings,
-            _logger);
+            _logger,
+            _entityService!);
 
         return await process.RebuildSite(staticSiteId).ConfigureAwait(false);
     }

@@ -343,6 +343,32 @@ namespace XStatic.Core.Tests.AutoPublish
             Assert.Contains(resolvers, r => r is RelationBasedAutoPublishSiteResolver);
         }
 
+        [Fact]
+        public void ServiceCollection_ResolvesDefaultAutoPublisherWhenEntityServiceIsRegistered()
+        {
+            // In a real site IEntityService is registered, so DI picks the constructor that takes it.
+            var services = new ServiceCollection();
+            services.AddSingleton(Mock.Of<ISitesRepository>());
+            services.AddSingleton(Mock.Of<IUmbracoContextFactory>());
+            services.AddSingleton(Mock.Of<IDeployerService>());
+            services.AddSingleton(Mock.Of<IDeploymentTargetRepository>());
+            services.AddSingleton(Mock.Of<IStaticSiteStorer>());
+            services.AddSingleton(Mock.Of<IExportTypeService>());
+            services.AddSingleton(Mock.Of<IWebHostEnvironment>());
+            services.AddSingleton(Mock.Of<IActionFactory>());
+            services.AddSingleton(Mock.Of<IRelationService>());
+            services.AddSingleton(Mock.Of<IContentService>());
+            services.AddSingleton(Mock.Of<IEntityService>());
+            services.AddSingleton(Mock.Of<ILogger<DefaultAutoPublisher>>());
+            services.AddSingleton(Mock.Of<ILogger<RelationBasedAutoPublishSiteResolver>>());
+            services.AddOptions<XStaticGlobalSettings>();
+            new GeneratorServiceBuilder(services).AddDefaultAutoDeployServices();
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.IsType<DefaultAutoPublisher>(provider.GetRequiredService<IAutoPublisher>());
+        }
+
         private static IPublishedContent CreatePublishedContent(int id)
         {
             var mock = new Mock<IPublishedContent>();

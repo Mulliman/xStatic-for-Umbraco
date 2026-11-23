@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 
 using XStatic.Core.App;
@@ -37,6 +38,7 @@ namespace XStatic.Core.AutoPublish
 		private readonly IOptions<XStaticGlobalSettings> _globalSettings;
 		private readonly ILogger<DefaultAutoPublisher> _logger;
 		private readonly IReadOnlyList<IAutoPublishSiteResolver> _siteResolvers;
+		private readonly IEntityService _entityService;
 
 		public DefaultAutoPublisher(ISitesRepository sitesRepository,
 			IUmbracoContextFactory umbracoContextFactory,
@@ -63,7 +65,24 @@ namespace XStatic.Core.AutoPublish
 			IOptions<XStaticGlobalSettings> globalSettings,
 			ILogger<DefaultAutoPublisher> logger,
 			IEnumerable<IAutoPublishSiteResolver> siteResolvers)
+			: this(sitesRepository, umbracoContextFactory, deployerService, deploymentTargetRepository, storer, exportTypeService, webHostEnvironment, actionFactory, globalSettings, logger, siteResolvers, entityService: null)
 		{
+		}
+
+		public DefaultAutoPublisher(ISitesRepository sitesRepository,
+			IUmbracoContextFactory umbracoContextFactory,
+			IDeployerService deployerService,
+			IDeploymentTargetRepository deploymentTargetRepository,
+			IStaticSiteStorer storer,
+			IExportTypeService exportTypeService,
+			IWebHostEnvironment webHostEnvironment,
+			IActionFactory actionFactory,
+			IOptions<XStaticGlobalSettings> globalSettings,
+			ILogger<DefaultAutoPublisher> logger,
+			IEnumerable<IAutoPublishSiteResolver> siteResolvers,
+			IEntityService entityService)
+		{
+			_entityService = entityService;
 			_sitesRepository = sitesRepository;
 			_umbracoContextFactory = umbracoContextFactory;
 			_storer = storer;
@@ -99,7 +118,7 @@ namespace XStatic.Core.AutoPublish
 			var autoPublishSiteItems = GetAutoPublishSiteItems(autoPublishSites);
 			var sitesToDeploy = ResolveAffectedSites(publishedList, autoPublishSites, autoPublishSiteItems);
 
-			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepository, _webHostEnvironment, _actionFactory, _globalSettings, _logger);
+			var process = new RebuildProcess(_umbracoContextFactory, _exportTypeService, _sitesRepository, _webHostEnvironment, _actionFactory, _globalSettings, _logger, _entityService);
 			var deployProcess = new DeployProcess(_storer, _deploymentTargetRepository, _deployerService, _sitesRepository);
 
 			foreach (var site in sitesToDeploy.Where(s => s.DeploymentTarget != null))

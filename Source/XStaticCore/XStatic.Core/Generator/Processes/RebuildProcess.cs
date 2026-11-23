@@ -38,26 +38,25 @@ namespace XStatic.Core.Generator.Processes
 	private readonly IOptions<XStaticGlobalSettings> _globalSettings;
 		private readonly ILogger _logger;
 
+        [Obsolete("Use the constructor that takes an IEntityService. This one resolves it from the application's services. It will be removed in xStatic 18.")]
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository repo,
             IWebHostEnvironment webHostEnvironment,
             IActionFactory actionFactory,
-			IOptions<XStaticGlobalSettings> globalSettings, 
-			ILogger logger)
+            IOptions<XStaticGlobalSettings> globalSettings,
+            ILogger logger)
+            : this(umbracoContextFactory, exportTypeService, repo, webHostEnvironment, actionFactory, globalSettings, logger, entityService: null)
         {
-            _umbracoContextFactory = umbracoContextFactory;
-            _exportTypeService = exportTypeService;
-            _sitesRepo = repo;
-            _webHostEnvironment = webHostEnvironment;
-            _actionFactory = actionFactory;
-            _globalSettings = globalSettings;
-            _logger = logger;
         }
 
         /// <summary>
-        /// Creates the process with the entity service used to list the media under each media root.
+        /// Creates the process.
         /// </summary>
+        /// <param name="entityService">
+        /// Lists the media under each media root from the database. If null, it's resolved from the application's
+        /// services, and if that fails the published cache is used, which can miss media on a site's first boot.
+        /// </param>
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
             IExportTypeService exportTypeService,
             ISitesRepository repo,
@@ -66,31 +65,47 @@ namespace XStatic.Core.Generator.Processes
             IOptions<XStaticGlobalSettings> globalSettings,
             ILogger logger,
             IEntityService entityService)
-            : this(umbracoContextFactory, exportTypeService, repo, webHostEnvironment, actionFactory, globalSettings, logger)
         {
+            _umbracoContextFactory = umbracoContextFactory;
+            _exportTypeService = exportTypeService;
+            _sitesRepo = repo;
+            _webHostEnvironment = webHostEnvironment;
+            _actionFactory = actionFactory;
+            _globalSettings = globalSettings;
+            _logger = logger;
             _entityService = entityService;
         }
 
         private IEntityService _entityService;
+        private bool _entityServiceLookedUp;
 
         /// <summary>
-        /// Lists the media under each media root. Resolved from the application's services when not passed in, so the
-        /// existing constructors keep working.
+        /// The entity service passed in, or else the application's. Only looked up once.
         /// </summary>
         private IEntityService EntityService
         {
             get
             {
+                if (_entityService != null || _entityServiceLookedUp)
+                {
+                    return _entityService;
+                }
+
+                _entityServiceLookedUp = true;
+                Exception error = null;
+
+                try
+                {
+                    _entityService = StaticServiceProvider.Instance?.GetService<IEntityService>();
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+
                 if (_entityService == null)
                 {
-                    try
-                    {
-                        _entityService = StaticServiceProvider.Instance?.GetService<IEntityService>();
-                    }
-                    catch (Exception e)
-                    {
-                        _logger?.LogDebug(e, "Could not resolve IEntityService; media will be listed from the published cache.");
-                    }
+                    _logger?.LogWarning(error, "xStatic could not get IEntityService, so media will be listed from the published cache. On a new site's first boot that can miss media. Create RebuildProcess with an IEntityService to avoid this.");
                 }
 
                 return _entityService;
