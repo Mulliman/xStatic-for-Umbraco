@@ -148,6 +148,12 @@ silently.
 | `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
 | `wiki.yml` | Changes to `Wiki/` | Checks the wiki, and publishes it when `master` changes |
+| `codeql.yml` | Every pull request, pushes to `master`, `feature/**` and `lts/**`, and weekly | Scans the C#, TypeScript and workflow files for security problems. Findings show under **Security** then **Code scanning**, and on the pull request |
+| `scorecard.yml` | Pushes to `master`, and weekly | Rates the repository's security practices with the OpenSSF Scorecard, and publishes the score shown on the README |
+
+Dependabot (`.github/dependabot.yml`) opens grouped update pull requests once a month for `master`, `lts/17` and
+`feature/19`. It leaves Umbraco packages alone, because they are bumped together by hand. To report a security problem, see
+[SECURITY.md](../SECURITY.md).
 
 All seven packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
 to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the history of the tags is on

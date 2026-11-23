@@ -10,6 +10,9 @@ on:
       - 'Source/xstatic-mcp/**'
       - '.github/workflows/xStatic.Mcp.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test-and-build:
     runs-on: ubuntu-latest

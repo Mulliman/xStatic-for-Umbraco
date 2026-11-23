@@ -2,6 +2,8 @@
 
 [![Umbraco](https://img.shields.io/badge/Umbraco-13%2B-blue.svg)](https://umbraco.com)
 [![NuGet](https://img.shields.io/nuget/v/xstatic.svg)](https://www.nuget.org/packages/xstatic/)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Mulliman/xStatic-for-Umbraco/badge)](https://scorecard.dev/viewer/?uri=github.com/Mulliman/xStatic-for-Umbraco)
+[![CodeQL](https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml)
 
 **xStatic** is the ultimate static site generator for Umbraco. It allows you to transform your dynamic Umbraco site into a blazing-fast, ultra-secure static website that can be hosted anywhere for pennies.
 
@@ -51,6 +53,12 @@ The wiki is written in the [`Wiki/`](Wiki) folder of this repository and publish
 Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for instructions on setting up test instances and running automated tests.
 
 For AI contributions and development context, see our [AGENTS.md](AGENTS.md) file.
+
+---
+
+## 🔒 Security
+
+Found a security problem? Please don't open a public issue. Report it privately through [Report a vulnerability](https://github.com/Mulliman/xStatic-for-Umbraco/security/advisories/new). [SECURITY.md](SECURITY.md) lists the supported versions and what happens after you report.
 
 ---
 

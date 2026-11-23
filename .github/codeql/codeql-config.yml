@@ -1,0 +1,11 @@
+name: "xStatic CodeQL config"
+
+# Uses the default query suite (high-confidence security queries) to keep false alarms low.
+# Skip generated and built code: findings there can't be fixed by hand, and the source they come from is scanned anyway.
+paths-ignore:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/bin/**'
+  - '**/obj/**'
+  - 'Source/XStaticCore/XStatic14/XStatic14.Client/wwwroot/App_Plugins/**'  # Vite build output
+  - 'Source/XStaticCore/XStatic.RemoteOperations/Client.cs'                 # NSwag-generated
