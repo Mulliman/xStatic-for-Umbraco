@@ -1,11 +1,9 @@
 import { UmbEntryPointOnInit } from '@umbraco-cms/backoffice/extension-api';
-// import { ManifestTypes } from '@umbraco-cms/backoffice/extension-registry';
 import { UMB_AUTH_CONTEXT } 
   from '@umbraco-cms/backoffice/auth';
 import { OpenAPI } 
   from './api/index.ts';
 
-// load up the manifests here.
 import manifests from './manifests.ts';
 
 const manifestsList: Array<UmbExtensionManifest> = [
@@ -27,9 +25,12 @@ export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
             return;
         }
 
-        OpenAPI.BASE = umbOpenApi.base!;
+        OpenAPI.BASE = umbOpenApi.base ?? '';
         OpenAPI.TOKEN = async () => (await umbOpenApi.token()) ?? '';
         OpenAPI.WITH_CREDENTIALS = !!umbOpenApi.credentials;
-        OpenAPI.CREDENTIALS = umbOpenApi.credentials!;
+
+        if (umbOpenApi.credentials) {
+            OpenAPI.CREDENTIALS = umbOpenApi.credentials;
+        }
     });
 };

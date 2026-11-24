@@ -1,6 +1,6 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
 
 import "./element.export-type";
 import "./element.new-export-type";
@@ -9,7 +9,7 @@ import "../../elements/element.dashboard-grid";
 import { ExportTypeModel } from '../../api';
 
 @customElement('xstatic-export-type-grid')
-class ExportTypeGrid extends UmbElementMixin(LitElement) {
+class ExportTypeGrid extends UmbLitElement {
 
     @state()
     isLoaded = false;
@@ -17,49 +17,32 @@ class ExportTypeGrid extends UmbElementMixin(LitElement) {
     @state()
     exportTypes?: Array<ExportTypeModel>;
 
-    #exportTypeContext?: ExportTypeContext;
-
     constructor() {
         super();
 
-        this.consumeContext(
-            EXPORT_TYPE_CONTEXT_TOKEN,
-            (context) => {
-                this.#exportTypeContext = context;
-
-                this.observe(this.#exportTypeContext?.config, (x) => {
-                    if(x?.exportTypes){
-                        this.exportTypes = x.exportTypes;
-                        this.isLoaded = true;
-                    }
-                });
-            }
-        )
+        this.consumeContext(EXPORT_TYPE_CONTEXT_TOKEN, (context) => {
+            this.observe(context?.config, (x) => {
+                if (x?.exportTypes) {
+                    this.exportTypes = x.exportTypes;
+                    this.isLoaded = true;
+                }
+            }, '_observeConfig');
+        });
     }
 
     render() {
         if (!this.exportTypes) {
-            return this.isLoaded ? html`` : html`Loading...`;
+            return this.isLoaded ? html`` : html`<uui-loader-bar></uui-loader-bar>`;
         }
 
         return html`
             <xstatic-dashboard-grid>
                 <xstatic-new-export-type-element slot="info"></xstatic-new-export-type-element>
-                <div slot="grid">${this.#renderTypes()}</div>
+                <div slot="grid">
+                    ${this.exportTypes.map((x) => html`<xstatic-export-type-element .exportType=${x}></xstatic-export-type-element>`)}
+                </div>
             </xstatic-dashboard-grid>
         `;
-    }
-
-    #renderTypes() {
-        if (!this.exportTypes) {
-            return null;
-        }
-
-        return this.exportTypes.map(x => {
-            return html`
-                <xstatic-export-type-element .exportType=${x}></xstatic-export-type-element>
-            `
-        });
     }
 }
 

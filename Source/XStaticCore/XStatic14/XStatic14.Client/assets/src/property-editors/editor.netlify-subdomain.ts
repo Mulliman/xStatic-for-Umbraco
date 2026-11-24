@@ -1,23 +1,26 @@
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import { css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
+import { css, html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
-import {
-	UmbPropertyEditorUiElement
-} from '@umbraco-cms/backoffice/property-editor';
+import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
+/** Property editor for a Netlify site name: a text box, the `.netlify.app` suffix and a link to check the site. */
 @customElement('xstatic-property-editor-netlify-subdomain')
 export class XStaticPropertyEditorNetlifySubdomainElement
-	extends UmbFormControlMixin<string>(UmbLitElement, undefined)
+	extends UmbFormControlMixin<string, typeof UmbLitElement>(UmbLitElement, undefined)
 	implements UmbPropertyEditorUiElement
 {
-	@state()
-	isAvailable?: boolean;
+	/** The property label, set by `<umb-property>`. Used for the input's accessible name. */
+	@property()
+	name?: string;
 
 	protected override firstUpdated(): void {
-		this.addFormControlElement(this.shadowRoot!.querySelector('uui-input')!);
+		const input = this.shadowRoot?.querySelector('uui-input');
+
+		if (input) {
+			this.addFormControlElement(input);
+		}
 	}
 
 	#onInput(e: InputEvent) {
@@ -29,38 +32,44 @@ export class XStaticPropertyEditorNetlifySubdomainElement
 
 	override render() {
 		return html`
-		<div style="display: flex">
-			<uui-input
-				.value=${this.value ?? ''}
-				.type=${'text'}
-				@input=${this.#onInput}
-			></uui-input>
-			<span class="suffix">.netlify.app</span>
-			<uui-button href=${"https://" + this.value + ".netlify.app"} target="_blank" look="secondary" title="Test whether this site already exists by visiting the site."><uui-icon name="icon-arrow-right"></uui-icon></uui-button>
-		</div>
+			<div class="field">
+				<uui-input
+					.value=${this.value ?? ''}
+					type="text"
+					label=${this.localize.term('general_fieldFor', [this.name ?? ''])}
+					@input=${this.#onInput}
+				></uui-input>
+				<span class="suffix">.netlify.app</span>
+				<uui-button
+					href=${"https://" + this.value + ".netlify.app"}
+					target="_blank"
+					rel="noopener noreferrer"
+					look="secondary"
+					label="Visit this Netlify site to check whether it already exists"
+					title="Test whether this site already exists by visiting the site."
+				><uui-icon name="icon-arrow-right"></uui-icon></uui-button>
+			</div>
 		`;
 	}
 
 	static styles = [
 		UmbTextStyles,
 		css`
+			.field {
+				display: flex;
+			}
+
 			uui-input {
-				width: 80%;
 				flex: 5;
 				border-right: none;
 			}
 
 			.suffix {
-				padding: 6px 15px 0;
-				border: 1px solid var(--uui-input-border-color, var(--uui-color-border,#d8d7d9));
+				flex: 1;
+				padding: var(--uui-size-space-2) var(--uui-size-space-4) 0;
+				border: 1px solid var(--uui-input-border-color, var(--uui-color-border));
 				border-left: none;
-				 /* background: #444;  */
-				 /* color: white; */
-				 font-weight: bold;
-				 flex: 1;
-			}
-
-			uui-button{
+				font-weight: bold;
 			}
 		`,
 	];

@@ -1,28 +1,28 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, html, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditDeploymentTargetModal } from './dialog.deployment-target';
 import { DeploymentTargetCreatorModal } from './dialog.deployment-target-creator';
+import { xStaticCardStyles } from '../../code/styles';
 
 @customElement('xstatic-new-deployment-target-element')
-class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
+class NewDeploymentTargetElement extends UmbLitElement {
 
     render() {
-
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">Create new Deployment Target</div>
-                <div slot="header-actions" >
-                    <uui-button pristine="" label="Create" color="positive" look="primary" @click=${this.#openCreateDialog}><uui-icon name="icon-add"></uui-icon></uui-button>
+            <uui-box data-test-id="new-deployment-target">
+                <div slot="headline" class="headline">Create new Deployment Target</div>
+                <div slot="header-actions">
+                    <uui-button label="Create" color="positive" look="primary" @click=${this.#openCreateDialog}><uui-icon name="icon-add"></uui-icon></uui-button>
                 </div>
-                
-                <div style="position:relative; display: block">
-                    <div>
-                        <p>Deployment Targets are individual instances of a deployer, the piece of code that pushes the generated files to the correct location. Deployers require some configuration for locations, passwords, usernames etc. and these are set on a Deployment Target.</p>
-                        <p>Once created, you can choose a Deployment Target for each site by selecting them in the sites dashboard.</p>
-                    </div>
+
+                <div class="card-body">
+                    <p>Deployment Targets are individual instances of a deployer, the piece of code that pushes the generated files to the correct location. Deployers require some configuration for locations, passwords, usernames etc. and these are set on a Deployment Target.</p>
+                    <p>Once created, you can choose a Deployment Target for each site by selecting them in the sites dashboard.</p>
                     <div class="buttons">
-                        <uui-button label="Manually Configure New Deployment Target" color="positive" look="primary" icon="icon-brush" @click=${this.#openCreateDialog}></uui-button>
+                        <uui-button label="Manually Configure New Deployment Target" color="positive" look="primary" data-test-id="new-deployment-target-manual" @click=${this.#openCreateDialog}>
+                            <uui-icon name="icon-brush"></uui-icon>Manually Configure New Deployment Target
+                        </uui-button>
                     </div>
                 </div>
 
@@ -31,50 +31,44 @@ class NewDeploymentTargetElement extends UmbElementMixin(LitElement) {
                         You can also let xStatic create the remote service, and configure the Deployment Target with the required details.
                     </div>
                     <div class="buttons">
-                        <uui-button label="Automatically Create New Deployment Target" color="warning" look="primary" icon="icon-brush" @click=${this.#openAutoCreateDialog}></uui-button>
+                        <uui-button label="Automatically Create New Deployment Target" color="warning" look="primary" data-test-id="new-deployment-target-auto" @click=${this.#openAutoCreateDialog}>
+                            <uui-icon name="icon-wand"></uui-icon>Automatically Create New Deployment Target
+                        </uui-button>
                     </div>
                 </div>
             </uui-box>
         `;
     }
 
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager?.open(this, EditDeploymentTargetModal, {});
-        } )
+    async #openCreateDialog() {
+        const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+        modalManager?.open(this, EditDeploymentTargetModal, {});
     }
 
-    #openAutoCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager?.open(this, DeploymentTargetCreatorModal, {});
-        } )
+    async #openAutoCreateDialog() {
+        const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+        modalManager?.open(this, DeploymentTargetCreatorModal, {});
     }
 
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
+    static styles = [
+        xStaticCardStyles,
+        css`
+            .auto {
+                position: relative;
+                display: block;
+                margin-top: var(--uui-size-space-5);
+                padding: var(--uui-size-space-5);
+                background: var(--uui-color-surface-alt);
+                border-left: var(--uui-size-space-1) solid var(--uui-color-warning);
+                border-radius: var(--uui-border-radius);
+            }
 
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .auto{
-            position:relative;
-             display: block;
-              background: #fff4ce;
-               padding: 20px;
-                margin-top: 20px;
-        }
-
-        .auto .text{
-            text-align: center;
-            font-weight: bold;
-        }
-    `;
+            .auto .text {
+                text-align: center;
+                font-weight: bold;
+            }
+        `,
+    ];
 }
 
 export default NewDeploymentTargetElement;

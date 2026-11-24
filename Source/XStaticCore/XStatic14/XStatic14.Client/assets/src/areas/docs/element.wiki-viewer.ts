@@ -1,6 +1,5 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import {
-	LitElement,
 	css,
 	html,
 	customElement,
@@ -86,7 +85,7 @@ function sanitizeWikiHtml(rawHtml: string): string {
 }
 
 @customElement('xstatic-wiki-viewer')
-export class WikiViewerElement extends UmbElementMixin(LitElement) {
+export class WikiViewerElement extends UmbLitElement {
 	@property({ type: Object, attribute: false })
 	bundle?: WikiDocsBundle;
 
@@ -924,7 +923,7 @@ export class WikiViewerElement extends UmbElementMixin(LitElement) {
 			height: 44px;
 			border-radius: 50%;
 			background: var(--uui-color-interactive, #3544b1);
-			color: #ffffff;
+			color: var(--uui-color-interactive-contrast, #ffffff);
 			flex-shrink: 0;
 		}
 

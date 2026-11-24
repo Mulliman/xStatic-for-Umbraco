@@ -1,19 +1,17 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, property, state } from '@umbraco-cms/backoffice/external/lit';
-
-import type {
-    xStaticTableItem,
-} from "../../elements/element.site-table";
-
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
+import type { xStaticTableItem } from "../../elements/element.site-table";
 import { DeploymentTargetModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditDeploymentTargetModal } from './dialog.deployment-target';
+import { DETAILS_COLUMNS, toDetailItems } from '../../code/table-items';
+import { xStaticCardStyles } from '../../code/styles';
 
 import "../../elements/element.site-table";
 import DeploymentTargetContext, { DEPLOYMENT_TARGET_CONTEXT_TOKEN } from './context.deployment-targets';
 
 @customElement('xstatic-deployment-target-element')
-class DeploymentTargetElement extends UmbElementMixin(LitElement) {
+class DeploymentTargetElement extends UmbLitElement {
 
     @property({ type: Object, attribute: false })
     deploymentTarget?: DeploymentTargetModel;
@@ -23,98 +21,54 @@ class DeploymentTargetElement extends UmbElementMixin(LitElement) {
     constructor() {
         super();
 
-        this.consumeContext(
-            DEPLOYMENT_TARGET_CONTEXT_TOKEN,
-            (context) => {
-                this.#deploymentTargetContext = context;
-            }
-        );
+        this.consumeContext(DEPLOYMENT_TARGET_CONTEXT_TOKEN, (context) => {
+            this.#deploymentTargetContext = context;
+        });
     }
-
-    //#region Render
 
     render() {
         if (!this.deploymentTarget) {
             return html``;
         }
 
-        const deploymentTarget = this.deploymentTarget;
-
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${deploymentTarget.name}</div>
-                <div slot="header-actions" >
-                    <uui-button pristine="" label="Edit" color="warning" look="primary" @click=${() => this.#openCreateDialog()}><uui-icon name="icon-brush"></uui-icon></uui-button>
-                    <uui-button pristine="" label="Delete" color="danger" look="primary" @click=${() => this.#delete()}><uui-icon name="icon-trash"></uui-icon></uui-button>
+            <uui-box data-test-id="deployment-target-${this.deploymentTarget.id}">
+                <div slot="headline" class="headline">${this.deploymentTarget.name}</div>
+                <div slot="header-actions">
+                    <uui-button label="Edit" color="warning" look="primary" data-test-id="deployment-target-edit" @click=${this.#openEditDialog}><uui-icon name="icon-brush"></uui-icon></uui-button>
+                    <uui-button label="Delete" color="danger" look="primary" data-test-id="deployment-target-delete" @click=${this.#delete}><uui-icon name="icon-trash"></uui-icon></uui-button>
                 </div>
-                
-                <div style="position:relative; display: block">
-                    <div>
-                        <xstatic-site-table .items=${this.getTable()} .config=${{}} .columns=${[{ alias: "value", name: "Details" }]} ></xstatic-site-table>
-                    </div>
+
+                <div class="card-body">
+                    <xstatic-site-table .items=${this.getTable()} .columns=${DETAILS_COLUMNS}></xstatic-site-table>
                 </div>
             </uui-box>
         `;
     }
 
-    // #endregion Render
+    async #openEditDialog() {
+        if (!this.deploymentTarget) return;
 
-    // #region Handlers
-
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) => {
-            manager?.open(this, EditDeploymentTargetModal, { data: { content: this.deploymentTarget!, headline: `Edit ${this.deploymentTarget?.name} target` } });
-        })
+        const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+        modalManager?.open(this, EditDeploymentTargetModal, {
+            data: { content: this.deploymentTarget, headline: `Edit ${this.deploymentTarget.name} target` },
+        });
     }
 
     async #delete() {
-        await this.#deploymentTargetContext?.deleteDeploymentTarget(this.deploymentTarget!.id);
-    }
+        if (!this.deploymentTarget) return;
 
-    // #endregion Handlers
-
-    // #region Mappers
-
-    addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
-        if (!id || !alias || !value) {
-            return;
-        }
-
-        const item = {
-            id: id,
-            icon: icon,
-            data: [
-                {
-                    columnAlias: alias,
-                    value: value
-                }]
-        };
-
-        array.push(item);
+        await this.#deploymentTargetContext?.deleteDeploymentTarget(this.deploymentTarget.id);
     }
 
     getTable(): Array<xStaticTableItem> {
-        let array: Array<xStaticTableItem> = [];
-
-        this.addTableItem(array, "name", "icon-home", "value", this.deploymentTarget?.name);
-        this.addTableItem(array, "type", "icon-brackets", "value", this.deploymentTarget?.deployerDefinition);
-
-        return array;
+        return toDetailItems([
+            { id: "name", icon: "icon-home", value: this.deploymentTarget?.name },
+            { id: "type", icon: "icon-brackets", value: this.deploymentTarget?.deployerDefinition },
+        ]);
     }
 
-    // #endregion Mappers
-
-    // #region Styles
-
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-    `;
-
-    // #endregion Styles
+    static styles = [xStaticCardStyles];
 }
 
 export default DeploymentTargetElement;

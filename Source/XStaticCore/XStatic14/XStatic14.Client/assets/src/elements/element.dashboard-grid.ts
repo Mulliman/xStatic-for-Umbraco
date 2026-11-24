@@ -1,48 +1,60 @@
-import {
-	css,
-	customElement,
-	html,
-	property,
-	LitElement,
-	state,
-} from '@umbraco-cms/backoffice/external/lit';
+import { css, customElement, html } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 
+/**
+ * Two-column dashboard layout: an "info" card on the left and a grid of cards on the right.
+ * When the dashboard is narrow (a small screen, or a wide sidebar), the info card moves above the grid.
+ */
 @customElement('xstatic-dashboard-grid')
-export class DashboardGrid extends LitElement {
+export class DashboardGrid extends UmbLitElement {
 	override render() {
 		return html`
-			<div class="info"><slot name="info"></slot></div>
-            <div class="grid"><slot name="grid"></slot></div>
+			<div class="layout">
+				<div class="info"><slot name="info"></slot></div>
+				<div class="grid"><slot name="grid"></slot></div>
+			</div>
 		`;
 	}
 
 	static styles = css`
 		:host {
+			display: block;
+			container-type: inline-size;
+		}
+
+		.layout {
 			display: flex;
 			flex-direction: row;
+			gap: var(--uui-size-layout-1);
 		}
 
-		:host .info {
+		.info {
 			display: flex;
-			max-width: 400px;
-			margin-right: 20px;
+			flex: 0 0 auto;
+			width: 400px;
+			max-width: 100%;
 		}
 
-		:host .grid {
-			flex: auto;
+		.grid {
+			flex: 1 1 auto;
+			min-width: 0;
 		}
 
-		:host .grid ::slotted(*) {
+		.grid ::slotted(*) {
 			position: relative;
 			display: grid;
-			flex: auto;
-			grid-gap: 20px;
-			grid-template-columns: repeat(auto-fill,minmax(400px,1fr));
+			grid-gap: var(--uui-size-layout-1);
+			grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
 		}
 
-		:host > div{
-			display: block;
-			position: relative;
+		@container (max-width: 900px) {
+			.layout {
+				flex-direction: column;
+			}
+
+			.info {
+				width: 100%;
+			}
 		}
 	`;
 }
