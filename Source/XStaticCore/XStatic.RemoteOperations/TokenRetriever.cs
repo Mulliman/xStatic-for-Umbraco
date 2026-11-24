@@ -19,7 +19,13 @@ namespace XStatic.RemoteOperations
 
             using var client = new HttpClient();
 
-            var content = new StringContent($"client_id={clientId}&client_secret={clientSecret}&grant_type=client_credentials", Encoding.UTF8, "application/x-www-form-urlencoded");
+            // FormUrlEncodedContent escapes the values, so a secret containing '&', '=' or '+' is sent intact.
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["grant_type"] = "client_credentials",
+            });
 
             var response = await client.PostAsync(TokenUri, content);
             response.EnsureSuccessStatusCode();
@@ -39,7 +45,8 @@ namespace XStatic.RemoteOperations
 
             if(!isValid)
             {
-                throw new System.Exception($"GetAccessToken - token {accessToken} or expiry {expiryDuration} are invalid.");
+                // Don't put the token itself in the message: exception messages end up in logs.
+                throw new System.Exception($"GetAccessToken - the token response was invalid (token {(accessToken == null ? "missing" : "present")}, expiry {expiryDuration}).");
             }
 
             // Remove a few seconds from the expiry to account for some latecy and avoid some failed requests.

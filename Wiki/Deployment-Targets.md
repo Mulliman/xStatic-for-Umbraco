@@ -51,6 +51,11 @@ editor. Until you pick a deployer the panel says "No Type selected". Fields that
 hold a secret, such as a token or password, use a masked input with a **Show** or **Hide** button beside it, so
 the value doesn't appear on screen while you work.
 
+Instead of typing a secret, you can type a reference such as `${env:XSTATIC_NETLIFY_TOKEN}`, and xStatic reads the
+environment variable each time it deploys. This is the recommended way. The line under each secret field and the box
+headed **Keep passwords and tokens out of the database.** explain it, and
+[Secrets and environment variables](Secrets-and-Environment-Variables.md) covers it in full.
+
 ## Create a Netlify site automatically
 
 For Netlify you can let xStatic make the Netlify site for you and fill in the target at the same time. This is the
@@ -79,7 +84,9 @@ Things to know:
   the site name is unique and try again." (HTTP 409). The backoffice may only show a generic error, because it doesn't
   read that message, so if nothing is created, check the name first. A blank token or site name fails with a server
   error instead.
-- The token is saved in the new target in plain text, like any other target.
+- The token is saved in the new target exactly as you typed it. Type a reference such as
+  `${env:XSTATIC_NETLIFY_TOKEN}` and the new target keeps the reference rather than the token
+  ([Secrets and environment variables](Secrets-and-Environment-Variables.md)).
 
 Creators are a plugin point too. See [Deployment target creators](Deployment-Target-Creators.md).
 
@@ -115,14 +122,15 @@ Deployer settings often include credentials. This is how xStatic treats them.
 
 | Question | Answer |
 |----------|--------|
-| Where are they stored? | In the `Config` column of `XStaticDeploymentTargets`, as JSON, in plain text. The database is the only copy xStatic keeps |
-| Are they sent to the browser? | **Yes.** To an admin, the list of targets includes every field's current value, passwords and tokens included, so the edit dialog can show them. The masked input hides them on screen, not in the response |
+| Where are they stored? | In the `Config` column of `XStaticDeploymentTargets`, as JSON, in plain text, exactly as typed. If you typed a reference such as `${env:XSTATIC_NETLIFY_TOKEN}`, only the reference is stored and the secret stays in the environment variable |
+| Are they sent to the browser? | **Yes, whatever was typed.** To an admin, the list of targets includes every field's current value, passwords and tokens included, so the edit dialog can show them. The masked input hides them on screen, not in the response. A reference is sent as the reference, never as the value it stands for. The responses tell the browser not to cache them |
 | Who can get them? | Only users in `xStaticAdmin`. The endpoints that return them require that group |
 | Do normal users see them? | No. The site dialog gets only each target's id, name and deployer id |
 
 So treat `xStaticAdmin` as a privileged role: put only trusted people in it. Prefer tokens with the smallest permission
 that works (a Git token limited to one repo's contents, a Netlify token you can revoke), and rotate them if someone
-leaves.
+leaves. Better still, keep the secrets out of xStatic altogether with
+[secret references](Secrets-and-Environment-Variables.md).
 
 > If you register xStatic yourself and don't call `UseSecureUserGroups()`, the admin restriction isn't applied: any
 > signed-in backoffice user can call the deployment target endpoints and read these values. See

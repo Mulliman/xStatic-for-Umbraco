@@ -21,6 +21,7 @@ namespace XStatic.Controllers
     [MapToApi("xstatic-v1")]
     [AuthorizeAdmin]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [Route("api/v{version:apiVersion}/xstatic/actions")]
     public class ActionsController(IActionRepository repo) : Controller
     {

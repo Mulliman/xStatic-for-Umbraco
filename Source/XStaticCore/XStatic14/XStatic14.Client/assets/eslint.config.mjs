@@ -14,16 +14,15 @@ export default tseslint.config(
 	{
 		files: ['src/**/*.ts'],
 		rules: {
-			// Tracked in #83 and #84 — keep as warnings until existing code is cleaned up,
-			// then promote to 'error'.
-			'no-var': 'warn',
-			'prefer-const': 'warn',
-			'@typescript-eslint/no-explicit-any': 'warn',
+			// #83 and #84 removed every var, explicit any and unused variable. Keep it that way.
+			'no-var': 'error',
+			'prefer-const': 'error',
+			'@typescript-eslint/no-explicit-any': 'error',
 			'@typescript-eslint/no-unused-vars': [
-				'warn',
+				'error',
 				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
 			],
-			'@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+			'@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
 			'lit/no-invalid-html': 'error',
 			'lit/no-legacy-template-syntax': 'error',
 			'lit/no-duplicate-template-bindings': 'error',

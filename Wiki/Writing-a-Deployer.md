@@ -128,7 +128,7 @@ Each field is a `DeployerField`:
 
 The `Umb.PropertyEditorUi.*` editors are Umbraco's own. The password editor is registered by xStatic's backoffice client, which also registers a Netlify subdomain editor (`xstatic.propertyEditorUi.netlifySubdomain`) used by the [Netlify site creator](Deployment-Target-Creators.md). The built-in deployers only use `UIEditors.Text` and `UIEditors.Password`. Try any other editor in a scratch target before relying on it, because the saved values are strings.
 
-Fields are saved in the database as part of the deployment target, **in plain text**. Passwords and tokens are stored exactly as typed. The deployment target endpoints are admin-only: when secure user groups are on, only users in the xStatic admin group can see and edit targets (see [User groups and security](User-Groups-and-Security.md)).
+Fields are saved in the database as part of the deployment target, **in plain text**. Passwords and tokens are stored exactly as typed, unless the user types a [secret reference](Secrets-and-Environment-Variables.md) such as `${env:XSTATIC_MY_TOKEN}`. Your deployer always receives the real value: references are replaced before your constructor is called, so there is nothing to handle yourself. The deployment target endpoints are admin-only: when secure user groups are on, only users in the xStatic admin group can see and edit targets (see [User groups and security](User-Groups-and-Security.md)).
 
 ## A complete example
 

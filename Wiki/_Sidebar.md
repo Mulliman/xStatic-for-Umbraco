@@ -17,6 +17,7 @@
 - [Image crops](Image-Crops.md)
 - [Multi-language sites](Multi-Language-Sites.md)
 - [User groups and security](User-Groups-and-Security.md)
+- [Secrets and environment variables](Secrets-and-Environment-Variables.md)
 - [Configuration](Configuration.md)
 
 **Deploying**

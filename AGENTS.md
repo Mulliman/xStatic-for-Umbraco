@@ -130,10 +130,32 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
 - Backoffice dropdowns use `Umb.PropertyEditorUi.Dropdown.Single`. In Umbraco 19 `Umb.PropertyEditorUi.Dropdown` is
   a multi-select list.
 
+### Backoffice client
+Lit source in `XStatic14/XStatic14.Client/assets/src`. The layout and conventions are in the wiki's
+`Developing-xStatic.md` ("Front-end"); in short:
+- Elements extend `UmbLitElement`; import Lit from `@umbraco-cms/backoffice/external/lit`.
+- In event handlers use `await this.getContext(TOKEN)` (for example `UMB_MODAL_MANAGER_CONTEXT`). Keep
+  `consumeContext` for constructors.
+- Each area has a global context (`areas/<area>/context.*.ts`) holding observable state. Cross-area refreshes go
+  through `notifyConfigChanged()` in `code/config-changes.ts`, not `window` events.
+- Dialog logic (properties, model mapping, validation) lives in pure `areas/<area>/*-form.ts` modules with unit
+  tests; dialogs render through `renderFormDialog` (`elements/form-dialog.ts`).
+- Colours and spacing use UUI tokens (`--uui-color-*`, `--uui-size-*`); no hex colours, inline styles or overridden
+  UUI tokens. Every `uui-button` has a `label` (Playwright selects by it); icons go inside as `<uui-icon>`.
+- ESLint errors on `var`, explicit `any` and unused variables. Keep `npm run check` at 0 warnings.
+
 ### Database
 - Settings are stored in Umbraco's database. Migrations are defined in `XStatic/Db/XStaticDatabaseMigrationPlan.cs`.
   **Append-only:** add a new `.To<YourMigration>("UniqueState")` step at the end, and never edit or reorder
   steps that have shipped. Keep SQLite and SQL Server both working (see `XStaticMigrationBase`).
+
+### Secrets
+- Deployment target and action values can be `${env:NAME}` / `${config:Key}` references (`XStatic.Core/Secrets`).
+  They're resolved by `ISecretReferenceResolver` in `DeployerService`, `ActionFactory` and the auto-create endpoint,
+  just before use, and only for names matching `XStatic:Secrets:Allowed*` (default `XSTATIC_*` and
+  `XStatic:Secrets:*`). Never store or return resolved values, and don't widen the defaults: a target's editor can
+  send any allowed value to a server of their choosing. User docs: `Wiki/Secrets-and-Environment-Variables.md`.
+- Fields that hold a secret use `UIEditors.Password`, which shows the reference hint in the backoffice.
 
 ## Rules
 

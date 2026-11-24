@@ -3,7 +3,7 @@ import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { blobDownload } from '@umbraco-cms/backoffice/utils';
 import { V1Service } from '../../api';
-import { xStaticEvent } from '../../xstatic-event';
+import { notifyConfigChanged } from '../../code/config-changes';
 import SiteContext from './context.site';
 
 vi.mock('@umbraco-cms/backoffice/resources', () => ({
@@ -115,21 +115,25 @@ describe('SiteContext', () => {
 		expect(peek).not.toHaveBeenCalled();
 	});
 
-	it('removes the xStaticEvent window listener on destroy', () => {
+	it('reloads sites when the configuration changes, and stops after it is destroyed', () => {
 		const getAllSpy = vi
 			.spyOn(V1Service, 'getApiV1XstaticSitesGetAll')
 			.mockResolvedValue([] as never);
 		vi.spyOn(V1Service, 'getApiV1XstaticSitesGetSiteDependencies').mockResolvedValue({} as never);
 
 		const { ctx } = createHostAndContext();
-		vi.spyOn(ctx, 'refreshData').mockResolvedValue(undefined);
+		const refreshSpy = vi.spyOn(ctx, 'refreshData').mockImplementation(() => undefined);
 
-		window.dispatchEvent(new xStaticEvent());
+		// Subscribing does not reload: only a change after the context was created does.
+		expect(getAllSpy).not.toHaveBeenCalled();
+
+		notifyConfigChanged();
 		expect(getAllSpy).toHaveBeenCalledTimes(1);
+		expect(refreshSpy).toHaveBeenCalledTimes(1);
 
 		ctx.destroy();
 
-		window.dispatchEvent(new xStaticEvent());
+		notifyConfigChanged();
 		expect(getAllSpy).toHaveBeenCalledTimes(1);
 	});
 

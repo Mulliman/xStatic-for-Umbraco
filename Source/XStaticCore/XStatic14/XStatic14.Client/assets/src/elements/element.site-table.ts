@@ -5,9 +5,10 @@ import {
 	ifDefined,
 	property,
 	repeat,
+	styleMap,
 	when,
-	LitElement,
 } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 
 export interface xStaticTableItem {
@@ -19,7 +20,8 @@ export interface xStaticTableItem {
 
 export interface xStaticTableItemData {
 	columnAlias: string;
-	value: any;
+	/** Text, a number or a Lit template. */
+	value: unknown;
 }
 
 export interface xStaticTableColumn {
@@ -35,7 +37,7 @@ export interface xStaticTableColumn {
 export interface xStaticTableColumnLayoutElement extends HTMLElement {
 	column: xStaticTableColumn;
 	item: xStaticTableItem;
-	value: any;
+	value: unknown;
 }
 
 export interface xStaticTableConfig {
@@ -43,7 +45,7 @@ export interface xStaticTableConfig {
 }
 
 @customElement('xstatic-site-table')
-export class SiteTable extends LitElement {
+export class SiteTable extends UmbLitElement {
 
 	@property({ type: Array, attribute: false })
 	public items: Array<xStaticTableItem> = [];
@@ -51,7 +53,7 @@ export class SiteTable extends LitElement {
 	@property({ type: Array, attribute: false })
 	public columns: Array<xStaticTableColumn> = [];
 
-	@property({ type: Boolean, attribute: true })
+	@property({ type: Boolean, attribute: true, reflect: true })
 	public isCompact = false;
 
 	@property({ type: Object, attribute: false })
@@ -70,7 +72,7 @@ export class SiteTable extends LitElement {
 	private _renderRow = (item: xStaticTableItem) => {
 		return html`
 			<uui-table-row>
-				<uui-table-cell style="${this.isCompact ? '--uui-table-cell-padding: var(--uui-size-2) var(--uui-size-5);' : ''}">
+				<uui-table-cell class="icon-cell">
 					${when(!this.config.hideIcon, () => html`<umb-icon name="${ifDefined(item.icon ?? undefined)}"></umb-icon>`)}
 				</uui-table-cell>
 				${this.columns.map((column) => this._renderRowCell(column, item))}
@@ -81,7 +83,8 @@ export class SiteTable extends LitElement {
 	private _renderRowCell(column: xStaticTableColumn, item: xStaticTableItem) {
 		return html`
 			<uui-table-cell
-				style="--uui-table-cell-padding: 0 var(--uui-size-5); text-align:${column.align ?? 'left'}; width: ${column.width || 'auto'};">
+				class="value-cell"
+				style=${styleMap({ textAlign: column.align ?? 'left', width: column.width || 'auto' })}>
 					${this._renderCellContent(column, item)}
 			</uui-table-cell>
 		`;
@@ -114,6 +117,14 @@ export class SiteTable extends LitElement {
 
 			uui-table-cell umb-icon {
 				vertical-align: top;
+			}
+
+			.value-cell {
+				--uui-table-cell-padding: 0 var(--uui-size-5);
+			}
+
+			:host([iscompact]) .icon-cell {
+				--uui-table-cell-padding: var(--uui-size-2) var(--uui-size-5);
 			}
 		`,
 	];

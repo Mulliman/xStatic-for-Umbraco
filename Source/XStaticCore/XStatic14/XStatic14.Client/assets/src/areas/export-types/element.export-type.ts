@@ -1,42 +1,29 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, property, state } from '@umbraco-cms/backoffice/external/lit';
-
-import type {
-    xStaticTableColumn,
-    xStaticTableConfig,
-    xStaticTableItem,
-  } from "../../elements/element.site-table";
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
+import type { xStaticTableItem } from "../../elements/element.site-table";
 import { ExportTypeModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { EditExportTypeModal } from './dialog.edit-export-type';
+import { DETAILS_COLUMNS, toDetailItems } from '../../code/table-items';
+import { xStaticCardStyles } from '../../code/styles';
 
 import "../../elements/element.site-table";
 import ExportTypeContext, { EXPORT_TYPE_CONTEXT_TOKEN } from './context.export-type';
 
 @customElement('xstatic-export-type-element')
-class ExportTypeElement extends UmbElementMixin(LitElement) {
+class ExportTypeElement extends UmbLitElement {
 
     @property({ type: Object, attribute: false })
     exportType?: ExportTypeModel;
 
-    @state()
-    private _tableConfig: xStaticTableConfig = {
-    };
-
-    @state()
-    private _tableColumns: Array<xStaticTableColumn> = [ { alias: "value", name: "Details" } ];
-    
     #exportTypeContext?: ExportTypeContext;
 
     constructor() {
         super();
 
-        this.consumeContext(
-            EXPORT_TYPE_CONTEXT_TOKEN,
-            (context) => {
-              this.#exportTypeContext = context;
-            }
-          );
+        this.consumeContext(EXPORT_TYPE_CONTEXT_TOKEN, (context) => {
+            this.#exportTypeContext = context;
+        });
     }
 
     render() {
@@ -44,74 +31,46 @@ class ExportTypeElement extends UmbElementMixin(LitElement) {
             return html``;
         }
 
-        const exportType = this.exportType;
-
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${exportType.name}</div>
-                <div slot="header-actions" >
-                    <uui-button pristine="" label="Edit" color="warning" look="primary" @click=${() => this.#openCreateDialog()}><uui-icon name="icon-brush"></uui-icon></uui-button>
-                    <uui-button pristine="" label="Delete" color="danger" look="primary" @click=${() => this.#delete()}><uui-icon name="icon-trash"></uui-icon></uui-button>
+            <uui-box data-test-id="export-type-${this.exportType.id}">
+                <div slot="headline" class="headline">${this.exportType.name}</div>
+                <div slot="header-actions">
+                    <uui-button label="Edit" color="warning" look="primary" data-test-id="export-type-edit" @click=${this.#openEditDialog}><uui-icon name="icon-brush"></uui-icon></uui-button>
+                    <uui-button label="Delete" color="danger" look="primary" data-test-id="export-type-delete" @click=${this.#delete}><uui-icon name="icon-trash"></uui-icon></uui-button>
                 </div>
-                
-                <div style="position:relative; display: block">
-                    <div>
-                        
-                    </div>
-                    <div>
-                        <xstatic-site-table .items=${this.#getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
-                    </div>
+
+                <div class="card-body">
+                    <xstatic-site-table .items=${this.#getTable()} .columns=${DETAILS_COLUMNS}></xstatic-site-table>
                 </div>
             </uui-box>
         `;
     }
 
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager?.open(this, EditExportTypeModal, { data: { content: this.exportType!, headline: `Edit ${this.exportType?.name} site` } });
-        } )
+    async #openEditDialog() {
+        if (!this.exportType) return;
+
+        const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+        modalManager?.open(this, EditExportTypeModal, {
+            data: { content: this.exportType, headline: `Edit ${this.exportType.name} export type` },
+        });
     }
 
     async #delete() {
-        await this.#exportTypeContext!.deleteExportType(this.exportType!.id);
-    }
+        if (!this.exportType) return;
 
-    #addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
-        if(!id || !alias || !value) {
-            return;
-        }
-
-        const item = {
-            id: id,
-            icon: icon,
-            data: [
-            {
-                columnAlias: alias,
-                value: value
-            }]
-        };
-
-        array.push(item);
+        await this.#exportTypeContext?.deleteExportType(this.exportType.id);
     }
 
     #getTable() : Array<xStaticTableItem> {
-        let array : Array<xStaticTableItem> = [];
-
-        this.#addTableItem(array, "name", "icon-home", "value", this.exportType?.name);
-        this.#addTableItem(array, "transformerFactory", "icon-brackets", "value", this.exportType?.transformerFactory?.name);
-        this.#addTableItem(array, "generator", "icon-settings", "value", this.exportType?.generator?.name);
-        this.#addTableItem(array, "fileNameGenerator", "icon-document", "value", this.exportType?.fileNameGenerator?.name);
-
-        return array;
+        return toDetailItems([
+            { id: "name", icon: "icon-home", value: this.exportType?.name },
+            { id: "transformerFactory", icon: "icon-brackets", value: this.exportType?.transformerFactory?.name },
+            { id: "generator", icon: "icon-settings", value: this.exportType?.generator?.name },
+            { id: "fileNameGenerator", icon: "icon-document", value: this.exportType?.fileNameGenerator?.name },
+        ]);
     }
 
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-    `;
+    static styles = [xStaticCardStyles];
 }
 
 export default ExportTypeElement;
