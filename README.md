@@ -32,12 +32,12 @@ Once installed, restart your Umbraco site. You will find a new **xStatic** secti
 
 ## 📖 Documentation
 
-Detailed documentation for xStatic can be found in the `/Docs` folder of this repository, or online:
+The full documentation is at **[mulliman.github.io/xStatic-for-Umbraco](https://mulliman.github.io/xStatic-for-Umbraco/)**.
+It is built from the [`Wiki/`](Wiki) folder of this repository, so corrections are welcome as pull requests.
 
-- [Main Documentation](https://www.sammullins.co.uk/software/xstatic-for-umbraco/)
-- [Extending xStatic](https://www.sammullins.co.uk/software/xstatic-for-umbraco/extending-xstatic/)
-- [Post-Generation Actions](Docs/Actions.md)
-- [How Deployment Works](Docs/Deployers.md)
+- [Extending xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic)
+- [Post-generation actions](https://mulliman.github.io/xStatic-for-Umbraco/Post-Generation-Actions)
+- [Deployment targets](https://mulliman.github.io/xStatic-for-Umbraco/Deployment-Targets)
 - [xStatic MCP Server (`xstatic-mcp`)](Source/xstatic-mcp/README.md) — Official Model Context Protocol server for Umbraco 17+
 - [xStatic Agent Skill (`SKILL.md`)](.agents/skills/xstatic-umbraco/SKILL.md) — Guidance for coding agents building xStatic v17+ extensions
 
