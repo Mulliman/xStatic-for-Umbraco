@@ -7,4 +7,4 @@ generated site, so files on the server that aren't in the generated site are del
 
 With the default setup there is nothing to register: the deployer is found automatically.
 
-Full guide: https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP
+Full guide: https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP

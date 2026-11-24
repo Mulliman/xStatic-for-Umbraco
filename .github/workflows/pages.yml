@@ -1,7 +1,6 @@
 name: "Docs site"
 
 # Builds the Wiki/ folder into a static HTML site and publishes it to GitHub Pages.
-# The GitHub wiki (wiki.yml) is still published too; both come from the same Markdown.
 #
 # The pages are rendered by Tools/Wiki/build-pages-site.mjs, which reuses the backoffice Documentation dashboard's
 # renderer (marked and beautiful-mermaid from the client's node_modules), so no Jekyll and no new dependencies.
