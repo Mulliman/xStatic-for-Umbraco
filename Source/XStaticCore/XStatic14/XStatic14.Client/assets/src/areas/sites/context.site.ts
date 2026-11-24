@@ -6,6 +6,7 @@ import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
 import { RebuildProcessResult, SiteApiModel, SiteDependenciesModel, SiteUpdateModel, V1Service } from "../../api";
 import { blobDownload } from '@umbraco-cms/backoffice/utils';
 import ConfigContextBase from "../../config-context-base";
+import { configChanges, getConfigVersion } from "../../code/config-changes";
 
 export class SiteContext extends ConfigContextBase {
 
@@ -14,27 +15,32 @@ export class SiteContext extends ConfigContextBase {
 
     #isSiteDependenciesLoaded: boolean = false;
 
-    #onXStaticEvent = () => {
-        this.#isSitesLoaded.setValue(false);
-        this.#isSiteDependenciesLoaded = false;
-
-        this.#initSites();
-        this.#initSiteDependencies();
-        this.refreshData();
-    };
+    #seenConfigVersion = getConfigVersion();
 
     constructor(host: UmbControllerHost) {
         super(host);
 
         this.provideContext(SITE_CONTEXT_TOKEN, this);
 
-        window.addEventListener("xStaticEvent", this.#onXStaticEvent);
+        // Export types, deployment targets and actions feed the site dialog, so reload when any of them change.
+        // The observer is removed when this context is destroyed.
+        this.observe(configChanges, (version) => {
+            if (version === this.#seenConfigVersion) {
+                return;
+            }
+
+            this.#seenConfigVersion = version;
+            this.#onConfigChanged();
+        }, '_observeConfigChanges');
     }
 
-    override destroy(): void {
-        window.removeEventListener("xStaticEvent", this.#onXStaticEvent);
+    #onConfigChanged() {
+        this.#isSitesLoaded.setValue(false);
+        this.#isSiteDependenciesLoaded = false;
 
-        super.destroy();
+        this.#initSites();
+        this.#initSiteDependencies();
+        this.refreshData();
     }
 
     #sites = new UmbArrayState<SiteApiModel>([], (x) => x.id);
@@ -166,7 +172,7 @@ export class SiteContext extends ConfigContextBase {
 
     public async downloadSite(id: number): Promise<void> {
         const date = new Date();
-        
+
         const dateString = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
 
         const data = await tryExecute(this, V1Service.getApiV1XstaticDownloadDownloadSite({ staticSiteId: id }));

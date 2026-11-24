@@ -1,20 +1,30 @@
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import { css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
+import { css, html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
-import {
-	UmbPropertyEditorUiElement
-} from '@umbraco-cms/backoffice/property-editor';
+import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
+import './element.secret-reference-hint';
 
+/**
+ * Password property editor used by deployer fields (for example FTP and Git passwords and API tokens).
+ * It wraps `<uui-input-password>`, which has its own show/hide toggle.
+ */
 @customElement('xstatic-property-editor-password')
 export class XStaticPropertyEditorPasswordElement
-	extends UmbFormControlMixin<string>(UmbLitElement, undefined)
+	extends UmbFormControlMixin<string, typeof UmbLitElement>(UmbLitElement, undefined)
 	implements UmbPropertyEditorUiElement
 {
+	/** The property label, set by `<umb-property>`. Used for the input's accessible name. */
+	@property()
+	name?: string;
+
 	protected override firstUpdated(): void {
-		this.addFormControlElement(this.shadowRoot!.querySelector('uui-input')!);
+		const input = this.shadowRoot?.querySelector('uui-input-password');
+
+		if (input) {
+			this.addFormControlElement(input);
+		}
 	}
 
 	#onInput(e: InputEvent) {
@@ -24,30 +34,22 @@ export class XStaticPropertyEditorPasswordElement
 		this.dispatchEvent(new UmbChangeEvent());
 	}
 
-	@state()
-	private showPassword = false;
-
 	override render() {
 		return html`
-		<div style="display: flex">
-			<uui-input
+			<uui-input-password
 				.value=${this.value ?? ''}
-				.type=${this.showPassword ? 'text' : 'password'}
+				label=${this.localize.term('general_fieldFor', [this.name ?? ''])}
+				autocomplete="new-password"
 				@input=${this.#onInput}
-			></uui-input>
-			<uui-button look="secondary" @click=${this.#togglePasswordVisibility}>${this.showPassword ? 'Hide' : "Show"}</uui-button>
-		</div>
+			></uui-input-password>
+			<xstatic-secret-reference-hint .value=${this.value ?? ''}></xstatic-secret-reference-hint>
 		`;
-	}
-
-	#togglePasswordVisibility() {
-		this.showPassword = !this.showPassword;
 	}
 
 	static styles = [
 		UmbTextStyles,
 		css`
-			uui-input {
+			uui-input-password {
 				width: 100%;
 			}
 		`,

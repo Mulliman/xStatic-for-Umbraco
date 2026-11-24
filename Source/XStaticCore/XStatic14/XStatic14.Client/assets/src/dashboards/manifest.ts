@@ -1,5 +1,5 @@
-// import type { ManifestDashboard } from "@umbraco-cms/backoffice/extension-registry";
 import type { ManifestDashboard } from '@umbraco-cms/backoffice/dashboard';
+import { XSTATIC_ADMIN_USER_CONDITION_ALIAS, XSTATIC_NORMAL_USER_CONDITION_ALIAS } from '../conditions/constants';
 
 const dashboards: Array<ManifestDashboard> = [
     {
@@ -19,7 +19,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticNormalUserCondition'
+                alias: XSTATIC_NORMAL_USER_CONDITION_ALIAS
             }
         ]
     },
@@ -40,7 +40,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticNormalUserCondition'
+                alias: XSTATIC_NORMAL_USER_CONDITION_ALIAS
             }
         ]
     },
@@ -61,7 +61,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticAdminUserCondition'
+                alias: XSTATIC_ADMIN_USER_CONDITION_ALIAS
             }
         ]
     },
@@ -82,7 +82,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticAdminUserCondition'
+                alias: XSTATIC_ADMIN_USER_CONDITION_ALIAS
             }
         ]
     },
@@ -103,7 +103,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticNormalUserCondition'
+                alias: XSTATIC_NORMAL_USER_CONDITION_ALIAS
             }
         ]
     },
@@ -124,7 +124,7 @@ const dashboards: Array<ManifestDashboard> = [
                 match: 'xStatic.Section'
             },
             {
-                alias: 'xStatic.xStaticNormalUserCondition'
+                alias: XSTATIC_NORMAL_USER_CONDITION_ALIAS
             }
         ]
     }

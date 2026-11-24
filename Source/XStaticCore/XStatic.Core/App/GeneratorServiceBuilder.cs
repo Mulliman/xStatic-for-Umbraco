@@ -12,6 +12,7 @@ using XStatic.Core.Generator.Markdown;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Generator.Transformers;
 using XStatic.Core.Rag;
+using XStatic.Core.Secrets;
 using XStatic.Core.Repositories;
 using XStatic.Generator;
 
@@ -47,6 +48,7 @@ namespace XStatic.Core.App
         {
             _services.AddSingleton<IActionRepository, ActionRepository>();
             _services.AddSingleton<IActionFactory, ActionFactory>();
+            _services.TryAddXStaticSecretReferenceResolver();
 
             return this;
         }

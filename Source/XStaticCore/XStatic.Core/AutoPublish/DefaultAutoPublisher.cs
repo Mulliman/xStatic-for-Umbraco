@@ -124,7 +124,12 @@ namespace XStatic.Core.AutoPublish
 			foreach (var site in sitesToDeploy.Where(s => s.DeploymentTarget != null))
 			{
 				await process.RebuildSite(site.Id);
-				await deployProcess.DeployStaticSite(site.Id);
+				var deployResult = await deployProcess.DeployStaticSite(site.Id);
+
+				if (deployResult != null && !deployResult.WasSuccessful)
+				{
+					_logger?.LogError(deployResult.Exception, "xStatic auto publish couldn't deploy site {SiteId}: {Message}", site.Id, deployResult.Message);
+				}
 			}
 		}
 
