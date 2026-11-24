@@ -31,7 +31,7 @@ export function listImages() {
 }
 
 // Remove HTML tags, repeating until none are left so input like "<scr<b>ipt>" can't leave one behind.
-function stripTags(text) {
+export function stripTags(text) {
   let previous;
   do {
     previous = text;

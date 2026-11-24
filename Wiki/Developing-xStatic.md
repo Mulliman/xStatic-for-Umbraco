@@ -148,6 +148,7 @@ silently.
 | `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
 | `wiki.yml` | Changes to `Wiki/` | Checks the wiki, and publishes it when `master` changes |
+| `pages.yml` | Changes to `Wiki/` on `master` | Builds the wiki into an HTML docs site and publishes it to GitHub Pages |
 | `codeql.yml` | Every pull request, pushes to `master`, `feature/**` and `lts/**`, and weekly | Scans the C#, TypeScript and workflow files for security problems. Findings show under **Security** then **Code scanning**, and on the pull request |
 | `scorecard.yml` | Pushes to `master`, and weekly | Rates the repository's security practices with the OpenSSF Scorecard, and publishes the score shown on the README |
 | `dependabot-automerge.yml` | Dependabot pull requests | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates wait for a person |
@@ -186,8 +187,9 @@ to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the 
 
 ## Editing this wiki
 
-The wiki is written in the `Wiki/` folder as plain Markdown, and published to the GitHub wiki by a workflow. **Don't
-edit pages on github.com**, because the next publish overwrites them.
+The wiki is written in the `Wiki/` folder as plain Markdown. Two workflows publish it: `wiki.yml` to the GitHub wiki,
+and `pages.yml` to an HTML docs site on GitHub Pages. **Don't edit pages on github.com**, because the next publish
+overwrites them.
 
 1. Edit or add a page in `Wiki/`. File names use `Page-Name.md`.
 2. Follow `Tools/Wiki/STYLE.md` for voice and page shape. In short: write to "you", no `#` title, British English, a
@@ -204,14 +206,22 @@ edit pages on github.com**, because the next publish overwrites them.
 
    It fails on broken page links and anchors, missing images, links to files that don't exist, pages missing from the
    sidebar and code fences without a language.
-7. Open a pull request. The `wiki.yml` workflow runs the same check on every pull request that touches `Wiki/` or
-   `Tools/Wiki/`, and publishes to the wiki repository when `master` changes.
+7. To preview the docs site, run `npm ci` in `Source/XStaticCore/XStatic14/XStatic14.Client/assets` once, then build
+   the site into a folder outside the repository and open its `index.html`:
+
+   ```powershell
+   node Tools/Wiki/build-pages-site.mjs ../xstatic-docs-site
+   ```
+
+8. Open a pull request. The `wiki.yml` workflow runs the same check on every pull request that touches `Wiki/` or
+   `Tools/Wiki/`. When `master` changes, it publishes to the wiki repository and `pages.yml` publishes the docs site.
 
 `Tools/Wiki/CONTENT-PLAN.md` records which page owns which topic, so check it before you add something that may
 already have a home.
 
 The wiki repository has to exist before the first publish: enable Wikis in the repository settings and save any first
-page on github.com.
+page on github.com. The docs site needs one setting too: under **Settings** then **Pages**, set **Source** to
+**GitHub Actions**.
 
 ## Next steps
 
