@@ -57,10 +57,10 @@ namespace XStatic.Core.Generator
                     return GenerateItemResult.Error("Page", urlSegment, $"Could not download the page from {absoluteUrl}. Check the site is running and the URL is reachable from the server.");
                 }
 
-                Logger.LogInformation($"Downloaded page {url} from {absoluteUrl} with {fileData.Length} chars of data");
+                Logger.LogInformation("Downloaded page {Url} from {AbsoluteUrl} with {Length} chars of data", url, absoluteUrl, fileData.Length);
 
                 var transformedData = RunTransformers(fileData, transformers);
-                Logger.LogInformation($"Transformed page {url} with {transformedData?.Length} chars of data");
+                Logger.LogInformation("Transformed page {Url} with {Length} chars of data", url, transformedData?.Length);
 
                 var filePath = fileNamer.GetFilePartialPath(url);
 
@@ -70,7 +70,7 @@ namespace XStatic.Core.Generator
             }
             catch (Exception e)
             {
-                Logger.LogError(e, $"Error generating page {urlSegment}");
+                Logger.LogError(e, "Error generating page {UrlSegment}", urlSegment);
                 return GenerateItemResult.Error("Page", urlSegment, e.Message);
             }
         }
