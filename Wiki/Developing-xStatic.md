@@ -188,7 +188,6 @@ silently.
 | `ci.yml` | Every pull request, and pushes to `master`, `feature/**` and `lts/**` | Runs the tests, packs all packages at a preview version, and pushes them to GitHub Packages. Pull requests get a comment with install instructions |
 | `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
-| `wiki.yml` | Changes to `Wiki/` | Checks the wiki, and publishes it when `master` changes |
 
 All seven packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
 to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the history of the tags is on
@@ -219,8 +218,8 @@ to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the 
 
 ## Editing this wiki
 
-The wiki is written in the `Wiki/` folder as plain Markdown, and published to the GitHub wiki by a workflow. **Don't
-edit pages on github.com**, because the next publish overwrites them.
+The wiki is written in the `Wiki/` folder as plain Markdown, and published from `master` as an HTML docs site on
+GitHub Pages (https://mulliman.github.io/xStatic-for-Umbraco/).
 
 1. Edit or add a page in `Wiki/`. File names use `Page-Name.md`.
 2. Follow `Tools/Wiki/STYLE.md` for voice and page shape. In short: write to "you", no `#` title, British English, a
@@ -237,8 +236,8 @@ edit pages on github.com**, because the next publish overwrites them.
 
    It fails on broken page links and anchors, missing images, links to files that don't exist, pages missing from the
    sidebar and code fences without a language.
-7. Open a pull request. The `wiki.yml` workflow runs the same check on every pull request that touches `Wiki/` or
-   `Tools/Wiki/`, and publishes to the wiki repository when `master` changes.
+7. Open a pull request. CI (`test.yml`) runs the same check on every pull request, and the docs site is republished
+   from `master`.
 
 `Tools/Wiki/CONTENT-PLAN.md` records which page owns which topic, so check it before you add something that may
 already have a home.

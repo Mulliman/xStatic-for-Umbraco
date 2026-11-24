@@ -7,7 +7,7 @@ const testBundle: WikiDocsBundle = {
 	version: '17.3.0',
 	gitRef: 'lts/17',
 	repoUrl: 'https://github.com/Mulliman/xStatic-for-Umbraco',
-	wikiUrl: 'https://github.com/Mulliman/xStatic-for-Umbraco/wiki',
+	wikiUrl: 'https://mulliman.github.io/xStatic-for-Umbraco/',
 	generatedAt: '2026-11-22T00:00:00.000Z',
 	sections: [
 		{ title: '', items: [{ slug: 'Home', label: 'Home' }] },

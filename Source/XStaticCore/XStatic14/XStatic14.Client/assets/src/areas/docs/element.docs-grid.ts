@@ -9,7 +9,7 @@ import './element.wiki-viewer';
 
 type ActiveTab = 'docs' | 'plugins';
 
-const DEFAULT_WIKI_URL = 'https://github.com/Mulliman/xStatic-for-Umbraco/wiki';
+const DEFAULT_WIKI_URL = 'https://mulliman.github.io/xStatic-for-Umbraco/';
 
 @customElement('xstatic-docs-grid')
 class DocsGrid extends UmbLitElement {
@@ -94,12 +94,12 @@ class DocsGrid extends UmbLitElement {
 					<uui-button
 						compact
 						look="outline"
-						label="Open on GitHub Wiki"
+						label="Open the docs site"
 						href=${wikiUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Open on GitHub Wiki
+						Open the docs site
 					</uui-button>
 				</div>
 			</div>
@@ -119,12 +119,12 @@ class DocsGrid extends UmbLitElement {
 					<p>The bundled xStatic documentation could not be loaded.</p>
 					<uui-button
 						look="primary"
-						label="Open on GitHub Wiki"
+						label="Open the docs site"
 						href=${wikiUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Open on GitHub Wiki
+						Open the docs site
 					</uui-button>
 				</uui-box>
 			`;
