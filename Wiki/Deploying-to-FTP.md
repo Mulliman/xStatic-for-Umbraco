@@ -5,10 +5,10 @@ The FTP deployer uploads your generated site to an FTP server, which is how many
 | | |
 |---|---|
 | NuGet package | `xStatic.Ftp` |
-| Install | `dotnet add package xStatic.Ftp --prerelease` (drop `--prerelease` once 18.0.0 is out) |
+| Install | `dotnet add package xStatic.Ftp` |
 | Discovered automatically | Yes |
 | Deployer in the UI | **FTP** (id `ftp`) |
-| Help text in the deployer's code | "The remote FTP files will be mirrored to match the generated site." (the backoffice doesn't show it) |
+| Help text | "The remote FTP files will be mirrored to match the generated site." (shown above the fields in the backoffice) |
 | Fields | **Hostname**, **Username**, **Password**, **Folder**, **Port** |
 | Library used | FluentFTP 55.1.0 |
 | Encryption | Explicit TLS if the server offers it, otherwise plain FTP. Any certificate is accepted |
@@ -17,10 +17,10 @@ The FTP deployer uploads your generated site to an FTP server, which is how many
 ## Install
 
 ```powershell
-dotnet add package xStatic.Ftp --prerelease
+dotnet add package xStatic.Ftp
 ```
 
-Use the same version as your other xStatic packages. The `--prerelease` flag is needed while xStatic 18 is in beta; without it you would get a 17.x package (see [Installation](Installation.md)). Restart the site and **FTP** appears in the **Deployer \*** dropdown. Nothing goes in `Program.cs`. If you register xStatic manually, call `AddFtpDeployer()` on the deploy builder (`using XStatic.Ftp;`); see [Extending xStatic](Extending-xStatic.md).
+Use the same version as your other xStatic packages (see [Installation](Installation.md)). Restart the site and **FTP** appears in the **Deployer \*** dropdown. Nothing goes in `Program.cs`. If you register xStatic manually, call `AddFtpDeployer()` on the deploy builder (`using XStatic.Ftp;`); see [Extending xStatic](Extending-xStatic.md).
 
 ## Set it up
 

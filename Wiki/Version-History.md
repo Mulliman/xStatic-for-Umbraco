@@ -25,6 +25,7 @@ files that you can host almost anywhere. See [What is xStatic?](What-is-xStatic.
 | v16 | 16 | 9 | Jul 2025 | Alphas only, never released as stable |
 | v17 | 17 (LTS) | 10 | Jan 2026 onwards | Test suite, async file access, v13 upgrade |
 | v18 | 18 | 10 | Oct 2026 onwards | Failures are reported, not hidden; broad hardening |
+| v19 | 19 | 11 | Nov 2026 onwards | Pre-release for Umbraco 19 |
 
 There are no tags for v1, v2 or v12. Numbering jumped to 13 in 2024 to match Umbraco's version numbers.
 
@@ -92,6 +93,11 @@ The long-term support line continues on the `lts/17` branch.
 The upgrade to Umbraco 18 landed on 2 October 2026 (18.0.0-alpha), with a beta on 17 November and the 18.0.0 release
 on 23 November. See [What's new in 18.0.0](#whats-new-in-1800).
 
+### v19: Umbraco 19 (pre-release)
+
+Work on Umbraco 19 happens on the `feature/19` branch. The first beta, 19.0.0-beta, was published on
+23 November 2026 for Umbraco 19.0.0-rc1 on .NET 11. It isn't meant for production sites yet.
+
 ## Releases
 
 Dates are the date of the tagged commit (`git log -1 --format=%ad --date=short <tag>`). Pre-release tags are
@@ -99,6 +105,7 @@ grouped. The newest are first.
 
 | Release | Date | Notes |
 |---------|------|-------|
+| v19.0.0-beta | 2026-11-23 | Beta for Umbraco 19.0.0-rc1 on .NET 11 |
 | v18.0.0 | 2026-11-23 | Umbraco 18.3.2 and .NET 10, everything in 17.3.0 and 17.3.1 |
 | v17.3.1 | 2026-11-23 | Media generated on a new site's first boot |
 | v17.3.0 | 2026-11-23 | Cloudflare deployer, MCP server, AI/GEO output, RAG and WebMCP export, `xStatic.AI`, docs in the backoffice |

@@ -188,7 +188,7 @@ Better still, write relative links (`/about/`) in your templates, which need no 
 
 1. Select **Generate**, then **Download** and look in the zip for the real path of the file. With the default HTML export a page at `/error/` is `error/index.html`.
 2. Edit the action on the **Actions** tab and correct **FilePath** and **NewFilePath**. Paths are relative to the output folder. A leading `/` is optional.
-3. If the action is `Netlify404Action` and generation fails altogether, `AddNetlifyActions()` hasn't been called ([Serve your own 404 page](Deploying-to-Netlify.md#serve-your-own-404-page)).
+3. If generation fails altogether when an action is created, the action's class needs a service that isn't registered in dependency injection. The error message names it ([Writing a post-generation action](Writing-a-Post-Generation-Action.md#discovery-registration-and-construction)).
 4. An action whose type has been removed (a plugin you uninstalled) is skipped silently. Check **Config** to see what is installed.
 
 Every action runs even if an earlier one fails, so the toast shows all the problems at once ([Failures](Post-Generation-Actions.md#failures)).

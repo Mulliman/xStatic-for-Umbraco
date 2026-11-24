@@ -9,7 +9,7 @@ Auto publish is a setting on each site.
 3. Switch on **Auto Publish** ("Select this is you want to generate the site automatically when a node is published.").
 4. Select **Submit**.
 
-The site card then shows **Auto Publish On** instead of **Manual Deploy**. Switch the toggle off to go back to manual builds. No restart is needed, and there's no global setting.
+The site card then shows **Auto Publish On** instead of **Manual Deploy**. Switch the toggle off to go back to manual builds. No restart is needed. Auto publish is switched on per site; the optional settings in [Shared content and relation-based auto publish](#shared-content-and-relation-based-auto-publish) only change which publishes count.
 
 ## When it runs
 

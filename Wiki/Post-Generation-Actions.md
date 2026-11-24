@@ -11,7 +11,7 @@ A post-generation action (an "action") is a small step that runs on the generate
 | `GenerateCompanionMarkdownAction` | Generates companion `.md` files next to every `.html` page ([AI and GEO](AI-and-GEO.md)) | **ContentSelector**, **ExcludePaths** |
 | `GenerateLlmsTxtAction` | Compiles `/llms.txt` and optionally `/llms-full.txt` ([AI and GEO](AI-and-GEO.md)) | **SiteTitle**, **SiteDescription**, **GenerateFullFile**, **GenerateCompanionMarkdown**, **UseMarkdownLinks**, **ExcludePaths** |
 | `RagExportPostGenerationAction` | Exports structured RAG chunks (`Jsonl`, `Json`, or `Markdown`) and `webmcp-index.json` ([RAG and WebMCP](RAG-and-WebMCP.md)) | **OutputFormat**, **OutputPath**, **MaxChunkSize**, **ChunkOverlap**, **SplitOnHeadings**, **ExcludedPaths**, **ExcludedDocTypes**, **CustomPropertyAliases**, **GenerateWebMcpIndex**, **WebMcpIndexPath** |
-| `Netlify404Action` | Copies a file to `404.html` (only with the `xStatic.Netlify` package, plus `AddNetlifyActions()`) | **FilePath** |
+| `Netlify404Action` | Copies a file to `404.html` (only with the `xStatic.Netlify` package) | **FilePath** |
 | `CloudflareHeadersAction` | Writes `/_headers` for Cloudflare Pages, including optional *Markdown for Agents* rules (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **IncludeMarkdownForAgents**, **CustomRules** |
 | `CloudflareRedirectsAction` | Writes `/_redirects` for Cloudflare Pages (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **Rules** |
 | `AiPreDeployAuditAction` | Runs a deterministic and optional LLM-assisted GEO/SEO audit and saves reports outside the output folder (with `xStatic.AI`, see [AI integration](AI-Integration.md)) | **MaxPages**, **ReportPath**, **FailOnCritical**, **ProfileAlias**, **IncludePaths** |
@@ -91,7 +91,7 @@ The file is deployed with the rest of the site, so on most hosts it can be read 
 
 ### Netlify404Action
 
-Only available once `xStatic.Netlify` is installed, and it needs one line of registration, `builder.Services.AddNetlifyActions()`. Without it, generating a site that uses this action fails. It's a `FileCopyAction` with the destination fixed to `/404.html`, which is the file name Netlify looks for. It has one field, **FilePath**: the generated page to use as the 404 page. See [Deploying to Netlify](Deploying-to-Netlify.md).
+Only available once `xStatic.Netlify` is installed. It needs no registration: xStatic resolves its constructor dependency from dependency injection when it creates the action (`builder.Services.AddNetlifyActions()` is an optional explicit registration). It's a `FileCopyAction` with the destination fixed to `/404.html`, which is the file name Netlify looks for. It has one field, **FilePath**: the generated page to use as the 404 page. See [Deploying to Netlify](Deploying-to-Netlify.md).
 
 ## Recipes
 

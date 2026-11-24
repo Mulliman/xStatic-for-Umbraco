@@ -43,7 +43,8 @@ Elsewhere in the repository:
 | `Testing/Ftp/` | A Docker Compose FTP server for checking the [FTP deployer](Deploying-to-FTP.md) |
 | `Wiki/` and `Tools/Wiki/` | This wiki and its checker and publisher |
 | `.github/workflows/` | CI, release and wiki workflows |
-| `Brand/`, `Meta/` | Logos and the plugin lists the backoffice reads |
+| `Brand/` | Logos |
+| `Meta/` | Older hosted plugin and help lists. The backoffice no longer reads them: its Documentation dashboard uses `docs-bundle.json`, compiled from `Wiki/` and the official packages by `Tools/Wiki/compile-client-docs.mjs` |
 
 For how the pieces fit together at run time, see [Architecture](Architecture.md).
 

@@ -2,7 +2,7 @@
 
 xStatic turns your Umbraco site into a static website. Editors keep using the Umbraco backoffice they already know.
 When they're ready, xStatic renders every published page, copies the media and assets it needs, and deploys the
-result to Netlify, a Git repository (GitHub Pages, for example), an FTP server or a folder. The static copy is
+result to Netlify, Cloudflare Pages, a Git repository (GitHub Pages, for example), an FTP server or a folder. The static copy is
 fast, cheap to host, and has no database or server code for anyone to attack.
 
 This wiki covers everything from installing the package to writing your own deployers. It's written against
@@ -16,7 +16,7 @@ the page says so.
 | Find out whether xStatic suits your site | [What is xStatic?](What-is-xStatic.md) and the [FAQ](FAQ.md) |
 | Install it and build your first static site | [Installation](Installation.md), then [Your first static site](Your-First-Static-Site.md) |
 | Find your way around the backoffice | [Backoffice tour](Backoffice-Tour.md) |
-| Put your site live | [Netlify](Deploying-to-Netlify.md), [Git](Deploying-with-Git.md), [FTP](Deploying-to-FTP.md) or [a folder](Deploying-to-a-Folder.md) |
+| Put your site live | [Netlify](Deploying-to-Netlify.md), [Cloudflare](Deploying-to-Cloudflare.md), [Git](Deploying-with-Git.md), [FTP](Deploying-to-FTP.md) or [a folder](Deploying-to-a-Folder.md) |
 | Rebuild on a schedule or from another system | [Remote operations](Remote-Operations.md) |
 | Change what xStatic outputs | [Extending xStatic](Extending-xStatic.md) and [Architecture](Architecture.md) |
 | Fix something that isn't working | [Troubleshooting](Troubleshooting.md) |
@@ -32,11 +32,12 @@ xStatic's major version matches the Umbraco major it supports. Each has its own 
 
 | xStatic | Umbraco | .NET | Status |
 |---------|---------|------|--------|
-| 18.x | 18 | 10 | Latest, in beta |
+| 19.x | 19 | 11 | Pre-release (beta) |
+| 18.x | 18 | 10 | Latest |
 | 17.x | 17 (LTS) | 10 | Long-term support |
 | 15.x | 15 | 9 | No longer updated |
 | 14.x | 14 | 8 | No longer updated |
-| 13.x | 13 (LTS) | 8 | Long-term support |
+| 13.x | 13 (LTS) | 8 | No longer receiving security fixes |
 
 There is no stable xStatic 16 release, so go from 15 to 17. Versions before 13 (for Umbraco 8 to 12) are no longer supported. [Version history](Version-History.md) has the full story.
 

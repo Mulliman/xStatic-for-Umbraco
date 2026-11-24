@@ -1,4 +1,4 @@
-A deployer is the component that takes the folder of generated files and pushes it somewhere: a host, a repository, a server. xStatic ships deployers for a folder, Netlify, Git and FTP, and you can add your own. This page is for developers and covers the interfaces, the fields that appear in the backoffice, registration, and packaging a deployer as its own NuGet plugin.
+A deployer is the component that takes the folder of generated files and pushes it somewhere: a host, a repository, a server. xStatic ships deployers for a folder, Netlify, Git, FTP and Cloudflare (Pages and R2), and you can add your own. This page is for developers and covers the interfaces, the fields that appear in the backoffice, registration, and packaging a deployer as its own NuGet plugin.
 
 ## At a glance
 
@@ -62,7 +62,7 @@ Be defensive:
 
 - The built-in deployers read with `parameters[key]`, which throws `KeyNotFoundException` if the key is missing. A target saved *before* you added a new field won't have that key, so prefer `TryGetValue` and apply a default.
 - A field the editor left empty can arrive as `null` rather than an empty string.
-- Stick to text-style editors for your fields (see below) and parse the value yourself. Every value is stored as a string, and only the text and password editors are used by the built-in deployers.
+- Stick to text-style editors for your fields (see below) and parse the value yourself. Every value is stored as a string. The built-in deployers mostly use the text and password editors; `CloudflarePagesDeployerDefinition` also uses `UIEditors.Toggle`, which stores `true` or `false`.
 
 ### Returning XStaticResult
 
@@ -97,7 +97,7 @@ public interface IDeployerDefinition
 |--------|------------|
 | `Id` | A unique, stable key such as `"ftp"`. It is saved with every deployment target made from this deployer. **Never change it once people use the deployer**, or their targets stop appearing in the list. Adding two definitions with the same Id throws an error at start-up |
 | `Name` | What the **Deployer \*** dropdown shows, for example `FTP` |
-| `Help` | A sentence or two about the deployer. It can contain HTML. At the time of writing the Deployment Target dialog doesn't display it (the target creator dialog does, see [Deployment target creators](Deployment-Target-Creators.md)), but the API returns it |
+| `Help` | A sentence or two about the deployer. It can contain HTML. The Deployment Target dialog shows it above the fields once the deployer is chosen, and the target creator dialog shows a creator's help the same way (see [Deployment target creators](Deployment-Target-Creators.md)) |
 | `Fields` | The settings an editor fills in, in the order given |
 
 Each field is a `DeployerField`:
@@ -107,7 +107,7 @@ Each field is a `DeployerField`:
 | `Alias` | none | The dictionary key your deployer reads. Make it unique across *all* deployers by using a prefix: the built-ins use names like `FTP.Hostname` and `Netlify.PAT` |
 | `Name` | none | The label shown to the editor. Always set it |
 | `Value` | `null` | A default value, shown pre-filled when a new target is created |
-| `Help` | `null` | Intended as help text. The current dialog doesn't render it, so put anything important in the label or the definition's `Help` |
+| `Help` | `null` | A hint shown under the field's label in the Deployment Target dialog. Plain text |
 | `EditorUiAlias` | `Umb.PropertyEditorUi.TextBox` | Which Umbraco property editor UI draws the field |
 
 ### Editors you can use
@@ -126,7 +126,7 @@ Each field is a `DeployerField`:
 | `UIEditors.Tags` | `Umb.PropertyEditorUi.Tags` | A list of tags |
 | `UIEditors.StaticFilePicker` | `Umb.PropertyEditorUi.StaticFilePicker` | Picking a file from the site |
 
-The `Umb.PropertyEditorUi.*` editors are Umbraco's own. The password editor is registered by xStatic's backoffice client, which also registers a Netlify subdomain editor (`xstatic.propertyEditorUi.netlifySubdomain`) used by the [Netlify site creator](Deployment-Target-Creators.md). The built-in deployers only use `UIEditors.Text` and `UIEditors.Password`. Try any other editor in a scratch target before relying on it, because the saved values are strings.
+The `Umb.PropertyEditorUi.*` editors are Umbraco's own. The password editor is registered by xStatic's backoffice client, which also registers a Netlify subdomain editor (`xstatic.propertyEditorUi.netlifySubdomain`) used by the [Netlify site creator](Deployment-Target-Creators.md). The built-in deployers use `UIEditors.Text` and `UIEditors.Password`, plus `UIEditors.Toggle` for the Cloudflare Pages *Markdown for Agents* option. Try any other editor in a scratch target before relying on it, because the saved values are strings.
 
 Fields are saved in the database as part of the deployment target, **in plain text**. Passwords and tokens are stored exactly as typed, unless the user types a [secret reference](Secrets-and-Environment-Variables.md) such as `${env:XSTATIC_MY_TOKEN}`. Your deployer always receives the real value: references are replaced before your constructor is called, so there is nothing to handle yourself. The deployment target endpoints are admin-only: when secure user groups are on, only users in the xStatic admin group can see and edit targets (see [User groups and security](User-Groups-and-Security.md)).
 
@@ -331,7 +331,7 @@ A minimal project file for your own plugin looks like this (the FTP one also set
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XStatic.Core" Version="18.*-*" />
+    <PackageReference Include="XStatic.Core" Version="18.*" />
     <PackageReference Include="Umbraco.Cms.Core" Version="18.3.2" />
   </ItemGroup>
 </Project>
@@ -351,8 +351,7 @@ The repository's own packages are listed in `.github/workflows/pack.yml` and rel
 
 - A deployer only gets the field dictionary and the folder path. It can't read the site's settings, other services or the Umbraco context.
 - `DeployWholeSite` is all-or-nothing from xStatic's point of view: there is no per-file progress or partial-success result.
-- Field `Help` and the definition's `Help` are not displayed in the Deployment Target dialog yet.
-- The result message isn't shown in the backoffice, and a failed result still updates the site's last-deployed time. Report details through the log.
+- In 18.0.0 and earlier, the result message isn't shown in the backoffice and a failed result still updates the site's last-deployed time. From 18.1.0 and 17.4.0, a failed result's message is shown in a **Deployment failed** notification and the last-deployed time is left alone. Report extra details through the log either way.
 
 ## Next steps
 
