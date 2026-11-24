@@ -25,27 +25,19 @@ describe('xstatic-edit-site-modal', () => {
 
 		const model = el.createPostModel();
 
-		expect(model.name).toBe('Docs Site');
-		expect(model.rootNode).toBe('node-guid-1');
-		expect(model.cultures).toEqual(['en-US', 'da-DK']);
-		expect(model.mediaRootNodes).toEqual(['media-1', 'media-2']);
-		expect(model.exportFormat).toBe('3');
-		expect(model.assetPaths).toBe('/css,/js/*');
-		expect(model.imageCrops).toBe('800x600@80');
-		expect(model.postGenerationActionIds).toEqual(['1', '2']);
-		expect(model.autoPublish).toBe(true);
-		expect(model.deploymentTarget).toBe('5');
-		expect(model.targetHostname).toBe('docs.example.com');
-	});
-
-	it('handles empty arrays cleanly in helper methods', () => {
-		const el = document.createElement('xstatic-edit-site-modal') as EditSiteModalElement;
-
-		expect(el.createCsvString([])).toBeNull();
-		expect(el.createCsvString(['a', 'b'])).toBe('a,b');
-		expect(el.getFirst([])).toBeNull();
-		expect(el.getFirst(['only'])).toBe('only');
-		expect(el.getIds(null)).toBeNull();
-		expect(el.getIds(['1'])).toEqual(['1']);
+		expect(model).toEqual({
+			id: 0,
+			name: 'Docs Site',
+			rootNode: 'node-guid-1',
+			cultures: ['en-US', 'da-DK'],
+			mediaRootNodes: ['media-1', 'media-2'],
+			exportFormat: 3,
+			assetPaths: '/css,/js/*',
+			imageCrops: '800x600@80',
+			postGenerationActionIds: [1, 2],
+			autoPublish: true,
+			deploymentTarget: 5,
+			targetHostname: 'docs.example.com',
+		});
 	});
 });

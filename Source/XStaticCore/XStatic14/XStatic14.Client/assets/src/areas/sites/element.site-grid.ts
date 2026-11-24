@@ -1,6 +1,6 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-import SiteContext, { SITE_CONTEXT_TOKEN } from "./context.site";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { SITE_CONTEXT_TOKEN } from "./context.site";
 
 import "./element.site";
 import "./element.new-site";
@@ -8,37 +8,31 @@ import "../../elements/element.dashboard-grid";
 import { SiteApiModel } from "../../api";
 
 @customElement("xstatic-site-grid")
-class SiteGrid extends UmbElementMixin(LitElement) {
+class SiteGrid extends UmbLitElement {
   @state()
   isLoaded = false;
 
   @state()
   sites?: Array<SiteApiModel>;
 
-  #siteContext?: SiteContext;
-
   constructor() {
     super();
 
     this.consumeContext(SITE_CONTEXT_TOKEN, (context) => {
-      this.#siteContext = context;
-
-      this.observe(this.#siteContext?.sites, (sites) => {
+      this.observe(context?.sites, (sites) => {
         if (!sites) {
-          console.warn("No sites available in SiteGrid.");
           return;
         }
 
         this.sites = sites;
-
         this.isLoaded = true;
-      });
+      }, '_observeSites');
     });
   }
 
   render() {
     if (!this.isLoaded) {
-      return html`Loading...`;
+      return html`<uui-loader-bar></uui-loader-bar>`;
     }
 
     return html`
@@ -50,13 +44,7 @@ class SiteGrid extends UmbElementMixin(LitElement) {
   }
 
   #renderSites() {
-    if (!this.sites) {
-      return null;
-    }
-
-    return this.sites.map((site) => {
-      return html` <xstatic-site-element .site=${site}></xstatic-site-element> `;
-    });
+    return (this.sites ?? []).map((site) => html`<xstatic-site-element .site=${site}></xstatic-site-element>`);
   }
 }
 

@@ -1,21 +1,12 @@
-import {
-	css,
-	customElement,
-	html,
-	property,
-	LitElement,
-	state,
-} from '@umbraco-cms/backoffice/external/lit';
+import { css, customElement, html, property } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 
+/** Wraps a form property and shows a validation message above it when `errorMessage` is set. */
 @customElement('xstatic-validation-error-wrapper')
-export class ValidationErrorWrapper extends LitElement {
+export class ValidationErrorWrapper extends UmbLitElement {
 
 	@property({ type: String, attribute: true })
 	public errorMessage: string | null | undefined;
-
-	constructor() {
-		super();
-	}
 
 	override render() {
 		if (!this.errorMessage) {
@@ -24,7 +15,7 @@ export class ValidationErrorWrapper extends LitElement {
 
 		return html`
 			<div class="error">
-				<div class="error-message">${this.errorMessage}</div>
+				<div class="error-message" role="alert">${this.errorMessage}</div>
 
 				<slot></slot>
 			</div>
@@ -32,22 +23,23 @@ export class ValidationErrorWrapper extends LitElement {
 	}
 
 	static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-		.error{
-			background: linear-gradient(90deg, transparent 10%, #FEE 30%, transparent 50%);
+		:host {
+			display: block;
+			position: relative;
+			width: 100%;
 		}
 
-		.error-message{
+		.error {
+			border-left: var(--uui-size-space-1) solid var(--uui-color-danger);
+			padding-left: var(--uui-size-space-4);
+		}
+
+		.error-message {
 			padding-top: var(--uui-size-layout-1);
-			color: var(--uui-color-danger);
+			color: var(--uui-color-danger-standalone);
 			font-weight: bold;
 		}
-    `;
+	`;
 }
 
 export default ValidationErrorWrapper;
