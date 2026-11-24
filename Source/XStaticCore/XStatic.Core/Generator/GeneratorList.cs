@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Generator
 {
@@ -10,10 +11,7 @@ namespace XStatic.Core.Generator
 
         public GeneratorList()
         {
-            Generators = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IGenerator).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .ToList();
+            Generators = LoadableTypes.ImplementationsOf<IGenerator>();
         }
     }
 }
