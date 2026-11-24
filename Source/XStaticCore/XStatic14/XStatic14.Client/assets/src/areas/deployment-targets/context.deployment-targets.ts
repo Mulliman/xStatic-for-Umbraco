@@ -23,10 +23,9 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public async autoCreateDeploymentTarget(action: DeploymentTargetCreatorPostModel) : Promise<DeploymentTargetModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }));
 
-        notifyConfigChanged();
-
         if(data?.wasSuccessful && data.data){
             await this.#getDeploymentTargets();
+            notifyConfigChanged();
 
             return data.data;
         }
@@ -37,10 +36,9 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public async createDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsCreateDeploymentTarget({ requestBody: action }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.#getDeploymentTargets();
+            notifyConfigChanged();
 
             return data;
         }
@@ -51,10 +49,9 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public async updateDeploymentTarget(action: DeploymentTargetUpdateModel) : Promise<DeploymentTargetModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsUpdateDeploymentTarget({ requestBody: action }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.#getDeploymentTargets();
+            notifyConfigChanged();
 
             return data;
         }

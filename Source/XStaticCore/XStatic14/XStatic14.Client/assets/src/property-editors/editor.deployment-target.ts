@@ -21,6 +21,7 @@ export class XStaticPropertyEditorDeploymentTypeElement
         return this.fields?.map((f) => ({
             alias: f.alias,
             name: f.name,
+            help: f.help,
             value: toApiFieldValue(value.find((x) => x.alias === f.alias)?.value),
             editorUiAlias: f.editorUiAlias
         } as DeployerField)) ?? [];
