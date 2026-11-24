@@ -213,6 +213,10 @@ overwrites them.
    node Tools/Wiki/build-pages-site.mjs ../xstatic-docs-site
    ```
 
+   The site is styled by `Tools/Wiki/sam.css` (a shared stylesheet, kept unchanged so a newer copy can replace it)
+   plus the xStatic brand colours and docs layout in `build-pages-site.mjs`. The header logo and favicon are copied
+   from `Brand/logo-transparent.png` and `Brand/icon-transparent.png`.
+
 8. Open a pull request. The `wiki.yml` workflow runs the same check on every pull request that touches `Wiki/` or
    `Tools/Wiki/`. When `master` changes, it publishes to the wiki repository and `pages.yml` publishes the docs site.
 

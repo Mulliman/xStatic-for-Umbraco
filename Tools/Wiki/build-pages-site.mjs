@@ -6,18 +6,31 @@
 // It reuses compile-client-docs.mjs (the same Markdown and Mermaid rendering as the backoffice Documentation
 // dashboard), so run `npm ci` in Source/XStaticCore/XStatic14/XStatic14.Client/assets first.
 //
-// Output: one HTML file per page (Home.md becomes index.html) with its CSS inline, so each page works on its own
-// even in a viewer that doesn't load neighbouring files, plus the images, a 404 page and, when
-// --base-url is given, sitemap.xml and robots.txt. Links between pages become `Page-Name.html`, and links to source
-// files point at the repository on GitHub. Published by .github/workflows/pages.yml.
+// Output: one HTML file per page (Home.md becomes index.html) with its CSS inline, plus the images, the logo and
+// favicon (from Brand/), a 404 page and, when --base-url is given, sitemap.xml and robots.txt. Links between pages
+// become `Page-Name.html`, and links to source files point at the repository on GitHub.
+// Published by .github/workflows/pages.yml.
+//
+// Styling: sam.css (the sammullins.co.uk look, kept unchanged so it can be replaced with a newer copy) followed by
+// the CSS below, which sets the xStatic brand colours from the logo and lays out the docs.
 
-import { writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { wikiDir, imageDirName, listImages, stripTags } from './wiki.mjs';
 import { compileClientDocs } from './compile-client-docs.mjs';
 
 const SITE_NAME = 'xStatic for Umbraco';
+const NUGET_URL = 'https://www.nuget.org/packages/xstatic/';
+const toolDir = dirname(fileURLToPath(import.meta.url));
+const brandDir = join(toolDir, '..', '..', 'Brand');
+const SAM_CSS = readFileSync(join(toolDir, 'sam.css'), 'utf8');
+
+// Brand files copied into the site's assets/ folder. Only the upper-case logo is used.
+const ASSETS = {
+  'logo.png': 'logo-transparent.png',
+  'icon.png': 'icon-transparent.png',
+};
 
 function escapeHtml(str) {
   return String(str)
@@ -32,7 +45,7 @@ export function fileNameFor(slug) {
 }
 
 function hrefFor(slug) {
-  return slug === 'Home' ? './' : `${slug}.html`;
+  return slug === 'Home' ? 'index.html' : `${slug}.html`;
 }
 
 /**
@@ -79,25 +92,39 @@ function renderToc(headings) {
   return `<nav class="toc" aria-label="On this page"><p class="nav-title">On this page</p><ul>${items}</ul></nav>`;
 }
 
-function renderPage({ title, description, bodyHtml, nav, toc = '', editUrl, repoUrl, canonical }) {
+function sectionTitleFor(sections, slug) {
+  return sections.find(s => s.items.some(item => item.slug === slug))?.title ?? '';
+}
+
+function renderPage({ title, eyebrow = '', description, bodyHtml, nav, toc = '', editUrl, repoUrl, canonical }) {
   const pageTitle = title === SITE_NAME ? `${SITE_NAME} documentation` : `${title} | ${SITE_NAME}`;
-  const edit = editUrl
-    ? ` <a href="${escapeHtml(editUrl)}">Edit this page on GitHub</a>.`
-    : '';
+  const edit = editUrl ? `<p class="edit-link"><a href="${escapeHtml(editUrl)}">Edit this page on GitHub</a></p>` : '';
   return `<!doctype html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(pageTitle)}</title>
-${description ? `<meta name="description" content="${escapeHtml(description)}">\n` : ''}${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}">\n` : ''}<style>
+${description ? `<meta name="description" content="${escapeHtml(description)}">\n` : ''}${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}">\n` : ''}<link rel="icon" type="image/png" href="assets/icon.png">
+<meta name="theme-color" content="#140223">
+<script>try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<style>
+${SAM_CSS}
 ${CSS}</style>
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="./">${SITE_NAME}</a>
-  <a class="repo" href="${escapeHtml(repoUrl)}">GitHub</a>
+  <div class="header-inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="xStatic" width="56" height="56"><span>Documentation</span></a>
+    <nav aria-label="Project">
+      <a href="${escapeHtml(repoUrl)}">GitHub</a>
+      <a href="${NUGET_URL}">NuGet</a>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-theme-toggle>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"></path></svg>
+      </button>
+    </nav>
+  </div>
 </header>
 <div class="layout">
   <aside class="sidebar">
@@ -110,17 +137,27 @@ ${nav}
   </aside>
   <main id="content">
     <article class="wiki-prose">
-      <h1>${escapeHtml(title)}</h1>
+      ${eyebrow ? `<p class="eyebrow">${escapeHtml(eyebrow)}</p>\n      ` : ''}<h1>${escapeHtml(title)}</h1>
 ${bodyHtml}
     </article>
-    <footer class="page-footer">
-      <p>${SITE_NAME} is open source under the MIT licence.${edit}</p>
-    </footer>
+    ${edit}
   </main>
   ${toc ? `<aside class="toc-col">${toc}</aside>` : ''}
 </div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>${SITE_NAME} is open source under the MIT licence.</p>
+    <p><a href="${escapeHtml(repoUrl)}">GitHub</a> · <a href="${NUGET_URL}">NuGet</a> · <a href="https://sammullins.co.uk">sammullins.co.uk</a></p>
+  </div>
+</footer>
 <script>
   (function () {
+    document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+      var root = document.documentElement;
+      var dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      root.dataset.theme = dark ? 'light' : 'dark';
+      try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+    });
     var nav = document.getElementById('nav');
     var wide = window.matchMedia('(min-width: 900px)');
     function sync() { if (wide.matches) nav.open = true; }
@@ -142,97 +179,136 @@ ${bodyHtml}
 `;
 }
 
-const CSS = `:root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #1b264f;
-  --muted: #5c6370;
-  --line: #d8d7d9;
-  --surface-alt: #f6f6f9;
-  --accent: #3544b1;
-  --code-bg: #f4f4f7;
-  --diagram-line: #8b8b96;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+const CSS = `/* xStatic brand, taken from the logo:
+   night #140223, plum #6c3673, rose #b55c76, coral #e58578, peach #faab7b, cream #fff8ef */
+:root {
+  --brand-night: #140223;
+  --brand-plum: #6c3673;
+  --brand-rose: #b55c76;
+  --brand-coral: #e58578;
+  --brand-peach: #faab7b;
+  --brand-cream: #fff8ef;
+  --brand-gradient: linear-gradient(90deg, var(--brand-plum), var(--brand-rose) 45%, var(--brand-coral) 70%, var(--brand-peach));
+
+  --color-accent: var(--brand-coral);
+  --color-link: light-dark(var(--brand-plum), var(--brand-peach));
+  --color-link-hover: light-dark(#4a1f50, #ffcaa3);
+  --color-on-accent: var(--brand-night);
+  --color-bg: light-dark(#ffffff, #120b18);
+  --color-bg-muted: light-dark(#faf6f4, #1a1221);
+  --color-bg-inverse: var(--brand-night);
+  --color-surface: light-dark(#ffffff, #1d1424);
+  --color-heading: light-dark(#26112f, #f6eef2);
+  --color-border: light-dark(#e6dde3, #34283c);
+  --color-code-bg: light-dark(#f8f3f5, #1b1322);
+  --color-focus: light-dark(var(--brand-plum), var(--brand-peach));
+  --color-diagram-line: light-dark(#8e8292, #8e8292);
+  --nav-current-bg: color-mix(in oklab, var(--brand-coral) 16%, transparent);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #15161a;
-    --fg: #e6e6ea;
-    --muted: #a3a6ad;
-    --line: #34363d;
-    --surface-alt: #1d1f24;
-    --accent: #9aa6ff;
-    --code-bg: #1f2127;
-    --diagram-line: #8b8e98;
-  }
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font); }
-a { color: var(--accent); }
+
+/* Layout: header and footer full width; sidebar, article and "On this page" in a centred grid */
 .skip { position: absolute; left: -999px; }
-.skip:focus { left: 16px; top: 8px; background: var(--bg); padding: 4px 8px; z-index: 10; }
-.site-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.brand { font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; }
-.repo { font-size: 14px; }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1400px; margin: 0 auto; }
-.sidebar { padding: 8px 16px; border-bottom: 1px solid var(--line); }
-.sidebar summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.skip:focus { left: 16px; top: 8px; z-index: 10; padding: 4px 8px; background: var(--color-bg); }
+.site-header { position: relative; background: var(--brand-night); border-bottom: 0; color: var(--brand-cream); }
+.site-header::after { content: ''; position: absolute; inset: auto 0 0; height: 3px; background: var(--brand-gradient); }
+.header-inner, .footer-inner { width: min(100% - 2 * var(--gutter), 1400px); margin-inline: auto; }
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); min-height: 4.75rem; padding-block: 0.5rem; }
+.site-header a, .site-header .theme-toggle { color: var(--brand-cream); text-decoration: none; }
+.site-header .brand { display: inline-flex; align-items: center; gap: 0.75rem; font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); }
+.site-header .brand img { display: block; width: 56px; height: 56px; }
+.site-header .brand span { padding-left: 0.75rem; border-left: 1px solid rgb(255 248 239 / 0.3); }
+.site-header nav { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-s); }
+@media (max-width: 480px) {
+  .site-header .brand span { display: none; }
+  .site-header nav { gap: 0.75rem; }
+  .site-header .theme-toggle { min-width: 2.25rem; }
+}
+.site-header nav a { font-weight: 500; color: rgb(255 248 239 / 0.8); }
+.site-header nav a:hover, .site-header .theme-toggle:hover { color: var(--brand-peach); }
+.site-header :focus-visible, .site-footer :focus-visible { outline-color: var(--brand-peach); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 1400px; margin: 0 auto; }
+.sidebar { padding: var(--space-2xs) var(--gutter); border-bottom: 1px solid var(--color-border); font-size: var(--step--1); }
+.sidebar summary { cursor: pointer; padding: 6px 0; font-family: var(--font-display); font-weight: 600; color: var(--color-heading); }
 .sidebar ul, .toc ul { list-style: none; margin: 0; padding: 0; }
-.sidebar li a, .toc li a { display: block; padding: 3px 8px; border-radius: 4px; color: var(--fg); text-decoration: none; font-size: 14px; }
-.sidebar li a:hover, .toc li a:hover { background: var(--surface-alt); }
-.sidebar li a[aria-current="page"] { background: var(--surface-alt); color: var(--accent); font-weight: 600; }
-.nav-title { margin: 16px 0 4px; padding: 0 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-.nav-section:first-child .nav-title { margin-top: 4px; }
-main { min-width: 0; padding: 8px 16px 48px; }
+.sidebar li a, .toc li a { display: block; padding: 4px 10px; border-radius: var(--radius); color: var(--color-text); text-decoration: none; line-height: 1.4; }
+.sidebar li a:hover, .toc li a:hover { color: var(--color-heading); background: var(--color-bg-muted); }
+.sidebar li a[aria-current="page"] { background: var(--nav-current-bg); color: var(--color-heading); font-weight: 600; box-shadow: inset 3px 0 0 var(--color-accent); }
+.nav-title { margin: 1.4rem 0 0.3rem; padding: 0 10px; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.nav-section:first-child .nav-title { margin-top: 0.5rem; }
+main { min-width: 0; padding: var(--space-m) var(--gutter) var(--space-section); }
 .toc-col { display: none; }
+.toc { font-size: var(--step--1); }
+.toc li a { padding-block: 3px; border-left: 2px solid var(--color-border); border-radius: 0; }
 @media (min-width: 900px) {
-  .layout { grid-template-columns: 260px minmax(0, 1fr); }
-  .sidebar { border-bottom: 0; border-right: 1px solid var(--line); position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding-bottom: 32px; }
+  .layout { grid-template-columns: 270px minmax(0, 1fr); }
+  .sidebar { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: var(--space-s) var(--space-s) var(--space-l); border-bottom: 0; border-right: 1px solid var(--color-border); }
   .sidebar summary { display: none; }
-  main { padding: 8px 40px 64px; }
+  main { padding-inline: clamp(2rem, 4vw, 4rem); }
 }
 @media (min-width: 1240px) {
-  .layout { grid-template-columns: 260px minmax(0, 1fr) 220px; }
-  .toc-col { display: block; position: sticky; top: 0; align-self: start; padding: 24px 16px; }
+  .layout { grid-template-columns: 270px minmax(0, 1fr) 230px; }
+  .toc-col { display: block; position: sticky; top: 0; align-self: start; padding: var(--space-l) var(--space-s); }
 }
-.wiki-prose { max-width: 820px; }
-.wiki-prose h1 { font-size: 2.1em; line-height: 1.2; margin: 24px 0 16px; }
-.wiki-prose h2 { margin-top: 2em; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
-.wiki-prose h2, .wiki-prose h3, .wiki-prose h4 { line-height: 1.3; scroll-margin-top: 16px; }
-.wiki-prose img { max-width: 100%; height: auto; }
-.wiki-prose code { font-family: var(--mono); font-size: 0.9em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
-.wiki-prose pre { margin: 0; padding: 12px 16px; overflow-x: auto; background: var(--code-bg); }
-.wiki-prose pre code { padding: 0; background: none; font-size: 13.5px; }
-.wiki-prose blockquote { margin: 1em 0; padding: 4px 16px; border-left: 4px solid var(--accent); background: var(--surface-alt); }
-.wiki-code-block { margin: 1em 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.wiki-code-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 4px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
-.wiki-copy-btn { font: inherit; font-size: 12px; padding: 2px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); cursor: pointer; }
-.wiki-table-wrap { overflow-x: auto; margin: 1em 0; }
-.wiki-prose table { border-collapse: collapse; font-size: 14.5px; }
-.wiki-prose th, .wiki-prose td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
-.wiki-prose th { background: var(--surface-alt); }
-.wiki-diagram { margin: 1.25em 0; overflow-x: auto; }
+
+/* The page: sam.css type with the docs' own spacing */
+.wiki-prose { max-width: 50rem; }
+.wiki-prose > * { margin-block: 0; }
+.wiki-prose > * + * { margin-top: 1em; }
+.wiki-prose .eyebrow { margin-bottom: 0.4rem; }
+.wiki-prose .eyebrow + h1 { margin-top: 0; }
+.wiki-prose h1 { font-size: var(--step-4); line-height: 1.1; margin-bottom: var(--space-s); }
+.wiki-prose h1::after { content: ''; display: block; width: 4rem; height: 4px; margin-top: var(--space-s); border-radius: 2px; background: var(--brand-gradient); }
+.wiki-prose h2 { font-size: var(--step-3); margin-top: 2em; }
+.wiki-prose h3 { font-size: var(--step-1); margin-top: 1.75em; }
+.wiki-prose h4 { font-size: var(--step-0); margin-top: 1.5em; }
+.wiki-prose :is(h2, h3, h4) { scroll-margin-top: 16px; }
+.wiki-prose :is(h2, h3, h4) + * { margin-top: 0.6em; }
+.wiki-prose :is(ul, ol) { padding-left: 1.4em; }
+.wiki-prose li + li { margin-top: 0.35em; }
+.wiki-prose li > :is(ul, ol) { margin-top: 0.35em; }
+.wiki-prose img { border-radius: var(--radius); }
+.wiki-prose blockquote { padding: var(--space-2xs) var(--space-s); background: var(--color-bg-muted); border-radius: 0 var(--radius) var(--radius) 0; }
+.wiki-prose blockquote > * { margin: 0; }
+.wiki-prose blockquote > * + * { margin-top: 0.6em; }
+
+.wiki-code-block { border: 1px solid var(--color-border); border-radius: var(--radius-l); overflow: hidden; background: var(--color-code-bg); }
+.wiki-code-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 4px 14px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); }
+.wiki-copy-btn { font: 600 0.75rem var(--font-sans); padding: 3px 12px; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); color: var(--color-heading); cursor: pointer; }
+.wiki-copy-btn:hover { border-color: var(--color-accent); }
+.wiki-prose .wiki-code-block pre { margin: 0; border: 0; border-radius: 0; }
+.wiki-prose pre code { font-size: 0.85rem; }
+
+.wiki-table-wrap { overflow-x: auto; }
+.wiki-prose table { display: table; width: auto; font-size: var(--step--1); }
+.wiki-prose th, .wiki-prose td { vertical-align: top; }
+.wiki-prose th { background: var(--color-bg-muted); font-family: var(--font-display); color: var(--color-heading); }
+
+.wiki-diagram { overflow-x: auto; }
 .wiki-diagram-svg svg {
   max-width: none; height: auto;
-  --surface: var(--bg); --border: var(--diagram-line);
-  --_text: var(--fg); --_text-sec: var(--muted); --_text-muted: var(--muted);
-  --_text-faint: color-mix(in srgb, var(--fg) 25%, var(--bg));
-  --_line: var(--diagram-line); --_arrow: var(--accent);
-  --_node-fill: var(--bg); --_node-stroke: var(--diagram-line);
-  --_group-fill: var(--bg); --_group-hdr: color-mix(in srgb, var(--fg) 5%, var(--bg));
-  --_inner-stroke: color-mix(in srgb, var(--fg) 12%, var(--bg));
-  --_key-badge: color-mix(in srgb, var(--fg) 10%, var(--bg));
+  --surface: var(--color-bg); --border: var(--color-diagram-line);
+  --_text: var(--color-heading); --_text-sec: var(--color-text-muted); --_text-muted: var(--color-text-muted);
+  --_text-faint: color-mix(in srgb, var(--color-text) 25%, var(--color-bg));
+  --_line: var(--color-diagram-line); --_arrow: var(--brand-rose);
+  --_node-fill: var(--color-surface); --_node-stroke: var(--color-diagram-line);
+  --_group-fill: var(--color-bg); --_group-hdr: var(--color-bg-muted);
+  --_inner-stroke: color-mix(in srgb, var(--color-text) 12%, var(--color-bg));
+  --_key-badge: color-mix(in srgb, var(--color-text) 10%, var(--color-bg));
 }
-.wiki-diagram-svg svg text { font-family: var(--font); }
-a.wiki-video-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin: 0.75em 0 1.25em; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-alt); text-decoration: none; color: var(--fg); }
-a.wiki-video-card:hover { border-color: var(--accent); }
-.wiki-video-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--bg); flex-shrink: 0; }
+.wiki-diagram-svg svg text { font-family: var(--font-sans); }
+
+a.wiki-video-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-l); background: var(--color-surface); text-decoration: none; color: var(--color-heading); }
+a.wiki-video-card:hover { border-color: var(--color-accent); }
+.wiki-video-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-coral), var(--brand-plum)); color: var(--brand-cream); }
 .wiki-video-body { display: flex; flex-direction: column; gap: 2px; }
-.wiki-video-title { font-weight: 600; font-size: 14px; }
-.wiki-video-cta { font-size: 12.5px; color: var(--accent); }
-.page-footer { max-width: 820px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.wiki-video-title { font-weight: 600; }
+.wiki-video-cta { font-size: var(--step--1); color: var(--color-link); }
+
+.edit-link { max-width: 50rem; margin: var(--space-l) 0 0; padding-top: var(--space-s); border-top: 1px solid var(--color-border); font-size: var(--step--1); }
+.site-footer { border-top: 3px solid transparent; border-image: var(--brand-gradient) 1; }
+.footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2xs) var(--space-m); }
+.footer-inner p { margin: 0; }
 `;
 
 /**
@@ -252,6 +328,7 @@ export async function buildPagesSite(outDir, { baseUrl, ...compileOptions } = {}
     const isHome = page.slug === 'Home';
     const html = renderPage({
       title: isHome ? SITE_NAME : page.title,
+      eyebrow: isHome ? 'Documentation' : sectionTitleFor(bundle.sections, page.slug),
       description: firstParagraphText(bodyHtml),
       bodyHtml,
       nav: renderNav(bundle.sections, page.slug),
@@ -269,11 +346,14 @@ export async function buildPagesSite(outDir, { baseUrl, ...compileOptions } = {}
     join(out, '404.html'),
     renderPage({
       title: 'Page not found',
-      bodyHtml: '<p>There\'s no page at this address. Try the contents, or start from the <a href="./">home page</a>.</p>',
+      bodyHtml: '<p>There\'s no page at this address. Try the contents, or start from the <a href="index.html">home page</a>.</p>',
       nav: renderNav(bundle.sections, ''),
       repoUrl: bundle.repoUrl,
     }).replace(/(href|src)="(?!https?:|#|\/)([^"]*)"/g, (_, attr, path) => `${attr}="${base ? new URL(path, base).pathname : path}"`)
   );
+
+  mkdirSync(join(out, 'assets'), { recursive: true });
+  for (const [name, source] of Object.entries(ASSETS)) copyFileSync(join(brandDir, source), join(out, 'assets', name));
 
   // Only copy the images a page still shows (the dashboard renderer drops the banner and turns video thumbnails into cards).
   const written = Object.values(bundle.pages).map(p => p.html).join('\n');

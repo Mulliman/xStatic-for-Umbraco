@@ -15,6 +15,8 @@ on:
     paths:
       - 'Wiki/**'
       - 'Tools/Wiki/**'
+      - 'Brand/logo-transparent.png'
+      - 'Brand/icon-transparent.png'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
