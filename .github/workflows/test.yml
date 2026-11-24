@@ -51,6 +51,7 @@ jobs:
         with:
           name: test-results
           path: TestResults
+          retention-days: 14
 
   client:
     name: 'Lint, test and build (backoffice client)'
