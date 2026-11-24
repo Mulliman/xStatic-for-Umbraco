@@ -49,8 +49,11 @@ export function rewriteForSite(html, { repoUrl, gitRef }) {
 function firstParagraphText(html) {
   const m = html.match(/<p>([\s\S]*?)<\/p>/);
   if (!m) return '';
+  // Plain text for the meta description: drop tags, then any stray < or > a nested tag could leave behind.
+  // (The result is also HTML-escaped when it's written into the attribute.)
   const text = m[1]
     .replace(/<[^>]*>/g, '')
+    .replace(/[<>]/g, '')
     .replace(/&[a-z#0-9]+;/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
