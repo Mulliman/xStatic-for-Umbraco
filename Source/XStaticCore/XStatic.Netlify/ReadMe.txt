@@ -10,4 +10,4 @@ To use the Netlify 404 action, add this to Program.cs:
 
     builder.Services.AddNetlifyActions();
 
-Full guide: https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-Netlify
+Full guide: https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify

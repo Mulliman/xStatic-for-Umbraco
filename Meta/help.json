@@ -1,9 +1,9 @@
 [
-	{"title":"Your first static site","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Your-First-Static-Site","description":"Install xStatic, create a site, generate it and look at the result, in a few minutes."},
-	{"title":"Deploying to Netlify","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-Netlify","description":"Deploy to Netlify, or let xStatic create the Netlify site for you."},
-	{"title":"Deploying with Git","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-with-Git","description":"Commit your static site to a Git repository, for GitHub Pages or any platform that deploys from Git."},
-	{"title":"Deploying to FTP","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP","description":"Mirror your static site onto an existing server over FTP."},
-	{"title":"Image crops","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Image-Crops","description":"Generate Umbraco image crops as static files and rewrite the links to them."},
-	{"title":"Troubleshooting","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Troubleshooting","description":"xStatic should work out of the box, but if it doesn't, this is the place to check first."},
-	{"title":"Extending xStatic","link":"https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Extending-xStatic","description":"Write your own transformers, deployers, actions and generators to fit your site."}
+	{"title":"Your first static site","link":"https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site","description":"Install xStatic, create a site, generate it and look at the result, in a few minutes."},
+	{"title":"Deploying to Netlify","link":"https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify","description":"Deploy to Netlify, or let xStatic create the Netlify site for you."},
+	{"title":"Deploying with Git","link":"https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git","description":"Commit your static site to a Git repository, for GitHub Pages or any platform that deploys from Git."},
+	{"title":"Deploying to FTP","link":"https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP","description":"Mirror your static site onto an existing server over FTP."},
+	{"title":"Image crops","link":"https://mulliman.github.io/xStatic-for-Umbraco/Image-Crops","description":"Generate Umbraco image crops as static files and rewrite the links to them."},
+	{"title":"Troubleshooting","link":"https://mulliman.github.io/xStatic-for-Umbraco/Troubleshooting","description":"xStatic should work out of the box, but if it doesn't, this is the place to check first."},
+	{"title":"Extending xStatic","link":"https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic","description":"Write your own transformers, deployers, actions and generators to fit your site."}
 ]

@@ -10,7 +10,7 @@
 		<PackageTags>umbraco umbraco18 xstatic static site generation netlify umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-Netlify</PackageProjectUrl>
+		<PackageProjectUrl>https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<PackageIcon>Logo.png</PackageIcon>

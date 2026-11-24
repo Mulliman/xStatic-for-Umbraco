@@ -1,6 +1,6 @@
 # Documentation has moved to the wiki
 
-The xStatic documentation now lives in the [xStatic wiki](https://github.com/Mulliman/xStatic-for-Umbraco/wiki).
+The xStatic documentation now lives in the [xStatic wiki](https://mulliman.github.io/xStatic-for-Umbraco/).
 Its source is the [`Wiki/`](../Wiki) folder of this repository, and changes to it are published automatically.
 
 The pages that used to be here are now:

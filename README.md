@@ -32,13 +32,13 @@ Once installed, restart your Umbraco site. You will find a new **xStatic** secti
 
 ## 📖 Documentation
 
-Everything is in the **[xStatic wiki](https://github.com/Mulliman/xStatic-for-Umbraco/wiki)**: installation, a first-site tutorial, every backoffice screen,
+Everything is in the **[xStatic wiki](https://mulliman.github.io/xStatic-for-Umbraco/)**: installation, a first-site tutorial, every backoffice screen,
 the deployers, troubleshooting and how to extend xStatic. Good places to start:
 
-- [Installation](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Installation) and [Your first static site](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Your-First-Static-Site)
-- [Deploying to Netlify](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-Netlify), [with Git](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-with-Git) or [to FTP](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-to-FTP)
-- [Extending xStatic](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Extending-xStatic)
-- [Troubleshooting](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Troubleshooting)
+- [Installation](https://mulliman.github.io/xStatic-for-Umbraco/Installation) and [Your first static site](https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site)
+- [Deploying to Netlify](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify), [with Git](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git) or [to FTP](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP)
+- [Extending xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic)
+- [Troubleshooting](https://mulliman.github.io/xStatic-for-Umbraco/Troubleshooting)
 
 The wiki is written in the [`Wiki/`](Wiki) folder of this repository and published automatically, so fixes are welcome as pull requests.
 - [xStatic MCP Server (`xstatic-mcp`)](Source/xstatic-mcp/README.md) — official Model Context Protocol server for xStatic
@@ -56,4 +56,4 @@ For AI contributions and development context, see our [AGENTS.md](AGENTS.md) fil
 
 ## 📄 License & Support
 
-xStatic is an open-source project. For more information on why it could be of use to you, see [What is xStatic?](https://github.com/Mulliman/xStatic-for-Umbraco/wiki/What-is-xStatic) in the wiki.
+xStatic is an open-source project. For more information on why it could be of use to you, see [What is xStatic?](https://mulliman.github.io/xStatic-for-Umbraco/What-is-xStatic) in the wiki.

@@ -7,4 +7,4 @@ for example a GitHub Pages repository.
 
 With the default setup there is nothing to register: the deployer is found automatically.
 
-Full guide, including limitations: https://github.com/Mulliman/xStatic-for-Umbraco/wiki/Deploying-with-Git
+Full guide, including limitations: https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git
