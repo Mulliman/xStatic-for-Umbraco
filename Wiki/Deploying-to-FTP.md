@@ -42,7 +42,7 @@ Use the same version as your other xStatic packages (see [Installation](Installa
 5. On the **xStatic Sites** dashboard press **Edit** on your site, choose the target in **Deployment Target** and submit. Fill in **Asset Paths** so your CSS, JavaScript and images are part of the output (see [Asset paths](Asset-Paths.md)).
 6. Press **Generate**, then **Deploy**, then confirm. Open your site's address.
 
-A blank **Port** works: the deployer converts a blank or invalid value to 0 and FluentFTP treats 0 as "the default port", which is 21.
+A blank or non-numeric **Port** uses the default, 21.
 
 ## Mirror mode deletes files
 

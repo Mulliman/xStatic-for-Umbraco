@@ -286,7 +286,7 @@ If the creator isn't in the **Creator Template** list, `xStatic.Netlify` isn't i
 4. You published. Unpublishing, deleting, media changes and changes to languages or domains don't trigger a build.
 5. Check the Umbraco log for errors from the build or the deploy.
 
-If publishing feels slow, that's expected on a big site: there is no incremental build, so every publish regenerates everything. Switch **Auto Publish** off and use a scheduled build instead ([Remote operations](Remote-Operations.md)). Also note that it deploys even when the build reported problems, so a bad page can go live. Run a manual **Generate** if you suspect something ([Auto publish](Auto-Publish.md#what-to-know-before-you-switch-it-on)).
+If publishing feels slow, that's expected on a big site: there is no incremental build, so every publish regenerates everything. Switch **Auto Publish** off and use a scheduled build instead ([Remote operations](Remote-Operations.md)). Also note that while a failed rebuild exception skips deployment, partial item failures (such as a failed page or crop) still deploy with a warning in the log. Run a manual **Generate** if you suspect something ([Auto publish](Auto-Publish.md#what-to-know-before-you-switch-it-on)).
 
 ### A scheduled or remote build ran but the site didn't update
 
