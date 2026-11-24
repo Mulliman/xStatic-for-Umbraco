@@ -1,0 +1,28 @@
+# Categories for GitHub's automatically generated release notes (Releases → Draft a new release →
+# "Generate release notes"). PRs are sorted by label; the first category that matches wins.
+# Dependabot labels its PRs "dependencies", so they're grouped together instead of mixed in with the changes.
+# This is not a workflow: the release workflow is .github/workflows/release.yml.
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: Dependency updates
+      labels:
+        - dependencies
+    - title: Features
+      labels:
+        - enhancement
+        - feature
+    - title: Bug fixes
+      labels:
+        - bug
+        - fix
+    - title: Documentation
+      labels:
+        - documentation
+        - docs
+    - title: Other changes
+      labels:
+        - '*'

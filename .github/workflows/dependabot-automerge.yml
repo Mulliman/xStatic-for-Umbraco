@@ -1,6 +1,7 @@
 # Turns on auto-merge for Dependabot minor and patch updates (including security fixes).
 # GitHub only merges once the required checks in branch protection pass, so a red PR is never merged.
-# Major version updates are left for a person to review.
+# Major version updates are left for a person to review, and so is anything not aimed at a supported release
+# branch (master, lts/* or a version branch such as feature/19).
 name: 'Dependabot auto-merge'
 
 on: pull_request
@@ -10,7 +11,12 @@ permissions: {}
 jobs:
   auto-merge:
     name: 'Enable auto-merge'
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Mulliman/xStatic-for-Umbraco'
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.repository == 'Mulliman/xStatic-for-Umbraco' &&
+      (github.event.pull_request.base.ref == 'master' ||
+       startsWith(github.event.pull_request.base.ref, 'lts/') ||
+       startsWith(github.event.pull_request.base.ref, 'feature/'))
     runs-on: 'ubuntu-latest'
     permissions:
       contents: write

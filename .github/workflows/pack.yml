@@ -83,3 +83,4 @@ jobs:
             ${{ env.OUTPUT_DIR }}/*.nupkg
             ${{ env.OUTPUT_DIR }}/*.snupkg
           if-no-files-found: error
+          retention-days: 14

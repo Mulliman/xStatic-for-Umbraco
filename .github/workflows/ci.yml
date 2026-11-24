@@ -1,10 +1,14 @@
 name: "CI"
 
-# Every PR and every push to master / feature / lts branches:
+# Every PR and every push to master, lts/* and version branches (feature/<number>, e.g. feature/19):
 #   1. builds and tests (test.yml)
 #   2. packs all packages at a preview version (pack.yml), uploaded as the "nuget-packages" artifact
-#   3. publishes them to this repo's GitHub Packages NuGet feed. Skipped for PRs from forks and Dependabot,
-#      which get a read-only token. Their packages are still downloadable from the run's artifact.
+#   3. publishes them to this repo's GitHub Packages NuGet feed. Skipped for PRs from forks (they get a read-only
+#      token) and for Dependabot PRs (dependency bumps don't need preview packages). Their packages are still
+#      downloadable from the run's artifact.
+#
+# Topic branches such as feature/pages-site-branding run through their PR only, so they don't run CI twice or
+# publish preview packages nobody asked for.
 #
 # Versions come from the nearest v* tag (see .github/scripts/Get-PreviewVersion.ps1):
 #   PR builds:   18.0.0-pr.<PR number>.<run number>
@@ -16,7 +20,7 @@ on:
   push:
     branches:
       - master
-      - 'feature/**'
+      - 'feature/[0-9]*'
       - 'lts/**'
   workflow_dispatch:
 
@@ -65,7 +69,8 @@ jobs:
   publish-preview:
     name: 'Publish to GitHub Packages'
     needs: [pack, version]
-    # Fork and Dependabot PRs get a read-only token, so they can't publish (by design).
+    # Fork PRs get a read-only token, so they can't publish. Dependabot PRs are skipped because dependency bumps
+    # don't need preview packages.
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
