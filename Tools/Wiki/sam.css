@@ -1,0 +1,498 @@
+/*
+ * sam.css: the sammullins.co.uk look, distilled for GitHub Pages and project wikis.
+ * One file, no build step, no JavaScript needed (an optional theme toggle is in README.md).
+ *
+ * What it keeps from the main site:
+ *   - Figtree headings, Atkinson Hyperlegible Next body, the same fluid type and space scales
+ *   - banded full-width sections: default, muted (grey) and inverse (dark)
+ *   - light and dark mode, from the system setting or <html data-theme="light|dark">
+ *
+ * Changing the colours: set any of the tokens below on :root, after this file loads.
+ * A single value is used in both modes; light-dark(light, dark) sets each mode.
+ *
+ *   :root {
+ *     --color-accent: #2f7d5b;                     links and highlights follow it
+ *     --color-link: light-dark(#1d5c41, #7fd1aa);  optional: pin the link colour exactly
+ *   }
+ *
+ * Class names:
+ *   .band  .band--muted  .band--inverse  .band--tight     full-width sections
+ *   .wrap  .wrap--narrow                                   centred content column
+ *   .prose                                                 spacing for rendered Markdown
+ *   .lead  .eyebrow  .muted  .center                       text
+ *   .grid  .card  .button  .button--primary  .callout(--tip|--warning)
+ *   .site-header  .site-footer  .theme-toggle
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+
+/* ---------------------------------------------------------------- Tokens */
+
+:root {
+  color-scheme: light dark;
+
+  /* Colours you are most likely to change */
+  --color-accent: #da7d03;
+  --color-link: light-dark(
+    color-mix(in oklab, var(--color-accent) 72%, black),
+    color-mix(in oklab, var(--color-accent) 75%, white)
+  );
+  --color-link-hover: light-dark(
+    color-mix(in oklab, var(--color-link) 75%, black),
+    color-mix(in oklab, var(--color-link) 70%, white)
+  );
+  --color-on-accent: #000000;
+
+  /* Neutrals (the main site's values) */
+  --color-bg: light-dark(#ffffff, #121212);
+  --color-bg-muted: light-dark(#f2f2f2, #1b1b1b);
+  --color-bg-inverse: light-dark(#1c1c1c, #000000); /* the dark band, dark in both modes */
+  --color-surface: light-dark(#ffffff, #1f1f1f);
+  --color-text: light-dark(#4d4d4d, #cfcfcf);
+  --color-text-muted: light-dark(#595959, #b5b5b5);
+  --color-heading: light-dark(#333333, #ededed);
+  --color-border: light-dark(#d6d6d6, #333333);
+  --color-code-bg: light-dark(#f6f6f6, #1a1a1a);
+  --color-focus: light-dark(#0b57d0, #8ab4ff);
+
+  /* Callout tones */
+  --color-note: light-dark(#0b57d0, #8ab4ff);
+  --color-tip: light-dark(#1f6f3a, #8fd6a2);
+  --color-warning: light-dark(#a4262c, #ff8a80);
+
+  /* Type */
+  --font-sans: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-display: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+  --step--1: clamp(0.875rem, 0.8505rem + 0.1087vw, 0.9375rem);
+  --step-0: clamp(1rem, 0.9511rem + 0.2174vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1193rem + 0.3587vw, 1.4063rem);
+  --step-2: clamp(1.44rem, 1.3156rem + 0.5527vw, 1.7578rem);
+  --step-3: clamp(1.728rem, 1.5444rem + 0.8161vw, 2.1973rem);
+  --step-4: clamp(2.0736rem, 1.8103rem + 1.1704vw, 2.7466rem);
+  --step-6: clamp(2.986rem, 2.4751rem + 2.2705vw, 4.2915rem);
+
+  /* Space and shape */
+  --space-2xs: clamp(0.5rem, 0.4755rem + 0.1087vw, 0.5625rem);
+  --space-xs: clamp(0.75rem, 0.7133rem + 0.163vw, 0.8438rem);
+  --space-s: clamp(1rem, 0.9511rem + 0.2174vw, 1.125rem);
+  --space-m: clamp(1.5rem, 1.4266rem + 0.3261vw, 1.6875rem);
+  --space-l: clamp(2.5rem, 2.3777rem + 0.5435vw, 2.8125rem);
+  --space-section: clamp(3.5rem, 2.5217rem + 4.3478vw, 6rem);
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --container: 1200px;
+  --container-narrow: 800px;
+  --measure: 68ch;
+  --radius: 4px;
+  --radius-l: 12px;
+}
+
+/* The theme toggle, or a fixed theme: <html data-theme="dark"> */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------- Base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: 400 var(--step-0) / 1.6 var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+main {
+  flex: 1;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-heading);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+h1 {
+  font-size: var(--step-6);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+h2 {
+  font-size: var(--step-4);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+h3 {
+  font-size: var(--step-2);
+}
+h4 {
+  font-size: var(--step-1);
+}
+h5,
+h6 {
+  font-size: var(--step-0);
+  letter-spacing: 0;
+}
+p,
+li,
+blockquote {
+  text-wrap: pretty;
+}
+b,
+strong {
+  font-weight: 600;
+}
+
+a {
+  color: var(--color-link);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+pre code {
+  font-size: inherit;
+}
+:not(pre) > code {
+  background: var(--color-code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius);
+}
+pre {
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-s);
+  line-height: 1.55;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin-block: var(--space-l);
+}
+blockquote {
+  margin-inline: 0;
+  border-left: 4px solid var(--color-accent);
+  padding-left: var(--space-s);
+  color: var(--color-text-muted);
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+th,
+td {
+  border: 1px solid var(--color-border);
+  padding: var(--space-2xs) var(--space-xs);
+  text-align: left;
+}
+
+/* ---------------------------------------------------------------- Layout */
+
+.wrap {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+}
+.wrap--narrow {
+  width: min(100% - 2 * var(--gutter), var(--container-narrow));
+  margin-inline: auto;
+}
+
+/* Bands: full-width sections. Two plain bands in a row get a hairline between them. */
+.band {
+  padding-block: var(--space-section);
+  background: var(--color-bg);
+}
+.band:not(.band--muted, .band--inverse) + .band:not(.band--muted, .band--inverse) {
+  border-top: 1px solid var(--color-border);
+}
+.band--tight {
+  padding-block: var(--space-m);
+}
+.band--muted {
+  background: var(--color-bg-muted);
+  --color-surface: var(--color-bg);
+}
+/* The dark band: everything inside uses the dark-mode colours. */
+.band--inverse {
+  background: var(--color-bg-inverse);
+  color: #c8c8c8;
+}
+.band--inverse > * {
+  color-scheme: dark;
+  --color-heading: #ffffff;
+  --color-surface: #262626;
+  --color-border: #3a3a3a;
+  --color-code-bg: #262626;
+}
+.band > * > :first-child {
+  margin-top: 0;
+}
+
+/* ---------------------------------------------------------------- Text */
+
+/* Spacing for rendered Markdown, or any run of text. */
+.prose {
+  max-width: var(--measure);
+}
+.prose > * {
+  margin-block: 0;
+}
+.prose > * + * {
+  margin-top: 1em;
+}
+.prose h2 {
+  font-size: var(--step-3);
+}
+.prose :is(h2, h3, h4) {
+  margin-top: 2em;
+}
+.prose :is(h2, h3, h4) + * {
+  margin-top: 0.6em;
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose :is(ul, ol) {
+  padding-left: 1.4em;
+}
+.prose li + li {
+  margin-top: 0.35em;
+}
+.prose img {
+  border-radius: var(--radius);
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--color-text);
+}
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-link);
+}
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+.center {
+  text-align: center;
+}
+.center.prose,
+.center .prose,
+.center.lead {
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------- Pieces */
+
+/* A responsive grid: as many columns as fit, each at least --min wide. */
+.grid {
+  --min: 16rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--min), 100%), 1fr));
+  gap: var(--space-m);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-m);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.card > * {
+  margin: 0;
+}
+.card h3 {
+  font-size: var(--step-1);
+}
+
+.button {
+  display: inline-block;
+  padding: 0 1.5rem;
+  line-height: 2.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-heading);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.button:hover {
+  color: var(--color-heading);
+  border-color: var(--color-text-muted);
+}
+/* Solid: dark on the page, white on a dark band (every button there is solid). */
+.button--primary {
+  color: var(--color-bg);
+  background: var(--color-heading);
+  border-color: var(--color-heading);
+}
+.button--primary:hover {
+  color: var(--color-bg);
+  background: var(--color-text);
+  border-color: var(--color-text);
+}
+.band--inverse .button {
+  color: #222222;
+  background: #ffffff;
+  border-color: #ffffff;
+}
+.band--inverse .button:hover {
+  color: #222222;
+  background: #e6e6e6;
+  border-color: #e6e6e6;
+}
+
+.callout {
+  --tone: var(--color-note);
+  padding: var(--space-s);
+  border-left: 4px solid var(--tone);
+  background: color-mix(in oklab, var(--tone) 8%, transparent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.callout--tip {
+  --tone: var(--color-tip);
+}
+.callout--warning {
+  --tone: var(--color-warning);
+}
+.callout > :first-child {
+  margin-top: 0;
+}
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- Header and footer */
+
+.site-header {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.site-header > .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  min-height: 4.5rem;
+}
+.site-header a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-heading);
+  text-decoration: none;
+}
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+}
+.site-header nav a {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.site-header nav a:hover,
+.site-header nav a[aria-current] {
+  color: var(--color-heading);
+}
+
+.site-footer {
+  padding-block: var(--space-l);
+  background: var(--color-bg-inverse);
+  color: #c8c8c8;
+  font-size: var(--step--1);
+}
+.site-footer > * {
+  color-scheme: dark;
+}
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  color: var(--color-heading);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

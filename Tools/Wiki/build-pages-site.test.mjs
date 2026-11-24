@@ -14,7 +14,7 @@ test('rewriteForSite turns dashboard links into static page links', () => {
   );
   assert.equal(
     rewriteForSite('<a href="#wiki/Home#versions" data-wiki-page="Home">', site),
-    '<a href="./#versions" data-wiki-page="Home">'
+    '<a href="index.html#versions" data-wiki-page="Home">'
   );
   assert.equal(
     rewriteForSite('<img src="https://github.com/o/r/raw/master/Wiki/images/a.png" />', site),
@@ -48,13 +48,15 @@ test('buildPagesSite writes every wiki page with working links', async () => {
       for (const [, target] of html.matchAll(/href="([A-Za-z0-9-]+\.html)(?:#[^"]*)?"/g)) {
         assert.ok(files.has(target), `${page} links to missing ${target}`);
       }
-      for (const [, src] of html.matchAll(/src="(images\/[^"]+)"/g)) {
+      for (const [, src] of html.matchAll(/src="((?:images|assets)\/[^"]+)"/g)) {
         assert.ok(existsSync(join(out, src)), `${page} shows missing ${src}`);
       }
     }
 
     const notFound = readFileSync(join(out, '404.html'), 'utf8');
-    assert.ok(notFound.includes('href="/repo/"'), '404 page must use root-relative links');
+    assert.ok(notFound.includes('href="/repo/index.html"'), '404 page must use root-relative links');
+    assert.ok(notFound.includes('src="/repo/assets/logo.png"'), '404 page must load the logo from the site root');
+    assert.ok(readFileSync(join(out, 'index.html'), 'utf8').includes('src="assets/logo.png"'), 'the header must show the logo');
     assert.match(readFileSync(join(out, 'sitemap.xml'), 'utf8'), /<loc>https:\/\/example\.github\.io\/repo\/FAQ\.html<\/loc>/);
   } finally {
     rmSync(out, { recursive: true, force: true });
