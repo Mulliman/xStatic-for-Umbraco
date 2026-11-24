@@ -6,6 +6,7 @@ import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/ba
 import { ConfigurableTypeField } from '../api';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { toApiFieldValue, toEditorValue } from '../code/field-value-converter';
+import { hasSecretField } from './element.secret-reference-tip';
 
 @customElement('xstatic-property-editor-configurable-dynamic-form')
 export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitElement implements UmbPropertyEditorUiElement {
@@ -99,6 +100,7 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 		return html`
         <div>
             ${this.help ? html`<p>${this.help}</p>` : ''}
+            ${hasSecretField(this._fields) ? html`<xstatic-secret-reference-tip></xstatic-secret-reference-tip>` : ''}
 
         <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}

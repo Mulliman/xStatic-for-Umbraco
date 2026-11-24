@@ -21,6 +21,8 @@ xStatic reads its global settings from the `XStatic` section of `appsettings.jso
 | `EnableRelationBasedAutoPublish` | `false` | When `true`, walks upstream Umbraco `umbDocument` relations during auto-publish so publishing shared content or Library elements outside a site's root tree triggers rebuilds for referencing sites. |
 | `AutoPublishMaxRelationDepth` | `5` | Maximum upstream relation traversal depth when `EnableRelationBasedAutoPublish` is enabled. |
 | `AutoPublishGlobalContentTypes` | none | Content type aliases (for example global headers/footers) whose publication triggers auto-publish across all auto-publish enabled sites when `EnableRelationBasedAutoPublish` is enabled. |
+| `Secrets:AllowedEnvironmentVariables` | `XSTATIC_*` | Environment variable name patterns (`*`, `?`, case-insensitive) that `${env:NAME}` secret references in deployment targets and actions may read. Setting it **replaces** the default. See the wiki page "Secrets and environment variables". |
+| `Secrets:AllowedConfigurationKeys` | `XStatic:Secrets:*` | Configuration key patterns that `${config:Key}` secret references may read. Setting it **replaces** the default. |
 | `UseXStaticUserRoles`, `RoleCreationUser`, `RoleCreationUseRootUser` | set by xStatic | Control the xStatic user groups. The automatic setup turns these on; see below. |
 
 ## Setting them in code
@@ -38,6 +40,8 @@ services.AddXStatic()
     .EnableRelationBasedAutoPublish(true)
     .AutoPublishMaxRelationDepth(5)
     .AutoPublishGlobalContentTypes(new List<string> { "globalFooter" })
+    .AllowSecretEnvironmentVariables("XSTATIC_*")
+    .AllowSecretConfigurationKeys("XStatic:Secrets:*")
     .Build();
 ```
 

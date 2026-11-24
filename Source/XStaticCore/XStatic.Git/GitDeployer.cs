@@ -51,10 +51,61 @@ namespace XStatic.Git
             }
             catch (Exception e)
             {
-                return XStaticResult.Error("Error deploying site using Git.", e);
+                return XStaticResult.Error("Error deploying site using Git.", RedactCredentials(e));
             }
 
             return XStaticResult.Success("Git branch committed and pushed to remote.");
+        }
+
+        /// <summary>
+        /// Git errors can quote the remote URL, which may hold a username and token (https://user:token@host/...).
+        /// The error is shown in the backoffice and written to the log, so when it contains the password or the
+        /// URL's credentials, a copy with them replaced by *** is returned instead.
+        /// </summary>
+        protected virtual Exception RedactCredentials(Exception exception)
+        {
+            var secrets = new List<string>();
+
+            if (!string.IsNullOrEmpty(_password) && _password.Length >= 3)
+            {
+                // Shorter passwords aren't replaced: "***" in place of every "ab" would wreck the message.
+                secrets.Add(_password);
+                secrets.Add(Uri.EscapeDataString(_password));
+            }
+
+            if (Uri.TryCreate(_remoteUrl, UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.UserInfo))
+            {
+                secrets.Add(uri.UserInfo);
+                secrets.Add(Uri.UnescapeDataString(uri.UserInfo));
+            }
+
+            if (secrets.Count == 0)
+            {
+                return exception;
+            }
+
+            var messages = new List<string>();
+            for (var current = exception; current != null; current = current.InnerException)
+            {
+                messages.Add(current.Message ?? string.Empty);
+            }
+
+            if (!messages.Any(m => secrets.Any(s => m.Contains(s, StringComparison.Ordinal))))
+            {
+                return exception;
+            }
+
+            var redacted = string.Join(" ", messages.Select(m =>
+            {
+                foreach (var secret in secrets.OrderByDescending(s => s.Length))
+                {
+                    m = m.Replace(secret, "***", StringComparison.Ordinal);
+                }
+
+                return m;
+            }));
+
+            return new XStaticException($"{exception.GetType().Name}: {redacted}");
         }
 
         public void CloneRepo(string folderPath, string branch)

@@ -857,6 +857,8 @@ data?: T | null
 
 export type XStaticSettings = {
         isUsingXStaticRoles: boolean
+allowedSecretEnvironmentVariables?: Array<(string)> | null
+allowedSecretConfigurationKeys?: Array<(string)> | null
     };
 
 export type V1Data = {

@@ -40,5 +40,12 @@ namespace XStatic.Core.App
         /// whose publication should trigger auto-publish across all auto-publish enabled sites.
         /// </summary>
         public IList<string> AutoPublishGlobalContentTypes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Which environment variables and configuration keys secret references (<c>${env:NAME}</c>,
+        /// <c>${config:Key}</c>) in deployment targets and actions may read. Set in appsettings.json as
+        /// <c>XStatic:Secrets</c>.
+        /// </summary>
+        public XStaticSecretSettings Secrets { get; set; } = new XStaticSecretSettings();
     }
 }

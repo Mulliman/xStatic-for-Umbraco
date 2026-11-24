@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
@@ -59,7 +60,9 @@ namespace XStatic.Controllers
         {
             return new XStaticSettings
             {
-                IsUsingXStaticRoles = _globalSettings?.UseXStaticUserRoles ?? false
+                IsUsingXStaticRoles = _globalSettings?.UseXStaticUserRoles ?? false,
+                AllowedSecretEnvironmentVariables = (_globalSettings?.Secrets ?? new XStaticSecretSettings()).GetEffectiveAllowedEnvironmentVariables(),
+                AllowedSecretConfigurationKeys = (_globalSettings?.Secrets ?? new XStaticSecretSettings()).GetEffectiveAllowedConfigurationKeys()
             };
         }
 
@@ -145,5 +148,11 @@ namespace XStatic.Controllers
     public class XStaticSettings
     {
         public bool IsUsingXStaticRoles { get; set; }
+
+        /// <summary>The environment variable patterns that <c>${env:NAME}</c> references may read on this site.</summary>
+        public IEnumerable<string> AllowedSecretEnvironmentVariables { get; set; } = [];
+
+        /// <summary>The configuration key patterns that <c>${config:Key}</c> references may read on this site.</summary>
+        public IEnumerable<string> AllowedSecretConfigurationKeys { get; set; } = [];
     }
 }

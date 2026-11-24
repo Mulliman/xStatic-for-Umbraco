@@ -5,6 +5,7 @@ using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Generator.Db;
 using XStatic.Core.Generator.Storage;
 using XStatic.Core.Repositories;
+using XStatic.Core.Secrets;
 
 namespace XStatic.Core.Deploy.Processes
 {
@@ -54,7 +55,17 @@ namespace XStatic.Core.Deploy.Processes
                 throw new XStaticException("Failed to deploy. Deployment target not found with id " + entity.DeploymentTarget);
             }
 
-            var deployer = _deployerFactory.GetDeployer(deploymentTarget.DeployerDefinition, deploymentTarget.Config);
+            IDeployer deployer;
+
+            try
+            {
+                deployer = _deployerFactory.GetDeployer(deploymentTarget.DeployerDefinition, deploymentTarget.Config);
+            }
+            catch (SecretReferenceException e)
+            {
+                // The message names the missing or blocked variable, never its value, so it's safe to show.
+                return XStaticResult.Error($"Failed to deploy. {e.Message}", e);
+            }
 
             var result = await deployer.DeployWholeSite(path);
 

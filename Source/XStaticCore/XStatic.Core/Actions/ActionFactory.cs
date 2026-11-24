@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XStatic.Core.Actions.Db;
+using XStatic.Core.Secrets;
 
 namespace XStatic.Core.Actions
 {
@@ -13,10 +14,22 @@ namespace XStatic.Core.Actions
         private readonly IActionRepository _repo;
         private readonly IServiceProvider _currentServiceProvider;
 
+        private readonly ISecretReferenceResolver _secretResolver;
+
         public ActionFactory(IActionRepository repo, IServiceProvider currentServiceProvider)
+            : this(repo, currentServiceProvider, null)
+        {
+        }
+
+        /// <param name="secretResolver">
+        /// Resolves <c>${env:...}</c> and <c>${config:...}</c> references in each configured action's settings.
+        /// When <c>null</c>, settings are passed on exactly as stored.
+        /// </param>
+        public ActionFactory(IActionRepository repo, IServiceProvider currentServiceProvider, ISecretReferenceResolver secretResolver)
         {
             _repo = repo;
             _currentServiceProvider = currentServiceProvider;
+            _secretResolver = secretResolver;
         }
 
         public IEnumerable<IPostGenerationAction> CreatePostGenerationActions(params int[] actionIds)
@@ -97,7 +110,7 @@ namespace XStatic.Core.Actions
 
             // Report results under the name the editor gave the action ("Copy 404 page"), not the type name
             // ("FileCopyAction"), so several actions of the same type can be told apart.
-            return new ConfiguredPostGenerationAction(action, data.Config)
+            return new ConfiguredPostGenerationAction(action, data.Config, _secretResolver)
             {
                 Name = string.IsNullOrWhiteSpace(data.Name) ? action.Name : data.Name
             };

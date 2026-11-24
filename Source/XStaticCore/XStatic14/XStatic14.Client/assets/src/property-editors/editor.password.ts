@@ -7,6 +7,7 @@ import {
 } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
+import './element.secret-reference-hint';
 
 @customElement('xstatic-property-editor-password')
 export class XStaticPropertyEditorPasswordElement
@@ -33,10 +34,12 @@ export class XStaticPropertyEditorPasswordElement
 			<uui-input
 				.value=${this.value ?? ''}
 				.type=${this.showPassword ? 'text' : 'password'}
+				autocomplete="new-password"
 				@input=${this.#onInput}
 			></uui-input>
 			<uui-button look="secondary" @click=${this.#togglePasswordVisibility}>${this.showPassword ? 'Hide' : "Show"}</uui-button>
 		</div>
+		<xstatic-secret-reference-hint .value=${this.value ?? ''}></xstatic-secret-reference-hint>
 		`;
 	}
 
