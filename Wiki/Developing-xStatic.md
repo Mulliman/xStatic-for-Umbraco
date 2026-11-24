@@ -105,15 +105,56 @@ The backoffice is Lit web components using `@umbraco-cms/backoffice` and the `uu
 
 ```powershell
 npm ci
-npx tsc --noEmit
+npm run check
 npm run build
 npm run watch
 ```
 
-- `npx tsc --noEmit` type-checks. Run it on every UI change.
+- `npm run check` type-checks, lints and runs the Vitest unit tests. Run it on every UI change. ESLint treats `var`,
+  explicit `any` and unused variables as errors.
+- `npm test` runs only the unit tests, and `npm run test:coverage` adds a coverage report.
 - `npm run build` runs `tsc` then Vite and writes into `wwwroot/App_Plugins/xstatic14`. That folder is build output, so
   don't edit it.
 - `npm run watch` rebuilds on save. Pair it with a local test instance and press Ctrl+F5 in the browser.
+
+### How the client is organised
+
+| Path in `assets/src` | What it is |
+|----------------------|------------|
+| `index.ts`, `manifests.ts` | The backoffice entry point. It registers every manifest and points the API client at Umbraco's auth settings |
+| `sections/`, `dashboards/` | The **xStatic** section and its dashboards. Each dashboard is an `<umb-body-layout>` around one grid element |
+| `areas/<area>/` | One folder per dashboard area: sites, export types, deployment targets, actions, config and docs |
+| `areas/<area>/context.*.ts` | A global context that loads and saves that area's data through `src/api` |
+| `areas/<area>/element.*.ts` | The grid, the cards and the "Create new" card |
+| `areas/<area>/dialog.*.ts` | The create and edit sidebars (`UmbModalBaseElement`) |
+| `areas/<area>/*-form.ts` | Pure functions for each dialog: the properties it shows, the mapping between the saved model and the form values, and validation. Unit-test these |
+| `property-editors/` | Custom property editor UIs: password, Netlify subdomain and the dynamic forms that show a deployer's or action's fields |
+| `conditions/` | The xStatic admin and normal user conditions that show or hide dashboards |
+| `elements/` | Shared elements: the dashboard grid, the details table, the loader, the validation wrapper and the dialog layout |
+| `code/` | Shared helpers: form value helpers, card styles, the config change notifier and date formatting |
+| `api/` | The API client. Edit it by hand (see below) |
+
+### Conventions
+
+- **Elements extend `UmbLitElement`.** Import Lit from `@umbraco-cms/backoffice/external/lit`, never from `lit`
+  directly, so the backoffice and xStatic share one copy.
+- **Get a context once with `await this.getContext(TOKEN)`** in click handlers, for example to open a modal through
+  `UMB_MODAL_MANAGER_CONTEXT`. Use `this.consumeContext(TOKEN, callback)` only in a constructor, where you want to
+  keep receiving the context. Calling `consumeContext` in a handler adds a new consumer on every click.
+- **Share state with observables, not `window` events.** Each area's context holds its data in `UmbArrayState` or
+  `UmbObjectState`, and elements read it with `this.observe(...)`. When export types, deployment targets or actions
+  change, their contexts call `notifyConfigChanged()` from `code/config-changes.ts`, and the site context reloads
+  what the site dialog needs.
+- **Keep dialogs thin.** Build the property list in the area's `*-form.ts` module, rebuild it in `willUpdate` only when
+  what it depends on changes, and render it with `renderFormDialog` from `elements/form-dialog.ts`.
+- **Use UUI design tokens for colours and sizes**, such as `--uui-color-surface-alt`, `--uui-color-danger` and
+  `--uui-size-space-4`, so the UI works in the light, dark and high-contrast themes. Don't hard-code colours, don't use
+  inline `style` attributes, and don't override UUI tokens such as `--uui-size-layout-1`. Card styles live in
+  `code/styles.ts`.
+- **Every `uui-button` has a `label`.** Put an icon inside it as `<uui-icon name="...">` with the visible text;
+  `uui-button` has no `icon` attribute. Playwright finds buttons by their label, so keep labels stable.
+- **Add `data-test-id`** to cards and buttons, and `data-test-alias` to form properties (`renderFormDialog` does that
+  for you), so tests don't depend on layout.
 
 **Don't run `npm run generate`.** It regenerates the API client in `src/api`, but the installed hey-api version can't
 produce the layout the code imports, so it deletes the folder and breaks the build. When you change a controller,
@@ -158,7 +199,7 @@ to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the 
 1. The solution builds with no errors, and no new warnings in files you touched.
 2. The unit tests pass, and you added tests for logic you changed.
 3. If you touched `XStatic/Db/` or the v13 upgrade, the integration tests pass.
-4. If you touched the UI, `npx tsc --noEmit` passes.
+4. If you touched the UI, `npm run check` passes.
 5. Say in your pull request which checks you ran and which you couldn't.
 
 ## Rules worth knowing
