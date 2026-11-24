@@ -24,29 +24,87 @@ namespace XStatic.Core.Tests.Controllers;
 
 public class XStaticOpenApiAndAuthTests
 {
-    private static readonly Type[] AllXStaticControllers =
-    [
-        typeof(SitesController),
-        typeof(GenerateController),
-        typeof(DeployController),
-        typeof(ActionsController),
-        typeof(DeploymentTargetController),
-        typeof(DownloadController),
-        typeof(XStaticConfigController),
-    ];
-
-    [Fact]
-    public void AllControllers_AreMappedToXStaticV1Api_WithAuthorization()
+    /// <summary>
+    /// The xStatic authorization policy each controller must use. A newly added controller fails
+    /// <see cref="DiscoveredControllers_MatchTheExpectedAuthorizationMap"/> until it is listed here.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<Type, string> ExpectedPolicies = new Dictionary<Type, string>
     {
+        [typeof(DeploymentTargetController)] = XStaticRoles.XStaticAdminGroup,
+        [typeof(ActionsController)] = XStaticRoles.XStaticAdminGroup,
+        [typeof(SitesController)] = XStaticRoles.XStaticNormalUserGroup,
+        [typeof(GenerateController)] = XStaticRoles.XStaticNormalUserGroup,
+        [typeof(DeployController)] = XStaticRoles.XStaticNormalUserGroup,
+        [typeof(DownloadController)] = XStaticRoles.XStaticNormalUserGroup,
+        [typeof(XStaticConfigController)] = XStaticRoles.XStaticNormalUserGroup,
+    };
+
+    private static readonly Type[] AllXStaticControllers = typeof(SitesController).Assembly
+        .GetTypes()
+        .Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true } && typeof(ControllerBase).IsAssignableFrom(t))
+        .OrderBy(t => t.FullName, StringComparer.Ordinal)
+        .ToArray();
+
+    public static TheoryData<Type> Controllers()
+    {
+        var data = new TheoryData<Type>();
         foreach (var controller in AllXStaticControllers)
         {
-            var mapToApi = controller.GetCustomAttribute<MapToApiAttribute>();
-            Assert.NotNull(mapToApi);
-            Assert.Equal(XStaticOpenApiOperationFilter.ApiName, mapToApi!.ApiName);
-
-            var authorize = controller.GetCustomAttributes<AuthorizeAttribute>(inherit: true).ToList();
-            Assert.NotEmpty(authorize);
+            data.Add(controller);
         }
+
+        return data;
+    }
+
+    [Fact]
+    public void DiscoveredControllers_MatchTheExpectedAuthorizationMap()
+    {
+        Assert.Equal(
+            ExpectedPolicies.Keys.Select(t => t.FullName).OrderBy(n => n, StringComparer.Ordinal),
+            AllXStaticControllers.Select(t => t.FullName));
+    }
+
+    [Theory]
+    [MemberData(nameof(Controllers))]
+    public void Controller_IsMappedToXStaticV1Api_WithTheExpectedAuthorization(Type controller)
+    {
+        var mapToApi = controller.GetCustomAttribute<MapToApiAttribute>();
+        Assert.NotNull(mapToApi);
+        Assert.Equal(XStaticOpenApiOperationFilter.ApiName, mapToApi!.ApiName);
+
+        Assert.True(ExpectedPolicies.TryGetValue(controller, out var expectedPolicy),
+            $"{controller.Name} has no expected authorization policy; add it to {nameof(ExpectedPolicies)}.");
+
+        // Only attributes declared on the controller itself: base classes such as ManagementApiControllerBase add
+        // Umbraco's own [Authorize], which isn't the xStatic role check.
+        var xstaticAuthorize = controller.GetCustomAttributes<AuthorizeAttribute>(inherit: false)
+            .Where(a => a.Policy is XStaticRoles.XStaticAdminGroup or XStaticRoles.XStaticNormalUserGroup)
+            .ToList();
+
+        var authorize = Assert.Single(xstaticAuthorize);
+        Assert.Equal(expectedPolicy, authorize.Policy);
+
+        if (expectedPolicy == XStaticRoles.XStaticAdminGroup)
+        {
+            Assert.IsType<AuthorizeAdminAttribute>(authorize);
+        }
+        else
+        {
+            // [AuthorizeNormalUser] or the equivalent [Authorize(XStaticRoles.XStaticNormalUserGroup)].
+            Assert.False(authorize is AuthorizeAdminAttribute, $"{controller.Name} must not require the admin group.");
+        }
+    }
+
+    [Theory]
+    [InlineData(typeof(DeploymentTargetController))]
+    [InlineData(typeof(ActionsController))]
+    public void SecretHoldingControllers_AreNeverCached(Type controller)
+    {
+        var responseCache = controller.GetCustomAttribute<ResponseCacheAttribute>();
+
+        Assert.NotNull(responseCache);
+        Assert.True(responseCache!.NoStore, $"{controller.Name} must set [ResponseCache(NoStore = true)].");
+        Assert.Equal(ResponseCacheLocation.None, responseCache.Location);
     }
 
     [Fact]
