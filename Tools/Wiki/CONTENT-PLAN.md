@@ -20,7 +20,7 @@ it predates Umbraco 14:
 - Deployer samples with `IEnumerable<string>` fields (now `DeployerField`).
 
 **`Docs/` in the repo** held nine short extension pages (one of them empty) and `Configuration.md`. Their content
-has moved into the wiki pages below, and `Docs/` now just points to the wiki.
+has moved into the wiki pages below, and the folder has been removed.
 
 **The backoffice Documentation dashboard** reads `Meta/help.json` (hosted on xstaticplugins.netlify.app), which
 links to the docs site (https://mulliman.github.io/xStatic-for-Umbraco/).

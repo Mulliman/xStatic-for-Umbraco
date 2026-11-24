@@ -153,3 +153,4 @@ The same group rules apply to API users as to people. With secure user groups on
 - [Backoffice tour](Backoffice-Tour.md): which tabs each group sees.
 - [Management API](Management-API.md): every endpoint and its policy.
 - [Configuration](Configuration.md): the `XStatic` settings in `appsettings.json`.
+- [Security policy](../SECURITY.md): which versions get security fixes, and how to report a vulnerability privately.

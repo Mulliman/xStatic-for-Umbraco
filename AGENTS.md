@@ -46,7 +46,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Testing/Ftp/` | Docker Compose FTP server (vsftpd) for checking the FTP deployer by hand or with Playwright spec 13. |
-| `Docs/` | Docs for package consumers: configuration (`Configuration.md`, the `XStatic` appsettings section) and extension points (Generators, Transformers, Deployers, Actions, File Name Generation). |
+| `Wiki/` | The user and developer documentation: flat Markdown pages plus `_Sidebar.md`, published from `master` as the docs site (https://mulliman.github.io/xStatic-for-Umbraco/). Style guide, content plan and checker in `Tools/Wiki/`. |
 | `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag (`v17.x.y` for this branch) is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. Details: `Testing.md`; release steps: `RELEASING.md`. |
 
 ## Commands
@@ -161,15 +161,17 @@ Lit source in `XStatic14/XStatic14.Client/assets/src`. The layout and convention
   Don't change or remove public interface members, constructor signatures or virtual methods in a minor release.
   To add something, add a new interface, an overload, a default interface method, or a new constructor that keeps
   the old one (`[Obsolete]` is fine).
-- New deployers, generators, transformers or actions follow the existing plugin pattern (see `Docs/` and the
+- New deployers, generators, transformers or actions follow the existing plugin pattern (see the `Writing-a-*` wiki pages and the
   Netlify, Git and FTP projects). Don't special-case them inside the core.
 - Backoffice UI: Lit web components using `@umbraco-cms/backoffice` and the `uui-*` component library. Don't
   add other UI frameworks.
 - Don't add NuGet or npm dependencies without saying why in the PR. Prefer what Umbraco already ships.
-- Keep the docs in `Docs/` correct when you change an extension interface; their code samples should compile.
+- **Keep the wiki true.** When you change behaviour, a setting, a UI label, an endpoint or an extension interface,
+  update the wiki pages that describe it in the same change (`Tools/Wiki/CONTENT-PLAN.md` says which page owns
+  which topic). Follow `Tools/Wiki/STYLE.md`, keep C# samples compiling, and run `node Tools/Wiki/wiki.mjs check`.
 - Global settings live in `XStaticGlobalSettings`, bound from the `XStatic` section of appsettings and read through
   `IOptions<XStaticGlobalSettings>`. A new setting gets a property there, a builder method in `XStaticApp.cs`, and a
-  row in `Docs/Configuration.md`. Don't read `ConfigurationManager.AppSettings`; Umbraco sites have no `app.config`.
+  row in `Wiki/Configuration.md`. Don't read `ConfigurationManager.AppSettings`; Umbraco sites have no `app.config`.
 - Don't commit secrets, test-instance folders or logs.
 - New NuGet package? Add its csproj to the project list in the Pack step of `.github/workflows/pack.yml`.
   The `<Version>` in each csproj is only the local default; releases take their version from the tag.
