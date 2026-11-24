@@ -9,6 +9,7 @@
 //   DOCS_GIT_REF     Git branch or tag used for GitHub links (must be lts/*, master, or a v* tag;
 //                    unsupported refs fall back to lts/<major> or master)
 //   DOCS_REPO_URL    GitHub repository URL (defaults to https://github.com/Mulliman/xStatic-for-Umbraco)
+//   DOCS_SITE_URL    Public docs site the dashboard links to (defaults to https://mulliman.github.io/xStatic-for-Umbraco/)
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, resolve, relative, posix } from 'node:path';
@@ -24,6 +25,7 @@ import {
 } from './wiki.mjs';
 
 const DEFAULT_REPO_URL = 'https://github.com/Mulliman/xStatic-for-Umbraco';
+const DEFAULT_DOCS_SITE_URL = 'https://mulliman.github.io/xStatic-for-Umbraco/';
 const CLIENT_ASSETS_DIR = join(repoRoot, 'Source', 'XStaticCore', 'XStatic14', 'XStatic14.Client', 'assets');
 const CLIENT_CSPROJ = join(repoRoot, 'Source', 'XStaticCore', 'XStatic14', 'XStatic14.Client', 'XStatic.Client.csproj');
 
@@ -244,7 +246,7 @@ export async function compileClientDocs(options = {}) {
   const gitRef = resolveDocGitRef(options.gitRef, version);
   const encodedGitRef = encodeGitRef(gitRef);
   const repoUrl = (options.repoUrl ?? process.env.DOCS_REPO_URL ?? DEFAULT_REPO_URL).replace(/\/$/, '');
-  const wikiUrl = `${repoUrl}/wiki`;
+  const wikiUrl = options.docsSiteUrl ?? process.env.DOCS_SITE_URL ?? DEFAULT_DOCS_SITE_URL;
   const repoBlobBase = `${repoUrl}/blob/${encodedGitRef}/`;
   const repoRawWikiBase = `${repoUrl}/raw/${encodedGitRef}/Wiki/`;
 

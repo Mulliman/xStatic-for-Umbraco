@@ -12,7 +12,7 @@
     <Authors>Sam Mullins</Authors>
     <Copyright>Sam Mullins</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco/wiki</PackageProjectUrl>
+    <PackageProjectUrl>https://mulliman.github.io/xStatic-for-Umbraco/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Mulliman/xStatic-for-Umbraco</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageIcon>Logo.png</PackageIcon>

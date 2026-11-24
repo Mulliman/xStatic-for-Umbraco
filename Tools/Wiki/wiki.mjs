@@ -1,17 +1,13 @@
 #!/usr/bin/env node
-// Checks and builds the xStatic wiki (the Wiki/ folder) for the GitHub wiki.
+// Checks the xStatic wiki (the Wiki/ folder), which is published as the GitHub Pages docs site.
 //
 //   node Tools/Wiki/wiki.mjs check
-//   node Tools/Wiki/wiki.mjs build <outDir> [--repo-url https://github.com/owner/repo] [--branch master]
 //
 // Source pages link to each other as `Page-Name.md` so they also work when browsing the repo.
-// `build` copies the pages and images into <outDir> (a clone of the wiki repo) and rewrites:
-//   - `Page-Name.md` and `Page-Name.md#anchor` links into GitHub wiki links (`Page-Name`, `Page-Name#anchor`)
-//   - links that leave the wiki folder (`../Source/...`) into absolute links to the main repo
 // No dependencies: plain Node 20+.
 
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, statSync, rmSync } from 'node:fs';
-import { join, dirname, resolve, relative, extname, posix } from 'node:path';
+import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { join, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -216,73 +212,13 @@ export function check() {
   return errors.length === 0;
 }
 
-function build(outDir, repoUrl, branch) {
-  if (!outDir) throw new Error('Usage: wiki.mjs build <outDir> [--repo-url URL] [--branch NAME]');
-  const out = resolve(outDir);
-  mkdirSync(out, { recursive: true });
-
-  // Remove pages and images that no longer exist in the source, but leave .git alone.
-  const sourcePages = new Set(listPages());
-  for (const f of readdirSync(out)) {
-    if (f.endsWith('.md') && !sourcePages.has(f)) rmSync(join(out, f));
-  }
-  const outImages = join(out, imageDirName);
-  if (existsSync(outImages)) rmSync(outImages, { recursive: true });
-
-  const repoBase = `${repoUrl.replace(/\/$/, '')}/blob/${branch}/`;
-  for (const page of sourcePages) {
-    let md = readFileSync(join(wikiDir, page), 'utf8');
-    md = rewriteLinks(md, target => {
-      if (/^(https?:|mailto:|#)/i.test(target)) return target;
-      const [pathPart, anchor] = target.split('#');
-      if (pathPart.startsWith('../')) {
-        const repoPath = posix.normalize(relative(repoRoot, resolve(wikiDir, decodeURIComponent(pathPart))).split('\\').join('/'));
-        const encoded = repoPath.split('/').map(encodeURIComponent).join('/');
-        return repoBase + encoded + (anchor ? `#${anchor}` : '');
-      }
-      if (pathPart.endsWith('.md')) return pathPart.slice(0, -3) + (anchor ? `#${anchor}` : '');
-      return target;
-    });
-    writeFileSync(join(out, page), md);
-  }
-
-  const images = listImages();
-  if (images.length) {
-    mkdirSync(outImages, { recursive: true });
-    for (const img of images) copyFileSync(join(wikiDir, imageDirName, img), join(outImages, img));
-  }
-  console.log(`Built ${sourcePages.size} pages and ${images.length} images into ${out}`);
-}
-
-function rewriteLinks(markdown, fn) {
-  // Rewrite links outside code blocks only.
-  const parts = markdown.split(/(^(?:```|~~~)[^\n]*\n[\s\S]*?^(?:```|~~~)\s*$)/m);
-  return parts
-    .map((part, i) => {
-      if (i % 2 === 1) return part; // code block
-      return part
-        .split(/(`[^`\n]*`)/)
-        .map((seg, j) => (j % 2 === 1 ? seg : seg.replace(/(\]\(\s*<?)([^)\s>]+)/g, (_, pre, t) => pre + fn(t))))
-        .join('');
-    })
-    .join('');
-}
-
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  const [, , command, ...rest] = process.argv;
-  const opt = name => {
-    const i = rest.indexOf(name);
-    return i >= 0 ? rest[i + 1] : undefined;
-  };
-
+  const command = process.argv[2];
   if (command === 'check') {
     process.exit(check() ? 0 : 1);
-  } else if (command === 'build') {
-    if (!check()) process.exit(1);
-    build(rest[0], opt('--repo-url') ?? 'https://github.com/Mulliman/xStatic-for-Umbraco', opt('--branch') ?? 'master');
   } else {
-    console.log('Usage: node Tools/Wiki/wiki.mjs check | build <outDir> [--repo-url URL] [--branch NAME]');
+    console.log('Usage: node Tools/Wiki/wiki.mjs check');
     process.exit(command ? 1 : 0);
   }
 }

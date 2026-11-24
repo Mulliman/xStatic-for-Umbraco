@@ -95,9 +95,7 @@ Use the xStatic major version that matches your Umbraco major version:
 
 The full documentation is at **[mulliman.github.io/xStatic-for-Umbraco](https://mulliman.github.io/xStatic-for-Umbraco/)**.
 It covers installation, every backoffice screen, each deployer, configuration, troubleshooting and the extension API.
-It is also available as the [GitHub wiki](https://github.com/Mulliman/xStatic-for-Umbraco/wiki).
-
-Both are built from the [`Wiki/`](Wiki) folder of this repository, so corrections are welcome as pull requests.
+It is built from the [`Wiki/`](Wiki) folder of this repository, so corrections are welcome as pull requests.
 
 ### Working with AI tools
 

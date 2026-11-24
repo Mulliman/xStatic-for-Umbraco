@@ -70,4 +70,4 @@ These may require more services to be registered in the startup class. See speci
 Documentation
 -------------
 
-Full documentation is in the wiki: https://github.com/Mulliman/xStatic-for-Umbraco/wiki
+Full documentation is in the wiki: https://mulliman.github.io/xStatic-for-Umbraco/
