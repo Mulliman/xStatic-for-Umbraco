@@ -115,6 +115,74 @@ describe('SiteContext', () => {
 		expect(peek).not.toHaveBeenCalled();
 	});
 
+	it('surfaces a danger notification with the message when deploySite returns wasSuccessful: false', async () => {
+		const peek = vi.fn();
+		vi.spyOn(V1Service, 'postApiV1XstaticDeployDeploySite').mockResolvedValue({
+			wasSuccessful: false,
+			message: 'Netlify rejected the token',
+		} as never);
+		const getAllSpy = vi.spyOn(V1Service, 'getApiV1XstaticSitesGetAll').mockResolvedValue([] as never);
+
+		const { ctx } = createHostAndContext();
+		vi.spyOn(ctx, 'getContext').mockResolvedValue({ peek } as never);
+
+		await ctx.deploySite(3);
+
+		expect(peek).toHaveBeenCalledWith('danger', {
+			data: { headline: 'Deployment failed', message: 'Netlify rejected the token' },
+		});
+		expect(getAllSpy).toHaveBeenCalledOnce();
+	});
+
+	it('falls back to a generic message when a failed deploy has no message', async () => {
+		const peek = vi.fn();
+		vi.spyOn(V1Service, 'postApiV1XstaticDeployDeploySite').mockResolvedValue({
+			wasSuccessful: false,
+			message: '  ',
+		} as never);
+		vi.spyOn(V1Service, 'getApiV1XstaticSitesGetAll').mockResolvedValue([] as never);
+
+		const { ctx } = createHostAndContext();
+		vi.spyOn(ctx, 'getContext').mockResolvedValue({ peek } as never);
+
+		await ctx.deploySite(3);
+
+		expect(peek).toHaveBeenCalledWith('danger', {
+			data: {
+				headline: 'Deployment failed',
+				message: 'The site could not be deployed. Check the Umbraco logs for details.',
+			},
+		});
+	});
+
+	it('does not notify when deploySite succeeds or the request itself failed', async () => {
+		const peek = vi.fn();
+		const deploySpy = vi
+			.spyOn(V1Service, 'postApiV1XstaticDeployDeploySite')
+			.mockResolvedValueOnce({ wasSuccessful: true } as never)
+			.mockResolvedValueOnce(undefined as never);
+		vi.spyOn(V1Service, 'getApiV1XstaticSitesGetAll').mockResolvedValue([] as never);
+
+		const { ctx } = createHostAndContext();
+		vi.spyOn(ctx, 'getContext').mockResolvedValue({ peek } as never);
+
+		await ctx.deploySite(3);
+		await ctx.deploySite(3);
+
+		expect(deploySpy).toHaveBeenCalledTimes(2);
+		expect(peek).not.toHaveBeenCalled();
+	});
+
+	it('does not start a download when the download request fails', async () => {
+		vi.mocked(blobDownload).mockClear();
+		vi.spyOn(V1Service, 'getApiV1XstaticDownloadDownloadSite').mockResolvedValue(undefined as never);
+
+		const { ctx } = createHostAndContext();
+		await ctx.downloadSite(5);
+
+		expect(blobDownload).not.toHaveBeenCalled();
+	});
+
 	it('reloads sites when the configuration changes, and stops after it is destroyed', () => {
 		const getAllSpy = vi
 			.spyOn(V1Service, 'getApiV1XstaticSitesGetAll')
