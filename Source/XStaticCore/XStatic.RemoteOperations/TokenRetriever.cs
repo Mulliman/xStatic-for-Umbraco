@@ -1,59 +1,110 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace XStatic.RemoteOperations
 {
-    public class TokenRetriever(string baseUri)
+    public class TokenRetriever
     {
-        public string BaseUri { get; } = baseUri;
+        // Seconds taken off the expiry to allow for latency, so a token isn't used just as it runs out.
+        private const int LatencySeconds = 10;
+
+        // Shared so each call doesn't open a new connection pool (and exhaust sockets under load).
+        private static readonly HttpClient SharedHttpClient = new();
+
+        private readonly HttpClient _httpClient;
+        private readonly ConcurrentDictionary<string, UmbracoAccessToken> _cachedTokens = new(StringComparer.Ordinal);
+
+        public TokenRetriever(string baseUri)
+            : this(baseUri, SharedHttpClient)
+        {
+        }
+
+        /// <summary>
+        /// Creates a retriever that sends its requests through <paramref name="httpClient"/>, for example one from
+        /// <c>IHttpClientFactory</c>. The caller owns the client; it isn't disposed here.
+        /// </summary>
+        public TokenRetriever(string baseUri, HttpClient httpClient)
+        {
+            BaseUri = baseUri;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        }
+
+        public string BaseUri { get; }
 
         public string TokenUri => $"{BaseUri}/umbraco/management/api/v1/security/back-office/token";
 
-        private UmbracoAccessToken? _cachedToken { get; set; }
-
         public async Task<UmbracoAccessToken?> GetAccessToken(string clientId, string clientSecret)
         {
-            if (_cachedToken != null && _cachedToken.Expiry > DateTime.Now)
-            {
-                return _cachedToken;
-            }
+            var cacheKey = clientId ?? string.Empty;
 
-            using var client = new HttpClient();
+            if (_cachedTokens.TryGetValue(cacheKey, out var cached) && cached.Expiry.ToUniversalTime() > DateTime.UtcNow)
+            {
+                return cached;
+            }
 
             // FormUrlEncodedContent escapes the values, so a secret containing '&', '=' or '+' is sent intact.
             using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["client_id"] = clientId,
-                ["client_secret"] = clientSecret,
+                ["client_id"] = clientId ?? string.Empty,
+                ["client_secret"] = clientSecret ?? string.Empty,
                 ["grant_type"] = "client_credentials",
             });
 
-            var response = await client.PostAsync(TokenUri, content);
+            using var response = await _httpClient.PostAsync(TokenUri, content);
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadAsStringAsync();
-            var tokenResponse = System.Text.Json.JsonDocument.Parse(responseBody);
+            var token = ParseToken(responseBody);
 
-            if(tokenResponse?.RootElement == null)
+            _cachedTokens[cacheKey] = token;
+
+            return token;
+        }
+
+        private static UmbracoAccessToken ParseToken(string responseBody)
+        {
+            JsonDocument tokenResponse;
+
+            try
             {
-                throw new System.Exception("GetAccessToken - Token response null");
+                tokenResponse = JsonDocument.Parse(responseBody);
+            }
+            catch (JsonException e)
+            {
+                // Don't include the body: if it's partly valid it could hold the token.
+                throw new InvalidOperationException("GetAccessToken - the token response wasn't valid JSON.", e);
             }
 
-            string? accessToken = tokenResponse.RootElement.GetProperty("access_token").GetString();
-            int? expiryDuration = tokenResponse.RootElement.GetProperty("expires_in").GetInt32();
-
-            var isValid = accessToken != null && expiryDuration > 0;
-
-            if(!isValid)
+            using (tokenResponse)
             {
-                // Don't put the token itself in the message: exception messages end up in logs.
-                throw new System.Exception($"GetAccessToken - the token response was invalid (token {(accessToken == null ? "missing" : "present")}, expiry {expiryDuration}).");
+                var root = tokenResponse.RootElement;
+
+                string? accessToken = null;
+                int expiryDuration = 0;
+
+                if (root.ValueKind == JsonValueKind.Object)
+                {
+                    if (root.TryGetProperty("access_token", out var tokenElement) && tokenElement.ValueKind == JsonValueKind.String)
+                    {
+                        accessToken = tokenElement.GetString();
+                    }
+
+                    if (root.TryGetProperty("expires_in", out var expiryElement) && expiryElement.ValueKind == JsonValueKind.Number)
+                    {
+                        expiryElement.TryGetInt32(out expiryDuration);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(accessToken) || expiryDuration <= 0)
+                {
+                    // Don't put the token itself in the message: exception messages end up in logs.
+                    throw new InvalidOperationException($"GetAccessToken - the token response was invalid (token {(string.IsNullOrEmpty(accessToken) ? "missing" : "present")}, expiry {expiryDuration}).");
+                }
+
+                var expiryUtc = DateTime.UtcNow.AddSeconds(expiryDuration - LatencySeconds);
+
+                return new UmbracoAccessToken(accessToken, expiryUtc);
             }
-
-            // Remove a few seconds from the expiry to account for some latecy and avoid some failed requests.
-            const int latencySeconds = 10;
-            var expiryDateTime = DateTime.Now.AddSeconds(expiryDuration.Value).AddSeconds(-latencySeconds);
-
-            return new UmbracoAccessToken(accessToken!, expiryDateTime);
         }
     }
 }
