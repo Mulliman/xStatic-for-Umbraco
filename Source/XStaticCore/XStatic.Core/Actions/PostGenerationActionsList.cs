@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions
 {
@@ -10,10 +11,7 @@ namespace XStatic.Core.Actions
 
         public PostGenerationActionsList()
         {
-            PostActions = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IPostGenerationAction).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .ToList();
+            PostActions = LoadableTypes.ImplementationsOf<IPostGenerationAction>();
         }
     }
 }
