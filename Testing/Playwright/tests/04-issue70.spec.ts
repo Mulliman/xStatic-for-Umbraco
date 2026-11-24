@@ -9,7 +9,7 @@ test.describe('Issue 70 - Action UI parameters', () => {
         await actionPage.goto();
 
         // 1. Check that "No type selected" is the default
-        await page.locator('.lucide.lucide-plus').click();
+        await page.getByRole('button', { name: 'Create new Action', exact: true }).click();
         
         const typeSelect = page.getByLabel('Field for Action Type *');
         // Check that the configuration message says "No type selected"
