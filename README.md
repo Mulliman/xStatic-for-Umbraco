@@ -51,6 +51,12 @@ For AI contributions and development context, see our [Agents.md](Agents.md) fil
 
 ---
 
+## 🔒 Security
+
+Found a security problem? Please don't open a public issue. Report it privately through [Report a vulnerability](https://github.com/Mulliman/xStatic-for-Umbraco/security/advisories/new). [SECURITY.md](SECURITY.md) lists the supported versions and what happens after you report.
+
 ## 📄 License & Support
+
+xStatic is open source under the [MIT licence](LICENSE).
 
 xStatic is an open-source project. For more information on why it could be of use to you, please visit [sammullins.co.uk](https://www.sammullins.co.uk/software/xstatic-for-umbraco/).
