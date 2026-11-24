@@ -20,6 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="XStatic.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Core" Version="19.0.0-rc1" />
     <PackageReference Include="Umbraco.Cms.Infrastructure" Version="19.0.0-rc1" />
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="19.0.0-rc1" />
