@@ -7,24 +7,19 @@ describe('xstatic-edit-deployment-target-modal', () => {
 		document.body.innerHTML = '';
 	});
 
-	it('converts between DeployerField arrays and key-value records', () => {
+	it('renders the name, deployer and configuration properties with Cancel and Submit buttons', async () => {
 		const el = document.createElement(
 			'xstatic-edit-deployment-target-modal',
 		) as EditDeploymentTargetModalElement;
+		document.body.appendChild(el);
+		await el.updateComplete;
 
-		const record = el.arrayAsRecord([
-			{ alias: 'host', name: 'Host', value: 'ftp.example.com' },
-			{ alias: 'port', name: 'Port', value: undefined },
-		]);
-		expect(record).toEqual({ host: 'ftp.example.com', port: null });
+		const labels = Array.from(el.shadowRoot?.querySelectorAll('uui-button') ?? []).map((b) => b.getAttribute('label'));
+		expect(labels).toEqual(['Cancel', 'Submit']);
 
-		const entries = el.recordAsArray(record);
-		expect(entries).toEqual([
-			{ key: 'host', value: 'ftp.example.com' },
-			{ key: 'port', value: null },
-		]);
-
-		expect(el.recordAsArray(null)).toEqual([]);
-		expect(el.arrayAsRecord(undefined)).toEqual({});
+		const aliases = Array.from(el.shadowRoot?.querySelectorAll('umb-property') ?? []).map((p) =>
+			p.getAttribute('data-test-alias'),
+		);
+		expect(aliases).toEqual(['name', 'deployerDefinition', 'fields']);
 	});
 });

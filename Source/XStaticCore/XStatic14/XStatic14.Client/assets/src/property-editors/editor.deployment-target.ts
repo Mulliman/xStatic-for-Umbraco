@@ -28,22 +28,20 @@ export class XStaticPropertyEditorDeploymentTypeElement
 
 	static override styles = [
 		css`
-            umb-property{
-                --uui-size-layout-1: 10px;
-            }
+			.help {
+				display: flex;
+				flex-direction: row;
+				gap: var(--uui-size-space-4);
+				padding: var(--uui-size-space-4);
+				margin-bottom: var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-radius: var(--uui-border-radius);
+			}
 
-        .help{
-            background: #eee;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .help uui-icon{
-            width:50px;
-            margin-right: 10px;
-        }
+			.help uui-icon {
+				flex: 0 0 auto;
+				font-size: var(--uui-size-8);
+			}
 		`,
 	];
 }

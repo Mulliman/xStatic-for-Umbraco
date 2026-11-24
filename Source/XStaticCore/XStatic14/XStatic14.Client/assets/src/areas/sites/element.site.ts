@@ -1,8 +1,6 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, property, state, when } from '@umbraco-cms/backoffice/external/lit';
-import type {
-    xStaticTableItem,
-  } from "../../elements/element.site-table";
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, html, customElement, property, state, when } from '@umbraco-cms/backoffice/external/lit';
+import type { xStaticTableItem } from "../../elements/element.site-table";
 import { SiteApiModel } from '../../api';
 import { UMB_MODAL_MANAGER_CONTEXT, umbConfirmModal } from '@umbraco-cms/backoffice/modal';
 import { EditSiteModal } from './dialog.edit-site';
@@ -12,15 +10,24 @@ import "../../elements/element.loader";
 
 import SiteContext, { SITE_CONTEXT_TOKEN } from './context.site';
 import { formatDate, formatTime } from '../../code/datetime';
+import { DETAILS_COLUMNS, toDetailItems } from '../../code/table-items';
+import { xStaticCardStyles } from '../../code/styles';
+
+export interface SiteRunningTask {
+    task: string;
+    startTime: Date;
+    expectedDuration: number;
+    currentSeconds: number;
+}
 
 @customElement('xstatic-site-element')
-class SiteElement extends UmbElementMixin(LitElement) {
+class SiteElement extends UmbLitElement {
 
     @property({ type: Object, attribute: false })
     site?: SiteApiModel;
 
     @state()
-    runningTask: {task: string, startTime: Date, expectedDuration: number, currentSeconds: number} | null = null;
+    runningTask: SiteRunningTask | null = null;
 
     #siteContext?: SiteContext;
 
@@ -35,13 +42,6 @@ class SiteElement extends UmbElementMixin(LitElement) {
         );
     }
 
-    
-    // #region init
-
-
-
-    // #endregion init
-
     //#region Render
 
     render() {
@@ -49,21 +49,18 @@ class SiteElement extends UmbElementMixin(LitElement) {
             return html``;
         }
 
-        const site = this.site;
-
-        if(this.runningTask) { //this.runningTask?.value) {
-            return this.#renderRunningTask(site, this.runningTask);
+        if (this.runningTask) {
+            return this.#renderRunningTask(this.site, this.runningTask);
         }
 
-        return this.#renderSiteDetails(site);
+        return this.#renderSiteDetails(this.site);
     }
 
-    #renderRunningTask(site: SiteApiModel, runningTask: {task: string, startTime: Date, expectedDuration: number, currentSeconds: number}) {
-
+    #renderRunningTask(site: SiteApiModel, runningTask: SiteRunningTask) {
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${site.name}</div>
-                
+            <uui-box data-test-id="site-${site.id}">
+                <div slot="headline" class="headline">${site.name}</div>
+
                 <div class="task">
                     <h2>${runningTask.task}...</h2>
 
@@ -74,26 +71,36 @@ class SiteElement extends UmbElementMixin(LitElement) {
     }
 
     #renderSiteDetails(site: SiteApiModel) {
-        
+        const hasStoredFiles = !!site.lastRun && site.folderSize !== '0B';
 
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${site.name}</div>
-                <div slot="header-actions" >
-                    <uui-button pristine="" label="Edit" color="warning" look="primary" @click=${() => this.#openCreateDialog()}><uui-icon name="icon-brush"></uui-icon></uui-button>
-                    <uui-button pristine="" label="Delete" color="danger" look="primary"  @click=${() => this.#delete()}><uui-icon name="icon-trash"></uui-icon></uui-button>
+            <uui-box data-test-id="site-${site.id}">
+                <div slot="headline" class="headline">${site.name}</div>
+                <div slot="header-actions">
+                    <uui-button label="Edit" color="warning" look="primary" data-test-id="site-edit" @click=${this.#openEditDialog}><uui-icon name="icon-brush"></uui-icon></uui-button>
+                    <uui-button label="Delete" color="danger" look="primary" data-test-id="site-delete" @click=${this.#delete}><uui-icon name="icon-trash"></uui-icon></uui-button>
                 </div>
-                
-                <div style="position:relative; display: block">
-                    <div>
-                        <xstatic-site-table iscompact .items=${this.getSiteTable()} .config=${{}} .columns=${[ { alias: "value", name: "Details" } ]} ></xstatic-site-table>
-                    </div>
+
+                <div class="card-body">
+                    <xstatic-site-table iscompact .items=${this.getSiteTable()} .columns=${DETAILS_COLUMNS}></xstatic-site-table>
                     <div class="buttons">
                         <uui-button-group>
-                            ${when(site.exportTypeName, () => html`<uui-button label="Generate" @click=${() => this.#generate()} color="positive" look="primary" icon="icon-brush"></uui-button>`)}
-                            ${when(site.deploymentTarget, () => html`<uui-button label="Deploy" @click=${() => this.#deploy()} color="danger" look="primary" icon="icon-upload">Deploy</uui-button>`)}
-                            ${when(site.lastRun && site.folderSize != '0B', () => html`<uui-button label="Clean" @click=${() => this.#clean()} color="warning" look="primary" icon="icon-settings"></uui-button>`)}
-                            ${when(site.lastRun && site.folderSize != '0B', () => html`<uui-button label="Download" @click=${() => this.#download()} color="default" look="secondary" icon="icon-settings"></uui-button>`)}
+                            ${when(site.exportTypeName, () => html`
+                                <uui-button label="Generate" color="positive" look="primary" data-test-id="site-generate" @click=${this.#generate}>
+                                    <uui-icon name="icon-wand"></uui-icon>Generate
+                                </uui-button>`)}
+                            ${when(site.deploymentTarget, () => html`
+                                <uui-button label="Deploy" color="danger" look="primary" data-test-id="site-deploy" @click=${this.#deploy}>
+                                    <uui-icon name="icon-cloud-upload"></uui-icon>Deploy
+                                </uui-button>`)}
+                            ${when(hasStoredFiles, () => html`
+                                <uui-button label="Clean" color="warning" look="primary" data-test-id="site-clean" @click=${this.#clean}>
+                                    <uui-icon name="icon-delete"></uui-icon>Clean
+                                </uui-button>`)}
+                            ${when(hasStoredFiles, () => html`
+                                <uui-button label="Download" color="default" look="secondary" data-test-id="site-download" @click=${this.#download}>
+                                    <uui-icon name="icon-download-alt"></uui-icon>Download
+                                </uui-button>`)}
                         </uui-button-group>
                     </div>
                 </div>
@@ -102,62 +109,55 @@ class SiteElement extends UmbElementMixin(LitElement) {
     }
 
     getSiteTable() : Array<xStaticTableItem> {
+        const site = this.site;
 
-        let lastGen = this.site?.lastRun 
-            ?  `Last generated on ${formatDate(this.site?.lastRun)} at ${formatTime(this.site.lastRun)}`
-            : "This site has never been built.";
-
-        let lastDeployed = this.site?.lastDeployed 
-            ?  `Last deployed on ${formatDate(this.site?.lastDeployed)} at ${formatTime(this.site.lastDeployed)}`
-            : "This site has never been deployed.";
-
-        let autoDeployBadge = this.site?.autoPublish
-            ? html`<span style="color: green; font-weight: bold;">Auto Publish On</span>`
-            : html`Manual Deploy`;
-
-        let array : Array<xStaticTableItem> = [];
-
-        this.addTableItem(array, "rootPath", "icon-home", "value", this.site?.rootPath);
-        this.addTableItem(array, "cultures", "icon-globe", "value", (this.site?.cultures?.length ?? 0) == 0 ? null : "Cultures: " + this.site?.cultures?.join(" | "));
-        this.addTableItem(array, "exportType", "icon-brackets", "value", !this.site?.exportTypeName ? null : "Exports as " + this.site?.exportTypeName);
-        this.addTableItem(array, "autoDeploy", "icon-settings", "value", autoDeployBadge);
-        this.addTableItem(array, "lastGen", "icon-time", "value", lastGen);
-        this.addTableItem(array, "lastDeployed", "icon-umb-deploy", "value", lastDeployed);
-        this.addTableItem(array, "targetLocation", "icon-link", "value", this.site?.targetHostname ? html`<a href=${`https://${this.site.targetHostname}`} target="_blank" rel="noopener noreferrer">${this.site.targetHostname}</a>` : null );
-        this.addTableItem(array, "folder", "icon-folder", "value", (!this.site?.folderSize || this.site?.folderSize === '0B') ? null : "Size: " + this.site?.folderSize);
-
-        return array;
-    }
-
-    addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
-        if(!id || !alias || !value) {
-            return;
+        if (!site) {
+            return [];
         }
 
-        const item = {
-            id: id,
-            icon: icon,
-            data: [
-            {
-                columnAlias: alias,
-                value: value
-            }]
-        };
+        const lastGen = site.lastRun
+            ? `Last generated on ${formatDate(site.lastRun)} at ${formatTime(site.lastRun)}`
+            : "This site has never been built.";
 
-        array.push(item);
+        const lastDeployed = site.lastDeployed
+            ? `Last deployed on ${formatDate(site.lastDeployed)} at ${formatTime(site.lastDeployed)}`
+            : "This site has never been deployed.";
+
+        const autoDeployBadge = site.autoPublish
+            ? html`<uui-tag color="positive" look="primary">Auto Publish On</uui-tag>`
+            : html`Manual Deploy`;
+
+        const targetLink = site.targetHostname
+            ? html`<a href=${`https://${site.targetHostname}`} target="_blank" rel="noopener noreferrer">${site.targetHostname}</a>`
+            : null;
+
+        return toDetailItems([
+            { id: "rootPath", icon: "icon-home", value: site.rootPath },
+            { id: "cultures", icon: "icon-globe", value: site.cultures?.length ? "Cultures: " + site.cultures.join(" | ") : null },
+            { id: "exportType", icon: "icon-brackets", value: site.exportTypeName ? "Exports as " + site.exportTypeName : null },
+            { id: "autoDeploy", icon: "icon-settings", value: autoDeployBadge },
+            { id: "lastGen", icon: "icon-time", value: lastGen },
+            { id: "lastDeployed", icon: "icon-umb-deploy", value: lastDeployed },
+            { id: "targetLocation", icon: "icon-link", value: targetLink },
+            { id: "folder", icon: "icon-folder", value: (!site.folderSize || site.folderSize === '0B') ? null : "Size: " + site.folderSize },
+        ]);
     }
 
     // #endregion Render
 
     // #region Handlers
 
-    #openCreateDialog() {
-        this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (manager) =>{
-            manager?.open(this, EditSiteModal, { data: { content: this.site!, headline: `Edit ${this.site?.name} site` } });
-        } )
+    async #openEditDialog() {
+        if (!this.site) return;
+
+        const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+        modalManager?.open(this, EditSiteModal, { data: { content: this.site, headline: `Edit ${this.site.name} site` } });
     }
 
     async #delete() {
+        const site = this.site;
+        if (!site) return;
+
         try {
             await umbConfirmModal(this, {
                 color: 'danger',
@@ -169,10 +169,13 @@ class SiteElement extends UmbElementMixin(LitElement) {
             return;
         }
 
-        await this.#siteContext!.deleteSite(this.site!.id);
+        await this.#siteContext?.deleteSite(site.id);
     }
 
     async #clean() {
+        const site = this.site;
+        if (!site) return;
+
         try {
             await umbConfirmModal(this, {
                 color: 'danger',
@@ -184,21 +187,20 @@ class SiteElement extends UmbElementMixin(LitElement) {
             return;
         }
 
-        await this.#siteContext!.cleanSite(this.site!.id);
+        await this.#siteContext?.cleanSite(site.id);
     }
 
     async #generate() {
-        try {
-            const currentSeconds = 0;
-            this.runningTask = { task: "Generating", startTime: new Date(), expectedDuration: this.site!.lastBuildDurationInSeconds ?? 0, currentSeconds };
+        const site = this.site;
+        if (!site) return;
 
-            await this.#siteContext!.generateSite(this.site!.id);
-        } finally {
-            this.runningTask = null;
-        }
+        await this.#runTask("Generating", site.lastBuildDurationInSeconds ?? 0, () => this.#siteContext?.generateSite(site.id));
     }
 
     async #deploy() {
+        const site = this.site;
+        if (!site) return;
+
         try {
             await umbConfirmModal(this, {
                 color: 'positive',
@@ -210,22 +212,21 @@ class SiteElement extends UmbElementMixin(LitElement) {
             return;
         }
 
-        try {
-            const currentSeconds = 0;
-            this.runningTask = { task: "Deploying", startTime: new Date(), expectedDuration: this.site!.lastDeployDurationInSeconds ?? 0, currentSeconds };
-
-            await this.#siteContext!.deploySite(this.site!.id);
-        } finally {
-            this.runningTask = null;
-        }
+        await this.#runTask("Deploying", site.lastDeployDurationInSeconds ?? 0, () => this.#siteContext?.deploySite(site.id));
     }
 
     async #download() {
-        try {
-            const currentSeconds = 0;
-            this.runningTask = { task: "Downloading", startTime: new Date(), expectedDuration: 10, currentSeconds };
+        const site = this.site;
+        if (!site) return;
 
-            await this.#siteContext!.downloadSite(this.site!.id);
+        await this.#runTask("Downloading", 10, () => this.#siteContext?.downloadSite(site.id));
+    }
+
+    async #runTask(task: string, expectedDuration: number, run: () => Promise<void> | undefined) {
+        try {
+            this.runningTask = { task, startTime: new Date(), expectedDuration, currentSeconds: 0 };
+
+            await run();
         } finally {
             this.runningTask = null;
         }
@@ -233,54 +234,16 @@ class SiteElement extends UmbElementMixin(LitElement) {
 
     // #endregion Handlers
 
-    // #region Form
-
-    
-
-    // #endregion Form
-
-    // #region Mappers
-
-    
-
-    // #endregion Mappers
-
-    // #region Utils
-
-
-
-    // #endregion Utils
-
-    // #region Styles
-
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        :host .badge{
-            display: block;
-            position: relative;
-            text-align: center;
-            width: 100%;
-        }
-
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .task{
-            position:relative;
-            display: block;
-            text-align: center;
-        }
-    `;
-
-    // #endregion Styles
-    
+    static styles = [
+        xStaticCardStyles,
+        css`
+            .task {
+                position: relative;
+                display: block;
+                text-align: center;
+            }
+        `,
+    ];
 }
 
 export default SiteElement;

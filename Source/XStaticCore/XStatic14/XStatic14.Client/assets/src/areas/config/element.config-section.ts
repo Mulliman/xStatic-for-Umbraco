@@ -1,16 +1,13 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, property, state } from '@umbraco-cms/backoffice/external/lit';
-
-import type {
-    xStaticTableColumn,
-    xStaticTableConfig,
-    xStaticTableItem,
-  } from "../../elements/element.site-table";
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
+import type { xStaticTableItem } from "../../elements/element.site-table";
+import { DETAILS_COLUMNS, toDetailItems } from '../../code/table-items';
+import { xStaticCardStyles } from '../../code/styles';
 
 import "../../elements/element.site-table";
 
 @customElement('xstatic-config-section-element')
-class ConfigSectionElement extends UmbElementMixin(LitElement) {
+class ConfigSectionElement extends UmbLitElement {
 
     @property({ type: String, attribute: true })
     heading?: string;
@@ -24,80 +21,36 @@ class ConfigSectionElement extends UmbElementMixin(LitElement) {
     @property({ type: String, attribute: true })
     icon?: string;
 
-    @state()
-    private _tableConfig: xStaticTableConfig = {
-    };
-
-    @state()
-    private _tableColumns: Array<xStaticTableColumn> = [ { alias: "value", name: "Details" } ];
-
-    constructor() {
-        super();
-    }
-
     render() {
         return html`
-            <uui-box>
-                <div slot="headline" pristine="" style="font-size: 1.2rem; padding-top: 0.5rem;">${this.heading}</div>
-                
-                <div style="position:relative; display: block">
-                    <div class="desc">
-                        ${this.description}
-                    </div>
-                    <div>
-                        <h4>Installed Components:</h4>
-                        <xstatic-site-table .items=${this.#getTable()} .config=${this._tableConfig} .columns=${this._tableColumns} ></xstatic-site-table>
-                    </div>
+            <uui-box data-test-id="config-section">
+                <div slot="headline" class="headline">${this.heading}</div>
+
+                <div class="card-body">
+                    <div class="desc">${this.description}</div>
+                    <h4>Installed Components:</h4>
+                    <xstatic-site-table .items=${this.#getTable()} .columns=${DETAILS_COLUMNS}></xstatic-site-table>
                 </div>
             </uui-box>
         `;
     }
 
-    #addTableItem(array: Array<xStaticTableItem>, id: string, icon: string, alias: string, value: any) {
-        if(!id || !alias || !value) {
-            return;
-        }
-
-        const item = {
-            id: id,
-            icon: icon,
-            data: [
-            {
-                columnAlias: alias,
-                value: value
-            }]
-        };
-
-        array.push(item);
-    }
-
     #getTable() : Array<xStaticTableItem> {
-        let array : Array<xStaticTableItem> = [];
-
-        this.values?.forEach((value, i) => {
-            this.#addTableItem(array, `${value}-${i}`, this.icon || "icon-untitled", "value", value);
-        });
-
-        return array;
+        return toDetailItems((this.values ?? []).map((value, i) => ({
+            id: `${value}-${i}`,
+            icon: this.icon || "icon-untitled",
+            value,
+        })));
     }
 
-    static styles = css`
-        :host {
-            display: block;
-            position: relative;
-            width: 100%;
-        }
-
-        .desc{
-            margin-bottom: 1rem;
-            font-size: 1rem;;
-        }
-
-        .components{
-            margin-bottom: 1rem;
-            font-size: 1rem;;
-        }
-    `;
+    static styles = [
+        xStaticCardStyles,
+        css`
+            .desc {
+                margin-bottom: var(--uui-size-space-4);
+            }
+        `,
+    ];
 }
 
 export default ConfigSectionElement;

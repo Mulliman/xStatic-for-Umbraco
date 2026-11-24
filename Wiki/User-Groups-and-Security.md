@@ -123,8 +123,9 @@ credentials**. Turn the groups on for any site with more than one backoffice use
   genuinely set up hosting.
 - **Use least-privilege tokens.** Give deployers a token that can do only the one job: a Netlify token you can revoke,
   a GitHub token limited to **Contents** on one repository, an FTP account restricted to one folder.
-- **Remember what's stored.** Deployer secrets sit in the database in plain text. Protect database backups
-  and access accordingly. See [Deployment targets](Deployment-Targets.md#secrets-where-they-live-and-who-sees-them).
+- **Keep secrets out of the database.** Secrets typed into deployer fields sit in the database in plain text. Use
+  [secret references](Secrets-and-Environment-Variables.md) such as `${env:XSTATIC_NETLIFY_TOKEN}` instead, and protect
+  database backups and access for anything that is still typed in. See [Deployment targets](Deployment-Targets.md#secrets-where-they-live-and-who-sees-them).
 - **Don't share the root user.** Create a named user for each admin and add them to `xStaticAdmin`.
 - **Use a dedicated API user for automation** rather than a person's account (see below).
 - **Review after upgrading from 13.** The old `XStaticSiteConfigs` table keeps credentials in plain text. Drop it when

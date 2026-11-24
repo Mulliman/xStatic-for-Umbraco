@@ -5,6 +5,7 @@ using System.Linq;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Deploy.Targets.Creators;
+using XStatic.Core.Secrets;
 
 namespace XStatic.Core.App
 {
@@ -79,8 +80,11 @@ namespace XStatic.Core.App
 
         public void Build()
         {
-            var factory = new DeployerService(_deployers, _definitions);
-            _services.AddSingleton<IDeployerService>(factory);
+            _services.TryAddXStaticSecretReferenceResolver();
+
+            // Built by a factory so the deployer service can resolve ${env:...} and ${config:...} references
+            // just before a deployer is created.
+            _services.AddSingleton<IDeployerService>(sp => new DeployerService(_deployers, _definitions, sp.GetService<ISecretReferenceResolver>()));
 
             var targetFactory = new DeploymentTargetCreatorService(_targetCreators, _targetCreatorsDefinitions);
             _services.AddSingleton<IDeploymentTargetCreatorService>(targetFactory);

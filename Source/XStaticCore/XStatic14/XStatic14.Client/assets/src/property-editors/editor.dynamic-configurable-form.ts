@@ -1,11 +1,11 @@
-import { css, customElement, html, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
+import { customElement, html, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
-// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { ConfigurableTypeField } from '../api';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { toApiFieldValue, toEditorValue } from '../code/field-value-converter';
+import { hasSecretField } from './element.secret-reference-tip';
 
 @customElement('xstatic-property-editor-configurable-dynamic-form')
 export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitElement implements UmbPropertyEditorUiElement {
@@ -62,7 +62,7 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
     #onPropertyDataChange(e: Event) {
         const value = (e.target as UmbPropertyDatasetElement).value;
 
-        let array = this.#getArrayFromDataset(value);
+        const array = this.#getArrayFromDataset(value);
 
         this.value = array;
 
@@ -99,6 +99,7 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 		return html`
         <div>
             ${this.help ? html`<p>${this.help}</p>` : ''}
+            ${hasSecretField(this._fields) ? html`<xstatic-secret-reference-tip></xstatic-secret-reference-tip>` : ''}
 
         <umb-property-dataset
                   .value=${this._values as Array<UmbPropertyValueData>}
@@ -108,8 +109,8 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
                     this._fields,
                     (prop) => `${prop.alias ?? prop.name ?? ''}-${prop.editorUiAlias ?? 'Umb.PropertyEditorUi.TextBox'}`,
                     (prop) => html`<umb-property
-                          alias=${prop.alias!}
-                          label=${prop.name!}
+                          alias=${prop.alias ?? ''}
+                          label=${prop.name ?? ''}
                           property-editor-ui-alias=${prop.editorUiAlias ?? "Umb.PropertyEditorUi.TextBox"}
                         ></umb-property>`
                   )}
@@ -118,13 +119,6 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 		`;
 	}
 
-	static override styles = [
-		css`
-            umb-property{
-                --uui-size-layout-1: 10px;
-            }
-		`,
-	];
 }
 
 export default XStaticPropertyEditorDynamicConfigurableFormElement;

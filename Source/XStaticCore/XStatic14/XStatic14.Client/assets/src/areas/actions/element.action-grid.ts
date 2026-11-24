@@ -1,64 +1,44 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api'
-import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
-import ActionContext, { ACTION_CONTEXT_TOKEN } from './context.action';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { ACTION_CONTEXT_TOKEN } from './context.action';
 
 import "./element.action";
 import "./element.new-action";
 import "../../elements/element.dashboard-grid";
 
-import { ExportTypeModel } from '../../api';
+import { ActionModel } from '../../api';
 
 @customElement('xstatic-action-grid')
-class ActionGrid extends UmbElementMixin(LitElement) {
+class ActionGrid extends UmbLitElement {
 
     @state()
     isLoaded = false;
 
     @state()
-    actions?: Array<ExportTypeModel>;
-
-    #actionContext?: ActionContext;
+    actions?: Array<ActionModel>;
 
     constructor() {
         super();
 
-        this.consumeContext(
-            ACTION_CONTEXT_TOKEN,
-            (context) => {
-                this.#actionContext = context;
-
-                this.observe(this.#actionContext?.actions, (x) => {
-                    this.actions = x;
-
-                    this.isLoaded = true;
-                });
-            }
-        );
+        this.consumeContext(ACTION_CONTEXT_TOKEN, (context) => {
+            this.observe(context?.actions, (x) => {
+                this.actions = x;
+                this.isLoaded = true;
+            }, '_observeActions');
+        });
     }
 
     render() {
         if (!this.actions) {
-            return this.isLoaded ? html`` : html`Loading...`;
+            return this.isLoaded ? html`` : html`<uui-loader-bar></uui-loader-bar>`;
         }
 
         return html`
             <xstatic-dashboard-grid>
                 <xstatic-new-action-element slot="info"></xstatic-new-action-element>
-                <div slot="grid">${this.#renderTypes()}</div>
+                <div slot="grid">${this.actions.map((x) => html`<xstatic-action-element .action=${x}></xstatic-action-element>`)}</div>
             </xstatic-dashboard-grid>
         `;
-    }
-
-    #renderTypes() {
-        if (!this.actions) {
-            return null;
-        }
-
-        return this.actions.map(x => {
-            return html`
-                <xstatic-action-element .action=${x}></xstatic-action-element>
-            `
-        });
     }
 }
 
