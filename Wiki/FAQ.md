@@ -8,7 +8,7 @@ Yes. xStatic and all its packages are free and open source under the MIT licence
 
 ### Which Umbraco versions does it support?
 
-Each xStatic major version matches one Umbraco major version: 18.x for Umbraco 18 (needs 18.3.2 or later), 17.x for Umbraco 17, and 13.x for Umbraco 13, with older 14 and 15 releases no longer updated. Versions before 13 aren't supported. See the table on [Home](Home.md#versions) and [Upgrading](Upgrading.md).
+Each xStatic major version matches one Umbraco major version: 18.x for Umbraco 18 (needs 18.3.2 or later), 17.x for Umbraco 17, and 19.x (pre-release) for Umbraco 19. 13.x for Umbraco 13 and the older 14 and 15 releases no longer receive updates or security fixes, and versions before 13 aren't supported. See the table on [Home](Home.md#versions) and [Upgrading](Upgrading.md).
 
 ### Does my site need to be built with Razor templates?
 
