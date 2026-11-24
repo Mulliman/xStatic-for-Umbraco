@@ -1,7 +1,7 @@
 ## Target
 
-- **Branch:** <!-- master (Umbraco 18), lts/17, lts/13 or feature/NN -->
-- **Also applies to:** <!-- other branches this should be cherry-picked to, or "none" -->
+- **Branch:** <!-- master (Umbraco 18) unless the change only exists on lts/17 or feature/19 -->
+- **Also applies to:** <!-- e.g. "lts/17 (cherry-pick down)", or "none". feature/19 gets master through a merge. -->
 
 ## Summary
 
