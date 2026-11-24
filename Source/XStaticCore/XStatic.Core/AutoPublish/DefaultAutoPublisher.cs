@@ -123,12 +123,33 @@ namespace XStatic.Core.AutoPublish
 
 			foreach (var site in sitesToDeploy.Where(s => s.DeploymentTarget != null))
 			{
-				await process.RebuildSite(site.Id);
-				var deployResult = await deployProcess.DeployStaticSite(site.Id);
-
-				if (deployResult != null && !deployResult.WasSuccessful)
+				// Each site is isolated: a failure is logged and must not stop the other sites or bubble up into
+				// Umbraco's publish pipeline.
+				try
 				{
-					_logger?.LogError(deployResult.Exception, "xStatic auto publish couldn't deploy site {SiteId}: {Message}", site.Id, deployResult.Message);
+					var rebuildResult = await process.RebuildSite(site.Id);
+
+					if (rebuildResult?.Exception != null)
+					{
+						_logger?.LogError("xStatic auto publish couldn't generate site {SiteId}, so it wasn't deployed: {Message}", site.Id, rebuildResult.Exception);
+						continue;
+					}
+
+					if (rebuildResult != null && !rebuildResult.WasSuccessful)
+					{
+						_logger?.LogWarning("xStatic auto publish generated site {SiteId} with some failed items; deploying anyway", site.Id);
+					}
+
+					var deployResult = await deployProcess.DeployStaticSite(site.Id);
+
+					if (deployResult != null && !deployResult.WasSuccessful)
+					{
+						_logger?.LogError(deployResult.Exception, "xStatic auto publish couldn't deploy site {SiteId}: {Message}", site.Id, deployResult.Message);
+					}
+				}
+				catch (System.Exception ex)
+				{
+					_logger?.LogError(ex, "xStatic auto publish failed for site {SiteId}", site.Id);
 				}
 			}
 		}
