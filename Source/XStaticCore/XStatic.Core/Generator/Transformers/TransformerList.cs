@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Generator.Transformers
 {
@@ -10,10 +11,7 @@ namespace XStatic.Core.Generator.Transformers
 
         public TransformerList()
         {
-            TransformerListFactories = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(ITransformerListFactory).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .ToList();
+            TransformerListFactories = LoadableTypes.ImplementationsOf<ITransformerListFactory>();
         }
     }
 }
