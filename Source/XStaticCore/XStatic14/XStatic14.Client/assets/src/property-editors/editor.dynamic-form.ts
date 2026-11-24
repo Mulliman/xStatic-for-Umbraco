@@ -1,7 +1,6 @@
-import { css, customElement, html, property, repeat, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
+import { html, property, repeat, state, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
-// import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { hasSecretField } from './element.secret-reference-tip';
@@ -54,7 +53,7 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
         onPropertyDataChange(e: Event) {
             const value = (e.target as UmbPropertyDatasetElement).value;
     
-            let array = this.mapFromPropertyValueData(value);
+            const array = this.mapFromPropertyValueData(value);
             this.value = array;
 
             this.dispatchEvent(new UmbChangeEvent());
@@ -88,8 +87,8 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
                         this.fields,
                         (prop) => `${prop.alias ?? prop.name ?? ''}-${prop.editorUiAlias ?? 'Umb.PropertyEditorUi.TextBox'}`,
                         (prop) => html`<umb-property
-                              alias=${prop.alias!}
-                              label=${prop.name!}
+                              alias=${prop.alias ?? ''}
+                              label=${prop.name ?? ''}
                               .description=${prop.help ?? ''}
                               property-editor-ui-alias=${prop.editorUiAlias ?? "Umb.PropertyEditorUi.TextBox"}
                             ></umb-property>`

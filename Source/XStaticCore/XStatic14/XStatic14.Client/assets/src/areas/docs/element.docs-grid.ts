@@ -1,5 +1,5 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import { LitElement, css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
 import { DOCS_CONTEXT_TOKEN } from './context.docs';
 import type { DocModel } from './element.doc';
 import type { WikiDocsBundle } from './types.docs';
@@ -12,7 +12,7 @@ type ActiveTab = 'docs' | 'plugins';
 const DEFAULT_WIKI_URL = 'https://github.com/Mulliman/xStatic-for-Umbraco/wiki';
 
 @customElement('xstatic-docs-grid')
-class DocsGrid extends UmbElementMixin(LitElement) {
+class DocsGrid extends UmbLitElement {
 	@state()
 	private _activeTab: ActiveTab = 'docs';
 

@@ -1,5 +1,6 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import { LitElement, css, html, customElement, property, when } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, html, customElement, property, when } from '@umbraco-cms/backoffice/external/lit';
+import { xStaticCardStyles } from '../../code/styles';
 
 export type DocModel = {
 	heading: string;
@@ -10,7 +11,7 @@ export type DocModel = {
 };
 
 @customElement('xstatic-doc-element')
-class DocElement extends UmbElementMixin(LitElement) {
+class DocElement extends UmbLitElement {
 	@property({ type: Object, attribute: false })
 	doc?: DocModel;
 
@@ -33,63 +34,53 @@ class DocElement extends UmbElementMixin(LitElement) {
 
 		return html`
 			<uui-box>
-				<div slot="headline" style="font-size: 1.2rem; padding-top: 0.5rem;">${doc.heading}</div>
+				<div slot="headline" class="headline">${doc.heading}</div>
 
-				<div style="position:relative; display: block">
-					<div>
-						<h3>${doc.description}</h3>
-						${when(doc.author, () => html`<h4>Author: <strong>${doc.author}</strong></h4>`)}
+				<div class="card-body">
+					<h3>${doc.description}</h3>
+					${when(doc.author, () => html`<h4>Author: <strong>${doc.author}</strong></h4>`)}
 
-						<div class="buttons">
-							${when(
-								doc.docSlug,
-								() =>
-									html`<uui-button
-										label="Read Docs"
-										color="default"
-										look="primary"
-										@click=${() => this.#openDocs(doc.docSlug!)}
-									></uui-button>&nbsp;`,
-							)}
-							${doc.links?.map(
-								(link) =>
-									html`<uui-button
-										label=${link.text}
-										href=${link.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										color=${link.text?.includes('Git') ? 'positive' : 'default'}
-										look=${doc.docSlug ? 'secondary' : 'primary'}
-									></uui-button>&nbsp;`,
-							)}
-						</div>
+					<div class="buttons">
+						${when(
+							doc.docSlug,
+							(slug) =>
+								html`<uui-button
+									label="Read Docs"
+									color="default"
+									look="primary"
+									@click=${() => this.#openDocs(slug)}
+								></uui-button>`,
+						)}
+						${doc.links?.map(
+							(link) =>
+								html`<uui-button
+									label=${link.text}
+									href=${link.href}
+									target="_blank"
+									rel="noopener noreferrer"
+									color=${link.text?.includes('Git') ? 'positive' : 'default'}
+									look=${doc.docSlug ? 'secondary' : 'primary'}
+								></uui-button>`,
+						)}
 					</div>
 				</div>
 			</uui-box>
 		`;
 	}
 
-	static styles = css`
-		:host {
-			display: block;
-			position: relative;
-			width: 100%;
-		}
+	static styles = [
+		xStaticCardStyles,
+		css`
+			h3 {
+				margin: 0;
+				font-weight: normal;
+			}
 
-		h3 {
-			margin: 0;
-			font-weight: normal;
-		}
-
-		h4 {
-			margin: 0.5rem 0 0;
-		}
-
-		.buttons {
-			text-align: center;
-			margin-top: 1rem;
-		}
-	`;
+			h4 {
+				margin: var(--uui-size-space-2) 0 0;
+			}
+		`,
+	];
 }
 
 export default DocElement;

@@ -1,13 +1,10 @@
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import { LitElement, html, css, customElement, property } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { css, customElement, html } from '@umbraco-cms/backoffice/external/lit';
 
 import '../areas/docs/element.docs-grid';
 
 @customElement('xstatic-info-dashboard')
-export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
-	@property()
-	title = 'Documentation';
-
+export class XStaticInfoDashboard extends UmbLitElement {
 	render() {
 		return html`
 			<umb-body-layout>
@@ -19,7 +16,6 @@ export class XStaticInfoDashboard extends UmbElementMixin(LitElement) {
 	static styles = css`
 		:host {
 			display: block;
-			padding: 20px;
 		}
 	`;
 }

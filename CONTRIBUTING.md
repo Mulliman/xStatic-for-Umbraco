@@ -48,6 +48,8 @@ To develop the UI with instant feedback:
 Run these from the `assets` folder:
 *   `npm run watch`: Builds and watches for changes (uses stable filenames for reliable browser refreshing).
 *   `npm run build`: Production build.
+*   `npm run check`: Type-check, lint and run the Vitest unit tests. Run it before every UI pull request.
+*   `npm test`: Run only the unit tests.
 *   `npm run generate`: Syncs the TypeScript API client with the backend Swagger document at `/umbraco/swagger/xstatic-v1/swagger.json` (requires Umbraco to be running).
 
 > [!WARNING]

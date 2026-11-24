@@ -1,10 +1,10 @@
-﻿import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { tryExecute } from '@umbraco-cms/backoffice/resources'
 import { ExportTypeModel, ExportTypeUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../config-context-base";
-import { xStaticEvent } from "../../xstatic-event";
+import { notifyConfigChanged } from "../../code/config-changes";
 
 export class ExportTypeContext extends ConfigContextBase {
     constructor(host: UmbControllerHost) {
@@ -16,7 +16,7 @@ export class ExportTypeContext extends ConfigContextBase {
     public async createExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticConfigCreateExportType({ requestBody: exportType }));
 
-        window.dispatchEvent(new xStaticEvent());
+        notifyConfigChanged();
 
         if(data){
             await this.getConfig();
@@ -30,7 +30,7 @@ export class ExportTypeContext extends ConfigContextBase {
     public async updateExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticConfigUpdateExportType({ requestBody: exportType }));
 
-        window.dispatchEvent(new xStaticEvent());
+        notifyConfigChanged();
 
         if(data){
             await this.getConfig();
@@ -55,7 +55,7 @@ export class ExportTypeContext extends ConfigContextBase {
 
         await tryExecute(this, V1Service.deleteApiV1XstaticConfigDeleteExportType({ id : id } ));
         await this.getConfig();
-        window.dispatchEvent(new xStaticEvent());
+        notifyConfigChanged();
     }
 }
 

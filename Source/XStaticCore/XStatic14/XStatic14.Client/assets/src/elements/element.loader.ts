@@ -3,13 +3,13 @@ import {
 	customElement,
 	html,
 	property,
-	LitElement,
 	state,
 } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { formatDuration } from '../code/datetime';
 
 @customElement('xstatic-loader')
-export class Loader extends LitElement {
+export class Loader extends UmbLitElement {
 
 	@property({ type: Number, attribute: true })
 	public estimatedTime: number = 10;
