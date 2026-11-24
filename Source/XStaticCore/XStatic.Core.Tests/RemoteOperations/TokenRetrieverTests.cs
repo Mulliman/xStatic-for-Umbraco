@@ -82,6 +82,21 @@ namespace XStatic.Core.Tests.RemoteOperations
         }
 
         [Fact]
+        public async Task GetAccessToken_DifferentSecretForSameClient_DoesNotReuseCachedToken()
+        {
+            var (retriever, handler) = NewRetriever();
+            handler.Enqueue(TokenJson("token-1"));
+            handler.Enqueue(TokenJson("token-2"));
+
+            var first = await retriever.GetAccessToken("client-a", "secret-1");
+            var second = await retriever.GetAccessToken("client-a", "secret-2");
+
+            Assert.Equal("token-1", first!.Value);
+            Assert.Equal("token-2", second!.Value);
+            Assert.Equal(2, handler.RequestBodies.Count);
+        }
+
+        [Fact]
         public async Task GetAccessToken_ExpiryIsUtcAndAllowsForLatency()
         {
             var (retriever, handler) = NewRetriever();

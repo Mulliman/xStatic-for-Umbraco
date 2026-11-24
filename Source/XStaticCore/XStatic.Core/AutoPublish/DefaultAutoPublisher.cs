@@ -131,7 +131,7 @@ namespace XStatic.Core.AutoPublish
 
 					if (rebuildResult?.Exception != null)
 					{
-						_logger?.LogError("xStatic auto publish couldn't generate site {SiteId}, so it wasn't deployed: {Message}", site.Id, rebuildResult.Exception);
+						_logger?.LogError("xStatic auto publish couldn't generate site {SiteId}, so it wasn't deployed: {Message} {Trace}", site.Id, rebuildResult.Exception, rebuildResult.ExceptionTrace);
 						continue;
 					}
 
