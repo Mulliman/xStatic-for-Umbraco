@@ -375,9 +375,13 @@ Testing/Playwright/node_modules/
 Testing/Playwright/playwright/.auth/
 Testing/Playwright/test_report.txt
 
-# Agent worktrees and per-user agent settings
-.claude/worktrees/
-.claude/settings.local.json
+# Claude Code: share project settings, commands, agents and skills; keep everything else
+# (worktrees, settings.local.json, launch configs, scratch notes) on your own machine
+.claude/*
+!.claude/settings.json
+!.claude/commands/
+!.claude/agents/
+!.claude/skills/
 TestResults/
 
 

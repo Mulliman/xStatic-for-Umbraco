@@ -43,7 +43,6 @@ Elsewhere in the repository:
 | `Testing/Ftp/` | A Docker Compose FTP server for checking the [FTP deployer](Deploying-to-FTP.md) |
 | `Wiki/` and `Tools/Wiki/` | This wiki and its checker and publisher |
 | `.github/workflows/` | CI, release and wiki workflows |
-| `Docs/` | A short pointer from the old documentation to this wiki |
 | `Brand/`, `Meta/` | Logos and the plugin lists the backoffice reads |
 
 For how the pieces fit together at run time, see [Architecture](Architecture.md).
@@ -147,7 +146,15 @@ silently.
 | `ci.yml` | Every pull request, and pushes to `master`, `feature/**` and `lts/**` | Runs the tests, packs all packages at a preview version, and pushes them to GitHub Packages. Pull requests get a comment with install instructions |
 | `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
-| `wiki.yml` | Changes to `Wiki/` | Checks the wiki, and publishes it when `master` changes |
+| `pages.yml` | Changes to `Wiki/` on `master` | Builds the wiki into an HTML docs site and publishes it to GitHub Pages |
+| `codeql.yml` | Every pull request, pushes to `master`, `feature/**` and `lts/**`, and weekly | Scans the C#, TypeScript and workflow files for security problems. Findings show under **Security** then **Code scanning**, and on the pull request |
+| `scorecard.yml` | Pushes to `master`, and weekly | Rates the repository's security practices with the OpenSSF Scorecard, and publishes the score shown on the README |
+| `dependabot-automerge.yml` | Dependabot pull requests | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates wait for a person |
+
+Dependabot (`.github/dependabot.yml`) opens grouped update pull requests once a month for `master`, `lts/17` and
+`feature/19`. It leaves Umbraco packages alone, because they are bumped together by hand. Minor and patch updates merge
+themselves once the required checks pass; major updates wait for review. To report a security problem, see
+[SECURITY.md](../SECURITY.md).
 
 All seven packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
 to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the history of the tags is on
@@ -178,8 +185,8 @@ to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the 
 
 ## Editing this wiki
 
-The wiki is written in the `Wiki/` folder as plain Markdown, and published to the GitHub wiki by a workflow. **Don't
-edit pages on github.com**, because the next publish overwrites them.
+The wiki is written in the `Wiki/` folder as plain Markdown, and `pages.yml` publishes it from `master` as an HTML
+docs site on GitHub Pages (https://mulliman.github.io/xStatic-for-Umbraco/).
 
 1. Edit or add a page in `Wiki/`. File names use `Page-Name.md`.
 2. Follow `Tools/Wiki/STYLE.md` for voice and page shape. In short: write to "you", no `#` title, British English, a
@@ -196,14 +203,26 @@ edit pages on github.com**, because the next publish overwrites them.
 
    It fails on broken page links and anchors, missing images, links to files that don't exist, pages missing from the
    sidebar and code fences without a language.
-7. Open a pull request. The `wiki.yml` workflow runs the same check on every pull request that touches `Wiki/` or
-   `Tools/Wiki/`, and publishes to the wiki repository when `master` changes.
+7. To preview the docs site, run `npm ci` in `Source/XStaticCore/XStatic14/XStatic14.Client/assets` once, then build
+   the site into a folder outside the repository and open its `index.html`:
+
+   ```powershell
+   node Tools/Wiki/build-pages-site.mjs ../xstatic-docs-site
+   ```
+
+   The site is styled by `Tools/Wiki/sam.css` (a shared stylesheet, kept unchanged so a newer copy can replace it)
+   plus the xStatic brand colours and docs layout in `build-pages-site.mjs`. The header logo and favicon are copied
+   from `Brand/logo-transparent.png` and `Brand/icon-transparent.png`.
+
+8. Open a pull request. CI (`test.yml`) runs the same check on every pull request. When `master` changes, `pages.yml`
+   publishes the docs site.
 
 `Tools/Wiki/CONTENT-PLAN.md` records which page owns which topic, so check it before you add something that may
 already have a home.
 
 The wiki repository has to exist before the first publish: enable Wikis in the repository settings and save any first
-page on github.com.
+page on github.com. The docs site needs one setting too: under **Settings** then **Pages**, set **Source** to
+**GitHub Actions**.
 
 ## Next steps
 
