@@ -1,0 +1,81 @@
+name: "Docs site"
+
+# Builds the Wiki/ folder into a static HTML site and publishes it to GitHub Pages.
+#
+# The pages are rendered by Tools/Wiki/build-pages-site.mjs, which reuses the backoffice Documentation dashboard's
+# renderer (marked and beautiful-mermaid from the client's node_modules), so no Jekyll and no new dependencies.
+#
+# One-off setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'Wiki/**'
+      - 'Tools/Wiki/**'
+      - 'Brand/logo-transparent.png'
+      - 'Brand/icon-transparent.png'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time, and don't cancel one that's running.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FE_PATH: Source/XStaticCore/XStatic14/XStatic14.Client/assets
+
+jobs:
+  build:
+    name: 'Build docs site'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: 'Install Node'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FE_PATH }}/package-lock.json
+
+      - name: 'Install renderer dependencies'
+        working-directory: ${{ env.FE_PATH }}
+        run: npm ci
+
+      - name: 'Configure Pages'
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: 'Check and build'
+        run: |
+          node Tools/Wiki/wiki.mjs check
+          node Tools/Wiki/build-pages-site.mjs _site --base-url "$BASE_URL"
+        env:
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+
+      - name: 'Upload site'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    name: 'Deploy to GitHub Pages'
+    needs: build
+    runs-on: 'ubuntu-latest'
+    permissions:
+      pages: write     # deploy to Pages
+      id-token: write  # prove the deployment came from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 'Deploy'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

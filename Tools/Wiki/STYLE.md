@@ -46,4 +46,4 @@ node Tools/Wiki/wiki.mjs check
 
 The check fails on broken page links, missing anchors, missing images, repository links to files that don't
 exist, pages missing from `_Sidebar.md` and code fences without a language. CI runs it on every PR that touches
-the wiki, and publishes to the GitHub wiki when `master` changes.
+the wiki, and publishes the GitHub Pages docs site when `master` changes.
