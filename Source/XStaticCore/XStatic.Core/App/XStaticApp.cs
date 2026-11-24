@@ -172,6 +172,42 @@ namespace XStatic.Core.App
 			return this;
 		}		
 
+		/// <summary>
+		/// Sets which environment variables <c>${env:NAME}</c> references in deployment targets and actions may read,
+		/// for example <c>"NETLIFY_*"</c>, or <c>"*"</c> for all of them. These replace the default (<c>XSTATIC_*</c>).
+		/// The same setting can be made in appsettings.json as XStatic:Secrets:AllowedEnvironmentVariables.
+		/// </summary>
+		/// <remarks>
+		/// Anyone who can edit a deployment target can send any allowed variable to a server they choose, so only
+		/// allow what xStatic needs.
+		/// </remarks>
+		public XStaticServiceBuilder AllowSecretEnvironmentVariables(params string[] patterns)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.Secrets ??= new XStaticSecretSettings();
+				settings.Secrets.AllowedEnvironmentVariables = patterns?.ToList() ?? new List<string>();
+			});
+
+			return this;
+		}
+
+		/// <summary>
+		/// Sets which configuration keys <c>${config:Key}</c> references in deployment targets and actions may read,
+		/// for example <c>"Netlify:*"</c>. These replace the default (<c>XStatic:Secrets:*</c>).
+		/// The same setting can be made in appsettings.json as XStatic:Secrets:AllowedConfigurationKeys.
+		/// </summary>
+		public XStaticServiceBuilder AllowSecretConfigurationKeys(params string[] patterns)
+		{
+			_services.Configure<XStaticGlobalSettings>(settings =>
+			{
+				settings.Secrets ??= new XStaticSecretSettings();
+				settings.Secrets.AllowedConfigurationKeys = patterns?.ToList() ?? new List<string>();
+			});
+
+			return this;
+		}
+
 		public XStaticServiceBuilder Build()
 		{
 			GeneratorServiceBuilder.Build();

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Secrets;
 
 namespace XStatic.Core.Deploy
 {
@@ -8,13 +9,25 @@ namespace XStatic.Core.Deploy
     {
         private readonly Dictionary<string, Func<Dictionary<string, string>, IDeployer>> _deployerBuilderDictionary;
         private readonly Dictionary<string, IDeployerDefinition> _definitions;
+        private readonly ISecretReferenceResolver _secretResolver;
 
         public DeployerService(Dictionary<string, Func<Dictionary<string, string>, IDeployer>> deployerBuilderDictionary, Dictionary<string, IDeployerDefinition> definitions)
+            : this(deployerBuilderDictionary, definitions, null)
+        {
+        }
+
+        /// <param name="secretResolver">
+        /// Resolves <c>${env:...}</c> and <c>${config:...}</c> references in a target's settings before the deployer
+        /// is created. When <c>null</c>, settings are passed on exactly as stored.
+        /// </param>
+        public DeployerService(Dictionary<string, Func<Dictionary<string, string>, IDeployer>> deployerBuilderDictionary, Dictionary<string, IDeployerDefinition> definitions, ISecretReferenceResolver secretResolver)
         {
             _deployerBuilderDictionary = deployerBuilderDictionary;
             _definitions = definitions;
+            _secretResolver = secretResolver;
         }
 
+        /// <exception cref="SecretReferenceException">A secret reference in <paramref name="properties"/> can't be resolved.</exception>
         public IDeployer GetDeployer(string deployerKey, Dictionary<string, string> properties)
         {
             if (!_deployerBuilderDictionary.ContainsKey(deployerKey))
@@ -24,7 +37,9 @@ namespace XStatic.Core.Deploy
 
             var func = _deployerBuilderDictionary[deployerKey];
 
-            return func.Invoke(properties);
+            var resolved = _secretResolver != null ? _secretResolver.Resolve(properties) : properties;
+
+            return func.Invoke(resolved);
         }
 
         public IEnumerable<IDeployerDefinition> GetDefinitions()

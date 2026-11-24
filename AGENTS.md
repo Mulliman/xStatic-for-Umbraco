@@ -128,6 +128,14 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   **Append-only:** add a new `.To<YourMigration>("UniqueState")` step at the end, and never edit or reorder
   steps that have shipped. Keep SQLite and SQL Server both working (see `XStaticMigrationBase`).
 
+### Secrets
+- Deployment target and action values can be `${env:NAME}` / `${config:Key}` references (`XStatic.Core/Secrets`).
+  They're resolved by `ISecretReferenceResolver` in `DeployerService`, `ActionFactory` and the auto-create endpoint,
+  just before use, and only for names matching `XStatic:Secrets:Allowed*` (default `XSTATIC_*` and
+  `XStatic:Secrets:*`). Never store or return resolved values, and don't widen the defaults: a target's editor can
+  send any allowed value to a server of their choosing. User docs: `Wiki/Secrets-and-Environment-Variables.md`.
+- Fields that hold a secret use `UIEditors.Password`, which shows the reference hint in the backoffice.
+
 ## Rules
 
 - **Everything public in `XStatic.Core` is public API** used by third-party plugins and consumers' own code.

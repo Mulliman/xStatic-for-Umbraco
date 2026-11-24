@@ -45,7 +45,13 @@ namespace XStatic.Security
                 var useXStaticUserRoles = settings.UseXStaticUserRoles;
                 var hasUserToCreateRoles = settings.RoleCreationUseRootUser || !string.IsNullOrEmpty(settings?.RoleCreationUser);
 
-                if (useXStaticUserRoles != true || !hasUserToCreateRoles)
+                if (useXStaticUserRoles != true)
+                {
+                    _logger.LogWarning("xStatic - xStatic user roles are not enabled, so any signed-in backoffice user can view and edit deployment targets and actions, including the passwords and tokens stored in them. Call UseSecureUserGroups() when registering xStatic to restrict them to the xStaticAdmin group.");
+                    return;
+                }
+
+                if (!hasUserToCreateRoles)
                 {
                     _logger.LogWarning("xStatic - xStatic user roles are not enabled or role creation user is not set. Skipping xStatic role creation.");
                     return;
