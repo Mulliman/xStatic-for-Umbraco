@@ -48,7 +48,7 @@ namespace XStatic.Controllers
 
             if (!result.WasSuccessful)
             {
-                _logger.LogError(result.Exception, result.Message);
+                _logger.LogError(result.Exception, "Deploying static site {StaticSiteId} failed: {Message}", staticSiteId, result.Message);
             }
 
             return result;
