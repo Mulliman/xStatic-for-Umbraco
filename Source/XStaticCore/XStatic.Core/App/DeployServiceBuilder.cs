@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XStatic.Core.Helpers;
 using XStatic.Core.Deploy;
 using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Deploy.Targets.Creators;
@@ -29,10 +30,7 @@ namespace XStatic.Core.App
 
         public IDeployServiceBuilder AddDeployersAutomatically()
         {
-            var deployerInstallers = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IDeployerAutoInstaller).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .ToList();
+            var deployerInstallers = LoadableTypes.ImplementationsOf<IDeployerAutoInstaller>();
 
             foreach (var installer in deployerInstallers)
             {
@@ -55,10 +53,7 @@ namespace XStatic.Core.App
 
         public IDeployServiceBuilder AddDeploymentTargetCreatorsAutomatically()
         {
-            var deployerInstallers = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IDeploymentTargetCreatorAutoInstaller).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .ToList();
+            var deployerInstallers = LoadableTypes.ImplementationsOf<IDeploymentTargetCreatorAutoInstaller>();
 
             foreach (var installer in deployerInstallers)
             {
