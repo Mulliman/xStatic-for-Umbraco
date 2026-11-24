@@ -43,7 +43,6 @@ Elsewhere in the repository:
 | `Testing/Ftp/` | A Docker Compose FTP server for checking the [FTP deployer](Deploying-to-FTP.md) |
 | `Wiki/` and `Tools/Wiki/` | This wiki and its checker and publisher |
 | `.github/workflows/` | CI, release and wiki workflows |
-| `Docs/` | A short pointer from the old documentation to this wiki |
 | `Brand/`, `Meta/` | Logos and the plugin lists the backoffice reads |
 
 For how the pieces fit together at run time, see [Architecture](Architecture.md).

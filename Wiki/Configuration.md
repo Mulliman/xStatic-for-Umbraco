@@ -1,4 +1,4 @@
-xStatic has a small set of global settings. Most things you'd want to change, such as sites, deployment targets and actions, are set in the backoffice instead and are stored in the database. This page lists the global settings, how to set them in `appsettings.json` or in code, and the Umbraco settings that affect xStatic. It replaces the old `Docs/Configuration.md`.
+xStatic has a small set of global settings. Most things you'd want to change, such as sites, deployment targets and actions, are set in the backoffice instead and are stored in the database. This page lists the global settings, how to set them in `appsettings.json` or in code, and the Umbraco settings that affect xStatic.
 
 ## At a glance
 
