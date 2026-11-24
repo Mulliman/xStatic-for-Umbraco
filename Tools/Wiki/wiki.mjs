@@ -30,13 +30,20 @@ export function listImages() {
   return readdirSync(dir).filter(f => statSync(join(dir, f)).isFile());
 }
 
+// Remove HTML tags, repeating until none are left so input like "<scr<b>ipt>" can't leave one behind.
+function stripTags(text) {
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]+>/g, '');
+  } while (text !== previous);
+  return text;
+}
+
 // GitHub heading anchor rules: lower-case, drop punctuation except - and _, spaces become -,
 // duplicates get -1, -2, ...
 export function slugify(text) {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/<[^>]+>/g, '')
+  return stripTags(text.trim().toLowerCase())
     .replace(/`/g, '')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/[^\p{L}\p{N}\s_-]/gu, '')

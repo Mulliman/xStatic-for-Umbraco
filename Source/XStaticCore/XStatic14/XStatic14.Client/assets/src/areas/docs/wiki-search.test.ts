@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { flattenSidebarOrder, searchWikiDocs } from './wiki-search';
+import { extractPlainTextFromHtml, flattenSidebarOrder, searchWikiDocs } from './wiki-search';
 import type { WikiDocsBundle } from './types.docs';
 
 const sampleBundle: WikiDocsBundle = {
@@ -75,5 +75,9 @@ describe('wiki-search', () => {
 	it('flattens sidebar pages in reading order without duplicates', () => {
 		const order = flattenSidebarOrder(sampleBundle);
 		expect(order.map((x) => x.slug)).toEqual(['Home', 'Deploying-to-Netlify', 'Deploying-to-FTP']);
+	});
+
+	it('decodes entities once, so an escaped entity stays as text', () => {
+		expect(extractPlainTextFromHtml('<p>a &amp;lt;b&amp;gt; &lt;c&gt; &amp; d</p>')).toBe('a &lt;b&gt; <c> & d');
 	});
 });

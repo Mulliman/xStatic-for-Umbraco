@@ -1,0 +1,53 @@
+name: "CodeQL"
+
+# GitHub's code scanner. It reads the C#, TypeScript/JavaScript and workflow files looking for security problems
+# (injection, XSS, path traversal, unsafe workflow patterns and so on). Results appear under Security → Code scanning,
+# and as comments on pull requests.
+#
+# build-mode "none" analyses the source without compiling it, so this needs no Umbraco build and takes a few minutes.
+# What's excluded is in .github/codeql/codeql-config.yml.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+      - 'lts/**'
+  schedule:
+    - cron: '17 3 * * 1'  # Mondays 03:17 UTC, so new queries also run against code that hasn't changed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: 'Analyse (${{ matrix.language }})'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: read
+      security-events: write  # upload results to code scanning
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['actions', 'csharp', 'javascript-typescript']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: 'Initialise CodeQL'
+        uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: 'Analyse'
+        uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          category: '/language:${{ matrix.language }}'
