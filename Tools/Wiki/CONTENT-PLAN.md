@@ -23,7 +23,7 @@ it predates Umbraco 14:
 has moved into the wiki pages below, and `Docs/` now just points to the wiki.
 
 **The backoffice Documentation dashboard** reads `Meta/help.json` (hosted on xstaticplugins.netlify.app), which
-links to the website pages. Once the wiki is live, that file should point at the wiki.
+links to the docs site (https://mulliman.github.io/xStatic-for-Umbraco/).
 
 ## What the videos add
 
