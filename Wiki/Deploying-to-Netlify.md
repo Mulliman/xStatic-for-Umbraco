@@ -135,7 +135,7 @@ Its fields have the same labels but different aliases (`NetlifyLegacy.PAT`, `Net
 
 ## Limitations and gotchas
 
-- **The token is stored in plain text** in the xStatic database table (`XStaticDeploymentTargets`) and is returned to anyone in the `xStaticAdmin` group through the backoffice API. Use a token you can revoke, and keep access to the **Deployment Targets** dashboard limited. See [User groups and security](User-Groups-and-Security.md).
+- **A token typed into the field is stored in plain text** in the xStatic database table (`XStaticDeploymentTargets`) and is returned to anyone in the `xStaticAdmin` group through the backoffice API. Type `${env:XSTATIC_NETLIFY_TOKEN}` instead and keep the token in an environment variable ([Secrets and environment variables](Secrets-and-Environment-Variables.md)). Either way, use a token you can revoke, and keep access to the **Deployment Targets** dashboard limited. See [User groups and security](User-Groups-and-Security.md).
 - **A deploy that fails can still look fine in the dashboard.** "Last deployed" is updated either way, and the Sites dashboard doesn't display the deployer's message. The error is written to the Umbraco log (`Error uploding file hashes to Netlify...`, spelled that way in the source).
 - **xStatic creates a deploy, it doesn't manage your Netlify settings.** Custom domains, HTTPS, headers and redirects are set in Netlify. xStatic doesn't generate `_redirects`, `_headers` or `netlify.toml`; if you need one it must end up in the generated output (see [Asset paths](Asset-Paths.md)).
 - **Root of the domain.** xStatic assumes the site is served from the root of its domain, which is how Netlify serves it.

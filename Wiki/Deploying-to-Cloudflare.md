@@ -90,7 +90,7 @@ These actions run locally during generation, so you can inspect the generated `_
 
 - `CloudflareR2Deployer` uploads generated files but does not delete old objects that were removed from the site.
 - Cloudflare Pages Direct Upload targets must be Direct Upload projects rather than Git-connected Pages projects.
-- Credentials are stored in the `XStaticDeploymentTargets` database table like other deployers; restrict access to the `xStaticAdmin` group ([User groups and security](User-Groups-and-Security.md)).
+- Credentials typed into the fields are stored in the `XStaticDeploymentTargets` database table like other deployers; restrict access to the `xStaticAdmin` group ([User groups and security](User-Groups-and-Security.md)). Type `${env:XSTATIC_CLOUDFLARE_API_TOKEN}` (or `${env:XSTATIC_R2_SECRET_ACCESS_KEY}`) instead to keep them in environment variables ([Secrets and environment variables](Secrets-and-Environment-Variables.md)).
 
 ## Next steps
 

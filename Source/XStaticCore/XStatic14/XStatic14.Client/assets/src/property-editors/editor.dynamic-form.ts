@@ -4,6 +4,7 @@ import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } fr
 // import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/extension-registry';
 import { UmbPropertyDatasetElement, UmbPropertyValueData } from '@umbraco-cms/backoffice/property';
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
+import { hasSecretField } from './element.secret-reference-tip';
 
 type DynamicFormField = { 
     name?: string | null | undefined,
@@ -75,7 +76,8 @@ export abstract class XStaticPropertyEditorDynamicFormBase<TFieldType extends Dy
             return html`
                 <div>
                     ${this.help ? html`<div class="help"><uui-icon name="icon-help-alt"></uui-icon><div>${unsafeHTML(this.help)}</div></div>` : ''}
-                    
+                    ${hasSecretField(this.fields) ? html`<xstatic-secret-reference-tip></xstatic-secret-reference-tip>` : ''}
+
 
                     <umb-property-dataset
                       .value=${this.values as Array<UmbPropertyValueData>}

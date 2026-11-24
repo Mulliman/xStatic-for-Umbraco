@@ -232,7 +232,6 @@ export class EditDeploymentTargetModalElement extends
             const existingField = existingFields.find((x) => x.alias === selectedField.alias);
 
             if (!existingField) {
-                console.log('existingField not found', selectedField.name, existingFields);
                 return false;
             }
         }

@@ -17,6 +17,8 @@ using XStatic.Core.Deploy.Targets;
 using XStatic.Core.Deploy.Targets.Creators;
 using XStatic.Core.Deploy.Targets.Db;
 using XStatic.Core.Models;
+using XStatic.Core.Secrets;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace XStatic.Controllers
 {
@@ -25,6 +27,7 @@ namespace XStatic.Controllers
     [MapToApi("xstatic-v1")]
     [AuthorizeAdmin]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [Route("api/v{version:apiVersion}/xstatic/deployment-targets")]
     public class DeploymentTargetController : Controller
     {
@@ -32,14 +35,25 @@ namespace XStatic.Controllers
         private readonly IDeployerService _service;
         private readonly IDeploymentTargetCreatorService _targetService;
         private readonly IEnumerable<IDeployerDefinition> _definitions;
+        private readonly ISecretReferenceResolver _secretResolver;
 
         public DeploymentTargetController(IDeploymentTargetRepository repo,
             IDeployerService service,
             IDeploymentTargetCreatorService targetCreatorService)
+            : this(repo, service, targetCreatorService, null)
+        {
+        }
+
+        [ActivatorUtilitiesConstructor]
+        public DeploymentTargetController(IDeploymentTargetRepository repo,
+            IDeployerService service,
+            IDeploymentTargetCreatorService targetCreatorService,
+            ISecretReferenceResolver secretResolver = null)
         {
             _repo = repo;
             _service = service;
             _targetService = targetCreatorService;
+            _secretResolver = secretResolver;
             _definitions = _service.GetDefinitions();
         }
 
@@ -86,11 +100,17 @@ namespace XStatic.Controllers
         [ProducesResponseType(typeof(AutoCreateDeploymentTargetResult), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> AutoCreateDeploymentTarget([FromBody] DeploymentTargetCreatorPostModel model)
         {
-            var creator = _targetService.GetDeploymentTargetCreator(model.Creator, model.Fields);
-
             try
             {
+                // The creator needs real values to call the remote service, but the target it creates should keep
+                // any ${env:...} or ${config:...} reference the user typed, so the secret isn't saved.
+                var resolvedFields = _secretResolver != null ? _secretResolver.Resolve(model.Fields) : model.Fields;
+
+                var creator = _targetService.GetDeploymentTargetCreator(model.Creator, resolvedFields);
+
                 var dataModel = await creator.CreateTarget();
+
+                SecretReferenceParser.RestoreReferences(model.Fields, resolvedFields, dataModel?.Fields);
 
                 var createdModel = CreateDeploymentTarget(dataModel);
 

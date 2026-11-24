@@ -118,7 +118,7 @@ The compose file ([docker-compose.yml](../Testing/Ftp/docker-compose.yml)) publi
 ## Limitations and gotchas
 
 - **Mirror deletes remote files** that aren't in the site. See above.
-- **Passwords are stored in plain text** in the xStatic database and are visible to the `xStaticAdmin` group through the backoffice API. Use a dedicated FTP account that can only write to the site folder. See [User groups and security](User-Groups-and-Security.md).
+- **A password typed into the field is stored in plain text** in the xStatic database and is visible to the `xStaticAdmin` group through the backoffice API. Type `${env:XSTATIC_FTP_PASSWORD}` instead and keep the password in an environment variable ([Secrets and environment variables](Secrets-and-Environment-Variables.md)). Use a dedicated FTP account that can only write to the site folder. See [User groups and security](User-Groups-and-Security.md).
 - **No setting for active mode or implicit FTPS, and no SFTP.** SFTP (SSH) is a different protocol and isn't supported.
 - **A failed deploy still updates "Last deployed",** and the Sites dashboard doesn't display the message the deployer returns. Check the Umbraco log for `FTP deploy failed` or `Error deploying the site using FTP.`
 - **All files are re-uploaded every time.**
