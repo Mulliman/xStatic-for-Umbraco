@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="https://www.nuget.org/packages/xstatic/"><img src="https://img.shields.io/nuget/v/xstatic.svg" alt="NuGet"></a>
-  <a href="https://umbraco.com"><img src="https://img.shields.io/badge/Umbraco-13%20%7C%2017%20%7C%2018-6c3673.svg" alt="Umbraco 13, 17 and 18"></a>
+  <a href="https://umbraco.com"><img src="https://img.shields.io/badge/Umbraco-17%20%7C%2018%20%7C%2019%20(pre--release)-6c3673.svg" alt="Umbraco 17, 18 and 19 (pre-release)"></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/Mulliman/xStatic-for-Umbraco"><img src="https://api.scorecard.dev/projects/github.com/Mulliman/xStatic-for-Umbraco/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml"><img src="https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml/badge.svg?branch=master" alt="CodeQL"></a>
 </p>
@@ -47,7 +47,8 @@ output before it goes live.
 
 ## Capabilities
 
-- **Deploy anywhere static files are served.** Built-in deployers for
+- **Deploy anywhere static files are served.** A file system deployer is built in, and official NuGet packages add
+  deployers for
   [Netlify](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify.html),
   [Git](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git.html) (GitHub Pages and similar),
   [FTP](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP.html),
@@ -66,28 +67,37 @@ output before it goes live.
   [Static failover site](https://mulliman.github.io/xStatic-for-Umbraco/Static-Failover-Site.html).
 - **Extensible.** Write your own generators, transformers, deployers and actions against the public API. See
   [Extending xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic.html).
+- **Safe secret management.** Type a `${env:...}` or `${config:...}` reference into a deployment target or action
+  field and only the reference is stored; the real token stays in an environment variable or your configuration. See
+  [Secrets and environment variables](https://mulliman.github.io/xStatic-for-Umbraco/Secrets-and-Environment-Variables.html).
+- **AI & GEO ready.** Publish Markdown copies of pages, `llms.txt` and other output that AI assistants and answer
+  engines can read. See [AI and GEO](https://mulliman.github.io/xStatic-for-Umbraco/AI-and-GEO.html).
 - **Role-based access.** xStatic sets up Umbraco user groups for administrators and editors. See
   [User groups and security](https://mulliman.github.io/xStatic-for-Umbraco/User-Groups-and-Security.html).
 
 ## Getting started
 
-Install the package into your Umbraco site and restart it:
+xStatic 18 needs **.NET 10** and **Umbraco 18.3.2 or later**. Install the package into your Umbraco site and restart
+it:
 
 ```bash
 dotnet add package xStatic
 ```
 
-An **xStatic** section appears in the backoffice. Add a deployer package (for example `xStatic.Netlify`) if you need
-one, then follow [Your first static site](https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site.html)
-to create, generate and deploy a site.
+An **xStatic** section appears in the backoffice. Add the official packages you need: `xStatic.Netlify`,
+`xStatic.Git`, `xStatic.Ftp` and `xStatic.Cloudflare` (deployers), `xStatic.RemoteOperations` (trigger runs from
+another system) and `xStatic.AI` (AI audits and agent tools). Then follow
+[Your first static site](https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site.html) to create,
+generate and deploy a site.
 
 Use the xStatic major version that matches your Umbraco major version:
 
 | xStatic | Umbraco | Status |
 |---------|---------|--------|
+| 19.x | 19 | Pre-release |
 | 18.x | 18 | Latest |
 | 17.x | 17 (LTS) | Long-term support |
-| 13.x | 13 (LTS) | Long-term support |
+| 13.x and older | 13 and older | No longer supported |
 
 [Upgrading](https://mulliman.github.io/xStatic-for-Umbraco/Upgrading.html) covers moving between versions.
 
