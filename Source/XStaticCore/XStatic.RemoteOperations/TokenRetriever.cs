@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace XStatic.RemoteOperations
@@ -35,7 +37,7 @@ namespace XStatic.RemoteOperations
 
         public async Task<UmbracoAccessToken?> GetAccessToken(string clientId, string clientSecret)
         {
-            var cacheKey = clientId ?? string.Empty;
+            var cacheKey = CreateCacheKey(clientId, clientSecret);
 
             if (_cachedTokens.TryGetValue(cacheKey, out var cached) && cached.Expiry.ToUniversalTime() > DateTime.UtcNow)
             {
@@ -59,6 +61,14 @@ namespace XStatic.RemoteOperations
             _cachedTokens[cacheKey] = token;
 
             return token;
+        }
+
+        private static string CreateCacheKey(string? clientId, string? clientSecret)
+        {
+            // Hash the secret into the cache key so a subsequent call with a different or wrong secret
+            // never reuses a cached token, and raw secrets are not held in cache keys.
+            var secretHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(clientSecret ?? string.Empty)));
+            return $"{clientId ?? string.Empty}\0{secretHash}";
         }
 
         private static UmbracoAccessToken ParseToken(string responseBody)
