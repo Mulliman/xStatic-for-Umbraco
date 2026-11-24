@@ -35,8 +35,8 @@ namespace XStatic.Core.Generator.Processes
         private readonly ISitesRepository _sitesRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IActionFactory _actionFactory;
-	private readonly IOptions<XStaticGlobalSettings> _globalSettings;
-		private readonly ILogger _logger;
+        private readonly IOptions<XStaticGlobalSettings> _globalSettings;
+        private readonly ILogger _logger;
 
         [Obsolete("Use the constructor that takes an IEntityService. This one resolves it from the application's services. It will be removed in xStatic 18.")]
         public RebuildProcess(IUmbracoContextFactory umbracoContextFactory,
@@ -132,21 +132,21 @@ namespace XStatic.Core.Generator.Processes
 
                     var rootNode = umbracoContext.UmbracoContext.Content.GetById(entity.RootNode);
 
-                    var builder = new JobBuilder(entity.Id, fileNamer)         ;
+                    var builder = new JobBuilder(entity.Id, fileNamer);
 
-					//Exclude certain types?
-					if (_globalSettings?.Value?.ExcludeGeneratingDocTypes != null && _globalSettings.Value.ExcludeGeneratingDocTypes.Any())
-					{
-						var excludedTypeAliases = _globalSettings?.Value?.ExcludeGeneratingDocTypes.ToList();
+                    // Exclude certain types?
+                    if (_globalSettings?.Value?.ExcludeGeneratingDocTypes != null && _globalSettings.Value.ExcludeGeneratingDocTypes.Any())
+                    {
+                        var excludedTypeAliases = _globalSettings.Value.ExcludeGeneratingDocTypes.ToList();
 
-						_logger.LogInformation("xStatic excluding document types: {ExcludedTypes}", string.Join(", ", excludedTypeAliases));
-						builder.AddPageWithDescendantsWithoutTypes(rootNode, excludedTypeAliases);
-					}
-					else //All descendants will be included
-					{
-						builder.AddPageWithDescendants(rootNode);
-					}
-								
+                        _logger?.LogInformation("xStatic excluding document types: {ExcludedTypes}", string.Join(", ", excludedTypeAliases));
+                        builder.AddPageWithDescendantsWithoutTypes(rootNode, excludedTypeAliases);
+                    }
+                    else // All descendants will be included
+                    {
+                        builder.AddPageWithDescendants(rootNode);
+                    }
+
                     AddCulturesToBuilder(entity, builder);
 
                     AddMediaToBuilder(entity, umbracoContext, builder);
@@ -268,7 +268,7 @@ namespace XStatic.Core.Generator.Processes
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "xStatic could not list the media under {MediaId} from the database; using the published cache instead", rootMedia.Id);
+                _logger?.LogWarning(e, "xStatic could not list the media under {MediaId} from the database; using the published cache instead", rootMedia.Id);
             }
 
             if (descendantIds == null)
