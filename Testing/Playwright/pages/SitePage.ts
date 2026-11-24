@@ -204,8 +204,21 @@ export class SitePage extends BasePage {
         await expect(pickerModal).not.toBeVisible();
     }
 
+    /**
+     * The site card whose name is exactly `name`. A plain hasText filter would also match a site whose name
+     * contains it ("Test Site X" matches "Edited Test Site X").
+     */
     row(name: string) {
-        return this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const headline = this.page.locator('.headline', { hasText: new RegExp(`^\\s*${escaped}\\s*$`) });
+        return this.page.locator('xstatic-site-element').filter({ has: headline }).first();
+    }
+
+    /** Opens the Edit dialog of a site and waits for its form. */
+    async openEdit(name: string) {
+        await this.row(name).getByRole('button', { name: 'Edit' }).click();
+        await expect(this.page.locator('xstatic-edit-site-modal')).toBeVisible();
+        await expect(this.page.getByRole('textbox', { name: 'Field for Site Name *' })).toBeVisible();
     }
 
     /** Clicks Generate and returns the parsed generate-site response. */
@@ -253,7 +266,7 @@ export class SitePage extends BasePage {
     }
 
     async edit(oldName: string, newName: string) {
-        const row = this.page.locator('xstatic-site-element').filter({ hasText: oldName }).first();
+        const row = this.row(oldName);
         await row.getByRole('button', { name: 'Edit' }).click();
         
         const nameField = this.page.getByRole('textbox', { name: 'Field for Site Name *' });
@@ -263,7 +276,7 @@ export class SitePage extends BasePage {
     }
 
     async verifyExists(name: string, exportType?: string) {
-        const siteElement = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        const siteElement = this.row(name);
         await expect(siteElement).toBeVisible();
         if (exportType) {
             // Need to scope the table check to the row? 
@@ -273,24 +286,26 @@ export class SitePage extends BasePage {
     }
 
     async verifyNotExists(name: string) {
-        const siteElement = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        const siteElement = this.row(name);
         await expect(siteElement).not.toBeVisible();
     }
 
     async delete(name?: string) {
          if (name) {
-             const row = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+             const row = this.row(name);
              
              if (await row.isVisible()) {
-                 const responsePromise = this.page.waitForResponse(response => 
-                    response.url().includes('xstatic') && response.status() === 200
+                 // The delete call itself (DELETE .../xstatic/sites/delete?staticSiteId=...), not any xStatic call
+                 // that happens to finish first, such as the sites list refreshing.
+                 const responsePromise = this.page.waitForResponse(response =>
+                    response.url().includes('xstatic/sites/delete') && response.request().method() === 'DELETE'
                  );
 
                  await row.getByRole('button', { name: 'Delete' }).click();
                  await this.page.locator('#confirm').getByRole('button', { name: 'Delete' }).click();
                  
-                 await responsePromise;
-                 
+                 expect((await responsePromise).status()).toBe(200);
+
                  // Initial check
                  await expect(row).not.toBeVisible();
 
@@ -306,7 +321,7 @@ export class SitePage extends BasePage {
     }
 
     async generate(name: string) {
-        const row = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        const row = this.row(name);
         await row.getByRole('button', { name: 'Generate' }).click();
         // Wait for generation to complete? 
         // The UI shows a loader.
@@ -314,7 +329,7 @@ export class SitePage extends BasePage {
     }
 
     async deploy(name: string) {
-        const row = this.page.locator('xstatic-site-element').filter({ hasText: name }).first();
+        const row = this.row(name);
         await row.getByRole('button', { name: 'Deploy' }).click();
         await this.page.locator('#confirm').getByRole('button', { name: 'Deploy' }).click();
     }

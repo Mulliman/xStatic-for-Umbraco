@@ -11,7 +11,7 @@ export class ActionPage extends BasePage {
     }
 
     async create(name: string, type: string, config: { [key: string]: string }) {
-        await this.page.locator('.lucide.lucide-plus').click();
+        await this.page.getByRole('button', { name: 'Create new Action', exact: true }).click();
         await this.page.getByRole('textbox', { name: 'Field for Action Name *' }).fill(name);
         await this.page.getByLabel('Field for Action Type *').selectOption({ label: type });
 

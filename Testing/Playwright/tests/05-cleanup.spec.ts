@@ -13,8 +13,9 @@ test.describe('Cleanup Operations', () => {
 
         await sitePage.verifyExists(TestData.SiteNameEdited);
 
-        // Check if site exists (Edited Name)
-        const siteElement = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteNameEdited }).first();
+        // Check if site exists (Edited Name). row() matches the name exactly, so the edited site and one left with
+        // the original name ("Test Site X" is part of "Edited Test Site X") are never mistaken for each other.
+        const siteElement = sitePage.row(TestData.SiteNameEdited);
         if (await siteElement.isVisible()) {
             await siteElement.getByRole('button', { name: 'Clean' }).click();
             await page.getByRole('button', { name: 'Clean up' }).click();
@@ -29,9 +30,9 @@ test.describe('Cleanup Operations', () => {
         await sitePage.verifyNotExists(TestData.SiteNameEdited);
 
         // Check for non-edited version just in case
-        const siteElementOld = page.locator('xstatic-site-element').filter({ hasText: TestData.SiteName }).first();
-        if (await siteElementOld.isVisible()) {
-            // Also clean it if it exists
+        const siteElementOld = sitePage.row(TestData.SiteName);
+        // Also clean it if it exists and was generated (Clean only shows once there's output).
+        if (await siteElementOld.getByRole('button', { name: 'Clean' }).isVisible()) {
             await siteElementOld.getByRole('button', { name: 'Clean' }).click();
             await page.getByRole('button', { name: 'Clean up' }).click();
         }
