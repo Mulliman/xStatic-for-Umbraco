@@ -23,6 +23,7 @@ test.describe('Deploy errors, secret references and site editing', () => {
         const targetName = `Failing Deploy Target ${runId}`;
         // The File System deployer creates its folder if it's missing. A file at that path can't be turned into a
         // folder on Windows or Linux, so the deploy fails cleanly without needing permissions set up.
+        // Assumes Playwright and the local Umbraco instance run on the same machine as the same user.
         const notAFolder = path.join(os.tmpdir(), `xstatic-playwright-not-a-folder-${runId}`);
         fs.writeFileSync(notAFolder, 'This is a file, so xStatic cannot deploy into it.');
 
@@ -104,7 +105,7 @@ test.describe('Deploy errors, secret references and site editing', () => {
 
             await expect(page.locator('xstatic-secret-reference-tip')).toBeVisible();
 
-            // xStatic's password editor renders an input with no accessible name, so find it through its property.
+            // Password inputs have no textbox ARIA role, so locate the input and its sibling hint via the property.
             const secretProperty = page.locator(`umb-property[label="${deployer.secretLabel}"]`);
             const secretInput = secretProperty.locator('input').first();
             const hint = secretProperty.locator('xstatic-secret-reference-hint [data-hint]');

@@ -4,19 +4,19 @@
 # branch (master, lts/* or a version branch such as feature/19).
 name: 'Dependabot auto-merge'
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - master
+      - 'lts/**'
+      - 'feature/[0-9]*'
 
 permissions: {}
 
 jobs:
   auto-merge:
     name: 'Enable auto-merge'
-    if: >-
-      github.event.pull_request.user.login == 'dependabot[bot]' &&
-      github.repository == 'Mulliman/xStatic-for-Umbraco' &&
-      (github.event.pull_request.base.ref == 'master' ||
-       startsWith(github.event.pull_request.base.ref, 'lts/') ||
-       startsWith(github.event.pull_request.base.ref, 'feature/'))
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Mulliman/xStatic-for-Umbraco'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: write
