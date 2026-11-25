@@ -139,6 +139,9 @@ export class SitePage extends BasePage {
             await hostProp.locator('input').first().fill(options.targetHostname);
         }
 
+        const createResponse = this.page.waitForResponse(response =>
+            response.url().includes('xstatic/sites/create') && response.request().method() === 'POST'
+        );
         await this.page.getByRole('button', { name: 'Submit' }).click();
 
         // Debug: Check for validation errors
@@ -148,9 +151,13 @@ export class SitePage extends BasePage {
              console.log('DEBUG: Validation Error:', errorMsg);
              throw new Error(`Form validation failed: ${errorMsg}`);
         }
-        
+
+        // Wait for the save itself: on a busy or freshly started site it can take longer than the default 5s
+        // the modal check allows.
+        expect((await createResponse).status()).toBe(200);
+
         // Ensure modal closes
-        await expect(this.page.locator('xstatic-edit-site-modal')).not.toBeVisible();
+        await expect(this.page.locator('xstatic-edit-site-modal')).not.toBeVisible({ timeout: 15_000 });
     }
 
     /** Adds a value to the "Asset Paths" tags editor in the open site modal. */
@@ -293,7 +300,11 @@ export class SitePage extends BasePage {
     async delete(name?: string) {
          if (name) {
              const row = this.row(name);
-             
+
+             // isVisible() doesn't wait, so give the sites list time to load first; otherwise cleanup
+             // straight after goto() skips a site that's about to appear.
+             await row.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => undefined);
+
              if (await row.isVisible()) {
                  // The delete call itself (DELETE .../xstatic/sites/delete?staticSiteId=...), not any xStatic call
                  // that happens to finish first, such as the sites list refreshing.
