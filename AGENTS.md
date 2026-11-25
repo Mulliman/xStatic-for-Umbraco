@@ -79,8 +79,7 @@ npm run watch         # dev loop against a local test instance
 Playwright E2E (`Testing/Playwright`, `npx playwright test`) needs a local Umbraco instance on
 `https://localhost:5000` with the credentials in `tests/00-auth.setup.ts`; see `Testing.md`. Don't try to run it
 unless such an instance is running — say so instead. In GitHub Actions it runs only as part of a release
-(`e2e.yml`, called by
-`release.yml`), never on PRs.
+(`e2e.yml`, called by `release.yml`), never on PRs.
 
 ### Definition of done
 

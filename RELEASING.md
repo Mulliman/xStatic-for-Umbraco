@@ -34,8 +34,7 @@ All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
 2. **Choose a tag**: type the new tag (for example `v17.3.0`), then pick the **target** branch from the table above.
 3. Paste the release notes. Tick **Set as a pre-release** for `-beta` and `-rc` versions.
 4. **Publish release.** This creates the tag, which runs `.github/workflows/release.yml`: test and Playwright E2E
-   → pack → push to
-   nuget.org via Trusted Publishing.
+   → pack → push to nuget.org via Trusted Publishing.
 5. Watch the **Release** workflow run. nuget.org can take up to an hour to index and show the new versions.
 
 To check packaging without publishing, run the Release workflow manually (**Actions** → **Release** →
