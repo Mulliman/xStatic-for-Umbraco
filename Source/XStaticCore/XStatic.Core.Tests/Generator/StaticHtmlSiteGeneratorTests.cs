@@ -200,7 +200,7 @@ namespace XStatic.Core.Tests.Generator
             }
             finally
             {
-                Directory.Delete(folder, recursive: true);
+                try { Directory.Delete(folder, recursive: true); } catch { /* best effort */ }
             }
         }
 
