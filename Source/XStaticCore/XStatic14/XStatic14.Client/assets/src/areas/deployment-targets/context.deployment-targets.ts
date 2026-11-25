@@ -2,10 +2,14 @@ import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { Observable, UmbArrayState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecute } from '@umbraco-cms/backoffice/resources'
+import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
 import { DeploymentTargetCreatorPostModel, DeploymentTargetModel, DeploymentTargetUpdateModel, V1Service } from "../../api";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import ConfigContextBase from "../../config-context-base";
 import { notifyConfigChanged } from "../../code/config-changes";
+import { getApiErrorMessage } from "../../code/api-error-message";
+
+const AUTO_CREATE_FALLBACK_MESSAGE = 'The deployment target could not be created. Check the Umbraco logs for details.';
 
 export class DeploymentTargetContext extends ConfigContextBase {
 
@@ -21,14 +25,32 @@ export class DeploymentTargetContext extends ConfigContextBase {
     public get deploymentTargets() : Observable<DeploymentTargetModel[]> { return this.#initDeploymentTargets(); }
 
     public async autoCreateDeploymentTarget(action: DeploymentTargetCreatorPostModel) : Promise<DeploymentTargetModel | null> {
-        const data = await tryExecute(this, V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }));
+        // A failed create returns its reason in the body's `message`, which Umbraco's default error notification
+        // doesn't show, so notifications are turned off here and the reason is shown instead.
+        const data = await tryExecute(
+            this,
+            V1Service.postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget({ requestBody: action }),
+            { disableNotifications: true });
 
-        if(data?.wasSuccessful && data.data){
+        if(!data?.error && data?.wasSuccessful && data.data){
             await this.#getDeploymentTargets();
             notifyConfigChanged();
 
             return data.data;
         }
+
+        if (data?.error?.name === 'UmbCancelError') {
+            return null;
+        }
+
+        const message = data?.error
+            ? getApiErrorMessage(data.error, AUTO_CREATE_FALLBACK_MESSAGE)
+            : data?.message?.trim() || AUTO_CREATE_FALLBACK_MESSAGE;
+
+        const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+        notificationContext?.peek('danger', {
+            data: { headline: 'Could not create the deployment target', message }
+        });
 
         return null;
     }
