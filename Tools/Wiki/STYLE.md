@@ -28,8 +28,8 @@ Keep each page focused. If a page passes about 400 lines, split it.
 
 ## Technical rules
 
-- **Every fact must be true for the current code** (Umbraco 18 on `feature/18`, which becomes `master` at
-  release). When behaviour differs on older versions, say which version.
+- **Every fact must be true for the current code** (Umbraco 17 on `lts/17`; `master` is Umbraco 18 and `feature/19` is
+  Umbraco 19, in pre-release). When behaviour differs on older versions, say which version.
 - Link code with repository links such as `[RebuildProcess.cs](../Source/XStaticCore/XStatic.Core/Generator/Processes/RebuildProcess.cs)`.
   Paths start with `../` from the `Wiki/` folder; the build turns them into GitHub links.
 - Link other pages as `Page-Name.md` or `Page-Name.md#anchor`. Never link without `.md`.

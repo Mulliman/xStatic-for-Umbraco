@@ -10,7 +10,7 @@ All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
 
 | Releasing | Release from | Tag |
 |-----------|--------------|-----|
-| The latest major (currently 18) | `master` (for 18.0.0: merge the "Upgrade to Umbraco 18" PR first) | `v18.x.y` |
+| The latest major (currently 18) | `master` | `v18.x.y` |
 | An LTS patch or minor (17) | `lts/17` | `v17.x.y` |
 | A preview of a new major | `feature/NN` | `vNN.0.0-beta`, `-rc1`, … |
 
@@ -20,7 +20,7 @@ All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
    the release changes something the tests can't see.
 2. **Playwright passes** against a local site on the minimum Umbraco version (see `Testing.md`). Both the
    site and the branch's code must be the version you're releasing.
-3. **Deployers you changed are tried for real**: Netlify and FTP need a real account or server. The Git deployer
+3. **Deployers you changed are tried for real**: Netlify, Cloudflare and FTP need a real account or server. The Git deployer
    is covered by tests against a local repository.
 4. **Docs are current**: `AGENTS.md` (versions table, known issues), `Wiki/` (pages match the release, samples compile, `node Tools/Wiki/wiki.mjs check` passes), `README.md`.
 5. **Release notes are written**, including:

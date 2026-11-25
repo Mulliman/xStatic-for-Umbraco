@@ -7,7 +7,7 @@ The work still happens on the Umbraco server. The remote program is only a trigg
 | | |
 |---|---|
 | NuGet package | `xStatic.RemoteOperations` |
-| Install | `dotnet add package xStatic.RemoteOperations --prerelease` (in the calling project, not the Umbraco site) |
+| Install | `dotnet add package xStatic.RemoteOperations` (in the calling project, not the Umbraco site) |
 | Needs | An Umbraco API user with a client credential (an id and a secret) in an xStatic user group, and a URL the caller can reach |
 | Main class | `XStatic.RemoteOperations.XStaticRemoteOperationsClient` |
 | Target framework | .NET 10 |
@@ -34,11 +34,9 @@ Create a small project and add the package:
 ```powershell
 dotnet new console -n XStaticScheduler
 cd XStaticScheduler
-dotnet add package xStatic.RemoteOperations --prerelease
+dotnet add package xStatic.RemoteOperations
 dotnet add package Microsoft.Extensions.Logging.Console
 ```
-
-`--prerelease` is needed while the version for Umbraco 18 is `18.0.0-beta`; without it you get the latest stable release, which is the Umbraco 17 version.
 
 Replace `Program.cs` with this. It reads its settings from environment variables, generates every site, deploys the ones that have a deployment target, and returns a non-zero exit code if anything went wrong:
 
@@ -148,9 +146,8 @@ The generate and deploy steps are exactly the ones in [Generating and deploying]
 
 - **A site is deployed even if generating it failed.** `GenerateAndDeployAllSites` doesn't check the generate result before it deploys. If the generate call itself fails (an HTTP error), the exception is returned and nothing is deployed. But if generation finishes with failed pages or a failed action (`WasSuccessful` is `false`), the deploy still runs and publishes what was generated. For live sites you may prefer to deploy only after a clean generate; see [Deploy only when generation succeeded](#deploy-only-when-generation-succeeded).
 - **Generating can take longer than 100 seconds.** The client uses a plain `HttpClient`, whose default timeout is 100 seconds. For a big site, subclass the client and raise it; see [Longer timeouts](#longer-timeouts).
-- **Sign-in failures are thrown, not returned.** So is a failure to list the sites. A wrong secret or user makes the token call fail with an `HttpRequestException` (typically a 400 or 401 status) or `Token not successfully retrieved`. Wrap the call in `try`/`catch` if you want to handle it.
-- **The secret isn't URL-encoded in the token request.** A client secret containing characters such as `&`, `+` or `%` will fail to sign in. Use a secret made of letters, digits, `-` and `_`.
-- **A failed deploy isn't an exception.** The deployer's failure comes back as HTTP 200 with `WasSuccessful` set to `false` in `DeployProcessResult`, and "Last deployed" is updated anyway. Always check that value.
+- **Sign-in failures are thrown, not returned.** So is a failure to list the sites. A wrong secret or user makes the token call fail with an `HttpRequestException` (typically a 400 or 401 status), `GetAccessToken - the token response was invalid (...)` or `Token not successfully retrieved`. Wrap the call in `try`/`catch` if you want to handle it.
+- **A failed deploy isn't an exception.** The deployer's failure comes back as HTTP 200 with `WasSuccessful` set to `false` in `DeployProcessResult`. Always check that value. (In 18.0.0 and earlier, "Last deployed" is updated even then; from 18.1.0 and 17.4.0 it is only updated for a successful deploy.)
 - **Don't run overlapping builds.** Two runs for the same site at once write to the same output folder. Schedule runs far enough apart for the longest build.
 - **Keep the secret out of source control.** Anyone with the client id and secret can trigger builds, and (in the admin group) read deployment target secrets.
 
@@ -257,7 +254,8 @@ If you only need a rebuild whenever an editor publishes, you don't need remote o
 
 | Symptom | Likely cause and fix |
 |---------|----------------------|
-| `HttpRequestException` with status 400 or 401 when signing in | Wrong client id or secret, a client id without its `umbraco-back-office-` prefix, or a secret with characters that break the form body. Check them, and the base address. |
+| `HttpRequestException` with status 400 or 401 when signing in | Wrong client id or secret, or a client id without its `umbraco-back-office-` prefix. Check them, and the base address. |
+| `GetAccessToken - the token response was invalid (...)` | The server answered the token request, but without an access token or expiry. Check that `baseUri` points at the Umbraco site and not at a proxy or login page. |
 | `HttpRequestException` with status 404 on sign-in | `baseUri` is wrong, has a trailing slash, or includes `/umbraco`. Use the site's root address only. |
 | `ApiException` with status 401 or 403 | The API user isn't in `xStaticNormalUser` or `xStaticAdmin`, or the groups don't exist (the site's secure user groups weren't set up). See [User groups and security](User-Groups-and-Security.md). |
 | `No site with ID N found.` | The id doesn't exist, or the API user can't see it. Use `GenerateAndDeployAllSites()` to see the available sites. |

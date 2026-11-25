@@ -7,7 +7,7 @@ Read the [limitations](#limitations-and-gotchas) before you commit to this route
 | | |
 |---|---|
 | NuGet package | `xStatic.Git` |
-| Install | `dotnet add package xStatic.Git --prerelease` (drop `--prerelease` once 18.0.0 is out) |
+| Install | `dotnet add package xStatic.Git` |
 | Discovered automatically | Yes |
 | Deployer in the UI | **Git** (id `git`) |
 | Fields | **Remote URL**, **Email**, **Username**, **Password / Personal Access Token**, **Branch** |
@@ -18,10 +18,10 @@ Read the [limitations](#limitations-and-gotchas) before you commit to this route
 ## Install
 
 ```powershell
-dotnet add package xStatic.Git --prerelease
+dotnet add package xStatic.Git
 ```
 
-Use the same version as your other xStatic packages. The `--prerelease` flag is needed while xStatic 18 is in beta; without it you would get a 17.x package (see [Installation](Installation.md)). Restart the site and **Git** appears in the **Deployer \*** dropdown. Nothing goes in `Program.cs`. If you register xStatic manually, call `AddGitDeployer()` on the deploy builder (`using XStatic.Git;`); see [Extending xStatic](Extending-xStatic.md).
+Use the same version as your other xStatic packages (see [Installation](Installation.md)). Restart the site and **Git** appears in the **Deployer \*** dropdown. Nothing goes in `Program.cs`. If you register xStatic manually, call `AddGitDeployer()` on the deploy builder (`using XStatic.Git;`); see [Extending xStatic](Extending-xStatic.md).
 
 ## Walkthrough: GitHub Pages
 
@@ -29,7 +29,7 @@ This takes about fifteen minutes. The same steps work for any remote that accept
 
 1. **Create an empty repository on GitHub.** For a site at `https://<your-name>.github.io/` the repository must be called `<your-name>.github.io`. For any other repository the site is served from `https://<your-name>.github.io/<repository>/`, which xStatic doesn't handle without extra work (see [Hosting under a sub-path](#hosting-under-a-sub-path)). Using your own domain avoids the problem.
 2. **Set up Pages and your custom domain now, before the first deploy.** In the repository's **Settings** then **Pages**, choose the branch and the `/ (root)` folder to publish from. If you use a custom domain, enter it here. GitHub saves it as a file called `CNAME` in the branch. Do this first, because xStatic never pulls: if GitHub changes the branch after xStatic has cloned it, the next deploy fails (see [Limitations](#limitations-and-gotchas)). GitHub may want at least one commit before Pages can be configured; add a README through the GitHub website if so.
-3. **Create a personal access token.** In GitHub, go to **Settings**, **Developer settings**, **Personal access tokens** and create a fine-grained token that can access only this repository, with **Contents** set to **Read and write**. Copy it. The Git deployer's code carries the same advice for the password field ("You need to use PAT for a GitHub repository, assign `Contents` permission when creating it."), but the backoffice doesn't display field help.
+3. **Create a personal access token.** In GitHub, go to **Settings**, **Developer settings**, **Personal access tokens** and create a fine-grained token that can access only this repository, with **Contents** set to **Read and write**. Copy it. The backoffice shows the same advice under the password field ("You need to use PAT for a GitHub repository, assign `Contents` permission when creating it.").
 4. **Create the deployment target.** Open **xStatic** then **Deployment Targets**, press **Manually Configure New Deployment Target** and fill in the form:
 
    | Field | What to put in it |

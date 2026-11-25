@@ -19,8 +19,10 @@ Every part of xStatic that you can replace or add to, how each one is registered
 | `IStaticSiteStorer` | Decides where generated files are written | DI service. Replace the default registration | [Site-Storers.md](Site-Storers.md) |
 | `IDeployer`, `IDeployerDefinition`, `IDeployerAutoInstaller` | Sends the output folder somewhere | The auto installer is found by scanning, or call `AddDeployer` | [Writing-a-Deployer.md](Writing-a-Deployer.md) |
 | `IDeploymentTargetCreator` and its definition and auto installer | Creates a deployment target for the editor, such as the Netlify site creator | The auto installer is found by scanning, or call `AddDeploymentTargetCreator` | [Deployment-Target-Creators.md](Deployment-Target-Creators.md) |
-| `IPostGenerationAction` | Runs a step after generation (copy a file, write metadata, call an API) | Found by scanning. DI registration is optional only if it has a parameterless constructor | [Writing-a-Post-Generation-Action.md](Writing-a-Post-Generation-Action.md) |
+| `IPostGenerationAction` | Runs a step after generation (copy a file, write metadata, call an API) | Found by scanning. DI registration is optional: constructor parameters are resolved from DI either way | [Writing-a-Post-Generation-Action.md](Writing-a-Post-Generation-Action.md) |
 | `IAutoPublisher` | Reacts to content being published | DI service. Replace the default registration | [Auto-Publish.md](Auto-Publish.md) |
+| `IAutoPublishSiteResolver` | Adds sites to rebuild when content is published, for example from your own dependency graph | Call `AddAutoPublishSiteResolver<TResolver>()` | [Auto-Publish.md](Auto-Publish.md) |
+| `ISecretReferenceResolver` | Resolves `${env:...}` and `${config:...}` references in deployment target and action values | DI service. Replace the default registration | [Secrets-and-Environment-Variables.md](Secrets-and-Environment-Variables.md) |
 | `ISitesRepository`, `IExportTypeRepository`, `IExportTypeService`, `IActionRepository`, `IActionFactory`, `IDeploymentTargetRepository` | Where xStatic's own settings are read and written, and how types are turned into objects | DI services. Replace the default registrations | [Architecture.md](Architecture.md) |
 
 "Found by scanning" means xStatic looks through the loaded assemblies for concrete implementations when it starts (or, for the list classes, when they are first used), and the backoffice dropdowns then show them. "DI service" means you register it in the container and the last registration wins. See [How plugins are discovered](Architecture.md#how-plugins-are-discovered).
@@ -78,6 +80,12 @@ Start with `services.AddXStatic()`. It binds the `XStatic` section of `appsettin
 | `TrustUnsafeSslConnectionWhenGenerating()` | Makes the generator accept any HTTPS certificate. Needed on Linux when the site uses a development certificate. Same as `XStatic:TrustSslWhenGenerating` |
 | `DoNotDeletePathsWhenClearing(params string[] paths)` | Files and folders kept when a site's output is cleared. Replaces the defaults (`.git` and `CNAME`). Same as `XStatic:DoNotDeletePaths` |
 | `ExcludeGeneratingDocTypes(IList<string> docTypeAliases)` | Document type aliases to leave out of generation. Same as `XStatic:ExcludeGeneratingDocTypes` |
+| `AddAutoPublishSiteResolver<TResolver>()` | Adds an `IAutoPublishSiteResolver` that finds extra sites to rebuild during auto publish. See [Auto-Publish.md](Auto-Publish.md) |
+| `EnableRelationBasedAutoPublish(bool enabled = true)` | Walks Umbraco relations during auto publish, so shared content rebuilds the sites that use it. Same as `XStatic:EnableRelationBasedAutoPublish` |
+| `AutoPublishMaxRelationDepth(int maxDepth)` | How far relation-based auto publish follows relations. Same as `XStatic:AutoPublishMaxRelationDepth` |
+| `AutoPublishGlobalContentTypes(IList<string> contentTypeAliases)` | Document types whose publication rebuilds every auto publish site. Same as `XStatic:AutoPublishGlobalContentTypes` |
+| `AllowSecretEnvironmentVariables(params string[] patterns)` | Which environment variables `${env:NAME}` references may read. Same as `XStatic:Secrets:AllowedEnvironmentVariables`. See [Secrets-and-Environment-Variables.md](Secrets-and-Environment-Variables.md) |
+| `AllowSecretConfigurationKeys(params string[] patterns)` | Which configuration keys `${config:Key}` references may read. Same as `XStatic:Secrets:AllowedConfigurationKeys` |
 | `Build()` | Finishes the registration. It registers the deployer service, the deployment target creator service and the deployment target repository. Always call it last |
 
 Every method returns the builder, so they chain. Settings set here override the same settings in `appsettings.json`. See [Configuration.md](Configuration.md).
@@ -107,7 +115,7 @@ Every method returns the `GeneratorServiceBuilder`, so you can chain them.
 
 ### DeployServiceBuilder
 
-`DeployServiceBuilder` implements `IDeployServiceBuilder`, which has just `AddDeployer` and `Build`. The plugin packages extend that interface (`AddFtpDeployer()`, `AddGitDeployer()`, `AddNetlifyDeployer()`), so they work on `DeployServiceBuilder` as well.
+`DeployServiceBuilder` implements `IDeployServiceBuilder`, which has just `AddDeployer` and `Build`. The plugin packages extend that interface (`AddFtpDeployer()`, `AddGitDeployer()`, `AddNetlifyDeployer()`, `AddCloudflareDeployers()`), so they work on `DeployServiceBuilder` as well.
 
 | Method | What it does |
 |--------|--------------|
@@ -118,7 +126,7 @@ Every method returns the `GeneratorServiceBuilder`, so you can chain them.
 | `AddDefaultDeploymentTargetServices()` | Registers `IDeploymentTargetRepository` as `DeploymentTargetRepository`. `Build()` calls it for you |
 | `Build()` | Registers `IDeployerService` and `IDeploymentTargetCreatorService`, built from what you added, then the deployment target repository |
 
-The deployers are collected as you call the methods, and turned into the `IDeployerService` when you call `Build()`. Add all of them before that. Netlify also has `services.AddNetlifyActions()`, which registers its 404 action.
+The deployers are collected as you call the methods, and turned into the `IDeployerService` when you call `Build()`. Add all of them before that. Netlify also has `services.AddNetlifyActions()`, which registers its 404 action, and Cloudflare has `services.AddCloudflareActions()` for its `_headers` and `_redirects` actions. Both are optional, because actions are built with their constructor parameters resolved from DI anyway.
 
 ### A complete manual setup
 

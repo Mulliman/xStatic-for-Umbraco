@@ -101,7 +101,8 @@ Admins only. A deployment target is one configured destination, such as "my Netl
 - **Create new Deployment Target** card with two buttons:
   - **Manually Configure New Deployment Target** opens a dialog where you pick a deployer and fill in its fields.
   - **Automatically Create New Deployment Target** (in a yellow box) lets xStatic create the remote service for you
-    and configure the target. The only creator that ships is the Netlify Site Creator, in the `xStatic.Netlify` package.
+    and configure the target. Two creators ship: the Netlify Site Creator, in the
+    `xStatic.Netlify` package, and the Cloudflare Pages Project Creator, in the `xStatic.Cloudflare` package.
 - One card per target. The table shows its name and its deployer's id, such as `filesystem` or `netlify`.
 
 ## Actions

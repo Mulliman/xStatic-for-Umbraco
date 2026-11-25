@@ -71,7 +71,7 @@ xStatic is split into packages so you install only what you use. All of them are
 | `xStatic.Ftp` | Deployer for [FTP servers](Deploying-to-FTP.md). |
 | `xStatic.RemoteOperations` | A small client for triggering builds from outside Umbraco ([Remote operations](Remote-Operations.md)). |
 
-A deployer that copies to a folder on the server is built into the core, so you don't need an extra package for [that](Deploying-to-a-Folder.md). Version 18 of xStatic needs Umbraco 18.3.2 or later. See [Installation](Installation.md) for the full steps.
+A deployer that copies to a folder on the server is built into the core, so you don't need an extra package for [that](Deploying-to-a-Folder.md). Version 17 of xStatic needs Umbraco 17.8.2 or later. See [Installation](Installation.md) for the full steps.
 
 ## Videos
 
