@@ -7,7 +7,7 @@
 		<Title>xStatic.Cloudflare</Title>
 		<Version>19.0.0-alpha</Version>
 		<Description>Cloudflare Pages Direct Upload and Cloudflare R2 deployers and post-generation actions for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco17 xstatic static site generation cloudflare pages r2 umbraco-marketplace</PackageTags>
+		<PackageTags>umbraco umbraco19 xstatic static site generation cloudflare pages r2 umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>

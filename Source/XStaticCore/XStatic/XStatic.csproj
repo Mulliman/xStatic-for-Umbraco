@@ -6,8 +6,8 @@
         <PackageId>xStatic</PackageId>
         <Title>xStatic</Title>
 		<Version>19.0.0-alpha</Version>
-        <Description>Static site generation for Umbraco 18 without changing the method of building Umbraco sites.</Description>
-        <PackageTags>umbraco umbraco18 xstatic static site generation umbraco-marketplace</PackageTags>
+        <Description>Static site generation for Umbraco 19 without changing the method of building Umbraco sites.</Description>
+        <PackageTags>umbraco umbraco19 xstatic static site generation umbraco-marketplace</PackageTags>
         <Copyright>Sam Mullins</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>

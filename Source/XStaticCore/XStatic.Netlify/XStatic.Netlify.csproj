@@ -7,7 +7,7 @@
 		<Title>xStatic.Netlify</Title>
 		<Version>19.0.0-alpha</Version>
 		<Description>Netlify functionality for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco18 xstatic static site generation netlify umbraco-marketplace</PackageTags>
+		<PackageTags>umbraco umbraco19 xstatic static site generation netlify umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify</PackageProjectUrl>
