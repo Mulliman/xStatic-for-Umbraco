@@ -29,9 +29,10 @@ test.describe('Site Operations', () => {
 
         await expect(siteElement.getByRole('table')).toContainText('Last generated on');
         
-        // Verify date is recent (today). Using regex to avoid locale format mismatches (e.g. 01/02 vs 2/1)
+        // Verify the date is this year. The format follows the browser's locale (01/02/2026, 2.1.2026, 2026-01-02,
+        // 2 Jan 2026...), so only look for the year in the date that follows.
         const currentYear = new Date().getFullYear().toString();
-        const dateRegex = new RegExp(`Last generated on \\d{1,2}/\\d{1,2}/${currentYear}`);
+        const dateRegex = new RegExp(`Last generated on .{0,30}\\b${currentYear}\\b`);
         await expect(siteElement.getByRole('table')).toContainText(dateRegex);
 
         // Wait for buttons to appear/update

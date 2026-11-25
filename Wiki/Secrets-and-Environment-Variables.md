@@ -5,6 +5,9 @@ reference, such as `${env:XSTATIC_NETLIFY_TOKEN}`, in the field instead. This pa
 up and which variables xStatic is allowed to read. It's for admins who set up deployment targets and for developers
 who look after the server.
 
+> **Version:** secret references arrive in **xStatic 18.1.0 and 17.4.0**, the next releases. They aren't in 18.0.0,
+> 17.3.1 or earlier, where a value such as `${env:XSTATIC_NETLIFY_TOKEN}` is used exactly as typed.
+
 ## At a glance
 
 - Type `${env:NAME}` in any deployment target or action field to read the environment variable `NAME`.

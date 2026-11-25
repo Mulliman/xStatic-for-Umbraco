@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using XStatic.Core.Helpers;
 
 namespace XStatic.Core.Actions

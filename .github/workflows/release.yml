@@ -34,6 +34,13 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The package major must match the Umbraco major the branch builds against (v17.x from lts/17, v18.x from
+      # master and so on), so a tag pushed on the wrong branch fails here instead of publishing to nuget.org.
       - name: 'Work out version'
         id: version
         shell: pwsh
@@ -42,8 +49,19 @@ jobs:
         run: |
           $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME -replace '^v', '' } else { $env:INPUT_VERSION }
           if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "'$version' is not a valid package version." }
+
+          $csproj = 'Source/XStaticCore/XStatic.Core/XStatic.Core.csproj'
+          $reference = Select-Xml -Path $csproj -XPath "//PackageReference[@Include='Umbraco.Cms.Core']" | Select-Object -First 1
+          if (-not $reference) { throw "No Umbraco.Cms.Core PackageReference found in $csproj." }
+          $umbracoVersion = $reference.Node.Version
+          $umbracoMajor = ($umbracoVersion -split '\.')[0]
+          $packageMajor = ($version -split '\.')[0]
+          if ($packageMajor -ne $umbracoMajor) {
+            throw "Version $version doesn't match this branch: it builds against Umbraco.Cms.Core $umbracoVersion, so the version must start with $umbracoMajor. (Was the tag created on the wrong branch?)"
+          }
+
           "version=$version" >> $env:GITHUB_OUTPUT
-          Write-Host "Release version: $version"
+          Write-Host "Release version: $version (Umbraco $umbracoVersion)"
 
   pack:
     name: 'Pack'
@@ -73,7 +91,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: 'NuGet login (Trusted Publishing)'
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: nuget-login
         with:
           user: ${{ secrets.NUGET_USER }}

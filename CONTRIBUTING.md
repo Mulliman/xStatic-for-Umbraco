@@ -95,6 +95,20 @@ The tests are organized into sequential stages:
 *   **04-issue70.spec.ts**, **06-issue77.spec.ts**: Regression tests for specific GitHub issues.
 *   **05-cleanup.spec.ts**: Cleans up test data created during the run.
 
+The later specs create and remove their own data, so they only depend on the login:
+*   **07-output.spec.ts**: What's generated, what Deploy copies to a folder, and what Clean keeps.
+*   **08-json-export.spec.ts**: A JSON export type produces valid JSON.
+*   **09-security.spec.ts**: Every xStatic API endpoint rejects anonymous requests.
+*   **10-validation.spec.ts**: Empty create forms aren't submitted.
+*   **11-dashboards.spec.ts**: The Config and Documentation dashboards load.
+*   **12-parameterless-action.spec.ts**: An action type with no parameters can be created, edited and deleted.
+*   **13-ftp-deploy.spec.ts**: Deploys to the Docker FTP server; skipped unless it's running.
+*   **14-typed-fields-and-ai-output.spec.ts**: Typed action fields and the AI/GEO output files.
+*   **15-deploy-errors-and-secrets.spec.ts**: Failed deploys are reported, secret references are saved as references,
+    and every site field round-trips.
+
+`Testing.md` has the full list and the CI workflows.
+
 ### Configuration
 
 If your test instance is running on a different port or URL, update the `baseURL` in `Testing/Playwright/playwright.config.ts`.
@@ -105,7 +119,12 @@ If your test instance is running on a different port or URL, update the `baseURL
 
 1.  Create an issue on GitHub describing the change or bug fix.
 2.  Fork the repository and create a feature branch.
-3.  Ensure your changes are tested (manual or Playwright).
+3.  Ensure your changes are tested. Before you open the PR, run:
+    *   `dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj` (unit tests, on every change)
+    *   `./Source/XStaticCore/run-tests.ps1` (unit and integration tests, if you touched the database or upgrade code)
+    *   `npm run check` in `Source/XStaticCore/XStatic14/XStatic14.Client/assets` (if you touched the UI)
+    *   `node Tools/Wiki/wiki.mjs check` (if you touched `Wiki/`)
+    *   Playwright, if you have a local instance running
 4.  Submit a Pull Request with a clear description of the changes.
 
 Thank you for making xStatic better!

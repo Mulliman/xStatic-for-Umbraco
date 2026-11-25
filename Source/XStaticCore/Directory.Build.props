@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    Shared settings for every project under Source/XStaticCore. Keep this minimal: package versions stay in each
+    csproj (releases take theirs from the tag) and nullable reference types stay opt-in per project.
+  -->
+
+  <PropertyGroup>
+    <!-- SourceLink: record the repository URL in packages and embed generated sources in the PDB. -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <!-- Deterministic, path-normalised builds on CI only, so local debugging keeps full local paths. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+</Project>

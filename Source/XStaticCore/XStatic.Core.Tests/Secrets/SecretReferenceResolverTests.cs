@@ -122,6 +122,60 @@ namespace XStatic.Core.Tests.Secrets
         }
 
         [Fact]
+        public void Resolve_IsSinglePass_AndDoesNotResolveReferencesInsideResolvedValues()
+        {
+            var resolver = Resolver(new()
+            {
+                ["XSTATIC_OUTER"] = "${env:UNALLOWED_INNER}",
+                ["UNALLOWED_INNER"] = "should-not-leak",
+            });
+
+            var resolved = resolver.Resolve("${env:XSTATIC_OUTER}");
+
+            Assert.Equal("${env:UNALLOWED_INNER}", resolved);
+            Assert.DoesNotContain("should-not-leak", resolved);
+        }
+
+        [Fact]
+        public void Resolve_MissingConfigurationKey_ThrowsNamingIt()
+        {
+            var resolver = Resolver();
+
+            var ex = Assert.Throws<SecretReferenceException>(() => resolver.Resolve("${config:XStatic:Secrets:Missing}", "Netlify.PAT"));
+
+            Assert.Contains("XStatic:Secrets:Missing", ex.Message);
+            Assert.Contains("Netlify.PAT", ex.Message);
+            Assert.Contains("has no value", ex.Message);
+        }
+
+        [Fact]
+        public void Settings_AllowSecretEnvironmentVariablesBuilder_ReplacesTheDefaults()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+
+            services.AddXStatic().AllowSecretEnvironmentVariables("NETLIFY_*", "GIT_*");
+
+            using var provider = services.BuildServiceProvider();
+            var secrets = provider.GetRequiredService<IOptions<XStaticGlobalSettings>>().Value.Secrets;
+
+            Assert.Equal(new[] { "NETLIFY_*", "GIT_*" }, secrets.GetEffectiveAllowedEnvironmentVariables());
+            Assert.Equal(XStaticSecretSettings.DefaultAllowedConfigurationKeys, secrets.GetEffectiveAllowedConfigurationKeys());
+        }
+
+        [Fact]
+        public void Settings_EmptyAllowList_FallsBackToTheDefaults()
+        {
+            var secrets = new XStaticSecretSettings { AllowedEnvironmentVariables = [], AllowedConfigurationKeys = [] };
+            var resolver = Resolver(new() { ["XSTATIC_TOKEN"] = "x", ["OTHER_TOKEN"] = "o" }, secrets: secrets);
+
+            Assert.Equal(XStaticSecretSettings.DefaultAllowedEnvironmentVariables, secrets.GetEffectiveAllowedEnvironmentVariables());
+            Assert.Equal(XStaticSecretSettings.DefaultAllowedConfigurationKeys, secrets.GetEffectiveAllowedConfigurationKeys());
+            Assert.Equal("x", resolver.Resolve("${env:XSTATIC_TOKEN}"));
+            Assert.Throws<SecretReferenceException>(() => resolver.Resolve("${env:OTHER_TOKEN}"));
+        }
+
+        [Fact]
         public void Resolve_ValuesWithoutReferencesAreUntouched()
         {
             var resolver = Resolver();

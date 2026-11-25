@@ -12,7 +12,7 @@ on:
   push:
     branches:
       - master
-      - 'feature/**'
+      - 'feature/[0-9]*'  # version branches only; topic branches are scanned through their PR
       - 'lts/**'
   schedule:
     - cron: '17 3 * * 1'  # Mondays 03:17 UTC, so new queries also run against code that hasn't changed

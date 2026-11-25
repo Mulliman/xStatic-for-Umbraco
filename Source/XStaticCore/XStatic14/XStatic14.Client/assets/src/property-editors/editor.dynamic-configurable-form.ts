@@ -50,9 +50,8 @@ export class XStaticPropertyEditorDynamicConfigurableFormElement extends UmbLitE
 
         const help = config.getValueByAlias('help') as string | null | undefined;
 
-        if(help){
-            this.help = help;
-        }
+        // Always assign, so switching to a type without help text clears the previous type's help.
+        this.help = help ?? undefined;
 
 		const fields = config.getValueByAlias('fields') as ConfigurableTypeField[] | null | undefined;
 

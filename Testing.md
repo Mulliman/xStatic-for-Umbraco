@@ -10,15 +10,26 @@ We use a layered testing approach:
 
 ---
 
-## 🛠️ Unit Tests
-Unit tests are located in:
-`Source/XStaticCore/XStatic.Core.Tests`
+## 🛠️ Unit and integration tests
+| Project | Framework | What it covers |
+|---------|-----------|----------------|
+| `Source/XStaticCore/XStatic.Core.Tests` | xUnit + Moq | Core logic, transformers, deployers. Fast, no Umbraco instance needed. |
+| `Source/XStaticCore/XStatic.AI.Tests` | xUnit + Moq | The `XStatic.AI` add-on. |
+| `Source/XStaticCore/XStatic.IntegrationTests` | NUnit on `Umbraco.Cms.Tests.Integration` | Migrations, repositories and the v13 upgrade against a real database (SQLite by default). |
 
 ### 🏃 How to Run
-From the root directory or the project directory, run:
+From the repository root:
 ```powershell
-dotnet test
+# Unit tests, on every change
+dotnet test Source/XStaticCore/XStatic.Core.Tests/XStatic.Core.Tests.csproj
+dotnet test Source/XStaticCore/XStatic.AI.Tests/XStatic.AI.Tests.csproj
+
+# Unit and integration tests (-Database LocalDb|SqlServer is also supported)
+./Source/XStaticCore/run-tests.ps1
 ```
+
+The backoffice client has its own checks. From `Source/XStaticCore/XStatic14/XStatic14.Client/assets`, run
+`npm ci` once and then `npm run check` (type-check, ESLint and Vitest) after every UI change.
 
 ---
 
@@ -61,6 +72,9 @@ These create and remove their own data, so they only depend on the login:
   running; see [FTP deployer](#-ftp-deployer).
 - `14-typed-fields-and-ai-output.spec.ts`: checks Toggle/Integer editable field persistence on actions and verifies
   companion `.md`, `MarkdownDiscoveryTransformer`, `/llms.txt`, `/llms-full.txt`, RAG JSONL chunks and `webmcp-index.json`.
+- `15-deploy-errors-and-secrets.spec.ts`: a failed deploy is reported as failed and doesn't update the last deploy;
+  password fields recommend secret references and save only the reference; every field of a site's Edit dialog is
+  saved.
 
 ## 📡 FTP deployer
 The FTP deployer is tested in two ways.
@@ -96,7 +110,10 @@ creating folders work but no file can be transferred, which the deployer reports
 | `ci.yml` | Every PR, and every push to `master` / `feature/**` / `lts/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
 | `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. |
 | `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
-| `pack.yml` | Reusable | Builds the client and packs all 7 packages at one version, uploaded as the `nuget-packages` artifact. |
+| `codeql.yml` | Every PR, pushes to `master` / `feature/**` / `lts/**`, and weekly | CodeQL security scan of the C#, TypeScript and workflow files, without building. Results go to Security → Code scanning. Exclusions are in `.github/codeql/codeql-config.yml`. |
+| `dependabot-automerge.yml` | Dependabot PRs | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates are left for review. |
+| `pack.yml` | Reusable | Builds the client and packs all 9 packages at one version, uploaded as the `nuget-packages` artifact. |
+| `xStatic.Mcp.yml` | PRs and pushes to `master` / `lts/**` / `feature/<number>` that change `Source/xstatic-mcp/` | Tests and builds the xStatic MCP server. |
 
 **Preview versions** come from the nearest `v*` tag (`.github/scripts/Get-PreviewVersion.ps1`): PRs get
 `17.3.0-pr.<PR>.<run>`, and branch pushes get `17.3.0-preview.<run>`. If the nearest tag is a full release such as
@@ -124,13 +141,13 @@ To test against different Umbraco versions, use the PowerShell scripts in `Testi
 ### `setup-instance.ps1`
 Creates a fresh Umbraco instance and installs xStatic via **NuGet**. Best for verifying published packages.
 ```powershell
-.\setup-instance.ps1 -UmbracoVersion "15.0.0" -XStaticVersion "15.1.0"
+.\setup-instance.ps1 -UmbracoVersion "17.8.2" -XStaticVersion "17.3.1"
 ```
 
 ### `setup-local-instance.ps1`
 Creates a fresh Umbraco instance and adds **project references** to your local xStatic source. Best for active development.
 ```powershell
-.\setup-local-instance.ps1 -UmbracoVersion "15.0.0"
+.\setup-local-instance.ps1 -UmbracoVersion "17.8.2"
 ```
 
 ### Running the instance

@@ -1,6 +1,6 @@
 A start-to-finish tutorial: from a new Umbraco site with a starter kit to a generated static copy that you deploy to a
 folder on your own machine and view in a browser. It takes about fifteen minutes and doesn't need an account with any
-hosting provider. If you already have an Umbraco 18 site, skip to [step 2](#2-install-xstatic).
+hosting provider. If you already have an Umbraco 17 site, skip to [step 2](#2-install-xstatic).
 
 ## Before you start
 
@@ -13,7 +13,7 @@ xStatic renders your real Umbraco pages, so you need a site with templates and s
 starter kit gives you both.
 
 ```powershell
-dotnet new install Umbraco.Templates::18.3.2
+dotnet new install Umbraco.Templates::17.8.2
 dotnet new umbraco --name MyStaticDemo
 cd MyStaticDemo
 dotnet add package clean
@@ -31,7 +31,7 @@ Then stop the site.
 ## 2. Install xStatic
 
 ```powershell
-dotnet add package xStatic --prerelease
+dotnet add package xStatic
 dotnet run
 ```
 

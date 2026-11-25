@@ -23,15 +23,14 @@ These apply to every upgrade.
    version. The minimum Umbraco version is the one xStatic was built against: for 18.0.0 that is **Umbraco 18.3.2**.
 3. **Update every xStatic package together, to the same version.** The packages are released as a set, so don't mix versions:
    - `xStatic` (required, it brings in `xStatic.Core` and `xStatic.Client`)
-   - `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp` (only the deployers you use)
+   - `xStatic.Netlify`, `xStatic.Git`, `xStatic.Ftp`, `xStatic.Cloudflare` (only the deployers you use)
+   - `xStatic.AI` (only if you use [AI integration](AI-Integration.md))
    - `xStatic.RemoteOperations` (only if you use [Remote operations](Remote-Operations.md))
 
    ```powershell
    dotnet add package xStatic --version 18.0.0
    dotnet add package xStatic.Netlify --version 18.0.0
    ```
-
-   Until 18.0.0 is released, only `18.0.0-beta` exists, so use `--version 18.0.0-beta` (or add `--prerelease`).
 
 4. **Remove any `xStatic` registration code you no longer need.** Since 14.1.0 `XStaticComposer` registers xStatic
    for you; see [Registration code](#registration-code-startupcs-and-programcs).

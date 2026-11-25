@@ -45,9 +45,6 @@ export class EditExportTypeModalElement extends
     config: XStaticConfig | undefined;
 
     @state()
-    isLoaded: boolean = false;
-
-    @state()
     errors: XStaticFormErrors = new Map();
 
     @state()
@@ -70,7 +67,6 @@ export class EditExportTypeModalElement extends
 
             this.observe(context?.config, (x) => {
                 this.config = x;
-                this.isLoaded = true;
             }, '_observeConfig');
         });
     }

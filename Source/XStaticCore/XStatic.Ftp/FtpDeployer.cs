@@ -25,8 +25,8 @@ namespace XStatic.Ftp
             _password = parameters[FtpDeployerDefinition.FieldNames.Password];
             _folder = parameters[FtpDeployerDefinition.FieldNames.Folder];
 
-            _port = 21;
-            int.TryParse(parameters[FtpDeployerDefinition.FieldNames.Port], out _port);
+            // Keep the default when the port is blank or not a number (TryParse would otherwise set it to 0).
+            _port = int.TryParse(parameters[FtpDeployerDefinition.FieldNames.Port], out var port) ? port : 21;
         }
 
         public virtual Task<XStaticResult> DeployWholeSite(string folderPath)

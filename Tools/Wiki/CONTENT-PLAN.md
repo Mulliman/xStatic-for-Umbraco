@@ -22,8 +22,9 @@ it predates Umbraco 14:
 **`Docs/` in the repo** held nine short extension pages (one of them empty) and `Configuration.md`. Their content
 has moved into the wiki pages below, and the folder has been removed.
 
-**The backoffice Documentation dashboard** reads `Meta/help.json` (hosted on xstaticplugins.netlify.app), which
-links to the docs site (https://mulliman.github.io/xStatic-for-Umbraco/).
+**The backoffice Documentation dashboard** reads `App_Plugins/xstatic14/docs/docs-bundle.json`, which
+`Tools/Wiki/compile-client-docs.mjs` compiles from `Wiki/` and the official packages at build time. It no longer reads
+`Meta/help.json`. The pages are also published as the docs site (https://mulliman.github.io/xStatic-for-Umbraco/).
 
 ## What the videos add
 
@@ -60,7 +61,8 @@ The videos are linked from the page they illustrate and collected on [Videos-and
 | Backoffice-Tour | Every section, dashboard and button, with who sees it |
 | Sites | Every site field and what it does |
 | Export-Types | Generator + transformer list + file namer, the built-in HTML type, making a JSON type |
-| Deployment-Targets | What a target is, creating, editing, the Netlify creator, secrets |
+| Deployment-Targets | What a target is, creating, editing, the Netlify and Cloudflare creators, where secrets are stored |
+| Secrets-and-Environment-Variables | `${env:...}` and `${config:...}` references, the allow-list settings, when references are read, errors |
 | Post-Generation-Actions | Built-in actions, fields, order, failures |
 | Generating-and-Deploying | Generate, deploy, download, clean up, results and warnings, where files go |
 | Auto-Publish | When it runs, what it does, caveats |

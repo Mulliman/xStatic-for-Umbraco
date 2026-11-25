@@ -4,7 +4,7 @@ how to authenticate, and working examples.
 
 ## At a glance
 
-- 23 endpoints in 7 controllers, all under `/api/v1/xstatic/`.
+- 24 endpoints in 7 controllers, all under `/api/v1/xstatic/`.
 - JSON in and out, with camelCase property names.
 - Every endpoint needs a backoffice access token. Some need the `xStaticAdmin` role. The rest need `xStaticNormalUser`
   or `xStaticAdmin`.
@@ -26,7 +26,7 @@ There are two ways to get one:
 - **In the backoffice:** the xStatic screens do it for you. You never handle a token.
 - **From code:** use an Umbraco **API user** and the client credentials flow, as shown [below](#get-a-token-and-generate-a-site).
 
-Without a token every endpoint returns `401 Unauthorized`. The Playwright suite checks this for all 23 endpoints.
+Without a token every endpoint returns `401 Unauthorized`. The Playwright suite checks this for all 24 endpoints.
 
 ### Who can call what
 
@@ -118,7 +118,7 @@ The zip is also left on disk next to the site's output folder, in `umbraco/Data/
 
 | Verb | Route | Request | Response | What it does |
 |------|-------|---------|----------|--------------|
-| GET | `config/get-settings` | none | `{ isUsingXStaticRoles }` | Whether the xStatic user groups are on. The UI uses it to decide which tabs to show |
+| GET | `config/get-settings` | none | `{ isUsingXStaticRoles, allowedSecretEnvironmentVariables, allowedSecretConfigurationKeys }` | Whether the xStatic user groups are on (the UI uses it to decide which tabs to show), and the effective name patterns that `${env:...}` and `${config:...}` [secret references](Secrets-and-Environment-Variables.md) may read. The patterns are shown as a hint on password fields; resolved values are never returned |
 | GET | `config/get-config` | none | `XStaticConfig` | The installed components: deployers, deployment target creators, export types, generators, transformer factories, file name generators and post-generation actions |
 | POST | `config/create-export-type` | body `ExportTypeUpdateModel` | `ExportTypeModel` | Creates an [export type](Export-Types.md) |
 | POST | `config/update-export-type` | body `ExportTypeUpdateModel` with `id` | `ExportTypeModel` | Updates one |
@@ -157,10 +157,13 @@ The export type endpoints use the normal-user policy on purpose, so editors can 
 | POST | `deployment-targets/auto-create-deployment-target` | body `DeploymentTargetCreatorPostModel` | 201 with `{ wasSuccessful, message, exception, data }` | Runs a creator (such as the Netlify Site Creator) and saves the target it makes |
 
 `DeploymentTargetUpdateModel` is `{ id, name, deployerDefinition, fields }`, where `deployerDefinition` is the
-deployer's id (`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`) and `fields` maps each field's alias to its value, for example
+deployer's id (`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-pages`, `cloudflare-r2`) and `fields` maps each field's alias to its value, for example
 `{ "File.FolderPath": "C:\\Temp\\site" }`. `DeploymentTargetCreatorPostModel` is `{ name, creator, fields }`. Use
 `netlify-site-creator` as the `creator` id, with the fields `NetlifyCreator.PAT` (a Netlify personal access token) and
-`NetlifyCreator.SiteName`. The creator names the new target after the site name, so `name` is ignored. The
+`NetlifyCreator.SiteName`. The creator names the new target after the site name, so `name` is ignored. With
+`xStatic.Cloudflare` installed you can also use `cloudflare-pages-project-creator`, with the fields
+`CloudflarePagesCreator.AccountId`, `CloudflarePagesCreator.ApiToken`, `CloudflarePagesCreator.ProjectName` and
+`CloudflarePagesCreator.ProductionBranch` (optional, `main` if blank). The
 `DeploymentTargetModel` that comes back has `id`, `name`, `deployerDefinition`, `help` and `fields`, where `fields` is
 a list of `{ alias, name, editorUiAlias, value, help }`, not a map.
 
@@ -235,7 +238,7 @@ than storing it.
 It has no dependency on `xStatic.Core`.
 
 ```powershell
-dotnet add package xStatic.RemoteOperations --prerelease
+dotnet add package xStatic.RemoteOperations
 ```
 
 ```csharp

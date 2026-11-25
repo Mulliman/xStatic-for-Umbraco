@@ -2,6 +2,10 @@ name: xStatic MCP Server
 
 on:
   push:
+    branches:
+      - master
+      - 'lts/**'
+      - 'feature/[0-9]*'
     paths:
       - 'Source/xstatic-mcp/**'
       - '.github/workflows/xStatic.Mcp.yml'
@@ -9,6 +13,13 @@ on:
     paths:
       - 'Source/xstatic-mcp/**'
       - '.github/workflows/xStatic.Mcp.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
@@ -22,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: Source/xstatic-mcp/package-lock.json
 

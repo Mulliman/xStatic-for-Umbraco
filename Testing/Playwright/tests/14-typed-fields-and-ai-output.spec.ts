@@ -40,7 +40,7 @@ test.describe.serial('Typed action fields and AI / GEO / RAG output', () => {
         const actions = new ActionPage(page);
         await actions.goto();
 
-        await page.locator('.lucide.lucide-plus').click();
+        await page.getByRole('button', { name: 'Create new Action', exact: true }).click();
         await page.getByRole('textbox', { name: 'Field for Action Name *' }).fill(llmsActionName);
         await page.getByLabel('Field for Action Type *').selectOption({ label: 'GenerateLlmsTxtAction' });
 
@@ -91,7 +91,7 @@ test.describe.serial('Typed action fields and AI / GEO / RAG output', () => {
         const actions = new ActionPage(page);
         await actions.goto();
 
-        await page.locator('.lucide.lucide-plus').click();
+        await page.getByRole('button', { name: 'Create new Action', exact: true }).click();
         await page.getByRole('textbox', { name: 'Field for Action Name *' }).fill(ragActionName);
         await page.getByLabel('Field for Action Type *').selectOption({ label: 'RagExportPostGenerationAction' });
 

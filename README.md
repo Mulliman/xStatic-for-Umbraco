@@ -1,62 +1,130 @@
-# ⚡ xStatic for Umbraco
+<p align="center">
+  <img src="Brand/logo-transparent.png" alt="xStatic" width="180">
+</p>
 
-[![Umbraco](https://img.shields.io/badge/Umbraco-13%2B-blue.svg)](https://umbraco.com)
-[![NuGet](https://img.shields.io/nuget/v/xstatic.svg)](https://www.nuget.org/packages/xstatic/)
+<h1 align="center">xStatic for Umbraco</h1>
 
-**xStatic** is the ultimate static site generator for Umbraco. It allows you to transform your dynamic Umbraco site into a blazing-fast, ultra-secure static website that can be hosted anywhere for pennies.
+<p align="center">
+  Publish your Umbraco site as a fast, secure static website. Editors keep the backoffice they know.
+</p>
+
+<p align="center">
+  <a href="https://mulliman.github.io/xStatic-for-Umbraco/"><strong>Read the documentation</strong></a>
+  ·
+  <a href="https://mulliman.github.io/xStatic-for-Umbraco/Installation.html">Installation</a>
+  ·
+  <a href="https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site.html">Your first static site</a>
+  ·
+  <a href="https://www.nuget.org/packages/xstatic/">NuGet</a>
+</p>
+
+<p align="center">
+  <a href="https://www.nuget.org/packages/xstatic/"><img src="https://img.shields.io/nuget/v/xstatic.svg" alt="NuGet"></a>
+  <a href="https://umbraco.com"><img src="https://img.shields.io/badge/Umbraco-17%20%7C%2018%20%7C%2019%20(pre--release)-6c3673.svg" alt="Umbraco 17, 18 and 19 (pre-release)"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/Mulliman/xStatic-for-Umbraco"><img src="https://api.scorecard.dev/projects/github.com/Mulliman/xStatic-for-Umbraco/badge" alt="OpenSSF Scorecard"></a>
+  <a href="https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml"><img src="https://github.com/Mulliman/xStatic-for-Umbraco/actions/workflows/codeql.yml/badge.svg?branch=master" alt="CodeQL"></a>
+</p>
 
 ---
 
-## ✨ Key Features
+xStatic is a static site generator that runs inside Umbraco. Your content stays in Umbraco and your editors keep
+working in the backoffice. When they're ready, xStatic renders every published page, copies the media and assets the
+pages use, and deploys the result to the host of your choice. The live site is plain files: no database, no server
+code and no login page for anyone to attack, and it can be served from a CDN for little or nothing.
 
-- **🚀 Instant Generation**: High-performance crawling and generation of your Umbraco content.
-- **🌐 Multi-Platform Deployment**: Direct deployment to **Netlify**, **GitHub**, **GitLab**, **Azure DevOps**, **FTP**, and more.
-- **🖼️ Image Optimization**: Built-in support for optimizing images as part of the generation process.
-- **🔄 Flexible Transformers**: Automatically handle URL rewriting and content adjustments for static environments.
-- **🛠️ Extensible Architecture**: Easily build your own custom Generators, Deployers, and Post-generation Actions.
-- **📦 Headless Support**: Export your content as static JSON with the built-in JSON generator.
+## How it works
 
----
+xStatic runs each site through the same pipeline. Generating and deploying are separate steps, so you can check the
+output before it goes live.
 
-## 🛠️ Getting Started
+| Step | What happens | Read more |
+|------|--------------|-----------|
+| **Generate** | Fetches every published page under the site's root node from your running Umbraco site, with the media and asset files it needs | [Generating and deploying](https://mulliman.github.io/xStatic-for-Umbraco/Generating-and-Deploying.html) |
+| **Transform** | Runs each page through a list of transformers, for example to rewrite hostnames or point images at pre-made crops | [Export types](https://mulliman.github.io/xStatic-for-Umbraco/Export-Types.html) |
+| **Store** | Writes the output to a staging folder, one per site | [Architecture](https://mulliman.github.io/xStatic-for-Umbraco/Architecture.html) |
+| **Deploy** | Sends the staging folder to a deployment target | [Deployment targets](https://mulliman.github.io/xStatic-for-Umbraco/Deployment-Targets.html) |
+| **Post-generation actions** | Optional extra steps, such as creating a `404.html` page | [Post-generation actions](https://mulliman.github.io/xStatic-for-Umbraco/Post-Generation-Actions.html) |
 
-For **Umbraco 13+**, getting started is as simple as installing the NuGet package:
+## Capabilities
+
+- **Deploy anywhere static files are served.** A file system deployer is built in, and official NuGet packages add
+  deployers for
+  [Netlify](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify.html),
+  [Git](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git.html) (GitHub Pages and similar),
+  [FTP](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP.html),
+  [Cloudflare Pages and R2](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Cloudflare.html) and
+  [a folder](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-a-Folder.html).
+- **Image crops without an image server.** Resized images are generated ahead of time and the page markup is
+  updated to match. See [Image crops](https://mulliman.github.io/xStatic-for-Umbraco/Image-Crops.html).
+- **Multi-language sites.** Every configured culture is generated. See
+  [Multi-language sites](https://mulliman.github.io/xStatic-for-Umbraco/Multi-Language-Sites.html).
+- **JSON export.** Publish content as static JSON for a headless front end. See
+  [JSON export](https://mulliman.github.io/xStatic-for-Umbraco/JSON-Export.html).
+- **Automation.** Rebuild when content is published with
+  [Auto publish](https://mulliman.github.io/xStatic-for-Umbraco/Auto-Publish.html), or trigger runs from a scheduler
+  or CI pipeline with [Remote operations](https://mulliman.github.io/xStatic-for-Umbraco/Remote-Operations.html).
+- **Static failover.** Keep a read-only copy of your site online while Umbraco is down. See
+  [Static failover site](https://mulliman.github.io/xStatic-for-Umbraco/Static-Failover-Site.html).
+- **Extensible.** Write your own generators, transformers, deployers and actions against the public API. See
+  [Extending xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic.html).
+- **Safe secret management.** Type a `${env:...}` or `${config:...}` reference into a deployment target or action
+  field and only the reference is stored; the real token stays in an environment variable or your configuration. See
+  [Secrets and environment variables](https://mulliman.github.io/xStatic-for-Umbraco/Secrets-and-Environment-Variables.html).
+- **AI & GEO ready.** Publish Markdown copies of pages, `llms.txt` and other output that AI assistants and answer
+  engines can read. See [AI and GEO](https://mulliman.github.io/xStatic-for-Umbraco/AI-and-GEO.html).
+- **Role-based access.** xStatic sets up Umbraco user groups for administrators and editors. See
+  [User groups and security](https://mulliman.github.io/xStatic-for-Umbraco/User-Groups-and-Security.html).
+
+## Getting started
+
+xStatic 17 needs **.NET 10** and **Umbraco 17.8.2 or later**. Install the package into your Umbraco site and restart
+it:
 
 ```bash
-dotnet add package xstatic
+dotnet add package xStatic
 ```
 
-Once installed, restart your Umbraco site. You will find a new **xStatic** section in the Umbraco backoffice where you can configure your first static site.
+An **xStatic** section appears in the backoffice. Add the official packages you need: `xStatic.Netlify`,
+`xStatic.Git`, `xStatic.Ftp` and `xStatic.Cloudflare` (deployers), `xStatic.RemoteOperations` (trigger runs from
+another system) and `xStatic.AI` (AI audits and agent tools). Then follow
+[Your first static site](https://mulliman.github.io/xStatic-for-Umbraco/Your-First-Static-Site.html) to create,
+generate and deploy a site.
 
----
+Use the xStatic major version that matches your Umbraco major version:
 
-## 📖 Documentation
+| xStatic | Umbraco | Status |
+|---------|---------|--------|
+| 19.x | 19 | Pre-release |
+| 18.x | 18 | Latest |
+| 17.x | 17 (LTS) | Long-term support |
+| 13.x and older | 13 and older | No longer supported |
+
+[Upgrading](https://mulliman.github.io/xStatic-for-Umbraco/Upgrading.html) covers moving between versions.
+
+## Documentation
 
 The full documentation is at **[mulliman.github.io/xStatic-for-Umbraco](https://mulliman.github.io/xStatic-for-Umbraco/)**.
+It covers installation, every backoffice screen, each deployer, configuration, troubleshooting and the extension API.
 It is built from the [`Wiki/`](Wiki) folder of this repository, so corrections are welcome as pull requests.
 
-- [Extending xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Extending-xStatic)
-- [Post-generation actions](https://mulliman.github.io/xStatic-for-Umbraco/Post-Generation-Actions)
-- [Deployment targets](https://mulliman.github.io/xStatic-for-Umbraco/Deployment-Targets)
-- [xStatic MCP Server (`xstatic-mcp`)](Source/xstatic-mcp/README.md) — Official Model Context Protocol server for Umbraco 17+
-- [xStatic Agent Skill (`SKILL.md`)](.agents/skills/xstatic-umbraco/SKILL.md) — Guidance for coding agents building xStatic v17+ extensions
+### Working with AI tools
 
----
+- [xStatic MCP server](Source/xstatic-mcp/README.md) lets AI assistants generate and deploy sites through xStatic.
+- [xStatic agent skill](.agents/skills/xstatic-umbraco/SKILL.md) gives coding agents the context to build xStatic
+  extensions.
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for instructions on setting up test instances and running automated tests.
+Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up test instances and run the
+tests, and [Developing xStatic](https://mulliman.github.io/xStatic-for-Umbraco/Developing-xStatic.html) describes the
+codebase. Coding agents should start with [AGENTS.md](AGENTS.md).
 
-For AI contributions and development context, see our [Agents.md](Agents.md) file.
+## Security
 
----
+Please don't report security problems in a public issue. Use
+[Report a vulnerability](https://github.com/Mulliman/xStatic-for-Umbraco/security/advisories/new) instead.
+[SECURITY.md](SECURITY.md) lists the supported versions and what happens after you report.
 
-## 🔒 Security
-
-Found a security problem? Please don't open a public issue. Report it privately through [Report a vulnerability](https://github.com/Mulliman/xStatic-for-Umbraco/security/advisories/new). [SECURITY.md](SECURITY.md) lists the supported versions and what happens after you report.
-
-## 📄 License & Support
+## License
 
 xStatic is open source under the [MIT licence](LICENSE).
-
-xStatic is an open-source project. For more information on why it could be of use to you, please visit [sammullins.co.uk](https://www.sammullins.co.uk/software/xstatic-for-umbraco/).

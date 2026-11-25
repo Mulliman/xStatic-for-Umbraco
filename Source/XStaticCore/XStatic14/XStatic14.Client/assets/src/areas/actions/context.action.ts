@@ -22,10 +22,9 @@ export class ActionContext extends ConfigContextBase {
     public async createAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticActionsCreatePostAction({ requestBody: action }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.#getActions();
+            notifyConfigChanged();
 
             return data;
         }
@@ -36,10 +35,9 @@ export class ActionContext extends ConfigContextBase {
     public async updateAction(action: ActionUpdateModel) : Promise<ActionModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticActionsUpdatePostAction({ requestBody: action }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.#getActions();
+            notifyConfigChanged();
 
             return data;
         }

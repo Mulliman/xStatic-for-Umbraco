@@ -43,7 +43,8 @@ Elsewhere in the repository:
 | `Testing/Ftp/` | A Docker Compose FTP server for checking the [FTP deployer](Deploying-to-FTP.md) |
 | `Wiki/` and `Tools/Wiki/` | This wiki and its checker and publisher |
 | `.github/workflows/` | CI, release and security workflows |
-| `Brand/`, `Meta/` | Logos and the plugin lists the backoffice reads |
+| `Brand/` | Logos |
+| `Meta/` | Older hosted plugin and help lists. The backoffice no longer reads them: its Documentation dashboard uses `docs-bundle.json`, compiled from `Wiki/` and the official packages by `Tools/Wiki/compile-client-docs.mjs` |
 
 For how the pieces fit together at run time, see [Architecture](Architecture.md).
 
@@ -53,13 +54,15 @@ There is one branch per Umbraco major version.
 
 | Branch | Umbraco | Status |
 |--------|---------|--------|
-| `master` | 17, becoming 18 | The latest major. `feature/18` merges into it at release |
-| `feature/18` | 18 | In progress |
+| `feature/19` | 19 | Pre-release (19.0.0-beta, .NET 11) |
+| `master` | 18 | The latest major |
+| `feature/18` | 18 | Merged into `master` at 18.0.0 |
 | `lts/17` | 17 (LTS) | Long-term support |
-| `lts/13` | 13 (LTS) | Long-term support |
+| `lts/13` | 13 (LTS) | Historical, no longer receiving security fixes |
 
-Put a fix on the branch for the version it targets, and say which in your pull request. A fix that applies to two
-versions goes on one and is cherry-picked to the other. The table in [AGENTS.md](../AGENTS.md) is kept current, so
+Changes flow in one direction. Land your work on `master` first and say in your pull request which versions it
+applies to. Bug and security fixes that also apply to 17 are cherry-picked down to `lts/17` (with `git cherry-pick -x`),
+and `master` is merged up into `feature/19`. The table in [AGENTS.md](../AGENTS.md) is kept current, so
 check it before you branch.
 
 ## Build
@@ -188,7 +191,7 @@ silently.
 | `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
 
-All seven packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
+All nine packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
 to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the history of the tags is on
 [Version history](Version-History.md).
 
@@ -241,8 +244,8 @@ GitHub Pages (https://mulliman.github.io/xStatic-for-Umbraco/).
 `Tools/Wiki/CONTENT-PLAN.md` records which page owns which topic, so check it before you add something that may
 already have a home.
 
-The wiki repository has to exist before the first publish: enable Wikis in the repository settings and save any first
-page on github.com.
+The docs site needs one repository setting before the first publish: under **Settings** then **Pages**, set
+**Source** to **GitHub Actions**.
 
 ## Next steps
 

@@ -62,7 +62,10 @@ xStatic is maintained by one volunteer, so these are targets rather than guarant
 
 - Deployer secrets are stored in plain text in the Umbraco database, and only `xStaticAdmin` users can read them
   through the API. See [Deployment targets](Wiki/Deployment-Targets.md#secrets-where-they-live-and-who-sees-them).
-  Ideas for hardening this are welcome as a normal issue.
+  This applies to values typed into the field. The recommended mitigation is to type a `${env:...}` or `${config:...}`
+  reference instead, so only the reference is stored (xStatic 18.1.0 and 17.4.0 onwards). See
+  [Secrets and environment variables](Wiki/Secrets-and-Environment-Variables.md). Ideas for further hardening are
+  welcome as a normal issue.
 - Export types can be edited by normal users. This is intentional because they hold no secrets.
 
 ## Keeping your site secure
@@ -72,7 +75,8 @@ xStatic is maintained by one volunteer, so these are targets rather than guarant
 - **Stay on the latest patch** of a supported version.
 - **Turn on the xStatic user groups** and keep `xStaticAdmin` to the people who set up hosting.
 - **Give deployers least-privilege tokens** that you can revoke, and protect database backups, because they contain
-  those tokens.
+  any tokens typed in as plain text. Better still, keep tokens out of the database with `${env:...}` or `${config:...}`
+  [secret references](Wiki/Secrets-and-Environment-Variables.md).
 - **Consider keeping the backoffice off the public internet.** With xStatic, visitors only ever reach the static
   host. The Umbraco site that builds it can sit behind a VPN, an IP allow-list or a private network.
 

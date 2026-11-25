@@ -70,7 +70,12 @@ namespace XStatic.Core.Deploy.Processes
             var result = await deployer.DeployWholeSite(path);
 
             stopwatch.Stop();
-            _sitesRepo.UpdateLastDeploy(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
+
+            // Only record a deploy that worked, so a failed one doesn't look like the site is live.
+            if (result?.WasSuccessful == true)
+            {
+                _sitesRepo.UpdateLastDeploy(staticSiteId, (int)(stopwatch.ElapsedMilliseconds / 1000));
+            }
 
             return result;
         }
