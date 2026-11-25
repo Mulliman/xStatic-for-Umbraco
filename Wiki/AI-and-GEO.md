@@ -59,9 +59,9 @@ If you prefer to keep the standard **HTML Website** export type:
 |-------|---------|---------|
 | **SiteTitle** | Site name in xStatic (or root `<title>`) | Top-level `# Title` heading in `/llms.txt` and `/llms-full.txt`. |
 | **SiteDescription** | Root `<meta name="description">` | Summary `>` blockquote shown under the title. |
-| **GenerateFullFile** | `true` | Type `true` or `false`. When `true`, also writes `/llms-full.txt`. |
-| **GenerateCompanionMarkdown** | `false` | Type `true` or `false`. When `true`, writes or refreshes `.md` twins if you are not already using `StaticHtmlWithMarkdownSiteGenerator`. |
-| **UseMarkdownLinks** | `true` | Type `true` or `false`. Links to `.md` files when they exist and falls back to the HTML URL otherwise. |
+| **GenerateFullFile** | `true` | A toggle switch. When on, also writes `/llms-full.txt`. |
+| **GenerateCompanionMarkdown** | `false` | A toggle switch. When on, writes or refreshes `.md` twins if you are not already using `StaticHtmlWithMarkdownSiteGenerator`. |
+| **UseMarkdownLinks** | `true` | A toggle switch. When on, links to `.md` files when they exist and falls back to the HTML URL otherwise. |
 | **ExcludePaths** | none | Comma-separated URL prefixes to omit, such as `/404, /search`. |
 
 5. Select **Submit**, attach the action to your site under **Post Generation Actions**, and select **Generate**.

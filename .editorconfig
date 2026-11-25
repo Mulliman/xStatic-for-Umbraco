@@ -1,0 +1,28 @@
+# EditorConfig: https://editorconfig.org
+# Formatting only. No analyzer severities are set here, so this file doesn't add build warnings.
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+indent_size = 4
+
+[*.{csproj,props,targets,sln,xml,config,nuspec,resx}]
+indent_size = 2
+
+[*.{ts,js,mjs,cjs,json,yml,yaml,css,html}]
+indent_size = 2
+
+[*.md]
+# Two trailing spaces are a Markdown line break.
+trim_trailing_whitespace = false
+
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[*.sh]
+end_of_line = lf

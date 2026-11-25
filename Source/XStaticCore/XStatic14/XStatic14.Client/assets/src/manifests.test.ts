@@ -47,12 +47,13 @@ describe('xStatic extension manifests', () => {
 		expect(new Set(aliases).size).toBe(aliases.length);
 	});
 
-	it('declares a single backofficeEntryPoint and v19 version in umbraco-package.json', () => {
+	it('declares a single backofficeEntryPoint and a valid v19 semver version in umbraco-package.json', () => {
 		const entryPoints = packageManifest.extensions.filter(
 			(ext) => ext.type === 'backofficeEntryPoint',
 		);
 		expect(entryPoints).toHaveLength(1);
 		expect(entryPoints[0].alias).toBe('XStatic14.EntryPoint');
+		expect(packageManifest.version).toMatch(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/);
 		expect(packageManifest.version).toMatch(/^19\./);
 	});
 });

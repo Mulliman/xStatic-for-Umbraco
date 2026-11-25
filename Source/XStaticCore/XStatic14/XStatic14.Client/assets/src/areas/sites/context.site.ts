@@ -161,8 +161,26 @@ export class SiteContext extends ConfigContextBase {
     }
 
     public async deploySite(id: number) : Promise<void> {
-        await tryExecute(this, V1Service.postApiV1XstaticDeployDeploySite({ staticSiteId : id } ));
+        const result = await tryExecute(this, V1Service.postApiV1XstaticDeployDeploySite({ staticSiteId : id } ));
+        await this.#notifyDeployResult(result);
         await this.#getSites();
+    }
+
+    async #notifyDeployResult(result: { wasSuccessful?: boolean; message?: string | null } | undefined) {
+        // HTTP errors are already surfaced by tryExecute; here we handle a 200 with wasSuccessful: false.
+        // A successful deploy shows no notification, the same as a successful generate.
+        if (!result || result.wasSuccessful !== false) {
+            return;
+        }
+
+        const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+
+        notificationContext?.peek('danger', {
+            data: {
+                headline: 'Deployment failed',
+                message: result.message?.trim() || 'The site could not be deployed. Check the Umbraco logs for details.'
+            }
+        });
     }
 
     public async cleanSite(id: number) : Promise<void> {
@@ -176,7 +194,9 @@ export class SiteContext extends ConfigContextBase {
         const dateString = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
 
         const data = await tryExecute(this, V1Service.getApiV1XstaticDownloadDownloadSite({ staticSiteId: id }));
-        blobDownload(data, `xStatic Site Download-${id}-${dateString}.zip`, 'application/zip');
+        if (data) {
+            blobDownload(data, `xStatic Site Download-${id}-${dateString}.zip`, 'application/zip');
+        }
     }
 }
 

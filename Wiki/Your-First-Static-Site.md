@@ -31,7 +31,7 @@ Then stop the site.
 ## 2. Install xStatic
 
 ```powershell
-dotnet add package xStatic --prerelease
+dotnet add package xStatic
 dotnet run
 ```
 

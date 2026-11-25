@@ -11,15 +11,18 @@ path or convention below, update this file in the same change.
 
 | Branch       | Umbraco | .NET   | Package version | Status                                |
 |--------------|---------|--------|-----------------|---------------------------------------|
+| `feature/19` | 19      | net11.0| 19.x            | Pre-release (19.0.0-beta)             |
 | `master`     | 18      | net10.0| 18.x            | Latest major                          |
 | `feature/19` | 19 (RC) | net11.0| 19.0.0-beta     | Beta (this branch), Umbraco 19 is short-term support |
 | `feature/18` | 18      | net10.0| 18.x            | Merged into `master` at 18.0.0        |
 | `lts/17`     | 17 (LTS)| net10.0| 17.x            | Long-term support                     |
-| `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Long-term support                     |
+| `lts/13`     | 13 (LTS)| net8.0 | 13.x            | Historical, no security fixes         |
 | `feature/NN` | NN      |        |                 | Older majors, historical              |
 
-- One branch per Umbraco major. Put fixes on the branch for the version they target and say which in the PR.
-  A fix that applies to 17 and 18 goes on `lts/17` and is cherry-picked forward (or the other way round).
+- One branch per Umbraco major, and changes flow in one direction only. Land work on `master` first and say in the
+  PR which versions it applies to. Bug and security fixes that also apply to 17 are then cherry-picked down to
+  `lts/17` with `git cherry-pick -x`. `feature/19` is kept current by merging `master` up into it with a merge
+  commit. Don't cherry-pick upwards or merge an older branch into a newer one.
 - All Umbraco package references in a branch use the same version (currently `19.0.0-rc1` on `feature/19`, also
   the minimum Umbraco version consumers need). Bump them together, along with `@umbraco-cms/backoffice` in the
   client's `package.json`.
@@ -38,8 +41,12 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `XStatic14/XStatic14/` | Empty shim project that only references the client. No code — don't add any. |
 | `XStatic.Netlify/`, `XStatic.Git/`, `XStatic.Ftp/`, `XStatic.Cloudflare/` | Deployer plugins, each a separate NuGet package. |
 | `XStatic.RemoteOperations/` | Client library for triggering xStatic remotely (JWT auth). |
+| `XStatic.AI/` | Optional AI add-on on `Microsoft.Extensions.AI`: pre-deploy GEO/SEO audit action and agent tools. Keeps AI dependencies out of `XStatic.Core`. NuGet: `XStatic.AI`. |
+| `XStatic.AI.Tests/` | xUnit tests for `XStatic.AI`. |
 | `XStatic.Core.Tests/` | xUnit + Moq unit tests. Fast, no Umbraco instance needed. |
 | `XStatic.IntegrationTests/` | NUnit tests on `Umbraco.Cms.Tests.Integration` against a real DB (SQLite by default). |
+| `Source/xstatic-mcp/` | The xStatic MCP server (outside the solution) that lets AI assistants generate and deploy sites. |
+| `.agents/skills/xstatic-umbraco/` | Agent skill that gives coding agents the context to build xStatic extensions. |
 | `Testing/Playwright/` | End-to-end backoffice tests. Need a running Umbraco instance. |
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Testing/Ftp/` | Docker Compose FTP server (vsftpd) for checking the FTP deployer by hand or with Playwright spec 13. |

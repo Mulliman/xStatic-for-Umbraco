@@ -9,7 +9,7 @@ The File System deployer copies your generated site into a folder on the machine
 | Discovered automatically | Yes |
 | Field | **Folder Path** (alias `File.FolderPath`) |
 | Deletes files in the destination | **No**. It only copies and overwrites |
-| Help text in the deployer's code | "Deploys the contents of the site to a folder path" (the backoffice doesn't show it) |
+| Help text | "Deploys the contents of the site to a folder path" (shown above the field in the backoffice) |
 
 ## Set it up
 

@@ -101,8 +101,7 @@ shape. [JSON export](JSON-Export.md) covers the output and how to customise it.
 
 ## Edit an export type
 
-1. Click **Edit** (the brush icon) on the type's card. The dialog is headed **Edit {name} site**, even though it edits
-   an export type.
+1. Click **Edit** (the brush icon) on the type's card. The dialog is headed **Edit {name} export type**.
 2. Change the fields and click **Submit**.
 
 The change applies the next time any site that uses this type is generated. Existing stored files aren't rewritten, so

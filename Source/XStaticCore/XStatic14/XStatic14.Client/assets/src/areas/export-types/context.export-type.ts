@@ -16,10 +16,9 @@ export class ExportTypeContext extends ConfigContextBase {
     public async createExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticConfigCreateExportType({ requestBody: exportType }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.getConfig();
+            notifyConfigChanged();
 
             return data;
         }
@@ -30,10 +29,9 @@ export class ExportTypeContext extends ConfigContextBase {
     public async updateExportType(exportType: ExportTypeUpdateModel) : Promise<ExportTypeModel | null> {
         const data = await tryExecute(this, V1Service.postApiV1XstaticConfigUpdateExportType({ requestBody: exportType }));
 
-        notifyConfigChanged();
-
         if(data){
             await this.getConfig();
+            notifyConfigChanged();
 
             return data;
         }

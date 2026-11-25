@@ -9,7 +9,7 @@ If you want to *use* the built-in actions rather than write one, see [Post-gener
 | `IPostGenerationAction` | The interface: a `Name` and a `RunAction` method |
 | `PostGenerationActionBase` | An optional base class with a `GetParameter` helper |
 | `[XStaticEditableField]` | An attribute that adds a setting to the action's form in the backoffice. Use it once per setting |
-| Registration | None if the action has a parameterless constructor. Register it in dependency injection if it takes constructor parameters |
+| Registration | None. xStatic finds the class by scanning, and its constructor parameters are resolved from dependency injection |
 
 ## How an action runs
 
@@ -62,7 +62,8 @@ public class MyAction : PostGenerationActionBase { /* ... */ }
 | Part | What it does |
 |------|--------------|
 | `fieldName` (first argument) | Is **both the label** the editor sees and the **key** in the `parameters` dictionary. Use the same constant in the attribute and in `GetParameter` |
-| `editorUiAlias` (optional second argument) | Which editor draws the field. It defaults to a text box. `UIEditors.Password` (from the `XStatic` namespace) gives a masked box. The [list of editors](Writing-a-Deployer.md#editors-you-can-use) is the same as for deployers |
+| `editorUiAlias` (optional second argument) | Which editor draws the field. It defaults to a text box. `UIEditors.Password` (from the `XStatic` namespace) gives a masked box and `UIEditors.Toggle` a switch that stores `true` or `false`. The [list of editors](Writing-a-Deployer.md#editors-you-can-use) is the same as for deployers |
+| `DefaultValue` (optional named property) | The value the field starts with when an editor creates a new action of this type, for example `DefaultValue = "true"` on a toggle |
 
 Things to know:
 
@@ -70,7 +71,7 @@ Things to know:
 - **Attributes are not inherited.** If you derive from another action, repeat the attributes on your class. `Netlify404Action` does this: it extends `FileCopyAction` but declares its own single `FilePath` field.
 - A field the editor never touched arrives as an empty string or `null`. A saved action doesn't get new keys automatically if you add a field later, so use `GetParameter` (which returns `null`) and handle both.
 - Values are strings. Parse numbers and booleans yourself and decide what a bad value does (return an error, not an exception).
-- Values are saved in the database in plain text, like deployer fields.
+- Values are saved in the database in plain text, like deployer fields. An editor can type a `${env:NAME}` or `${config:Key}` reference instead of a secret. xStatic resolves it just before your action runs, so `parameters` holds the real value (see [Secrets and environment variables](Secrets-and-Environment-Variables.md)). Don't log or return those values.
 
 ## Discovery, registration and construction
 
@@ -79,25 +80,20 @@ Things to know:
 **Construction.** When a site is generated, [ActionFactory.cs](../Source/XStaticCore/XStatic.Core/Actions/ActionFactory.cs) builds each configured action:
 
 1. It looks the type up from the assembly-qualified name saved with the action.
-2. It asks the dependency injection container for that exact type.
-3. If the container returns nothing, it calls `Activator.CreateInstance`, which needs a **public parameterless constructor**.
+2. It asks the dependency injection container for that exact type, and uses it if the type is registered.
+3. Otherwise it calls `ActivatorUtilities.CreateInstance`, which builds the action and fills its constructor parameters (`IStaticSiteStorer`, a logger, your own services) from the container.
 
-So:
-
-| Your action has... | Do this |
-|--------------------|---------|
-| A parameterless constructor | Nothing. No registration needed |
-| Constructor parameters (`IStaticSiteStorer`, a logger, your own service) | Register the **action class itself** in the container, usually as transient |
-
-Registering the action type is easy to forget: the container can supply the *dependencies*, but it only constructs the action if the action has been registered. The built-in actions are registered like this in [GeneratorServiceBuilder.cs](../Source/XStaticCore/XStatic.Core/App/GeneratorServiceBuilder.cs):
+So you don't need to register an action, even one with constructor parameters. Register it only if you want to control how it is built, for example its lifetime or a factory. The built-in actions are registered like this in [GeneratorServiceBuilder.cs](../Source/XStaticCore/XStatic.Core/App/GeneratorServiceBuilder.cs):
 
 ```csharp
 _services.AddTransient<FileCopyAction>();
 ```
 
+Every constructor parameter must still be something the container can supply.
+
 If the type can't be found at all (for example, you removed the class but an action using it still exists), the action is skipped silently. It doesn't fail the run, and it doesn't appear in the results.
 
-If the action has constructor parameters but isn't registered, `Activator.CreateInstance` throws. That isn't caught per action, so the whole generation reports a failure with that exception's message.
+If a constructor parameter can't be resolved from the container, `ActivatorUtilities.CreateInstance` throws. That isn't caught per action, so the whole generation reports a failure with that exception's message.
 
 ## Results, errors and order
 
@@ -119,17 +115,14 @@ Report failures by returning an error result rather than throwing: it gives you 
 
 ## A complete example
 
-This action writes a `robots.txt` into the site's output folder. The editor chooses whether to block all crawlers and may add a sitemap URL. It takes a logger, so it needs a one-line registration.
+This action writes a `robots.txt` into the site's output folder. The editor chooses whether to block all crawlers and may add a sitemap URL. It takes a storer and a logger, which xStatic resolves from dependency injection, so it needs no registration.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
 using XStatic.Core;
 using XStatic.Core.Actions;
 using XStatic.Core.Actions.FileActions;
@@ -183,15 +176,6 @@ namespace MySite.Actions
             }
 
             return XStaticResult.Success();
-        }
-    }
-
-    // Needed because the action has constructor parameters. Umbraco runs every IComposer it finds.
-    public class RobotsComposer : IComposer
-    {
-        public void Compose(IUmbracoBuilder builder)
-        {
-            builder.Services.AddTransient<WriteRobotsTxtAction>();
         }
     }
 }

@@ -99,7 +99,7 @@ If the output folder doesn't exist yet the request fails with "Failed to deploy.
 
 Things to know:
 
-- **A failed deploy may not look like one.** If the request itself fails, the backoffice shows a general error notification, not the server's message. It doesn't show the message a deployer returns at all, and the API logs a failed result as an error. "Last deployed" is updated either way. After a deploy, check the host (or the Umbraco log) to be sure.
+- **A failed deploy shows a "Deployment failed" notification.** From the next release (18.1.0 and 17.4.0), when a deployer reports a failure the backoffice shows a **Deployment failed** notification with the deployer's message, and "Last deployed" isn't updated. If the request itself fails, the backoffice shows a general error notification instead. In 18.0.0, 17.3.1 and earlier the deployer's message isn't shown and "Last deployed" is updated either way, so check the host (or the Umbraco log) to be sure.
 - **Clean doesn't block Deploy.** After **Clean** the output folder still exists, with only the protected paths left in it, so **Deploy** will run and send that. With a deployer that treats the output as the whole site, this removes the live site's files: [FTP](Deploying-to-FTP.md) deletes them from the server and [Git](Deploying-with-Git.md) commits their deletion. Generate again before deploying.
 - Deployers differ in what they do with files that are no longer in the output. See the page for your deployer in [Deployment targets](Deployment-Targets.md).
 
