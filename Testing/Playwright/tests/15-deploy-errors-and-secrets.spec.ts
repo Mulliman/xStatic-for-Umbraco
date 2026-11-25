@@ -162,7 +162,8 @@ test.describe('Deploy errors, secret references and site editing', () => {
         const nameField = page.getByRole('textbox', { name: 'Field for Site Name *' });
         const hostnameInput = page.locator('umb-property[alias="targetHostname"] input').first();
         // Value tags only: umb-tags-input also renders internal uui-tags (#main-tag, #input-width-tracker).
-        const tags = (alias: string) => page.locator(`umb-property[alias="${alias}"] uui-tag.tag`);
+        const tags = (alias: string) =>
+            page.locator(`umb-property[alias="${alias}"] uui-tag:not(#main-tag):not(#input-width-tracker)`);
 
         try {
             await sites.goto();
