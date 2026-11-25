@@ -173,6 +173,52 @@ public class XStaticAgentToolsTests : IDisposable
     }
 
     [Fact]
+    public async Task GenerateSiteAsync_ReturnsUnauthorized_WhenAuthorizationDenied()
+    {
+        _auth.Setup(a => a.Authorize(XStaticToolAccessLevel.NormalUser, null))
+            .Returns(XStaticToolAuthorizationResult.Denied("Missing xStaticNormalUser role."));
+
+        var response = await CreateTools().GenerateSiteAsync(5);
+
+        Assert.False(response.Success);
+        Assert.True(response.AuthorizationDenied);
+        Assert.Contains("xStaticNormalUser", response.Error);
+        _operations.Verify(o => o.RebuildSiteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeploySiteAsync_ReturnsUnauthorized_WhenAuthorizationDenied()
+    {
+        _auth.Setup(a => a.Authorize(XStaticToolAccessLevel.NormalUser, null))
+            .Returns(XStaticToolAuthorizationResult.Denied("Missing xStaticNormalUser role."));
+
+        var response = await CreateTools().DeploySiteAsync(5);
+
+        Assert.False(response.Success);
+        Assert.True(response.AuthorizationDenied);
+        Assert.Contains("xStaticNormalUser", response.Error);
+        _operations.Verify(o => o.DeploySiteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeploySiteAsync_ReturnsSanitizedFailure_WhenDeployReturnsError()
+    {
+        _operations.Setup(o => o.DeploySiteAsync(8, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(XStaticResult.Error(@"Upload failed at C:\secret\server\path", new InvalidOperationException("boom")));
+
+        var response = await CreateTools().DeploySiteAsync(8);
+
+        Assert.False(response.Success);
+        Assert.False(response.AuthorizationDenied);
+        Assert.NotNull(response.Data);
+        Assert.False(response.Data.WasSuccessful);
+        Assert.Null(response.Data.Message);
+        Assert.Contains("8", response.Error);
+        Assert.DoesNotContain(@"C:\secret\server\path", response.Error);
+        Assert.DoesNotContain(@"C:\secret\server\path", response.Data.Error);
+    }
+
+    [Fact]
     public void ConfigureChatOptions_HandlesFixedSizeToolsArray()
     {
         var provider = new XStaticAIToolProvider(CreateTools());

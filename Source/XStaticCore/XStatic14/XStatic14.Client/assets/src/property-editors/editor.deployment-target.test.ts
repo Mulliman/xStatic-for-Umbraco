@@ -50,4 +50,28 @@ describe('xstatic-property-editor-deployment-target', () => {
 			},
 		]);
 	});
+
+	it('keeps each field description after a field is edited', async () => {
+		const el = document.createElement(
+			'xstatic-property-editor-deployment-target',
+		) as XStaticPropertyEditorDeploymentTypeElement;
+		el.value = [
+			{ alias: 'host', name: 'Host', value: 'ftp.example.com', help: 'The FTP server name.', editorUiAlias: null },
+		];
+		document.body.appendChild(el);
+		await el.updateComplete;
+
+		const dataset = el.shadowRoot?.querySelector('umb-property-dataset') as HTMLElement & {
+			value: Array<{ alias: string; value: unknown }>;
+		};
+		dataset.value = [{ alias: 'host', value: 'ftp.changed.com' }];
+		dataset.dispatchEvent(new Event('change'));
+		await el.updateComplete;
+
+		expect(el.value).toEqual([
+			{ alias: 'host', name: 'Host', value: 'ftp.changed.com', help: 'The FTP server name.', editorUiAlias: null },
+		]);
+		const property = el.shadowRoot?.querySelector('umb-property') as (HTMLElement & { description?: string }) | null;
+		expect(property?.description).toBe('The FTP server name.');
+	});
 });

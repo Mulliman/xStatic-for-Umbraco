@@ -1,10 +1,10 @@
 A deployment target is one configured destination for your generated site, such as "our Netlify site" or "the FTP
-server". This page explains what a target is, how to create and edit one by hand or with the Netlify site creator,
+server". This page explains what a target is, how to create and edit one by hand or with a creator (the Netlify Site Creator or the Cloudflare Pages Project Creator),
 and how xStatic handles the passwords and tokens inside them. Deployment targets are for admins only.
 
 ## At a glance
 
-- A **deployer** is a piece of code that knows how to push files to one kind of place (a folder, Netlify, Git, FTP).
+- A **deployer** is a piece of code that knows how to push files to one kind of place (a folder, Netlify, Cloudflare, Git, FTP).
   A **deployment target** is one set of settings for a deployer: which folder, which Netlify site, which login.
 - You can have many targets for the same deployer, for example a staging and a live Netlify site.
 - A [site](Sites.md) points at one target. Several sites can share a target.
@@ -21,6 +21,10 @@ and how xStatic handles the passwords and tokens inside them. Deployment targets
 | **Netlify (Legacy)** | `xStatic.Netlify` | **Personal Access Token**, **Site ID** | [Deploying to Netlify](Deploying-to-Netlify.md) |
 | **Git** | `xStatic.Git` | **Remote URL**, **Email**, **Username**, **Password / Personal Access Token**, **Branch** | [Deploying with Git](Deploying-with-Git.md) |
 | **FTP** | `xStatic.Ftp` | **Hostname**, **Username**, **Password**, **Folder**, **Port** | [Deploying to FTP](Deploying-to-FTP.md) |
+| **Cloudflare Pages** | `xStatic.Cloudflare` | **Account ID**, **API Token**, **Project Name**, **Branch (optional)**, **Generate AI/Markdown _headers** | [Deploying to Cloudflare](Deploying-to-Cloudflare.md) |
+| **Cloudflare R2** | `xStatic.Cloudflare` | **Account ID**, **Bucket Name**, **Access Key ID**, **Secret Access Key**, **Key Prefix (optional)**, **Endpoint URL Override (optional)** | [Deploying to Cloudflare](Deploying-to-Cloudflare.md) |
+
+Every deployer except **File System** is in its own NuGet package. Install the package and restart the site to add it.
 
 Anyone can add more. See [Writing a deployer](Writing-a-Deployer.md). A new deployer appears in the dropdown after you
 install it and restart the site. The **Config** tab lists the ones xStatic found.
@@ -65,8 +69,8 @@ fast route shown in the [xStatic 14.1 Speedrun video](https://www.youtube.com/wa
 2. Open **xStatic > Deployment Targets** and click **Automatically Create New Deployment Target**. It is in the
    yellow box that says "You can also let xStatic create the remote service, and configure the Deployment Target with
    the required details."
-3. In the dialog, headed **Automatically Create New Deployment Target**, choose **Creator Template \***. Today the only
-   choice is **Netlify Site Creator**. The panel below it shows its fields:
+3. In the dialog, headed **Automatically Create New Deployment Target**, choose **Creator Template \***. For Netlify,
+   pick **Netlify Site Creator** (from `xStatic.Netlify`). The panel below it shows its fields:
    - **Personal Access Token**: your Netlify token. Help text above the fields explains where to get one.
    - **Site Name**: the subdomain you want. The field shows `.netlify.app` after it, and the arrow beside it opens
      `https://{name}.netlify.app` so you can check whether the name is already taken.
@@ -87,6 +91,15 @@ Things to know:
 - The token is saved in the new target exactly as you typed it. Type a reference such as
   `${env:XSTATIC_NETLIFY_TOKEN}` and the new target keeps the reference rather than the token
   ([Secrets and environment variables](Secrets-and-Environment-Variables.md)).
+
+### Create a Cloudflare Pages project automatically
+
+With `xStatic.Cloudflare` installed, **Creator Template \*** also offers **Cloudflare Pages Project Creator**. Fill in
+**Account ID \***, **API Token \*** (a token with **Cloudflare Pages: Edit** permission), **Project Name \*** and, if you
+don't want `main`, **Production Branch**, then click **Create**. xStatic creates a Direct Upload project and saves a
+**Cloudflare Pages** target named after the project. As with Netlify, a `${env:...}` or `${config:...}` reference typed
+into the token field is restored in the saved target, so the token itself isn't stored. See
+[Deploying to Cloudflare](Deploying-to-Cloudflare.md#step-2-create-a-deployment-target-or-provision-a-new-project).
 
 Creators are a plugin point too. See [Deployment target creators](Deployment-Target-Creators.md).
 
@@ -114,7 +127,7 @@ dropdown, and deploying to it fails.
 ## What the card shows
 
 The headline is the target's name. The table has the name and the **type**, which is the deployer's id
-(`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`), not its display name.
+(`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-pages`, `cloudflare-r2`), not its display name.
 
 ## Secrets: where they live and who sees them
 
@@ -141,7 +154,8 @@ once you have checked your sites. See [Upgrading](Upgrading.md).
 
 ## Next steps
 
-- [Deploying to a folder](Deploying-to-a-Folder.md), [Netlify](Deploying-to-Netlify.md), [Git](Deploying-with-Git.md)
-  and [FTP](Deploying-to-FTP.md): the details for each deployer.
+- [Deploying to a folder](Deploying-to-a-Folder.md), [Netlify](Deploying-to-Netlify.md),
+  [Cloudflare](Deploying-to-Cloudflare.md), [Git](Deploying-with-Git.md) and [FTP](Deploying-to-FTP.md): the details
+  for each deployer.
 - [Sites](Sites.md): choose a target for a site.
 - [Generating and deploying](Generating-and-Deploying.md): what happens when you click **Deploy**.

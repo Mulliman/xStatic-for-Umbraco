@@ -7,8 +7,8 @@
     <PackageId>xStatic.Core</PackageId>
     <Title>xStatic.Core</Title>
     <Version>19.0.0-alpha</Version>
-    <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 18+.</Description>
-    <PackageTags>umbraco umbraco18 xstatic static site generation</PackageTags>
+    <Description>xStatic core libraries used for creating custom components to use with xStatic for Umbraco 19+.</Description>
+    <PackageTags>umbraco umbraco19 xstatic static site generation</PackageTags>
     <Authors>Sam Mullins</Authors>
     <Copyright>Sam Mullins</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

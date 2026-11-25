@@ -1,4 +1,6 @@
 import { test } from '@playwright/test';
+import os from 'os';
+import path from 'path';
 import { ExportTypePage } from '../pages/ExportTypePage';
 import { ActionPage } from '../pages/ActionPage';
 import { DeploymentTargetPage } from '../pages/DeploymentTargetPage';
@@ -68,7 +70,7 @@ test.describe('Initial Configuration', () => {
 
         // Act
         await deploymentTargetPage.create(TestData.DeploymentTargetName, 'filesystem', {
-            'Folder Path': 'C:\\Public\\XStaticTestDeploy'
+            'Folder Path': path.join(os.tmpdir(), 'xstatic-test-deploy')
         });
 
         // Assert

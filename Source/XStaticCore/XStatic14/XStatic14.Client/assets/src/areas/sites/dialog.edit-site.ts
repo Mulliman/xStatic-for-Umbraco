@@ -16,6 +16,7 @@ export class EditSiteModalElement extends
 {
     #languageRepository = new UmbLanguageCollectionRepository(this);
     #siteContext?: SiteContext;
+    #valuesInitialized = false;
 
     @state()
     _values: Array<UmbPropertyValueData> = [];
@@ -51,8 +52,15 @@ export class EditSiteModalElement extends
                 this.#siteContext = context;
 
                 this.observe(context?.siteDependencies, (x) => {
-                    this.actions = x?.actions ?? [];
-                    this.deploymentTargets = x?.deployers ?? [];
+                    // SiteContext starts with an empty object until the request returns. The server always
+                    // sends the lists (empty or null), so a missing key means the dependencies aren't loaded
+                    // yet; keep the form hidden rather than show empty dropdowns.
+                    if (!x || (x.actions === undefined && x.deployers === undefined && x.exportTypes === undefined)) {
+                        return;
+                    }
+
+                    this.actions = x.actions ?? [];
+                    this.deploymentTargets = x.deployers ?? [];
 
                     if (!this.isConnected) {
                         return;
@@ -62,8 +70,11 @@ export class EditSiteModalElement extends
                         this.updateValue({ content: this.data.content });
                     }
 
-                    if (this.data?.content) {
+                    // Only seed the form once: later emissions (a refresh after a config change) must not
+                    // wipe what the user has typed.
+                    if (this.data?.content && !this.#valuesInitialized) {
                         this._values = mapSiteToFormValues(this.data.content);
+                        this.#valuesInitialized = true;
                     }
                 }, '_observeSiteDependencies');
 

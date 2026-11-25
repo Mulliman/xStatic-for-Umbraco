@@ -21,13 +21,14 @@ You don't need to edit `Program.cs` unless you register xStatic manually. If you
 using XStatic.Cloudflare;
 using XStatic.Core.App;
 
-var xStatic = builder.Services.AddXStatic()
-    .Automatic();
+var xStatic = builder.Services.AddXStatic();
 xStatic.DeployServiceBuilder.AddCloudflareDeployers();
-xStatic.Build();
+// ...register the rest, then call xStatic.Build();
 
-builder.Services.AddCloudflareActions();
+builder.Services.AddCloudflareActions(); // optional
 ```
+
+Don't combine `Automatic()` with `AddCloudflareDeployers()`: the same deployers would be registered twice and start-up fails. `AddCloudflareActions()` is optional, because xStatic creates actions through dependency injection and resolves their constructor dependencies itself.
 
 ## Deploy to Cloudflare Pages
 
@@ -43,7 +44,7 @@ builder.Services.AddCloudflareActions();
 
 If you already have a Cloudflare Pages Direct Upload project:
 
-1. Open **xStatic > Deployment Targets** and select **Create new Deployment Target**.
+1. Open **xStatic > Deployment Targets** and select **Manually Configure New Deployment Target**.
 2. Enter a **Name**, choose **Cloudflare Pages** as the **Deployer**, and fill in the fields:
 
 | Field | Required | Notes |
@@ -56,14 +57,14 @@ If you already have a Cloudflare Pages Direct Upload project:
 
 3. Select **Submit**, assign the target to your site, generate, and select **Deploy**.
 
-To create a brand-new Cloudflare Pages project from the backoffice instead, select **Auto Create Deployment Target** in **xStatic > Deployment Targets**, pick **Cloudflare Pages Project Creator**, and supply your Account ID, API Token, Project Name, and optional Production Branch. xStatic calls Cloudflare's API to create the project and saves a matching deployment target for you.
+To create a brand-new Cloudflare Pages project from the backoffice instead, select **Automatically Create New Deployment Target** in **xStatic > Deployment Targets**, pick **Cloudflare Pages Project Creator**, and supply your Account ID, API Token, Project Name, and optional Production Branch. xStatic calls Cloudflare's API to create the project and saves a matching deployment target for you.
 
 ## Deploy to Cloudflare R2
 
 `CloudflareR2Deployer` ([source](../Source/XStaticCore/XStatic.Cloudflare/CloudflareR2Deployer.cs)) uploads generated files directly to an R2 bucket using AWS Signature Version 4 (`AwsSigV4Signer`) against `https://{accountId}.r2.cloudflarestorage.com`.
 
 1. In the Cloudflare dashboard, open **R2 Object Storage > Manage R2 API Tokens** and create a token with **Object Read & Write** permission for your bucket. Note the **Access Key ID** and **Secret Access Key**.
-2. In Umbraco, open **xStatic > Deployment Targets** and select **Create new Deployment Target**.
+2. In Umbraco, open **xStatic > Deployment Targets** and select **Manually Configure New Deployment Target**.
 3. Choose **Cloudflare R2** as the **Deployer** and enter:
 
 | Field | Required | Notes |

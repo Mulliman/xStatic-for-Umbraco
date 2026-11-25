@@ -25,6 +25,7 @@
     <ProjectReference Include="..\XStatic.Git\XStatic.Git.csproj" />
     <ProjectReference Include="..\XStatic.Ftp\XStatic.Ftp.csproj" />
     <ProjectReference Include="..\XStatic.Cloudflare\XStatic.Cloudflare.csproj" />
+    <ProjectReference Include="..\XStatic.RemoteOperations\XStatic.RemoteOperations.csproj" />
   </ItemGroup>
 
 </Project>

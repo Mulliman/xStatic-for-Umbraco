@@ -10,7 +10,7 @@
 	<Title>xStatic.Client</Title>
 	<Version>19.0.0-alpha</Version>
 	<Description>Headless backend client for the xStatic Package.</Description>
-	<PackageTags>umbraco umbraco18 xstatic static site generation umbraco-marketplace</PackageTags>
+	<PackageTags>umbraco umbraco19 xstatic static site generation umbraco-marketplace</PackageTags>
 	<Copyright>Sam Mullins</Copyright>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageProjectUrl>https://github.com/Mulliman/xStatic-for-Umbraco</PackageProjectUrl>

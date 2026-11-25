@@ -9,7 +9,7 @@ Auto publish is a setting on each site.
 3. Switch on **Auto Publish** ("Select this is you want to generate the site automatically when a node is published.").
 4. Select **Submit**.
 
-The site card then shows **Auto Publish On** instead of **Manual Deploy**. Switch the toggle off to go back to manual builds. No restart is needed, and there's no global setting.
+The site card then shows **Auto Publish On** instead of **Manual Deploy**. Switch the toggle off to go back to manual builds. No restart is needed. Auto publish is switched on per site; the optional settings in [Shared content and relation-based auto publish](#shared-content-and-relation-based-auto-publish) only change which publishes count.
 
 ## When it runs
 
@@ -35,8 +35,8 @@ The code is in [DefaultAutoPublisher.cs](../Source/XStaticCore/XStatic.Core/Auto
 ## What to know before you switch it on
 
 - **It's a full rebuild every time.** There's no incremental build. Publishing one typo fix generates every page, copies every media file and asset, and deploys the whole site.
-- **It holds up the publish.** The build and deploy run as part of the publish notification, so the editor waits, and a big site could wait a long time. xStatic doesn't catch an exception thrown while deploying (for example, when the build failed and there is no output folder to deploy), so a failure there can surface in the publish itself.
-- **It deploys even if the build had problems.** The result of the rebuild is ignored, and so is the result of the deploy. If pages failed to download or an action failed, the deploy still goes ahead with whatever is in the output folder. Nobody is shown the warnings. Failed pages are written to the Umbraco log, but auto publish doesn't log a failed action or a failed deploy result. Run a manual **Generate** and **Deploy** if you suspect something. The same goes for the deploy: only the **Deploy** button's endpoint logs a deployer's failure, so a failed FTP or Netlify upload during an auto publish is not logged. Check the host.
+- **It holds up the publish.** The build and deploy run as part of the publish notification, so the editor waits, and a big site could wait a long time. From 18.1.0 and 17.4.0, each site runs inside its own `try`/`catch` so a failure is logged and won't fail the editor's publish or stop other affected sites.
+- **Partial build warnings still deploy.** From 18.1.0 and 17.4.0, if generation throws an exception (for example, a missing site configuration), xStatic logs the error and skips deploying that site. If generation finishes with some failed pages or actions, xStatic logs a warning and still deploys what was generated. Failed deploys are also logged. Nobody in the backoffice is shown those warnings, so check the Umbraco log or run a manual **Generate** and **Deploy** if you suspect something. (In 18.0.0, 17.3.1 and earlier, rebuild exceptions weren't checked before deploying and exceptions thrown while deploying could surface in the publish.)
 - **It never cleans.** A rebuild doesn't empty the output folder, so pages you've removed or renamed stay in the output and stay deployed until you select **Clean** and generate again ([Stale files](Generating-and-Deploying.md#stale-files)).
 - **Only publishing triggers it.** Unpublishing, deleting, media changes and changes to languages or domains do not. Scheduled publishing raises the same Umbraco notification, so it should trigger a build too, though that hasn't been tested.
 - **Every publish triggers it.** Several editors publishing in quick succession means several builds. There's no delay to group them.

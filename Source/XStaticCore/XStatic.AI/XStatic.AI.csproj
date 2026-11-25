@@ -9,8 +9,8 @@
     <PackageId>xStatic.AI</PackageId>
     <Title>xStatic.AI</Title>
     <Version>19.0.0-alpha</Version>
-    <Description>Optional AI add-on for xStatic for Umbraco 17+, providing Microsoft.Extensions.AI / Umbraco.AI Agent Tools and an AI Pre-Deploy GEO/SEO Audit post-generation action.</Description>
-    <PackageTags>umbraco umbraco17 xstatic static site generation ai microsoft-extensions-ai umbraco-ai seo geo umbraco-marketplace</PackageTags>
+    <Description>Optional AI add-on for xStatic for Umbraco 19+, providing Microsoft.Extensions.AI / Umbraco.AI Agent Tools and an AI Pre-Deploy GEO/SEO Audit post-generation action.</Description>
+    <PackageTags>umbraco umbraco19 xstatic static site generation ai microsoft-extensions-ai umbraco-ai seo geo umbraco-marketplace</PackageTags>
     <Authors>Sam Mullins</Authors>
     <Company>Sam Mullins</Company>
     <Copyright>Sam Mullins</Copyright>

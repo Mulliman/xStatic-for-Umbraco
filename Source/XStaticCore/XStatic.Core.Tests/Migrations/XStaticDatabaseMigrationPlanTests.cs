@@ -35,10 +35,26 @@ namespace XStatic.Core.Tests.Migrations
             Assert.Contains("UpgradeV13SiteConfigs", PathFrom("DeployerTargets"));
         }
 
+        /// <summary>
+        /// Every migration state that has shipped, in order. Migrations are append-only: add new states to the end
+        /// of this list and of the plan, and never edit, remove or reorder the ones already here.
+        /// </summary>
+        private static readonly string[] ShippedStates =
+        [
+            "init",
+            "DeployerTargets",
+            "UpgradeV13SiteConfigs",
+        ];
+
         [Fact]
-        public void FinalState_IsSiteConfigUpgrade()
+        public void ShippedStates_AreAPrefixOfThePlan_InOrder()
         {
-            Assert.Equal("UpgradeV13SiteConfigs", new XStaticDatabaseMigrationPlan().FinalState);
+            var path = PathFrom(string.Empty);
+
+            Assert.True(path.Count >= ShippedStates.Length,
+                $"The plan has {path.Count} states but {ShippedStates.Length} have shipped: {string.Join(" -> ", path)}");
+            Assert.Equal(ShippedStates, path.GetRange(0, ShippedStates.Length));
+            Assert.Equal(new XStaticDatabaseMigrationPlan().FinalState, path[^1]);
         }
     }
 }

@@ -5,11 +5,11 @@ The Netlify deployer uploads your generated site to a site on [Netlify](https://
 | | |
 |---|---|
 | NuGet package | `xStatic.Netlify` |
-| Install | `dotnet add package xStatic.Netlify --prerelease` (drop `--prerelease` once 18.0.0 is out) |
+| Install | `dotnet add package xStatic.Netlify` |
 | Discovered automatically | Yes. No registration code is needed |
 | Deployer in the UI | **Netlify** (id `netlify`). **Netlify (Legacy)** is also listed; see [the legacy deployer](#the-legacy-deployer) |
 | Deployment target creator | **Netlify Site Creator** (id `netlify-site-creator`) |
-| Extra post-generation action | `Netlify404Action` (needs one line of registration) |
+| Extra post-generation action | `Netlify404Action` (no registration needed) |
 | Fields | **Personal Access Token**, **Site ID** |
 | Library used | NetlifySharp 1.1.1 |
 
@@ -18,10 +18,10 @@ The Netlify deployer uploads your generated site to a site on [Netlify](https://
 1. Add the package to your Umbraco project and rebuild:
 
    ```powershell
-   dotnet add package xStatic.Netlify --prerelease
+   dotnet add package xStatic.Netlify
    ```
 
-   Use the same version as your other xStatic packages. The `--prerelease` flag is needed while xStatic 18 is in beta; without it you would get a 17.x package (see [Installation](Installation.md)).
+   Use the same version as your other xStatic packages (see [Installation](Installation.md)).
 2. Start the site. xStatic finds the deployer by scanning loaded assemblies, so **Netlify** now appears in the **Deployer \*** dropdown and **Netlify Site Creator** in the creator dropdown. Nothing goes in `Program.cs`.
 
 If you registered xStatic yourself instead of letting it register automatically (see [Extending xStatic](Extending-xStatic.md)), add the deployer on the deploy builder:
@@ -69,7 +69,7 @@ If Netlify refuses to create the site (usually because the name is taken), no ta
    - **Configuration**: put the token in **Personal Access Token** (the field is masked, with a Show/Hide button) and the ID in **Site ID**.
 5. Press **Submit**.
 
-The Netlify help text ("First create a personal access token at ... Then go to the site settings for your site, and in Site details/Site information you should see an API ID") is only shown in the creator dialog, not on the manual form.
+The Netlify help text ("First create a personal access token at ... Then go to the site settings for your site, and in Site details/Site information you should see an API ID") is shown above the fields once you choose the deployer, and each field shows its own hint underneath its label.
 
 ## Deploy
 
@@ -110,22 +110,15 @@ Unchanged files aren't uploaded again, so later deploys are much quicker than th
 Netlify shows a file called `404.html` at the root of your site for unknown addresses. The `Netlify404Action` copies one of your generated pages to `/404.html`.
 
 1. Create a page in Umbraco that looks like your 404 page, and make sure it is inside the site's root node so it is generated. Note its output path. With the default HTML export type a page at `/404/` is written to `/404/index.html`.
-2. Register the action once. It has a constructor dependency, so it must be added to the service collection, for example in `Program.cs`:
+2. Open **Actions**, create an action: **Action Name \*** `Netlify 404`, **Action Type \*** `Netlify404Action`, and in **Configuration** set `FilePath` to the generated page, for example `/404/index.html`.
+3. Edit your site and select the action in **Post Generation Actions**.
+4. **Generate**, then **Deploy**.
 
-   ```csharp
-   using XStatic.Netlify;
-
-   builder.Services.AddNetlifyActions();
-   ```
-
-   This is required. The action appears in the **Action Type \*** dropdown without it, but if you set it up and don't register it, generation throws when the action is created and the whole run is reported as failed.
-3. Open **Actions**, create an action: **Action Name \*** `Netlify 404`, **Action Type \*** `Netlify404Action`, and in **Configuration** set `FilePath` to the generated page, for example `/404/index.html`.
-4. Edit your site and select the action in **Post Generation Actions**.
-5. **Generate**, then **Deploy**.
+The action needs `IStaticSiteStorer`, which xStatic resolves from dependency injection when it creates the action, so nothing goes in `Program.cs`. `builder.Services.AddNetlifyActions()` still exists and registers the action explicitly if you want to, but it is optional.
 
 Post-generation actions run at the end of **Generate**, in the order they are listed on the site (see [Post-generation actions](Post-Generation-Actions.md)). If the file in `FilePath` doesn't exist, the action fails and the failure is shown as a warning after generation.
 
-If you would rather skip the registration step, the built-in `FileCopyAction` with `FilePath` set to your 404 page and `NewFilePath` set to `404.html` does the same job.
+The built-in `FileCopyAction` with `FilePath` set to your 404 page and `NewFilePath` set to `404.html` does the same job.
 
 ## The legacy deployer
 
@@ -151,7 +144,7 @@ Its fields have the same labels but different aliases (`NetlifyLegacy.PAT`, `Net
 | Creator: the dialog stays open and "An error occurred" appears (the server's reply is `Error creating site on Netlify, please make sure that the site name is unique...`) | The name is taken, or the token is invalid. Use the arrow button next to the name to see whether the address already exists, then try another name. |
 | Creator: HTTP 500 and `Personal Access Token is required.` or `Site Name is required.` | A field was left blank. Fill in both. |
 | `Failed to deploy. No generated output found at ...` | Press **Generate** first. |
-| The 404 action makes generation fail | `AddNetlifyActions()` isn't called. Add it and restart. |
+| The 404 action fails | The file in `FilePath` doesn't exist in the output. Check the path in the downloaded zip, correct the action and generate again. |
 | Old pages are still live | They are still in the output folder. Press **Clean**, **Generate**, then **Deploy**. |
 
 More general fixes are on [Troubleshooting](Troubleshooting.md).

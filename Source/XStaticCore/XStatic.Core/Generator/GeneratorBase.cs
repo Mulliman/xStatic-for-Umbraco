@@ -166,9 +166,12 @@ namespace XStatic.Core.Generator
 
             try
             {
-                var mediaFileStream = _mediaFileSystem.FileSystem.OpenFile(partialPath);
+                string generatedFileLocation;
 
-                var generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
+                using (var mediaFileStream = _mediaFileSystem.FileSystem.OpenFile(partialPath))
+                {
+                    generatedFileLocation = await Save(staticSiteId, mediaFileStream, partialPath);
+                }
 
                 if (crops?.Any() == true)
                 {
