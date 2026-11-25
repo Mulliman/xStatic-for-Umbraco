@@ -151,43 +151,34 @@ namespace XStatic.Git
 
         public void CommitAndPush(string folderPath, string branch)
         {
-            try
+            using var repo = new Repository(folderPath);
+
+            if (!repo.Branches.Any())
             {
-                using var repo = new Repository(folderPath);
-
-                if (!repo.Branches.Any())
-                {
-                    var initSig = GetSignature();
-                    repo.Commit($"xStatic init", initSig, initSig);
-                }
-
-                if (repo.Branches?.FirstOrDefault(b => b.FriendlyName == branch) == null)
-                {
-                    repo.CreateBranch(branch);
-                }
-
-                var gitBranch = Commands.Checkout(repo, branch);
-
-                Commands.Stage(repo, "*");
-
-                if (repo.RetrieveStatus().IsDirty)
-                {
-                    var sig = GetSignature();
-
-                    repo.Commit($"xStatic build {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}", sig, sig);
-                }
-
-                Remote remote = repo.Network.Remotes["origin"];
-                var options = new PushOptions();
-                options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = _username, Password = _password };
-                repo.Network.Push(remote, gitBranch.CanonicalName, options);
+                var initSig = GetSignature();
+                repo.Commit($"xStatic init", initSig, initSig);
             }
-            catch (Exception e)
+
+            if (repo.Branches?.FirstOrDefault(b => b.FriendlyName == branch) == null)
             {
-                var message = e.Message;
-
-                throw;
+                repo.CreateBranch(branch);
             }
+
+            var gitBranch = Commands.Checkout(repo, branch);
+
+            Commands.Stage(repo, "*");
+
+            if (repo.RetrieveStatus().IsDirty)
+            {
+                var sig = GetSignature();
+
+                repo.Commit($"xStatic build {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}", sig, sig);
+            }
+
+            Remote remote = repo.Network.Remotes["origin"];
+            var options = new PushOptions();
+            options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = _username, Password = _password };
+            repo.Network.Push(remote, gitBranch.CanonicalName, options);
         }
 
         private Signature GetSignature()

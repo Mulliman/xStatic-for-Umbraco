@@ -1,5 +1,5 @@
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import { css, html, customElement, property } from '@umbraco-cms/backoffice/external/lit';
+import { css, html, customElement, nothing, property } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import type { UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
 import { UmbFormControlMixin } from '@umbraco-cms/backoffice/validation';
@@ -41,7 +41,8 @@ export class XStaticPropertyEditorNetlifySubdomainElement
 				></uui-input>
 				<span class="suffix">.netlify.app</span>
 				<uui-button
-					href=${"https://" + this.value + ".netlify.app"}
+					href=${this.value ? `https://${this.value}.netlify.app` : nothing}
+					?disabled=${!this.value}
 					target="_blank"
 					rel="noopener noreferrer"
 					look="secondary"

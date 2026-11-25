@@ -51,6 +51,7 @@ jobs:
         with:
           name: test-results
           path: TestResults
+          retention-days: 14
 
   client:
     name: 'Lint, test and build (backoffice client)'
@@ -72,10 +73,11 @@ jobs:
       - name: 'Install dependencies'
         run: npm ci
 
-      - name: 'Check wiki links, docs compiler and docs site'
+      - name: 'Check wiki links, docs compiler and docs site build'
         working-directory: ${{ github.workspace }}
         run: |
           node Tools/Wiki/wiki.mjs check
+          node Tools/Wiki/build-pages-site.mjs "${{ runner.temp }}/wiki-site"
           node --test Tools/Wiki/compile-client-docs.test.mjs Tools/Wiki/build-pages-site.test.mjs
 
       - name: 'Lint and test (tsc + eslint + vitest)'

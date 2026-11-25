@@ -236,7 +236,7 @@ namespace XStatic.Core.Tests.AutoPublish
         }
 
         [Fact]
-        public void RelationBasedResolver_IsDisabledByDefaultOnLts()
+        public void RelationBasedResolver_IsDisabledByDefault()
         {
             var site1 = new ExtendedGeneratedSite { Id = 1, Name = "Site 1" };
             var siteRoots = new Dictionary<int, IPublishedContent> { [1] = CreatePublishedContent(100) };

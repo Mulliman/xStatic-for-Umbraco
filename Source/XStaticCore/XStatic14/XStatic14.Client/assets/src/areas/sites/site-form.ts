@@ -113,12 +113,12 @@ export function mapSiteToFormValues(site: SiteApiModel): UmbPropertyValueData[] 
 		{ alias: 'rootNode', value: [{ unique: site.rootNode }] },
 		{ alias: 'cultures', value: site.cultures },
 		{ alias: 'mediaRootNodes', value: site.mediaRootNodes?.map((x) => ({ key: x, mediaKey: x, unique: x })) },
-		{ alias: 'exportFormat', value: [site.exportFormat?.toString()] },
+		{ alias: 'exportFormat', value: site.exportFormat != null ? [site.exportFormat.toString()] : [] },
 		{ alias: 'assetPaths', value: fromCsv(site.assetPaths) },
 		{ alias: 'imageCrops', value: fromCsv(site.imageCrops) },
 		{ alias: 'postGenerationActionIds', value: site.postGenerationActionIds?.map((x) => x.toString()) },
 		{ alias: 'autoPublish', value: site.autoPublish },
-		{ alias: 'deploymentTarget', value: [site.deploymentTarget?.toString()] },
+		{ alias: 'deploymentTarget', value: site.deploymentTarget != null ? [site.deploymentTarget.toString()] : [] },
 		{ alias: 'targetHostname', value: site.targetHostname },
 	];
 }

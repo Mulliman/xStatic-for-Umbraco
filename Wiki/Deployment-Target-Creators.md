@@ -1,4 +1,4 @@
-A deployment target creator sets up the remote service for you and then saves a ready-to-use deployment target. The only one that ships with xStatic is the Netlify Site Creator, which creates a new Netlify site and a target for it in a single step. This page is for developers who want to build a creator for another host. If you just want to use the Netlify creator, see [Deploying to Netlify](Deploying-to-Netlify.md).
+A deployment target creator sets up the remote service for you and then saves a ready-to-use deployment target. Two ship with xStatic: the **Netlify Site Creator** (in `xStatic.Netlify`), which creates a new Netlify site, and the **Cloudflare Pages Project Creator** (in `xStatic.Cloudflare`), which creates a Cloudflare Pages Direct Upload project. Each makes the remote service and a target for it in a single step. This page is for developers who want to build a creator for another host. If you just want to use one, see [Deploying to Netlify](Deploying-to-Netlify.md) or [Deploying to Cloudflare](Deploying-to-Cloudflare.md).
 
 ## At a glance
 
@@ -225,7 +225,7 @@ xstatic.Build();
 
 - **The dialog's Name isn't passed to your creator.** The creator is built from the field values only. The target is named by whatever `Name` your `CreateTarget` returns, so the **Name \*** typed into the dialog is required but doesn't name the target.
 - A creator can't ask follow-up questions or show progress. It either returns a target or throws.
-- Credentials you enter in the creator dialog (like the Netlify token) are copied into the new target and stored in plain text, as for any deployment target.
+- Credentials you enter in the creator dialog (like the Netlify or Cloudflare token) are copied into the new target and stored in plain text, as for any deployment target. If you type a `${env:...}` or `${config:...}` reference instead, your creator receives the resolved value, and xStatic puts the reference back into the saved target wherever the creator returned that value unchanged, so the secret isn't stored. See [Secrets and environment variables](Secrets-and-Environment-Variables.md#when-references-are-read).
 - If the remote service is created but saving the target fails, xStatic can't undo the remote creation.
 
 ## Next steps

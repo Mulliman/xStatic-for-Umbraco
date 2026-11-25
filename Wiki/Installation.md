@@ -58,16 +58,18 @@ The **File System** deployer is built into `xStatic.Core`, so you don't need a p
 To add a deployer:
 
 ```powershell
-dotnet add package xStatic.Netlify --prerelease
-dotnet add package xStatic.Git --prerelease
-dotnet add package xStatic.Ftp --prerelease
+dotnet add package xStatic.Netlify
+dotnet add package xStatic.Git
+dotnet add package xStatic.Ftp
+dotnet add package xStatic.Cloudflare
 ```
 
 You don't register them. At startup xStatic scans the loaded assemblies for deployers and deployment target creators
 and adds every one it finds, so the new deployer appears in the **Deployer** dropdown after a restart.
 
-Third-party plugins (an AWS S3 deployer, for example) are listed on the **Documentation** dashboard in the backoffice.
-See [Backoffice tour](Backoffice-Tour.md#documentation).
+The official packages are listed under **Plugins** on the **Documentation** dashboard in the backoffice, which is built
+into `xStatic.Client` (see [Backoffice tour](Backoffice-Tour.md#documentation)). Third-party plugins, such as the
+community `xStatic.AWSS3` deployer, aren't listed there; see the [FAQ](FAQ.md#can-i-deploy-to-aws-s3-or-another-host-that-isnt-listed).
 
 ## What happens on first start
 

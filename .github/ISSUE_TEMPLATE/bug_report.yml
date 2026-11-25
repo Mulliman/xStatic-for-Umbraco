@@ -1,0 +1,78 @@
+name: Bug report
+description: Something in xStatic doesn't work as it should.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. To report a security vulnerability, don't open an issue: follow `SECURITY.md` instead.
+        Please don't paste passwords, tokens or other secrets into this form.
+
+  - type: input
+    id: xstatic-version
+    attributes:
+      label: xStatic version
+      description: The version of the xStatic NuGet packages, e.g. 18.1.0.
+    validations:
+      required: true
+
+  - type: input
+    id: umbraco-version
+    attributes:
+      label: Umbraco version
+      description: e.g. 18.3.2.
+    validations:
+      required: true
+
+  - type: input
+    id: dotnet-version
+    attributes:
+      label: .NET SDK version
+      description: The output of `dotnet --version`.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: deployer
+    attributes:
+      label: Deployer
+      description: Which deployer the deployment target uses, if the bug is about deploying.
+      options:
+        - Not about deploying
+        - File System
+        - Netlify
+        - Git
+        - FTP
+        - Cloudflare Pages
+        - Cloudflare R2
+        - Other or custom
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected to happen, and what happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Create a site with ...
+        2. Click Generate
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Errors and logs
+      description: Any error notification, and the matching entries from the Umbraco log (Settings → Log Viewer).
+      render: text
+    validations:
+      required: false

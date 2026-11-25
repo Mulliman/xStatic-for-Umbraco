@@ -29,7 +29,7 @@ flowchart LR
     H --> I[Post-generation actions]
     I --> J[(output/siteId)]
     J --> K[DeployProcess]
-    K --> L[IDeployer<br/>Netlify, Git, FTP, folder]
+    K --> L[IDeployer<br/>Netlify, Git, FTP, Cloudflare, folder]
 ```
 
 ## Projects and packages
@@ -265,13 +265,13 @@ xStatic finds most extensions by scanning, so installing a package is enough. Th
 | `FileNameGeneratorList` | `IFileNameGenerator` | The **File Name Generator** dropdown |
 | `PostGenerationActionsList` | `IPostGenerationAction` | The list of action types an admin can create |
 
-**Auto installers are found when the builders run.** `DeployServiceBuilder` scans for concrete `IDeployerAutoInstaller` and `IDeploymentTargetCreatorAutoInstaller` types, creates each with `Activator.CreateInstance` (so they need a public parameterless constructor), and records the definition and factory by id. This happens inside `Automatic()`. The built-in file system deployer has one, and so do the Netlify, Git and FTP packages.
+**Auto installers are found when the builders run.** `DeployServiceBuilder` scans for concrete `IDeployerAutoInstaller` and `IDeploymentTargetCreatorAutoInstaller` types, creates each with `Activator.CreateInstance` (so they need a public parameterless constructor), and records the definition and factory by id. This happens inside `Automatic()`. The built-in file system deployer has one, and so do the Netlify, Git, FTP and Cloudflare packages.
 
 Some things to remember:
 
 - Only assemblies that are already loaded are scanned. A plugin must be referenced by the host project so that it is loaded.
 - Two deployers with the same id make startup throw, because the id is a dictionary key. Don't combine `Automatic()` with a manual `AddXDeployer()` for the same plugin.
-- A broken assembly can break a scan. The scans call `GetTypes()` without handling `ReflectionTypeLoadException`.
+- A broken assembly doesn't break a scan. The scans go through `LoadableTypes`, which skips dynamic assemblies and, when an assembly throws `ReflectionTypeLoadException`, keeps the types that did load.
 
 Other extension points are not scanned. `IStaticSiteStorer`, `IImageCropNameGenerator`, `IAutoPublisher`, `ISitesRepository`, `IExportTypeService` and the repositories are ordinary DI services, so you swap them by registering your own. The full list is in [Extending-xStatic.md](Extending-xStatic.md#the-extension-points).
 
@@ -279,7 +279,7 @@ Other extension points are not scanned. `IStaticSiteStorer`, `IImageCropNameGene
 
 An export type stores three .NET type names. At generate time `DatabaseExportTypeService` loads each with `Type.GetType`, then asks the DI container for it. If the container has no registration, it falls back to `Activator.CreateInstance`, which needs a public parameterless constructor.
 
-So a custom **generator** nearly always has to be registered in DI, because it needs constructor arguments. A custom file name generator or transformer list factory with a parameterless constructor needs no registration. `ActionFactory` resolves post-generation actions the same way. If a stored generator, file name generator or transformer factory type can no longer be loaded (a renamed class, a removed package), the generate returns a failed result with the error message. A post-generation action whose type can't be loaded is skipped silently instead. An action that loads but has constructor parameters and isn't registered in DI makes `Activator.CreateInstance` throw, and that fails the whole generate (see [Writing-a-Post-Generation-Action.md](Writing-a-Post-Generation-Action.md#discovery-registration-and-construction)).
+So a custom **generator** nearly always has to be registered in DI, because it needs constructor arguments. A custom file name generator or transformer list factory with a parameterless constructor needs no registration. `ActionFactory` resolves post-generation actions slightly differently: if the container has no registration it uses `ActivatorUtilities.CreateInstance`, which fills constructor parameters from DI, so an action never needs registering. If a stored generator, file name generator or transformer factory type can no longer be loaded (a renamed class, a removed package), the generate returns a failed result with the error message. A post-generation action whose type can't be loaded is skipped silently instead. An action with a constructor parameter the container can't supply makes `ActivatorUtilities.CreateInstance` throw, and that fails the whole generate (see [Writing-a-Post-Generation-Action.md](Writing-a-Post-Generation-Action.md#discovery-registration-and-construction)).
 
 ## Registration and the composer opt-out
 

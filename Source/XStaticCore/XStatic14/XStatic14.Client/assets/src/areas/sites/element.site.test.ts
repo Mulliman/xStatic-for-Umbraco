@@ -31,7 +31,7 @@ describe('xstatic-site-element', () => {
 		lastDeployed: null,
 		targetHostname: 'example.com',
 		folderSize: '1.2 MB',
-		deploymentTarget: { id: 2, name: 'Netlify' } as never,
+		deploymentTarget: 2,
 	};
 
 	it('renders nothing when site is undefined', async () => {
@@ -116,6 +116,7 @@ describe('xstatic-site-element', () => {
 			cleanSite: vi.fn().mockResolvedValue(undefined),
 			deploySite: vi.fn().mockResolvedValue(undefined),
 		};
+		vi.mocked(umbConfirmModal).mockReset();
 		vi.mocked(umbConfirmModal).mockRejectedValue(new Error('cancelled'));
 
 		const SiteCtor = customElements.get('xstatic-site-element')!;
@@ -139,8 +140,18 @@ describe('xstatic-site-element', () => {
 				btn!.click();
 			}
 
-			await new Promise((r) => setTimeout(r, 20));
+			// Each handler asks for confirmation before doing anything, so three calls prove all three ran.
+			await vi.waitFor(() => expect(umbConfirmModal).toHaveBeenCalledTimes(3));
+			const confirmResults = vi.mocked(umbConfirmModal).mock.results.map((r) => r.value as Promise<unknown>);
+			await Promise.allSettled(confirmResults);
+			await siteEl.updateComplete;
 
+			expect(vi.mocked(umbConfirmModal).mock.calls.map((call) => call[1]?.headline)).toEqual([
+				'Delete Site',
+				'Clean Up Site',
+				'Deploy Site',
+			]);
+			expect(siteEl.runningTask).toBeNull();
 			expect(mockContext.deleteSite).not.toHaveBeenCalled();
 			expect(mockContext.cleanSite).not.toHaveBeenCalled();
 			expect(mockContext.deploySite).not.toHaveBeenCalled();

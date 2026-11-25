@@ -1,9 +1,15 @@
 # Turns on auto-merge for Dependabot minor and patch updates (including security fixes).
 # GitHub only merges once the required checks in branch protection pass, so a red PR is never merged.
-# Major version updates are left for a person to review.
+# Major version updates are left for a person to review, and so is anything not aimed at a supported release
+# branch (master, lts/* or a version branch such as feature/19).
 name: 'Dependabot auto-merge'
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - master
+      - 'lts/**'
+      - 'feature/[0-9]*'
 
 permissions: {}
 

@@ -8,7 +8,7 @@ Yes. xStatic and all its packages are free and open source under the MIT licence
 
 ### Which Umbraco versions does it support?
 
-Each xStatic major version matches one Umbraco major version: 18.x for Umbraco 18 (needs 18.3.2 or later), 17.x for Umbraco 17, and 13.x for Umbraco 13, with older 14 and 15 releases no longer updated. Versions before 13 aren't supported. See the table on [Home](Home.md#versions) and [Upgrading](Upgrading.md).
+Each xStatic major version matches one Umbraco major version: 18.x for Umbraco 18 (needs 18.3.2 or later), 17.x for Umbraco 17, and 19.x (pre-release) for Umbraco 19. 13.x for Umbraco 13 and the older 14 and 15 releases no longer receive updates or security fixes, and versions before 13 aren't supported. See the table on [Home](Home.md#versions) and [Upgrading](Upgrading.md).
 
 ### Does my site need to be built with Razor templates?
 
@@ -34,7 +34,7 @@ Yes, through the Git deployer, which has a full [GitHub Pages walkthrough](Deplo
 
 ### Can I deploy to AWS S3 or another host that isn't listed?
 
-For S3 there's a community plugin, `xStatic.AWSS3` by Adam Werner, which deploys to an S3 bucket ([NuGet](https://www.nuget.org/packages/xStatic.AWSS3), [GitHub](https://github.com/adam-werner/xStatic.AWSS3)). It's a separate package that isn't maintained in this repository, so check it suits your versions. It's also listed on the **Documentation** dashboard in the backoffice ([Backoffice tour](Backoffice-Tour.md#documentation)). For anything else, you can write your own deployer ([Writing a deployer](Writing-a-Deployer.md)), or deploy to a folder and sync it with another tool.
+For S3 there's a community plugin, `xStatic.AWSS3` by Adam Werner, which deploys to an S3 bucket ([NuGet](https://www.nuget.org/packages/xStatic.AWSS3), [GitHub](https://github.com/adam-werner/xStatic.AWSS3)). It's a separate package that isn't maintained in this repository, so check it suits your versions. The **Documentation** dashboard in the backoffice only lists the official packages, so you won't find it there. For anything else, you can write your own deployer ([Writing a deployer](Writing-a-Deployer.md)), or deploy to a folder and sync it with another tool.
 
 ### Does xStatic delete files at the destination?
 

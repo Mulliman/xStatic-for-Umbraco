@@ -32,7 +32,7 @@ namespace XStatic.Core.Deploy
         {
             if (!_deployerBuilderDictionary.ContainsKey(deployerKey))
             {
-                throw new ArgumentException("No deployed found with ID " + deployerKey, nameof(deployerKey));
+                throw new ArgumentException("No deployer found with ID " + deployerKey, nameof(deployerKey));
             }
 
             var func = _deployerBuilderDictionary[deployerKey];
