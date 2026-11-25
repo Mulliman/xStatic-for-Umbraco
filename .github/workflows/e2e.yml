@@ -76,34 +76,43 @@ jobs:
           dotnet dev-certs https
           dotnet build $env:INSTANCE_NAME --configuration Debug
 
-      - name: 'Start test site'
-        shell: pwsh
-        working-directory: Testing/Instances/${{ env.INSTANCE_NAME }}
-        run: |
-          # Start-Process keeps the site running for the later steps; output goes to site.log (uploaded below).
-          Start-Process dotnet -ArgumentList 'run', '--no-build', '--project', $env:INSTANCE_NAME, '--urls', $env:SITE_URL `
-            -RedirectStandardOutput site.log -RedirectStandardError site.err.log -NoNewWindow
-          # The first request runs the unattended install, so allow a few minutes.
-          $deadline = (Get-Date).AddMinutes(5)
-          do {
-            Start-Sleep -Seconds 5
-            try {
-              $status = (Invoke-WebRequest "$env:SITE_URL/umbraco" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
-            } catch { $status = $null }
-            Write-Host "GET /umbraco -> $status"
-          } until ($status -eq 200 -or (Get-Date) -gt $deadline)
-          if ($status -ne 200) { Get-Content site.log -Tail 100; throw 'The test site did not start in time.' }
-
       - name: 'Install Playwright dependencies'
         working-directory: Testing/Playwright
         run: npm ci
 
-      # Uses the runner's installed Chrome (channel: 'chrome'), so no browser download is needed.
-      - name: 'Run Playwright'
-        working-directory: Testing/Playwright
+      # The site and the tests share one step: the runner stops processes a step started when that step ends.
+      # Playwright uses the runner's installed Chrome (channel: 'chrome'), so no browser download is needed.
+      - name: 'Start test site and run Playwright'
+        shell: pwsh
         env:
           CI: 'true'
-        run: npx playwright test --reporter=list,html
+        run: |
+          $siteDir = "Testing/Instances/$env:INSTANCE_NAME"
+          $site = Start-Process dotnet -WorkingDirectory $siteDir -PassThru -NoNewWindow `
+            -ArgumentList 'run', '--no-build', '--project', $env:INSTANCE_NAME, '--urls', $env:SITE_URL `
+            -RedirectStandardOutput "$siteDir/site.log" -RedirectStandardError "$siteDir/site.err.log"
+          try {
+            # The first request runs the unattended install, so allow a few minutes.
+            $deadline = (Get-Date).AddMinutes(5)
+            do {
+              Start-Sleep -Seconds 5
+              try {
+                $status = (Invoke-WebRequest "$env:SITE_URL/umbraco" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
+              } catch { $status = $null }
+              Write-Host "GET /umbraco -> $status"
+            } until ($status -eq 200 -or $site.HasExited -or (Get-Date) -gt $deadline)
+            if ($status -ne 200) { Get-Content "$siteDir/site.log" -Tail 100; throw 'The test site did not start.' }
+
+            Push-Location Testing/Playwright
+            npx playwright test --reporter=list,html
+            $testExit = $LASTEXITCODE
+            Pop-Location
+            if ($site.HasExited) { Write-Host "The test site stopped during the run (exit code $($site.ExitCode))." }
+            exit $testExit
+          }
+          finally {
+            if (-not $site.HasExited) { Stop-Process -Id $site.Id -Force -ErrorAction SilentlyContinue }
+          }
 
       - name: 'Upload Playwright report'
         if: always()
