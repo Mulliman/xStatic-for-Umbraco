@@ -108,8 +108,9 @@ creating folders work but no file can be transferred, which the deployer reports
 | Workflow | When | What |
 |----------|------|------|
 | `ci.yml` | Every PR, and every push to `master` / `feature/**` / `lts/**` | Runs `test.yml`, packs a preview with `pack.yml`, and pushes it to the repo's GitHub Packages feed. On PRs it also comments with install instructions. |
-| `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. |
-| `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run in CI because it needs a live Umbraco instance. |
+| `release.yml` | A `v*` tag (create a GitHub Release with a new tag), or a manual dry run | Runs `test.yml` and `e2e.yml`, packs at the tag's version, and pushes to nuget.org via Trusted Publishing. A failing E2E run stops the release. |
+| `test.yml` | Reusable | Builds the solution, runs unit and integration tests (SQLite), and type-checks and builds the client. Playwright isn't run here. |
+| `e2e.yml` | Reusable, called only by `release.yml` | Creates a throwaway Umbraco site (version from `XStatic.Core.csproj`) with `setup-local-instance.ps1 -IncludeAllExtensions`, starts it on `https://localhost:5000` and runs the Playwright suite. Spec 13 (FTP) skips itself. The report, traces and site logs are uploaded as artifacts. |
 | `codeql.yml` | Every PR, pushes to `master` / `feature/**` / `lts/**`, and weekly | CodeQL security scan of the C#, TypeScript and workflow files, without building. Results go to Security → Code scanning. Exclusions are in `.github/codeql/codeql-config.yml`. |
 | `dependabot-automerge.yml` | Dependabot PRs | Turns on auto-merge for minor and patch updates, so they merge once the required checks pass. Major updates are left for review. |
 | `pack.yml` | Reusable | Builds the client and packs all 9 packages at one version, uploaded as the `nuget-packages` artifact. |
