@@ -48,7 +48,7 @@ xStatic is split into several NuGet packages. Most sites need `xStatic` plus one
 | `xStatic.Netlify` | The [Netlify deployer](Deploying-to-Netlify.md), including the **Netlify Site Creator** | You host on Netlify |
 | `xStatic.Git` | The [Git deployer](Deploying-with-Git.md), used for GitHub Pages and similar | You host from a Git repository |
 | `xStatic.Ftp` | The [FTP deployer](Deploying-to-FTP.md) | You host on an FTP server |
-| `xStatic.Cloudflare` | The [Cloudflare Pages and R2 deployers](Deploying-to-Cloudflare.md), project creator, and `_headers`/`_redirects` actions | You host on Cloudflare Pages or Cloudflare R2 |
+| `xStatic.Cloudflare` | The [Cloudflare Workers, Pages and R2 deployers](Deploying-to-Cloudflare.md), Worker and Pages creators, and `_headers`/`_redirects` actions | You host on Cloudflare Workers, Cloudflare Pages or Cloudflare R2 |
 | `xStatic.RemoteOperations` | A .NET client for [triggering xStatic remotely](Remote-Operations.md) with an Umbraco API user | You want builds from a scheduler or another application |
 | `xStatic.AI` | Optional [AI pre-deploy GEO/SEO audit and agent tools](AI-Integration.md) built on `Microsoft.Extensions.AI` | You want automated pre-deploy audits or `Umbraco.AI.Agent` integration |
 

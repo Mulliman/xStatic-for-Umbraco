@@ -52,7 +52,7 @@ output before it goes live.
   [Netlify](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Netlify.html),
   [Git](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-with-Git.html) (GitHub Pages and similar),
   [FTP](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-FTP.html),
-  [Cloudflare Pages and R2](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Cloudflare.html) and
+  [Cloudflare Workers, Pages and R2](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-Cloudflare.html) and
   [a folder](https://mulliman.github.io/xStatic-for-Umbraco/Deploying-to-a-Folder.html).
 - **Image crops without an image server.** Resized images are generated ahead of time and the page markup is
   updated to match. See [Image crops](https://mulliman.github.io/xStatic-for-Umbraco/Image-Crops.html).

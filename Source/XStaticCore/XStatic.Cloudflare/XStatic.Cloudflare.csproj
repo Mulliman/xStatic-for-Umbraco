@@ -6,8 +6,8 @@
 		<PackageId>xStatic.Cloudflare</PackageId>
 		<Title>xStatic.Cloudflare</Title>
 		<Version>18.0.0-beta</Version>
-		<Description>Cloudflare Pages Direct Upload and Cloudflare R2 deployers and post-generation actions for xStatic for Umbraco.</Description>
-		<PackageTags>umbraco umbraco17 xstatic static site generation cloudflare pages r2 umbraco-marketplace</PackageTags>
+		<Description>Cloudflare Workers static assets, Cloudflare Pages Direct Upload and Cloudflare R2 deployers and post-generation actions for xStatic for Umbraco.</Description>
+		<PackageTags>umbraco umbraco17 xstatic static site generation cloudflare workers pages r2 umbraco-marketplace</PackageTags>
 		<Copyright>Sam Mullins</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://www.sammullins.co.uk/software/xstatic-for-umbraco/</PackageProjectUrl>

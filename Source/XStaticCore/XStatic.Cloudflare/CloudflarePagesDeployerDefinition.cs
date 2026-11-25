@@ -19,7 +19,8 @@ namespace XStatic.Cloudflare
         public string Name => "Cloudflare Pages";
 
         public string Help =>
-            "Deploys your generated static site directly to Cloudflare Pages via the Direct Upload API. " +
+            "Deploys your generated static site directly to an existing Cloudflare Pages project via the Direct Upload API. " +
+            "For a new site, use the <strong>Cloudflare Workers</strong> deployer instead: Cloudflare now recommends Workers static assets over Pages. " +
             "Create an API Token with <strong>Cloudflare Pages: Edit</strong> permissions at " +
             "<a target='_blank' href='https://dash.cloudflare.com/profile/api-tokens'>dash.cloudflare.com/profile/api-tokens</a>, " +
             "and copy your Account ID from the Cloudflare dashboard. Optionally enable AI/Markdown headers to emit a <code>_headers</code> file supporting Markdown for Agents.";

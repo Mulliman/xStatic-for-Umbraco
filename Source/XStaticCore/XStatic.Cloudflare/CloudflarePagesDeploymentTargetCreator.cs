@@ -163,6 +163,7 @@ namespace XStatic.Cloudflare
 
         public string Help =>
             "Creates a new Cloudflare Pages Direct Upload project and configures a matching xStatic Deployment Target automatically. " +
+            "Cloudflare now recommends Workers for new sites, so consider the <strong>Cloudflare Workers Creator</strong> instead. " +
             "You will need your Cloudflare Account ID and an API Token with <strong>Cloudflare Pages: Edit</strong> permission.";
 
         public IEnumerable<DeployerField> Fields => new[]

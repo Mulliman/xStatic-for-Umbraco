@@ -12,8 +12,8 @@ A post-generation action (an "action") is a small step that runs on the generate
 | `GenerateLlmsTxtAction` | Compiles `/llms.txt` and optionally `/llms-full.txt` ([AI and GEO](AI-and-GEO.md)) | **SiteTitle**, **SiteDescription**, **GenerateFullFile**, **GenerateCompanionMarkdown**, **UseMarkdownLinks**, **ExcludePaths** |
 | `RagExportPostGenerationAction` | Exports structured RAG chunks (`Jsonl`, `Json`, or `Markdown`) and `webmcp-index.json` ([RAG and WebMCP](RAG-and-WebMCP.md)) | **OutputFormat**, **OutputPath**, **MaxChunkSize**, **ChunkOverlap**, **SplitOnHeadings**, **ExcludedPaths**, **ExcludedDocTypes**, **CustomPropertyAliases**, **GenerateWebMcpIndex**, **WebMcpIndexPath** |
 | `Netlify404Action` | Copies a file to `404.html` (only with the `xStatic.Netlify` package) | **FilePath** |
-| `CloudflareHeadersAction` | Writes `/_headers` for Cloudflare Pages, including optional *Markdown for Agents* rules (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **IncludeMarkdownForAgents**, **CustomRules** |
-| `CloudflareRedirectsAction` | Writes `/_redirects` for Cloudflare Pages (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **Rules** |
+| `CloudflareHeadersAction` | Writes `/_headers` for Cloudflare Workers and Pages, including optional *Markdown for Agents* rules (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **IncludeMarkdownForAgents**, **CustomRules** |
+| `CloudflareRedirectsAction` | Writes `/_redirects` for Cloudflare Workers and Pages (with `xStatic.Cloudflare`, see [Deploying to Cloudflare](Deploying-to-Cloudflare.md)) | **Rules** |
 | `AiPreDeployAuditAction` | Runs a deterministic and optional LLM-assisted GEO/SEO audit and saves reports outside the output folder (with `xStatic.AI`, see [AI integration](AI-Integration.md)) | **MaxPages**, **ReportPath**, **FailOnCritical**, **ProfileAlias**, **IncludePaths** |
 
 Actions run after pages, media and assets are saved, and before you deploy. They work on the generated copy of the site only, never on your Umbraco content.
