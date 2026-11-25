@@ -12,6 +12,10 @@ import { GenerateResponse, SitePage } from '../pages/SitePage';
  * the default do-not-delete paths. Self-contained: creates and removes its own target, actions and site.
  */
 test.describe.serial('Generated output', () => {
+    // The first generate on a fresh site can take well over the default 30s (Examine indexes rebuilding, image
+    // crops being made); generateAndWait already allows 120s for the response.
+    test.describe.configure({ timeout: 120_000 });
+
     const runId = process.env.TEST_RUN_ID || 'local';
     const siteName = `Output Site ${runId}`;
     const targetName = `Output Target ${runId}`;

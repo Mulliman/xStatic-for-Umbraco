@@ -188,8 +188,9 @@ silently.
 | Workflow | When it runs | What it does |
 |----------|--------------|--------------|
 | `ci.yml` | Every pull request, and pushes to `master`, `feature/**` and `lts/**` | Runs the tests, packs all packages at a preview version, and pushes them to GitHub Packages. Pull requests get a comment with install instructions |
-| `release.yml` | A tag matching `v*` is pushed | Runs the tests, packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
+| `release.yml` | A tag matching `v*` is pushed, or a manual dry run | Runs the tests and the Playwright E2E suite (`e2e.yml`), packs all packages at the tag's version (without the `v`) and pushes them to nuget.org using Trusted Publishing |
 | `test.yml`, `pack.yml` | Called by the two above | The reusable test and pack steps |
+| `e2e.yml` | Called by `release.yml` only | Creates a throwaway Umbraco site, starts it and runs the Playwright suite against it. A failure stops the release |
 
 All nine packages are released together at one version. Releasing is the maintainer's decision, so don't tag or push
 to NuGet yourself. The checklist is in [RELEASING.md](../RELEASING.md), and the history of the tags is on

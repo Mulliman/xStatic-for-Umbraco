@@ -1,0 +1,141 @@
+name: "E2E (Playwright)"
+
+# Reusable: creates a throwaway Umbraco site with this checkout's xStatic projects, starts it on
+# https://localhost:5000 and runs the Playwright suite in Testing/Playwright against it.
+# Only called by release.yml (a v* tag or its manual dry run), so it gates publishing, not PRs.
+# The Umbraco version comes from XStatic.Core.csproj, so each branch tests against its own Umbraco major.
+# Spec 13 (FTP) skips itself here: it needs the Docker FTP server, which Windows runners can't run.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  FE_PATH: 'Source/XStaticCore/XStatic14/XStatic14.Client/assets'
+  INSTANCE_NAME: 'E2E-Site'
+  SITE_URL: 'https://localhost:5000'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  playwright:
+    name: 'Playwright against a fresh Umbraco site'
+    # Windows, like the local setup scripts (they build Windows paths) and the other .NET jobs.
+    runs-on: 'windows-latest'
+    timeout-minutes: 60
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 'Install dotnet'
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 'Use Node.js 24'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: |
+            ${{ env.FE_PATH }}/package-lock.json
+            Testing/Playwright/package-lock.json
+
+      - name: 'Build backoffice client'
+        working-directory: ${{ env.FE_PATH }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: 'Work out Umbraco version'
+        id: umbraco
+        shell: pwsh
+        run: |
+          $csproj = 'Source/XStaticCore/XStatic.Core/XStatic.Core.csproj'
+          $reference = Select-Xml -Path $csproj -XPath "//PackageReference[@Include='Umbraco.Cms.Core']" | Select-Object -First 1
+          if (-not $reference) { throw "No Umbraco.Cms.Core PackageReference found in $csproj." }
+          $version = $reference.Node.Version
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Umbraco version: $version"
+
+      - name: 'Create test site'
+        shell: pwsh
+        working-directory: Testing/Scripts
+        run: |
+          ./setup-local-instance.ps1 -UmbracoVersion '${{ steps.umbraco.outputs.version }}' -InstanceName $env:INSTANCE_NAME -Port 5000 -BaseDir '..\Instances' -IncludeAllExtensions -NoStart
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: 'Build test site'
+        shell: pwsh
+        working-directory: Testing/Instances/${{ env.INSTANCE_NAME }}
+        run: |
+          # xStatic's generator fetches every page over HTTPS from the site itself, so the dev certificate must be
+          # trusted, not just present. Adding it to the machine root store needs no prompt on a hosted runner.
+          dotnet dev-certs https
+          $cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Subject -eq 'CN=localhost' -and $_.Extensions.Oid.Value -contains '1.3.6.1.4.1.311.84.1.1' } | Select-Object -First 1
+          if (-not $cert) { throw 'No ASP.NET Core development certificate found.' }
+          Export-Certificate -Cert $cert -FilePath "$env:RUNNER_TEMP/aspnet-dev.cer" | Out-Null
+          Import-Certificate -FilePath "$env:RUNNER_TEMP/aspnet-dev.cer" -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+          dotnet build $env:INSTANCE_NAME --configuration Debug
+
+      - name: 'Install Playwright dependencies'
+        working-directory: Testing/Playwright
+        run: npm ci
+
+      # The site and the tests share one step: the runner stops processes a step started when that step ends.
+      # Playwright uses the runner's installed Chrome (channel: 'chrome'), so no browser download is needed.
+      - name: 'Start test site and run Playwright'
+        shell: pwsh
+        env:
+          CI: 'true'
+        run: |
+          $siteDir = "Testing/Instances/$env:INSTANCE_NAME"
+          $site = Start-Process dotnet -WorkingDirectory $siteDir -PassThru -NoNewWindow `
+            -ArgumentList 'run', '--no-build', '--project', $env:INSTANCE_NAME, '--urls', $env:SITE_URL `
+            -RedirectStandardOutput "$siteDir/site.log" -RedirectStandardError "$siteDir/site.err.log"
+          try {
+            # The first request runs the unattended install, so allow a few minutes.
+            $deadline = (Get-Date).AddMinutes(5)
+            do {
+              Start-Sleep -Seconds 5
+              try {
+                $status = (Invoke-WebRequest "$env:SITE_URL/umbraco" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
+              } catch { $status = $null }
+              Write-Host "GET /umbraco -> $status"
+            } until ($status -eq 200 -or $site.HasExited -or (Get-Date) -gt $deadline)
+            if ($status -ne 200) { Get-Content "$siteDir/site.log" -Tail 100; throw 'The test site did not start.' }
+
+            Push-Location Testing/Playwright
+            npx playwright test --reporter=list,html
+            $testExit = $LASTEXITCODE
+            Pop-Location
+            if ($site.HasExited) { Write-Host "The test site stopped during the run (exit code $($site.ExitCode))." }
+            exit $testExit
+          }
+          finally {
+            if (-not $site.HasExited) { Stop-Process -Id $site.Id -Force -ErrorAction SilentlyContinue }
+          }
+
+      - name: 'Upload Playwright report'
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            Testing/Playwright/playwright-report
+            Testing/Playwright/test-results
+          if-no-files-found: ignore
+
+      - name: 'Upload site logs'
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-site-logs
+          path: |
+            Testing/Instances/${{ env.INSTANCE_NAME }}/site*.log
+            Testing/Instances/${{ env.INSTANCE_NAME }}/${{ env.INSTANCE_NAME }}/umbraco/Logs
+          if-no-files-found: ignore
