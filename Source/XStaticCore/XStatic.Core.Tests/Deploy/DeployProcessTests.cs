@@ -38,10 +38,7 @@ namespace XStatic.Core.Tests.Deploy
 
         public void Dispose()
         {
-            if (Directory.Exists(_outputFolder))
-            {
-                Directory.Delete(_outputFolder, recursive: true);
-            }
+            try { Directory.Delete(_outputFolder, recursive: true); } catch { /* best effort */ }
         }
 
         private DeployProcess NewProcess() => new(_storer.Object, _targets.Object, _deployers.Object, _sites.Object);

@@ -32,7 +32,14 @@ namespace XStatic.Core.Tests.Deploy
 
         public void Dispose()
         {
-            if (Directory.Exists(_site)) Directory.Delete(_site, recursive: true);
+            try
+            {
+                if (Directory.Exists(_site)) Directory.Delete(_site, recursive: true);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                // Still open on Windows after a failed transfer; it's in the temp folder, so leave it.
+            }
         }
 
         private static FtpDeployer NewDeployer(int port, string folder = "/site", string password = FtpTestServer.Password)

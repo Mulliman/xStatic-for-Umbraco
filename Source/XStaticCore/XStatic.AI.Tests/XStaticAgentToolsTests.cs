@@ -34,10 +34,7 @@ public class XStaticAgentToolsTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_tempDir))
-        {
-            Directory.Delete(_tempDir, recursive: true);
-        }
+        try { Directory.Delete(_tempDir, recursive: true); } catch { /* best effort */ }
     }
 
     [Fact]

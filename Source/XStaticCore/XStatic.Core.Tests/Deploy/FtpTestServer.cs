@@ -66,12 +66,22 @@ namespace XStatic.Core.Tests.Deploy
         public async ValueTask DisposeAsync()
         {
             await _host.StopAsync(CancellationToken.None);
-            await _services.DisposeAsync();
+            try
+            {
+                await _services.DisposeAsync();
+            }
+            catch (Exception)
+            {
+                // FubarDev.FtpServer 3.1 can throw from FtpConnection.Dispose (a NullReferenceException in
+                // FeatureCollection) when a client connection is still closing as the container is disposed. The test
+                // has already finished by then, so a failed shutdown of the test server mustn't fail it.
+            }
+
             try
             {
                 Directory.Delete(Root, recursive: true);
             }
-            catch (IOException)
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
                 // A file the server still has open; it's in the temp folder, so leave it.
             }
