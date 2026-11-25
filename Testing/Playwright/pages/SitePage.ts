@@ -293,7 +293,11 @@ export class SitePage extends BasePage {
     async delete(name?: string) {
          if (name) {
              const row = this.row(name);
-             
+
+             // isVisible() doesn't wait, so give the sites list time to load first; otherwise cleanup
+             // straight after goto() skips a site that's about to appear.
+             await row.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => undefined);
+
              if (await row.isVisible()) {
                  // The delete call itself (DELETE .../xstatic/sites/delete?staticSiteId=...), not any xStatic call
                  // that happens to finish first, such as the sites list refreshing.
