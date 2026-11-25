@@ -2,7 +2,7 @@
 
 xStatic turns your Umbraco site into a static website. Editors keep using the Umbraco backoffice they already know.
 When they're ready, xStatic renders every published page, copies the media and assets it needs, and deploys the
-result to Netlify, Cloudflare Pages, a Git repository (GitHub Pages, for example), an FTP server or a folder. The static copy is
+result to Netlify, Cloudflare Workers or Pages, a Git repository (GitHub Pages, for example), an FTP server or a folder. The static copy is
 fast, cheap to host, and has no database or server code for anyone to attack.
 
 This wiki covers everything from installing the package to writing your own deployers. It's written against

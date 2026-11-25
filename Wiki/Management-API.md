@@ -157,11 +157,13 @@ The export type endpoints use the normal-user policy on purpose, so editors can 
 | POST | `deployment-targets/auto-create-deployment-target` | body `DeploymentTargetCreatorPostModel` | 201 with `{ wasSuccessful, message, exception, data }` | Runs a creator (such as the Netlify Site Creator) and saves the target it makes |
 
 `DeploymentTargetUpdateModel` is `{ id, name, deployerDefinition, fields }`, where `deployerDefinition` is the
-deployer's id (`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-pages`, `cloudflare-r2`) and `fields` maps each field's alias to its value, for example
+deployer's id (`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-workers`, `cloudflare-pages`, `cloudflare-r2`) and `fields` maps each field's alias to its value, for example
 `{ "File.FolderPath": "C:\\Temp\\site" }`. `DeploymentTargetCreatorPostModel` is `{ name, creator, fields }`. Use
 `netlify-site-creator` as the `creator` id, with the fields `NetlifyCreator.PAT` (a Netlify personal access token) and
 `NetlifyCreator.SiteName`. The creator names the new target after the site name, so `name` is ignored. With
-`xStatic.Cloudflare` installed you can also use `cloudflare-pages-project-creator`, with the fields
+`xStatic.Cloudflare` installed you can also use `cloudflare-workers-creator`, with the fields
+`CloudflareWorkersCreator.AccountId`, `CloudflareWorkersCreator.ApiToken` and `CloudflareWorkersCreator.WorkerName`
+(it returns 409 if a Worker with that name already exists), or `cloudflare-pages-project-creator`, with the fields
 `CloudflarePagesCreator.AccountId`, `CloudflarePagesCreator.ApiToken`, `CloudflarePagesCreator.ProjectName` and
 `CloudflarePagesCreator.ProductionBranch` (optional, `main` if blank). The
 `DeploymentTargetModel` that comes back has `id`, `name`, `deployerDefinition`, `help` and `fields`, where `fields` is

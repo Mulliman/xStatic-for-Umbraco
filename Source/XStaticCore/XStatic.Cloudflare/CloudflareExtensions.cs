@@ -8,11 +8,15 @@ namespace XStatic.Cloudflare
     {
         public static IDeployServiceBuilder AddCloudflareDeployers(this IDeployServiceBuilder builder)
         {
+            builder.AddDeployer(new CloudflareWorkersDeployerDefinition(), (x) => new CloudflareWorkersDeployer(x));
             builder.AddDeployer(new CloudflarePagesDeployerDefinition(), (x) => new CloudflarePagesDeployer(x));
             builder.AddDeployer(new CloudflareR2DeployerDefinition(), (x) => new CloudflareR2Deployer(x));
 
             if (builder is DeployServiceBuilder concreteBuilder)
             {
+                concreteBuilder.AddDeploymentTargetCreator(
+                    new CloudflareWorkersDeploymentTargetCreatorDefinition(),
+                    (x) => new CloudflareWorkersDeploymentTargetCreator(x));
                 concreteBuilder.AddDeploymentTargetCreator(
                     new CloudflarePagesDeploymentTargetCreatorDefinition(),
                     (x) => new CloudflarePagesDeploymentTargetCreator(x));

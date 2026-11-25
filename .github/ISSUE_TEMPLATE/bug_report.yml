@@ -43,6 +43,7 @@ body:
         - Netlify
         - Git
         - FTP
+        - Cloudflare Workers
         - Cloudflare Pages
         - Cloudflare R2
         - Other or custom

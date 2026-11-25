@@ -1,5 +1,5 @@
 A deployment target is one configured destination for your generated site, such as "our Netlify site" or "the FTP
-server". This page explains what a target is, how to create and edit one by hand or with a creator (the Netlify Site Creator or the Cloudflare Pages Project Creator),
+server". This page explains what a target is, how to create and edit one by hand or with a creator (the Netlify Site Creator, the Cloudflare Workers Creator or the Cloudflare Pages Project Creator),
 and how xStatic handles the passwords and tokens inside them. Deployment targets are for admins only.
 
 ## At a glance
@@ -21,6 +21,7 @@ and how xStatic handles the passwords and tokens inside them. Deployment targets
 | **Netlify (Legacy)** | `xStatic.Netlify` | **Personal Access Token**, **Site ID** | [Deploying to Netlify](Deploying-to-Netlify.md) |
 | **Git** | `xStatic.Git` | **Remote URL**, **Email**, **Username**, **Password / Personal Access Token**, **Branch** | [Deploying with Git](Deploying-with-Git.md) |
 | **FTP** | `xStatic.Ftp` | **Hostname**, **Username**, **Password**, **Folder**, **Port** | [Deploying to FTP](Deploying-to-FTP.md) |
+| **Cloudflare Workers** | `xStatic.Cloudflare` | **Account ID**, **API Token**, **Worker Name**, **HTML Handling (optional)**, **Not Found Handling (optional)**, **Compatibility Date (optional)**, **Enable workers.dev URL**, **Generate AI/Markdown _headers** | [Deploying to Cloudflare](Deploying-to-Cloudflare.md#deploy-to-cloudflare-workers) |
 | **Cloudflare Pages** | `xStatic.Cloudflare` | **Account ID**, **API Token**, **Project Name**, **Branch (optional)**, **Generate AI/Markdown _headers** | [Deploying to Cloudflare](Deploying-to-Cloudflare.md) |
 | **Cloudflare R2** | `xStatic.Cloudflare` | **Account ID**, **Bucket Name**, **Access Key ID**, **Secret Access Key**, **Key Prefix (optional)**, **Endpoint URL Override (optional)** | [Deploying to Cloudflare](Deploying-to-Cloudflare.md) |
 
@@ -92,14 +93,23 @@ Things to know:
   `${env:XSTATIC_NETLIFY_TOKEN}` and the new target keeps the reference rather than the token
   ([Secrets and environment variables](Secrets-and-Environment-Variables.md)).
 
+### Create a Cloudflare Worker automatically
+
+With `xStatic.Cloudflare` installed, **Creator Template \*** also offers **Cloudflare Workers Creator**. Fill in
+**Account ID \***, **API Token \*** (a token with **Workers Scripts: Edit** permission) and **Worker Name \***, then click
+**Create**. xStatic checks that no Worker has that name, deploys a placeholder page to a new Worker, turns on its
+`workers.dev` URL and saves a **Cloudflare Workers** target named after the Worker. If the name is taken, nothing is
+created. A `${env:...}` or `${config:...}` reference typed into the token field is restored in the saved target. See
+[Deploying to Cloudflare](Deploying-to-Cloudflare.md#step-2-create-the-worker-and-its-deployment-target).
+
 ### Create a Cloudflare Pages project automatically
 
-With `xStatic.Cloudflare` installed, **Creator Template \*** also offers **Cloudflare Pages Project Creator**. Fill in
+**Creator Template \*** also offers **Cloudflare Pages Project Creator**, for when you want a Pages project rather than a Worker. Fill in
 **Account ID \***, **API Token \*** (a token with **Cloudflare Pages: Edit** permission), **Project Name \*** and, if you
 don't want `main`, **Production Branch**, then click **Create**. xStatic creates a Direct Upload project and saves a
 **Cloudflare Pages** target named after the project. As with Netlify, a `${env:...}` or `${config:...}` reference typed
 into the token field is restored in the saved target, so the token itself isn't stored. See
-[Deploying to Cloudflare](Deploying-to-Cloudflare.md#step-2-create-a-deployment-target-or-provision-a-new-project).
+[Deploying to Cloudflare](Deploying-to-Cloudflare.md#step-2-create-a-pages-deployment-target-or-provision-a-new-project).
 
 Creators are a plugin point too. See [Deployment target creators](Deployment-Target-Creators.md).
 
@@ -127,7 +137,7 @@ dropdown, and deploying to it fails.
 ## What the card shows
 
 The headline is the target's name. The table has the name and the **type**, which is the deployer's id
-(`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-pages`, `cloudflare-r2`), not its display name.
+(`filesystem`, `netlify`, `netlify-legacy`, `git`, `ftp`, `cloudflare-workers`, `cloudflare-pages`, `cloudflare-r2`), not its display name.
 
 ## Secrets: where they live and who sees them
 

@@ -61,7 +61,7 @@ The videos are linked from the page they illustrate and collected on [Videos-and
 | Backoffice-Tour | Every section, dashboard and button, with who sees it |
 | Sites | Every site field and what it does |
 | Export-Types | Generator + transformer list + file namer, the built-in HTML type, making a JSON type |
-| Deployment-Targets | What a target is, creating, editing, the Netlify and Cloudflare creators, where secrets are stored |
+| Deployment-Targets | What a target is, creating, editing, the Netlify and Cloudflare (Workers and Pages) creators, where secrets are stored |
 | Secrets-and-Environment-Variables | `${env:...}` and `${config:...}` references, the allow-list settings, when references are read, errors |
 | Post-Generation-Actions | Built-in actions, fields, order, failures |
 | Generating-and-Deploying | Generate, deploy, download, clean up, results and warnings, where files go |
@@ -75,7 +75,7 @@ The videos are linked from the page they illustrate and collected on [Videos-and
 | Deploying-to-Netlify | Netlify deployer, site creator, 404 action |
 | Deploying-with-Git | Git deployer, GitHub Pages, tokens, limitations |
 | Deploying-to-FTP | FTP deployer, mirror behaviour, passive mode, test server |
-| Deploying-to-Cloudflare | Cloudflare Pages Direct Upload, Project Creator, R2 deployer, `_headers` and `_redirects` actions |
+| Deploying-to-Cloudflare | Choosing a Cloudflare deployer, Workers static assets and Workers Creator, moving from Pages, Cloudflare Pages Direct Upload, Project Creator, R2 deployer, `_headers` and `_redirects` actions |
 | Remote-Operations | API users, the client package, scheduled builds |
 | AI-and-GEO | Companion `.md` twins, `/llms.txt`, `/llms-full.txt`, `MarkdownDiscoveryTransformer`, `GeoHtmlTransformerListFactory` |
 | RAG-and-WebMCP | Static RAG chunk exporter (`Jsonl`, `Json`, `Markdown`), `webmcp-index.json`, `IVectorStorePusher` |

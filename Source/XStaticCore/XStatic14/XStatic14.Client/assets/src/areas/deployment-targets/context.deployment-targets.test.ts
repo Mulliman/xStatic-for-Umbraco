@@ -90,6 +90,7 @@ describe('DeploymentTargetContext', () => {
 			.mockResolvedValue([] as never);
 		const before = getConfigVersion();
 		const ctx = createContext();
+		const peek = stubNotifications(ctx);
 
 		expect(await ctx.createDeploymentTarget({ id: 0 } as never)).toBeNull();
 		expect(await ctx.updateDeploymentTarget({ id: 2 } as never)).toBeNull();
@@ -97,5 +98,36 @@ describe('DeploymentTargetContext', () => {
 
 		expect(getSpy).not.toHaveBeenCalled();
 		expect(getConfigVersion()).toBe(before);
+		expect(peek).toHaveBeenCalledWith('danger', {
+			data: { headline: 'Could not create the deployment target', message: 'Netlify said no' },
+		});
 	});
+
+	it("shows the server's reason when auto-create is rejected with an error status", async () => {
+		// The tryExecute mock passes the resolved value through, so this stands in for its error result.
+		vi.spyOn(V1Service, 'postApiV1XstaticDeploymentTargetsAutoCreateDeploymentTarget').mockResolvedValue({
+			error: {
+				name: 'UmbApiError',
+				message: 'Conflict',
+				status: 409,
+				problemDetails: { wasSuccessful: false, message: "The environment variable 'XSTATIC_CF_TOKEN' isn't set." },
+			},
+		} as never);
+		const ctx = createContext();
+		const peek = stubNotifications(ctx);
+
+		expect(await ctx.autoCreateDeploymentTarget({} as never)).toBeNull();
+		expect(peek).toHaveBeenCalledWith('danger', {
+			data: {
+				headline: 'Could not create the deployment target',
+				message: "The environment variable 'XSTATIC_CF_TOKEN' isn't set.",
+			},
+		});
+	});
+
+	function stubNotifications(ctx: DeploymentTargetContext) {
+		const peek = vi.fn();
+		vi.spyOn(ctx, 'getContext').mockResolvedValue({ peek } as never);
+		return peek;
+	}
 });
