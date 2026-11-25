@@ -51,7 +51,7 @@ All .NET code lives under `Source/XStaticCore/` (solution: `XStaticCore.sln`).
 | `Testing/Scripts/`, `Testing/Instances/AddNew.bat` | Spin up local Umbraco test sites (`Testing/Instances/*` is gitignored). |
 | `Testing/Ftp/` | Docker Compose FTP server (vsftpd) for checking the FTP deployer by hand or with Playwright spec 13. |
 | `Wiki/` | The user and developer documentation, published when `master` changes as an HTML docs site on GitHub Pages (https://mulliman.github.io/xStatic-for-Umbraco/) by `.github/workflows/pages.yml` (built by `Tools/Wiki/build-pages-site.mjs`, styled by the vendored `Tools/Wiki/sam.css` — don't edit it, override in the builder — with the upper-case logo from `Brand/`). Flat Markdown pages plus `_Sidebar.md`; style guide, content plan and checker in `Tools/Wiki/`. |
-| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. `pages.yml` publishes the docs site, `codeql.yml` and `scorecard.yml` are security scans, `dependabot-automerge.yml` auto-merges minor and patch Dependabot PRs, and `dependabot.yml` covers `master`, `lts/17` and `feature/19`. Details: `Testing.md`; release steps: `RELEASING.md`; supported versions and how to report a vulnerability: `SECURITY.md`. |
+| `.github/workflows/` | `ci.yml`: every PR and branch push is tested, packed at a preview version and pushed to GitHub Packages. `release.yml`: a `v*` tag is tested, run through Playwright (`e2e.yml`, release only, not PRs), packed and pushed to nuget.org. Both use the reusable `test.yml` and `pack.yml`. `pages.yml` publishes the docs site, `codeql.yml` and `scorecard.yml` are security scans, `dependabot-automerge.yml` auto-merges minor and patch Dependabot PRs, and `dependabot.yml` covers `master`, `lts/17` and `feature/19`. Details: `Testing.md`; release steps: `RELEASING.md`; supported versions and how to report a vulnerability: `SECURITY.md`. |
 
 ## Commands
 
@@ -79,7 +79,9 @@ npm run watch         # dev loop against a local test instance
 
 Playwright E2E (`Testing/Playwright`, `npx playwright test`) needs a local Umbraco instance on
 `https://localhost:5000` with the credentials in `tests/00-auth.setup.ts`; see `Testing.md`. Don't try to run it
-unless such an instance is running — say so instead.
+unless such an instance is running — say so instead. In GitHub Actions it runs only as part of a release
+(`e2e.yml`, called by
+`release.yml`), never on PRs.
 
 ### Definition of done
 

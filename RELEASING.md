@@ -33,12 +33,15 @@ All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
 1. GitHub → **Releases** → **Draft a new release**.
 2. **Choose a tag**: type the new tag (for example `v17.3.0`), then pick the **target** branch from the table above.
 3. Paste the release notes. Tick **Set as a pre-release** for `-beta` and `-rc` versions.
-4. **Publish release.** This creates the tag, which runs `.github/workflows/release.yml`: test → pack → push to
+4. **Publish release.** This creates the tag, which runs `.github/workflows/release.yml`: test and Playwright E2E
+   → pack → push to
    nuget.org via Trusted Publishing.
 5. Watch the **Release** workflow run. nuget.org can take up to an hour to index and show the new versions.
 
 To check packaging without publishing, run the Release workflow manually (**Actions** → **Release** →
-**Run workflow**) with a version such as `17.3.0-test.1`. It runs on the default branch's copy of the workflow.
+**Run workflow**) with a version such as `18.3.0-test.1`. Pick the branch you're releasing from: the run uses that
+branch's copy of the workflow, and the version's major must match its Umbraco major. The dry run includes the
+Playwright E2E job, so it's also how to check E2E on GitHub before tagging (or `gh workflow run release.yml --ref <branch> -f version=<version>`).
 
 ## After a new major
 
