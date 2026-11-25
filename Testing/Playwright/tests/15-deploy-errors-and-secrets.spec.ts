@@ -161,7 +161,8 @@ test.describe('Deploy errors, secret references and site editing', () => {
         const modal = page.locator('xstatic-edit-site-modal');
         const nameField = page.getByRole('textbox', { name: 'Field for Site Name *' });
         const hostnameInput = page.locator('umb-property[alias="targetHostname"] input').first();
-        const tags = (alias: string) => page.locator(`umb-property[alias="${alias}"] uui-tag`);
+        // Value tags only: umb-tags-input also renders internal uui-tags (#main-tag, #input-width-tracker).
+        const tags = (alias: string) => page.locator(`umb-property[alias="${alias}"] uui-tag.tag`);
 
         try {
             await sites.goto();
