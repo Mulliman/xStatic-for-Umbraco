@@ -38,7 +38,12 @@ if ($UmbracoVersion -like "17.*") {
     dotnet add $InstanceName package clean --version "7.*"
 } elseif ($UmbracoVersion -like "19.*") {
     # Clean 8 is built for Umbraco 18. Its views don't compile on 19 (pickers return collections), so use the 19 pre-release.
-    dotnet add $InstanceName package clean --prerelease
+    # Clean 19.0.0-rc04 and later need Umbraco 19.0.0-rc2, so an rc1 site stays on rc03.
+    if ($UmbracoVersion -eq "19.0.0-rc1") {
+        dotnet add $InstanceName package clean --version "19.0.0-rc03"
+    } else {
+        dotnet add $InstanceName package clean --prerelease
+    }
 } else {
     dotnet add $InstanceName package clean
 }

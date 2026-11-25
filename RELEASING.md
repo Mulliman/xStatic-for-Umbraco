@@ -38,7 +38,7 @@ All 9 packages (`xStatic`, `xStatic.Core`, `xStatic.Client`, `xStatic.Netlify`, 
 5. Watch the **Release** workflow run. nuget.org can take up to an hour to index and show the new versions.
 
 To check packaging without publishing, run the Release workflow manually (**Actions** → **Release** →
-**Run workflow**) with a version such as `18.3.0-test.1`. Pick the branch you're releasing from: the run uses that
+**Run workflow**) with a version such as `19.0.0-test.1`. Pick the branch you're releasing from: the run uses that
 branch's copy of the workflow, and the version's major must match its Umbraco major. The dry run includes the
 Playwright E2E job, so it's also how to check E2E on GitHub before tagging (or `gh workflow run release.yml --ref <branch> -f version=<version>`).
 
