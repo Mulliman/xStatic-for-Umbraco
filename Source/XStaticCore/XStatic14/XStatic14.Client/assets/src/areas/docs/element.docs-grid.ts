@@ -198,7 +198,7 @@ class DocsGrid extends UmbLitElement {
 			position: relative;
 			display: grid;
 			grid-gap: 20px;
-			grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+			grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
 			grid-auto-rows: 1fr;
 		}
 

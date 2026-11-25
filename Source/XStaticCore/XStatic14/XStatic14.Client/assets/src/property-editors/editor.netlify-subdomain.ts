@@ -61,12 +61,14 @@ export class XStaticPropertyEditorNetlifySubdomainElement
 			}
 
 			uui-input {
-				flex: 5;
+				flex: 1 1 auto;
+				min-width: 0;
 				border-right: none;
 			}
 
 			.suffix {
-				flex: 1;
+				flex: 0 0 auto;
+				white-space: nowrap;
 				padding: var(--uui-size-space-2) var(--uui-size-space-4) 0;
 				border: 1px solid var(--uui-input-border-color, var(--uui-color-border));
 				border-left: none;
