@@ -15,6 +15,8 @@ export const xStaticCardStyles = css`
 	.headline {
 		font-size: 1.2rem;
 		padding-top: var(--uui-size-space-2);
+		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 
 	.card-body {

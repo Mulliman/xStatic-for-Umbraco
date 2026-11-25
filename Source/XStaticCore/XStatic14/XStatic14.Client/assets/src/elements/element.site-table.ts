@@ -121,6 +121,7 @@ export class SiteTable extends UmbLitElement {
 
 			.value-cell {
 				--uui-table-cell-padding: 0 var(--uui-size-5);
+				overflow-wrap: anywhere;
 			}
 
 			:host([iscompact]) .icon-cell {

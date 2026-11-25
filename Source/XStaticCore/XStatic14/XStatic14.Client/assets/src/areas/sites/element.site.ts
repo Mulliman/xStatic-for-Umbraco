@@ -242,6 +242,29 @@ class SiteElement extends UmbLitElement {
                 display: block;
                 text-align: center;
             }
+
+            /* A uui-button-group never wraps, so on a narrow card the joined buttons spill out of the box.
+               Below the width that fits all four, split the group into separate buttons that wrap. */
+            .card-body {
+                container-type: inline-size;
+            }
+
+            uui-button-group {
+                max-width: 100%;
+            }
+
+            @container (max-width: 480px) {
+                uui-button-group {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: var(--uui-size-space-2);
+                }
+
+                uui-button-group > uui-button {
+                    --uui-button-border-radius: var(--uui-border-radius-3);
+                }
+            }
         `,
     ];
 }
