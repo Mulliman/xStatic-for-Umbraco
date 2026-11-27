@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +58,7 @@ namespace XStatic.Controllers
 
         [HttpGet("get-deployment-targets")]
         [MapToApiVersion("1.0")]
-        [EndpointName("DeploymentTargets_GetAll")]
+        [XStaticOperationId("DeploymentTargets_GetAll")]
         [EndpointSummary("List deployment targets")]
         [EndpointDescription("Returns all configured deployment targets with their deployer definitions and field values. Requires the xStaticAdmin role when xStatic roles are enabled.")]
         [ProducesResponseType(typeof(IEnumerable<DeploymentTargetModel>), StatusCodes.Status200OK)]
@@ -93,7 +92,7 @@ namespace XStatic.Controllers
 
         [HttpPost("auto-create-deployment-target")]
         [MapToApiVersion("1.0")]
-        [EndpointName("DeploymentTargets_AutoCreate")]
+        [XStaticOperationId("DeploymentTargets_AutoCreate")]
         [EndpointSummary("Auto-create a deployment target")]
         [EndpointDescription("Provisions a remote deployment target using a registered IDeploymentTargetCreator and saves it to xStatic.")]
         [ProducesResponseType(typeof(AutoCreateDeploymentTargetResult), StatusCodes.Status201Created)]
@@ -124,7 +123,7 @@ namespace XStatic.Controllers
 
         [HttpPost("create-deployment-target")]
         [MapToApiVersion("1.0")]
-        [EndpointName("DeploymentTargets_Create")]
+        [XStaticOperationId("DeploymentTargets_Create")]
         [EndpointSummary("Create a deployment target")]
         [EndpointDescription("Creates a new deployment target configuration.")]
         [ProducesResponseType(typeof(DeploymentTargetModel), StatusCodes.Status200OK)]
@@ -144,7 +143,7 @@ namespace XStatic.Controllers
 
         [HttpPost("update-deployment-target")]
         [MapToApiVersion("1.0")]
-        [EndpointName("DeploymentTargets_Update")]
+        [XStaticOperationId("DeploymentTargets_Update")]
         [EndpointSummary("Update a deployment target")]
         [EndpointDescription("Updates an existing deployment target configuration.")]
         [ProducesResponseType(typeof(DeploymentTargetModel), StatusCodes.Status200OK)]
@@ -165,7 +164,7 @@ namespace XStatic.Controllers
 
         [HttpDelete("delete-deployment-target")]
         [MapToApiVersion("1.0")]
-        [EndpointName("DeploymentTargets_Delete")]
+        [XStaticOperationId("DeploymentTargets_Delete")]
         [EndpointSummary("Delete a deployment target")]
         [EndpointDescription("Deletes a deployment target configuration by ID.")]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using OpenIddict.Validation.AspNetCore;
@@ -12,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Umbraco.Cms.Api.Common.Attributes;
 using XStatic.Controllers;
 using XStatic.Controllers.Attributes;
@@ -108,7 +112,7 @@ public class XStaticOpenApiAndAuthTests
     }
 
     [Fact]
-    public void AllControllerActions_HaveUniqueEndpointNames_AndSummariesAndDescriptions()
+    public void AllControllerActions_HaveUniqueOperationIds_AndSummariesAndDescriptions()
     {
         var seenOperationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -123,13 +127,13 @@ public class XStaticOpenApiAndAuthTests
 
             foreach (var method in actionMethods)
             {
-                var endpointName = method.GetCustomAttribute<EndpointNameAttribute>();
+                var operationId = method.GetCustomAttribute<XStaticOperationIdAttribute>();
                 Assert.True(
-                    endpointName != null && !string.IsNullOrWhiteSpace(endpointName.EndpointName),
-                    $"{controller.Name}.{method.Name} is missing [EndpointName]");
+                    operationId != null && !string.IsNullOrWhiteSpace(operationId.OperationId),
+                    $"{controller.Name}.{method.Name} is missing [XStaticOperationId]");
                 Assert.True(
-                    seenOperationIds.Add(endpointName!.EndpointName),
-                    $"Duplicate [EndpointName] '{endpointName.EndpointName}' on {controller.Name}.{method.Name}");
+                    seenOperationIds.Add(operationId!.OperationId),
+                    $"Duplicate [XStaticOperationId] '{operationId.OperationId}' on {controller.Name}.{method.Name}");
 
                 var summary = method.GetCustomAttribute<EndpointSummaryAttribute>();
                 Assert.True(
@@ -150,11 +154,12 @@ public class XStaticOpenApiAndAuthTests
         var filter = new XStaticOpenApiOperationFilter();
         var method = typeof(SitesController).GetMethod(nameof(SitesController.GetById))!;
 
+        // Umbraco 17 sets ApiDescription.GroupName to the API version ("v1") and DocumentName to "xstatic-v1".
         var xstaticOperation = new OpenApiOperation { Responses = new OpenApiResponses() };
         var xstaticContext = new OperationFilterContext(
-            new ApiDescription { GroupName = XStaticOpenApiOperationFilter.ApiName },
+            new ApiDescription { GroupName = "v1" },
             null!,
-            new SchemaRepository(),
+            new SchemaRepository(XStaticOpenApiOperationFilter.ApiName),
             new OpenApiDocument(),
             method);
 
@@ -168,9 +173,9 @@ public class XStaticOpenApiAndAuthTests
 
         var otherOperation = new OpenApiOperation { Responses = new OpenApiResponses() };
         var otherContext = new OperationFilterContext(
-            new ApiDescription { GroupName = "management" },
+            new ApiDescription { GroupName = "v1" },
             null!,
-            new SchemaRepository(),
+            new SchemaRepository("management"),
             new OpenApiDocument(),
             method);
 
@@ -217,5 +222,81 @@ public class XStaticOpenApiAndAuthTests
             Assert.Null(adminRoles);
             Assert.Null(normalRoles);
         }
+    }
+
+    [Fact]
+    public void AllControllerActions_DoNotEmitEndpointNameMetadata()
+    {
+        static void AssertNoEndpointNameAttributes(MemberInfo member, string displayName)
+        {
+            var endpointNameMetadata = member.GetCustomAttributes(inherit: true)
+                .OfType<IEndpointNameMetadata>()
+                .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m.EndpointName));
+            Assert.True(
+                endpointNameMetadata == null,
+                $"{displayName} emits IEndpointNameMetadata ('{endpointNameMetadata?.EndpointName}'), " +
+                "which causes duplicate endpoint name errors under Umbraco's MapDynamicControllerRoute. " +
+                "Use [XStaticOperationId] instead of [EndpointName].");
+
+            var namedRouteAttr = member.GetCustomAttributes(inherit: true)
+                .OfType<IRouteTemplateProvider>()
+                .FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.Name));
+            Assert.True(
+                namedRouteAttr == null,
+                $"{displayName} sets a route Name ('{namedRouteAttr?.Name}'), " +
+                "which causes duplicate endpoint name errors under Umbraco's MapDynamicControllerRoute.");
+        }
+
+        foreach (var controller in AllXStaticControllers)
+        {
+            AssertNoEndpointNameAttributes(controller, controller.Name);
+
+            var actionMethods = controller
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(m => m.GetCustomAttributes().Any(a => a is HttpMethodAttribute))
+                .ToList();
+
+            foreach (var method in actionMethods)
+            {
+                AssertNoEndpointNameAttributes(method, $"{controller.Name}.{method.Name}");
+            }
+        }
+    }
+
+    [Fact]
+    public void DynamicControllerRoute_DoesNotCauseDuplicateEndpointNames_WhenParsingByEndpointName()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddControllers()
+            .AddApplicationPart(typeof(SitesController).Assembly);
+        builder.Services.AddSingleton<NoOpDynamicRouteValueTransformer>();
+
+        using var app = builder.Build();
+        IApplicationBuilder appBuilder = app;
+        appBuilder.UseRouting();
+        appBuilder.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            endpoints.MapDynamicControllerRoute<NoOpDynamicRouteValueTransformer>("{**slug}");
+        });
+        appBuilder.Build();
+
+        var endpointDataSource = app.Services.GetRequiredService<EndpointDataSource>();
+        Assert.Contains(endpointDataSource.Endpoints, e => e.DisplayName?.Contains(nameof(ActionsController), StringComparison.Ordinal) == true);
+
+        var linkParser = app.Services.GetRequiredService<LinkParser>();
+
+        // Mimics UmbracoVirtualPageRoute calling LinkParser.ParsePathByEndpointName on a front-end request,
+        // which initializes EndpointNameAddressScheme across all registered endpoints.
+        var exception = Record.Exception(() =>
+            linkParser.ParsePathByEndpointName("NonExistentEndpoint", new PathString("/")));
+
+        Assert.Null(exception);
+    }
+
+    private sealed class NoOpDynamicRouteValueTransformer : DynamicRouteValueTransformer
+    {
+        public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
+            => new(values);
     }
 }
