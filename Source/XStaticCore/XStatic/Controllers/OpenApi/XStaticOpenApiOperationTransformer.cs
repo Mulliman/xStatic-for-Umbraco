@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using XStatic.Controllers.Attributes;
 
 namespace XStatic.Controllers.OpenApi
 {
@@ -28,10 +28,10 @@ namespace XStatic.Controllers.OpenApi
             var metadata = context.Description.ActionDescriptor.EndpointMetadata;
             var action = context.Description.ActionDescriptor as ControllerActionDescriptor;
 
-            var endpointName = metadata.OfType<IEndpointNameMetadata>().LastOrDefault()?.EndpointName;
-            if (!string.IsNullOrWhiteSpace(endpointName))
+            var operationId = metadata.OfType<XStaticOperationIdAttribute>().LastOrDefault()?.OperationId;
+            if (!string.IsNullOrWhiteSpace(operationId))
             {
-                operation.OperationId = endpointName;
+                operation.OperationId = operationId;
             }
             else if (string.IsNullOrWhiteSpace(operation.OperationId) && action != null)
             {
