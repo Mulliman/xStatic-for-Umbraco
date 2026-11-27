@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +51,7 @@ namespace XStatic.Controllers
 
         [HttpGet("get-settings")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Config_GetSettings")]
+        [XStaticOperationId("Config_GetSettings")]
         [EndpointSummary("Get xStatic runtime settings")]
         [EndpointDescription("Returns global xStatic runtime settings, such as whether xStatic user role enforcement is enabled.")]
         [ProducesResponseType(typeof(XStaticSettings), StatusCodes.Status200OK)]
@@ -68,7 +67,7 @@ namespace XStatic.Controllers
 
         [HttpGet("get-config")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Config_GetConfig")]
+        [XStaticOperationId("Config_GetConfig")]
         [EndpointSummary("Get registered xStatic extensions and export types")]
         [EndpointDescription("Returns all discovered deployers, deployment target creators, export types, generators, transformer factories, file name generators, and post-generation action types.")]
         [ProducesResponseType(typeof(XStaticConfig), StatusCodes.Status200OK)]
@@ -92,7 +91,7 @@ namespace XStatic.Controllers
 
         [HttpPost("create-export-type")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Config_CreateExportType")]
+        [XStaticOperationId("Config_CreateExportType")]
         [EndpointSummary("Create an export type")]
         [EndpointDescription("Creates a new export type combining a generator, transformer factory, and file name generator.")]
         [ProducesResponseType(typeof(ExportTypeModel), StatusCodes.Status200OK)]
@@ -113,7 +112,7 @@ namespace XStatic.Controllers
 
         [HttpPost("update-export-type")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Config_UpdateExportType")]
+        [XStaticOperationId("Config_UpdateExportType")]
         [EndpointSummary("Update an export type")]
         [EndpointDescription("Updates an existing export type.")]
         [ProducesResponseType(typeof(ExportTypeModel), StatusCodes.Status200OK)]
@@ -135,7 +134,7 @@ namespace XStatic.Controllers
 
         [HttpDelete("delete-export-type")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Config_DeleteExportType")]
+        [XStaticOperationId("Config_DeleteExportType")]
         [EndpointSummary("Delete an export type")]
         [EndpointDescription("Deletes an export type by ID.")]
         [ProducesResponseType(StatusCodes.Status200OK)]

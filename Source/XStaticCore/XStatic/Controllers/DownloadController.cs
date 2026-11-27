@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using System.IO;
 using System.IO.Compression;
 using Umbraco.Cms.Api.Common.Attributes;
@@ -31,7 +30,7 @@ namespace XStatic.Controllers
 
         [HttpGet("download-site")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Download_DownloadSite")]
+        [XStaticOperationId("Download_DownloadSite")]
         [EndpointSummary("Download a generated static site as ZIP")]
         [EndpointDescription("Zips the locally stored output directory of the specified static site and streams it as an application/zip download.")]
         [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
