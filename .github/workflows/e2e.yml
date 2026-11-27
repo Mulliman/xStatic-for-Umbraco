@@ -98,16 +98,26 @@ jobs:
             -ArgumentList 'run', '--no-build', '--project', $env:INSTANCE_NAME, '--urls', $env:SITE_URL `
             -RedirectStandardOutput "$siteDir/site.log" -RedirectStandardError "$siteDir/site.err.log"
           try {
-            # The first request runs the unattended install, so allow a few minutes.
+            # Wait for both the Clean Starter Kit front-end (/contact/) and /umbraco to return 200 so the
+            # unattended install and package migration (content, media, dictionary items) have finished
+            # before Playwright starts. Polling /umbraco alone can return 200 mid-migration and cache an
+            # empty dictionary set until Umbraco's cache TTL expires.
             $deadline = (Get-Date).AddMinutes(5)
+            $contactStatus = $null
+            $umbracoStatus = $null
             do {
               Start-Sleep -Seconds 5
               try {
-                $status = (Invoke-WebRequest "$env:SITE_URL/umbraco" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
-              } catch { $status = $null }
-              Write-Host "GET /umbraco -> $status"
-            } until ($status -eq 200 -or $site.HasExited -or (Get-Date) -gt $deadline)
-            if ($status -ne 200) { Get-Content "$siteDir/site.log" -Tail 100; throw 'The test site did not start.' }
+                $contactStatus = (Invoke-WebRequest "$env:SITE_URL/contact/" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
+              } catch { $contactStatus = $null }
+              if ($contactStatus -eq 200) {
+                try {
+                  $umbracoStatus = (Invoke-WebRequest "$env:SITE_URL/umbraco" -SkipCertificateCheck -UseBasicParsing -TimeoutSec 30).StatusCode
+                } catch { $umbracoStatus = $null }
+              }
+              Write-Host "GET /contact/ -> $contactStatus | GET /umbraco -> $umbracoStatus"
+            } until (($contactStatus -eq 200 -and $umbracoStatus -eq 200) -or $site.HasExited -or (Get-Date) -gt $deadline)
+            if ($contactStatus -ne 200 -or $umbracoStatus -ne 200) { Get-Content "$siteDir/site.log" -Tail 100; throw 'The test site did not start.' }
 
             Push-Location Testing/Playwright
             npx playwright test --reporter=list,html
