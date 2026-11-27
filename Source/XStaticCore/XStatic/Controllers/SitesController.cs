@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
@@ -48,7 +47,7 @@ namespace XStatic.Controllers
 
         [HttpGet("get-all")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_GetAll")]
+        [XStaticOperationId("Sites_GetAll")]
         [EndpointSummary("List all static sites")]
         [EndpointDescription("Returns all configured xStatic static sites enriched with root content path, export type name, and stored output folder size.")]
         [ProducesResponseType(typeof(IEnumerable<SiteApiModel>), StatusCodes.Status200OK)]
@@ -69,7 +68,7 @@ namespace XStatic.Controllers
 
         [HttpGet("{staticSiteId:int}")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_GetById")]
+        [XStaticOperationId("Sites_GetById")]
         [EndpointSummary("Get a static site by ID")]
         [EndpointDescription("Returns configuration and build/deploy status for a single xStatic static site.")]
         [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
@@ -91,7 +90,7 @@ namespace XStatic.Controllers
 
         [HttpPost("create")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_Create")]
+        [XStaticOperationId("Sites_Create")]
         [EndpointSummary("Create a static site")]
         [EndpointDescription("Creates a new xStatic static site configuration.")]
         [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
@@ -104,7 +103,7 @@ namespace XStatic.Controllers
 
         [HttpPost("update")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_Update")]
+        [XStaticOperationId("Sites_Update")]
         [EndpointSummary("Update a static site")]
         [EndpointDescription("Updates an existing xStatic static site configuration.")]
         [ProducesResponseType(typeof(SiteApiModel), StatusCodes.Status200OK)]
@@ -117,7 +116,7 @@ namespace XStatic.Controllers
 
         [HttpDelete("delete")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_Delete")]
+        [XStaticOperationId("Sites_Delete")]
         [EndpointSummary("Delete a static site")]
         [EndpointDescription("Deletes an xStatic static site configuration by ID.")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -128,7 +127,7 @@ namespace XStatic.Controllers
 
         [HttpDelete("clear-stored-site")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_ClearStoredSite")]
+        [XStaticOperationId("Sites_ClearStoredSite")]
         [EndpointSummary("Clear generated files for a static site")]
         [EndpointDescription("Deletes locally stored generated output files for the specified static site while preserving protected paths, then returns the updated site list.")]
         [ProducesResponseType(typeof(IEnumerable<SiteApiModel>), StatusCodes.Status200OK)]
@@ -145,7 +144,7 @@ namespace XStatic.Controllers
 
         [HttpGet("get-site-dependencies")]
         [MapToApiVersion("1.0")]
-        [EndpointName("Sites_GetDependencies")]
+        [XStaticOperationId("Sites_GetDependencies")]
         [EndpointSummary("List site configuration dependencies")]
         [EndpointDescription("Returns available export types, safe post-generation action summaries, and safe deployment target summaries for configuring a static site.")]
         [ProducesResponseType(typeof(SiteDependenciesModel), StatusCodes.Status200OK)]
