@@ -135,6 +135,7 @@ The whole run is coordinated by `Generator/Processes/RebuildProcess.cs` and `Gen
   endpoints are open to normal users. That's intended (confirmed by the maintainer); don't tighten it. Every new
   endpoint needs one of the two attributes.
 - OpenAPI document (Swashbuckle on Umbraco 17): `/umbraco/swagger/xstatic-v1/swagger.json`. Umbraco 18 moves it to `/umbraco/openapi/xstatic-v1.json`.
+- **Never use `[EndpointName]` or `Name =` on `[Http*]` / `[Route]` attributes on controllers.** Umbraco registers a `MapDynamicControllerRoute`, which causes MVC to duplicate `IEndpointNameMetadata` onto inert endpoints and throw `InvalidOperationException` on front-end form posts (issue #146). Use `[XStaticOperationId("...")]` for OpenAPI `operationId`s instead.
 
 ### Backoffice client
 Lit source in `XStatic14/XStatic14.Client/assets/src`. The layout and conventions are in the wiki's

@@ -126,6 +126,7 @@ export default defineConfig({
       ['chromium-typed-fields-ai', /14-typed-fields-and-ai-output\.spec\.ts/],
       // The secret-reference test skips itself unless the FTP or Netlify deployer is installed.
       ['chromium-deploy-errors-secrets', /15-deploy-errors-and-secrets\.spec\.ts/],
+      ['chromium-host-site-smoke', /16-host-site-smoke\.spec\.ts/],
     ].map(([name, testMatch]) => ({
       name: name as string,
       testMatch: testMatch as RegExp,

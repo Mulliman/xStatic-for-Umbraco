@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Linq;
 using System.Reflection;
+using XStatic.Controllers.Attributes;
 
 namespace XStatic.Controllers.Swagger
 {
@@ -17,7 +16,10 @@ namespace XStatic.Controllers.Swagger
 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (!string.Equals(context.ApiDescription.GroupName, ApiName, System.StringComparison.OrdinalIgnoreCase))
+            var documentName = !string.IsNullOrWhiteSpace(context.DocumentName)
+                ? context.DocumentName
+                : context.ApiDescription.GroupName;
+            if (!string.Equals(documentName, ApiName, System.StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -28,10 +30,10 @@ namespace XStatic.Controllers.Swagger
                 return;
             }
 
-            var endpointName = methodInfo.GetCustomAttribute<EndpointNameAttribute>()?.EndpointName;
-            if (!string.IsNullOrWhiteSpace(endpointName))
+            var operationId = methodInfo.GetCustomAttribute<XStaticOperationIdAttribute>()?.OperationId;
+            if (!string.IsNullOrWhiteSpace(operationId))
             {
-                operation.OperationId = endpointName;
+                operation.OperationId = operationId;
             }
             else if (string.IsNullOrWhiteSpace(operation.OperationId))
             {
